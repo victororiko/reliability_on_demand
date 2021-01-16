@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.2" />
+    <PackageReference Include="Microsoft.Kusto.Client" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>

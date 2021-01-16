@@ -1,13 +1,16 @@
+using reliability_on_demand.Helpers;
+using Microsoft.Extensions.Options;
+using Kusto.Data.Net.Client;
+
 namespace reliability_on_demand.DataLayer
 {
     public class KustoService
     {
-        KustoCredential _credentials;
+        KustoCredentials _credentials;
 
         public KustoService(IOptions<KustoCredentials> credentials)
         {
             _credentials = credentials.Value;
-            _autotriagetool = new AutoTriageTool(credentials);
         }
 
         public string GetAllReleases()
