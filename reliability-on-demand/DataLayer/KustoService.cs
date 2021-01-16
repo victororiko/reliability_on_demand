@@ -4,7 +4,7 @@ using Kusto.Data.Net.Client;
 
 namespace reliability_on_demand.DataLayer
 {
-    public class KustoService
+    public class KustoService : IKustoService
     {
         KustoCredentials _credentials;
 
