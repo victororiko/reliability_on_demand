@@ -12,8 +12,14 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace reliability_on_demand.Controllers
 {
+    //  [Authorize(Roles = @"redmond\osgdataextended, ntdev\osgdataextendedntdev, wingroup\osgdataextendedwingroup")]
+    //  [Authorize(Roles = @"redmond\osgdataextended, wingroup\osgdataextendedwingroup")]
+    //[Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
     public class DataController : Controller
     {
         private IKustoService _kustoservice;
@@ -31,7 +37,7 @@ namespace reliability_on_demand.Controllers
         /// <url>https://reliabilityondemand.azurewebsites.net/api/Data/GetAllReleases</url>
         /// <security type="oauth2" name="oauth">
         /// </security>
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         public string GetAllReleases()
         {
