@@ -15,7 +15,11 @@ namespace reliability_on_demand.DataLayer
 
         public string GetAllReleases()
         {
-            return GetKustoResults($"GetJSON_GetAllReleasesForPromotedBugs()");
+            // Mock JSON 
+            string mockJSON = "[{\"Release\": \"Manganese\"},{\"Release\": \"19H1\"},{\"Release\": \"Vibranium\"},{\"Release\": \"Iron\"},{\"Release\": \"Vanadium\"}]";
+            return mockJSON;
+
+            //return GetKustoResults($"GetJSON_GetAllReleasesForPromotedBugs()");
         }
 
         public string GetKustoResults(string query)

@@ -32,7 +32,7 @@ namespace reliability_on_demand.Controllers
         /// <security type="oauth2" name="oauth">
         /// </security>
         [Authorize]
-        [HttpGet("[action]")]
+        [HttpGet]
         public string GetAllReleases()
         {
             string str = this._kustoservice.GetAllReleases();
