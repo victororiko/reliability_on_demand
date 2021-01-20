@@ -1,3 +1,7 @@
+/*
+ * Project created using: https://docs.microsoft.com/en-us/aspnet/core/client-side/spa/react?view=aspnetcore-5.0&tabs=visual-studio
+ */
+
 // To better understand entry point go here - https://app.pluralsight.com/course-player?clipId=f0dd38a1-c780-4b43-9f53-b9fc6be24c01
 // Adapted from: https://microsoft.visualstudio.com/OS.Fun/_git/reliability.cloud?path=%2Freliability.cloud.ui%2FProgram.cs
 using Microsoft.AspNetCore;
