@@ -22,13 +22,12 @@ namespace reliability_on_demand.Controllers
     [ApiController]
     public class DataController : Controller
     {
-        //private IKustoService _kustoservice;
+        private IKustoService _kustoservice;
 
-        //public DataController(IKustoService kustoservice)
-        //{
-        //    this._kustoservice = kustoservice;
-        //}
-        public DataController() { }
+        public DataController(IKustoService kustoservice)
+        {
+            this._kustoservice = kustoservice;
+        }
         /// <summary>
         /// Reliability Metrics Monitor GetAllReleases
         /// </summary>
@@ -42,8 +41,7 @@ namespace reliability_on_demand.Controllers
         [HttpGet]
         public string GetAllReleases()
         {
-            //string str = this._kustoservice.GetAllReleases();
-            string str = "hello from DataController";
+            string str = this._kustoservice.GetAllReleases();
             return str;
         }
 
