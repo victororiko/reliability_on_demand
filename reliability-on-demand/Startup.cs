@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -5,6 +7,9 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using reliability_on_demand.DataLayer;
+using reliability_on_demand.Extensions;
+using reliability_on_demand.Helpers;
 
 namespace reliability_on_demand
 {
@@ -22,6 +27,40 @@ namespace reliability_on_demand
         {
 
             services.AddControllers();
+
+            services.AddOptions();
+            services.AddSingleton(Configuration);
+            services.Configure<ValueSettings>(Configuration);
+            services.Configure<KustoCredentials>(Configuration);
+
+            // KustoClusterEndpoint has different path as it is defined in appconfig.json file
+            services.PostConfigure<KustoCredentials>(options =>
+            {
+                if (options.KustoClusterEndpoint == null)
+                {
+                    options.KustoClusterEndpoint = Configuration.GetValue<string>("Kusto:KustoClusterEndpoint");
+                }
+            });
+
+            // add database context
+            //services.AddDbContext<WatsonExtContext>();
+
+            // add services
+            //services.AddScoped<ISQLService, SQLService>();
+            //services.AddScoped<IAzureService, AzureService>();
+            //services.AddScoped<IVSOService, VSOService>();
+
+            //add AD auth
+            services.AddAuthentication(sharedOptions =>
+            {
+                sharedOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                sharedOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            })
+            .AddAzureAd(options => Configuration.Bind("AzureAd", options))
+            .AddCookie();
+
+            // add kusto service
+            services.AddScoped<IKustoService, KustoService>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
