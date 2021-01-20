@@ -5,18 +5,7 @@
  * Why? The full path maps back to exactly how the client calls the endpoint - making future debugging easier :) 
  */
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using reliability_on_demand.DataLayer;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace reliability_on_demand.Controllers

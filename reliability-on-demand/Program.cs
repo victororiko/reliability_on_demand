@@ -1,17 +1,11 @@
 // To better understand entry point go here - https://app.pluralsight.com/course-player?clipId=f0dd38a1-c780-4b43-9f53-b9fc6be24c01
 // Adapted from: https://microsoft.visualstudio.com/OS.Fun/_git/reliability.cloud?path=%2Freliability.cloud.ui%2FProgram.cs
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using reliability_on_demand.Extensions;
-using Azure.Identity;
+using System.IO;
 
 
 namespace reliability_on_demand
