@@ -1,3 +1,5 @@
+// To better understand entry point go here - https://app.pluralsight.com/course-player?clipId=f0dd38a1-c780-4b43-9f53-b9fc6be24c01
+// Adapted from: https://microsoft.visualstudio.com/OS.Fun/_git/reliability.cloud?path=%2Freliability.cloud.ui%2FProgram.cs
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,6 +34,7 @@ namespace reliability_on_demand
                     var builtConfig = config.Build();
                     var settings = builtConfig.GetSection("KeyVault").Get<KeyVaultSettings>();
 
+                    // reference documentation - https://docs.microsoft.com/en-us/aspnet/core/security/key-vault-configuration?view=aspnetcore-5.0#use-managed-identities-for-azure-resources
                     config.AddAzureKeyVault(
                         settings.Vault, settings.ClientId, settings.ClientSecret);
 

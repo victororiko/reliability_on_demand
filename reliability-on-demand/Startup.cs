@@ -1,3 +1,5 @@
+// Adapted from: https://microsoft.visualstudio.com/OS.Fun/_git/reliability.cloud?path=%2Freliability.cloud.ui%2FStartup.cs
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -42,6 +44,7 @@ namespace reliability_on_demand
                 }
             });
 
+            // Following code commented because it would be used later in the project when we need to add other DBs
             // add database context
             //services.AddDbContext<WatsonExtContext>();
 

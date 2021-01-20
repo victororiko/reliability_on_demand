@@ -1,4 +1,9 @@
 ﻿// To understand this page better - please refer to: https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-5.0#attribute-routing-for-rest-apis
+/* Please see - to add a new method/action please follow these guidelines:
+ * Use a full path like [Route("api/Data/GetAllReleases")]  
+ * Not a tokenized path like [Route("api/[controller]/GetAllReleases")]
+ * Why? The full path maps back to exactly how the client calls the endpoint - making future debugging easier :) 
+ */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;

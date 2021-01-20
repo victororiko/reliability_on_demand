@@ -1,3 +1,4 @@
+// taken from: https://microsoft.visualstudio.com/OS.Fun/_git/reliability.cloud?path=%2Freliability.cloud.ui%2FDataLayer%2FKustoService.cs
 using reliability_on_demand.Helpers;
 using Microsoft.Extensions.Options;
 using Kusto.Data.Net.Client;

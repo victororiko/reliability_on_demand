@@ -1,3 +1,4 @@
+// taken from: https://microsoft.visualstudio.com/OS.Fun/_git/reliability.cloud?path=%2Freliability.cloud%2FKustoCredentials.cs
 using Kusto.Data;
 
 namespace reliability_on_demand.Helpers
