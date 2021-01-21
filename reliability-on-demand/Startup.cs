@@ -103,9 +103,10 @@ namespace reliability_on_demand
 
                 if (env.IsDevelopment())
                 {
-                    // Uncomment if you want to open a browser each time
-                    //spa.UseReactDevelopmentServer(npmScript: "start");
-                    spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                    // Default: Use this if you're making changes on React + ASP.NET
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                    // Use this if you're making a lot of changes on just ASP.NET C# code
+                    //spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
                 }
             });
         }
