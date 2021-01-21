@@ -4,6 +4,10 @@
 # App-specific files
 appsettings.json
 
+# IDE-specific files
+.vscode
+
+
 # User-specific files
 *.suo
 *.user
