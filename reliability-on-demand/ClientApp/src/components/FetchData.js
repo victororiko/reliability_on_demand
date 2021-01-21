@@ -5,14 +5,14 @@ export class FetchData extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { forecasts: [], loading: true };
+    this.state = { all_releases: [], loading: true };
   }
 
   componentDidMount() {
-    this.populateWeatherData();
+    this.populateReleaseData();
   }
 
-  static renderForecastsTable(forecasts) {
+  static renderReleasesTable(all_releases) {
     return (
       <table className="table table-striped" aria-labelledby="tabelLabel">
         <thead>
@@ -21,9 +21,9 @@ export class FetchData extends Component {
           </tr>
         </thead>
         <tbody>
-          {forecasts.map((forecast) => (
+          {all_releases.map((element) => (
             <tr>
-              <td>{forecast.Release}</td>
+              <td>{element.Release}</td>
             </tr>
           ))}
         </tbody>
@@ -37,21 +37,21 @@ export class FetchData extends Component {
         <em>Loading...</em>
       </p>
     ) : (
-      FetchData.renderForecastsTable(this.state.forecasts)
+      FetchData.renderReleasesTable(this.state.all_releases)
     );
 
     return (
       <div>
-        <h1 id="tabelLabel">Weather forecast</h1>
-        <p>This component demonstrates fetching data from the server.</p>
+        <h1 id="tabelLabel">Data from Kusto</h1>
+        <p>List of all Releases stored in our Kusto instance.</p>
         {contents}
       </div>
     );
   }
 
-  async populateWeatherData() {
+  async populateReleaseData() {
     const response = await fetch("api/Data/GetAllReleases");
     const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
+    this.setState({ all_releases: data, loading: false });
   }
 }
