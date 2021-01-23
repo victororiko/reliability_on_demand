@@ -11,10 +11,6 @@ export class Home extends Component {
           To get started click on Fetch data to see a list of releases from
           Kusto.
         </p>
-        <p>To see the same data in JSON - </p>
-        <a href="https://localhost:44335/api/Data/GetAllReleases">
-          https://localhost:44335/api/Data/GetAllReleases
-        </a>
       </div>
     );
   }
