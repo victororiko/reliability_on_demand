@@ -6,8 +6,8 @@ namespace reliability_on_demand.Helpers
     // https://kusto.azurewebsites.net/docs/api/netfx/about-the-sdk.html?q=sdk 
     public class KustoCredentials
     {
-        public string KustoAppId { get; set; }
-        public string KustoAppKey { get; set; }
+        public string KustoAppIdRelCloud { get; set; }
+        public string KustoAppKeyRelCloud { get; set; }
         public string KustoClusterEndpoint { get; set; }
 
         public KustoConnectionStringBuilder KustoConnection
@@ -20,8 +20,8 @@ namespace reliability_on_demand.Helpers
                 return new KustoConnectionStringBuilder(KustoClusterEndpoint)
                 {
                     FederatedSecurity = true,
-                    ApplicationClientId = KustoAppId,
-                    ApplicationKey = KustoAppKey,
+                    ApplicationClientId = KustoAppIdRelCloud,
+                    ApplicationKey = KustoAppKeyRelCloud,
                     Authority = "microsoft.com"
                 };
             }
