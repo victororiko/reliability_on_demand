@@ -43,15 +43,6 @@ namespace reliability_on_demand
                 }
             });
 
-            // Following code commented because it would be used later in the project when we need to add other DBs
-            // add database context
-            //services.AddDbContext<WatsonExtContext>();
-
-            // add services
-            //services.AddScoped<ISQLService, SQLService>();
-            //services.AddScoped<IAzureService, AzureService>();
-            //services.AddScoped<IVSOService, VSOService>();
-
             //add AD auth
             services.AddAuthentication(sharedOptions =>
             {
