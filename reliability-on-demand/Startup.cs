@@ -52,8 +52,10 @@ namespace reliability_on_demand
             .AddAzureAd(options => Configuration.Bind("AzureAd", options))
             .AddCookie();
 
-            // add kusto service
+            // add backend DB services
             services.AddScoped<IKustoService, KustoService>();
+            services.AddScoped<ISQLService, SQLService>();
+
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
