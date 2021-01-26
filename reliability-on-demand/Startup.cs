@@ -53,6 +53,7 @@ namespace reliability_on_demand
             .AddCookie();
 
             // add backend DB services
+            services.AddDbContext<WatsonExtContext>();
             services.AddScoped<IKustoService, KustoService>();
             services.AddScoped<ISQLService, SQLService>();
 

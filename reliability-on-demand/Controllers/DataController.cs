@@ -4,6 +4,7 @@
  * Not a tokenized path like [Route("api/[controller]/GetAllReleases")]
  * Why? The full path maps back to exactly how the client calls the endpoint - making future debugging easier :) 
  */
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using reliability_on_demand.DataLayer;
 
@@ -17,10 +18,12 @@ namespace reliability_on_demand.Controllers
     public class DataController : Controller
     {
         private IKustoService _kustoservice;
+        private ISQLService _sqlservice;
 
-        public DataController(IKustoService kustoservice)
+        public DataController(IKustoService kustoservice, ISQLService sqlservice)
         {
             this._kustoservice = kustoservice;
+            this._sqlservice = sqlservice;
         }
         /// <summary>
         /// Reliability Metrics Monitor GetAllReleases
@@ -39,5 +42,11 @@ namespace reliability_on_demand.Controllers
             return str;
         }
 
+        [Route("api/Data/GetAllUnifiedConfigs")]
+        [HttpGet]
+        public string GetAllUnifiedConfigs()
+        {
+            return "hello unified config";
+        }
     }
 }
