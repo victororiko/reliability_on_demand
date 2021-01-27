@@ -7,7 +7,7 @@ namespace reliability_on_demand.Extensions
         public string AzureStorageConnectionString { get; set; }
         public string KustoAppId { get; set; }
         public string KustoAppKey { get; set; }
-        public string SQLConnectionString { get; set; }
+        public string relreportingdbsqlconn { get; set; }
         public string VSOAccessToken { get; set; }
         public string VsoClientAssertion { get; set; }
         public string ClientId { get; set; }

@@ -14,11 +14,15 @@ namespace reliability_on_demand.DataLayer
             _context = context;
         }
 
+        public string GetAllUnifiedConfigs()
+        {
+            return _context.GetAllUnifiedConfigs();
+        }
+
         public List<Guid> GetStackHashCabs(StackInquiry inquiry)
         {
             return _context.GetStackHashCabs(inquiry);
         }
-
 
         public int LogRelCloudQuery<T>(string username, string url, string access, T payload)
         {

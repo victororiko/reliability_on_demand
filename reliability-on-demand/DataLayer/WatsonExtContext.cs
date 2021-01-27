@@ -1,10 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using reliability_on_demand.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace reliability_on_demand.DataLayer
@@ -15,7 +20,7 @@ namespace reliability_on_demand.DataLayer
 
         public WatsonExtContext(IOptions<ValueSettings> valueSettings, DbContextOptions options) : base(options)
         {
-            connectionString = valueSettings.Value.SQLConnectionString;
+            connectionString = valueSettings.Value.relreportingdbsqlconn;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -63,7 +68,6 @@ namespace reliability_on_demand.DataLayer
 
             return _params.ToArray();
         }
-
         
         public List<Guid> GetStackHashCabs(StackInquiry inquiry)
         {
@@ -143,6 +147,48 @@ namespace reliability_on_demand.DataLayer
             cmd.ExecuteNonQuery();
         }
 
-        
+        public string GetAllUnifiedConfigs()
+        {
+            return GetSQLResults("SELECT * FROM [dbo].[RELUnifiedConfig]");
+        }
+
+        public string GetSQLResults(string SQLquery)
+        {
+            // ensure that connection is open
+            this.Database.OpenConnection();
+
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = SQLquery;
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                List<RelUnifiedConfig> configList = new List<RelUnifiedConfig>();
+                configList = DataReaderMapToList<RelUnifiedConfig>(reader);
+
+                string json = JsonConvert.SerializeObject(configList);
+                return json;
+            }
+
+        }
+
+        public List<T> DataReaderMapToList<T>(IDataReader dr)
+        {
+            List<T> list = new List<T>();
+            T obj = default(T);
+            while (dr.Read())
+            {
+                obj = Activator.CreateInstance<T>();
+                foreach (PropertyInfo prop in obj.GetType().GetProperties())
+                {
+                    if (!object.Equals(dr[prop.Name], DBNull.Value))
+                    {
+                        prop.SetValue(obj, dr[prop.Name], null);
+                    }
+                }
+                list.Add(obj);
+            }
+            return list;
+        }
+
     }
 }

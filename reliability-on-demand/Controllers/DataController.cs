@@ -46,7 +46,7 @@ namespace reliability_on_demand.Controllers
         [HttpGet]
         public string GetAllUnifiedConfigs()
         {
-            return "hello unified config";
+            return this._sqlservice.GetAllUnifiedConfigs();
         }
     }
 }
