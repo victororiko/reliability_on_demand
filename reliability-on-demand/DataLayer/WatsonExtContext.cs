@@ -7,9 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace reliability_on_demand.DataLayer
@@ -28,76 +26,6 @@ namespace reliability_on_demand.DataLayer
             base.OnConfiguring(optionsBuilder);
 
             optionsBuilder.UseSqlServer(connectionString);
-        }
-
-        private SqlParameter[] CreateCommonInquiryParamList(StackInquiry inquiry)
-        {
-            List<SqlParameter> _params = new List<SqlParameter>();
-
-            _params.Add(new SqlParameter("@failurehash", inquiry.FailureHash.ToString()));
-
-            if (!string.IsNullOrEmpty(inquiry.ProcessName))
-            {
-                _params.Add(new SqlParameter("@processname", inquiry.ProcessName));
-            }
-
-            if (!string.IsNullOrEmpty(inquiry.PackageVersion))
-            {
-                _params.Add(new SqlParameter("@packageversion", inquiry.PackageVersion));
-            }
-
-            if (!string.IsNullOrEmpty(inquiry.Branch))
-            {
-                _params.Add(new SqlParameter("@branch", inquiry.Branch));
-            }
-
-            if (inquiry.MinBuild != null)
-            {
-                _params.Add(new SqlParameter("@minbuild", inquiry.MinBuild.Value));
-            }
-
-            if (inquiry.MaxBuild != null)
-            {
-                _params.Add(new SqlParameter("@maxbuild", inquiry.MaxBuild.Value));
-            }
-
-            if (inquiry.Frame != null && inquiry.Frame.ID != 0)
-            {
-                _params.Add(new SqlParameter("@category", inquiry.Frame.ID));
-            }
-
-            return _params.ToArray();
-        }
-        
-        public List<Guid> GetStackHashCabs(StackInquiry inquiry)
-        {
-            List<Guid> results = new List<Guid>();
-
-            //ensure that connection is open
-            this.Database.OpenConnection();
-
-            var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetStackHashCabs";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-
-            cmd.Parameters.Add(new SqlParameter("@stackhash", inquiry.StackHash));
-
-            if (inquiry.CabGuid != null)
-            {
-                cmd.Parameters.Add(new SqlParameter("@cabguid", inquiry.CabGuid.Value.ToString()));
-            }
-
-            cmd.Parameters.AddRange(CreateCommonInquiryParamList(inquiry));
-
-            using (var reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    results.Add(reader.GetGuid(0));
-                }
-            }
-
-            return results;
         }
 
         public int LogRelCloudQuery<T>(string username, string url, string access = "post", T payload = default(T))
