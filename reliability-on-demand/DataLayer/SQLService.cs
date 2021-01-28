@@ -15,14 +15,14 @@
             return _context.GetAllUnifiedConfigs();
         }
 
-        public int LogRelCloudQuery<T>(string username, string url, string access, T payload)
+        public int LogRelOnDemandQuery<T>(string username, string url, string access, T payload)
         {
-            return _context.LogRelCloudQuery(username, url, access, payload);
+            return _context.LogRelOnDemandQuery(username, url, access, payload);
         }
 
-        public void UpdateRelCloudQuery(int id, bool status, string exception)
+        public void UpdateRelOnDemandQuery(int id, bool status, string exception)
         {
-            _context.UpdateRelCloudQuery(id, status, exception);
+            _context.UpdateRelOnDemandQuery(id, status, exception);
         }
     }
 }

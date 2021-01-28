@@ -28,13 +28,13 @@ namespace reliability_on_demand.DataLayer
             optionsBuilder.UseSqlServer(connectionString);
         }
 
-        public int LogRelCloudQuery<T>(string username, string url, string access = "post", T payload = default(T))
+        public int LogRelOnDemandQuery<T>(string username, string url, string access = "post", T payload = default(T))
         {
             //ensure that connection is open
             this.Database.OpenConnection();
 
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.LogRelCloudQuery";
+            cmd.CommandText = "dbo.LogRelOnDemandQuery";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
             cmd.Parameters.Add(new SqlParameter("@username", username));
@@ -59,13 +59,13 @@ namespace reliability_on_demand.DataLayer
             return id != null ? int.Parse(id.ToString()) : -1;
         }
 
-        public void UpdateRelCloudQuery(int queryID, bool status = true, string exception = null)
+        public void UpdateRelOnDemandQuery(int queryID, bool status = true, string exception = null)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
 
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.UpdateRelCloudQuery";
+            cmd.CommandText = "dbo.UpdateRelOnDemandQuery";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
             cmd.Parameters.Add(new SqlParameter("@queryID", queryID));
