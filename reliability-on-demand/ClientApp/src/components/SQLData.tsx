@@ -21,7 +21,7 @@ export class SQLData extends Component<MyProps,MyState> {
     this.populateConfigData();
   }
 
-  renderReleasesTable(all_configs: any[]) {
+  renderConfigsTable(all_configs: any[]) {
     return (
       <table className="table table-striped" aria-labelledby="tabelLabel">
         <thead>
@@ -54,7 +54,7 @@ export class SQLData extends Component<MyProps,MyState> {
         <em>Loading...</em>
       </p>
     ) : (
-      this.renderReleasesTable(this.state.all_configs)
+      this.renderConfigsTable(this.state.all_configs)
     );
 
     return (
