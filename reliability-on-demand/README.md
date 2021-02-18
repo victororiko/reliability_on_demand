@@ -1,4 +1,27 @@
+Here's the overall code flow + a few key points to keep in mind: <br>
+### Server
+Program.cs --> Startup.cs --> ClientApp
+### Client
+ClientApp --> index.tsx --> Layout.tsx --> components folder 
+- components folder contains all isolated components
+- each component has a both typescript + HTML 
+- a component is transpiled (.tsx --> .js + html) using babel 
+- run npm scripts as follows
+```
+cd Client
+npm start
+```
+<br>
+
+To add a new component follow these guidelines: 
+
+
+# ClientApp (React)
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
+
+**Note**<br>
+You may notice a mix of Javascript and Typescript files.<br> 
+That's ok, Typescript is a superset of Javascript, and transpiles into Javascript  
 
 Below you will find some information on how to perform common tasks.<br>
 You can find the most recent version of this guide [here](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md).
@@ -140,7 +163,7 @@ my-app/
 For the project to build, **these files must exist with exact filenames**:
 
 - `public/index.html` is the page template;
-- `src/index.js` is the JavaScript entry point.
+- `src/index.js` is the JavaScript entry point (.tsx works as well)
 
 You can delete or rename the other files.
 
