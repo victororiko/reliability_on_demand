@@ -20,6 +20,7 @@
     "jsx": "react"
   },
   "include": [
-    "src"
-, "data/UnifiedConfig.ts"  ]
+    "src",
+    "data/UnifiedConfig.ts"
+  ]
 }
