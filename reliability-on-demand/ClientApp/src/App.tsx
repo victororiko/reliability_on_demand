@@ -8,17 +8,24 @@ import { About } from "./components/About";
 
 import "./custom.css";
 import registerServiceWorker from "./registerServiceWorker";
+import { useLocation } from "react-router-dom";
 
-export default class App extends Component {
-  static displayName = App.name;
+// A custom hook that builds on useLocation to parse
+// the query string for you.
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
-  render() {
+export const App = () => {
+  let query = useQuery();
+
+  
     return (
       <Layout>
         <Switch>
           {/* This is how you route to a component passing in properties */}
           <Route path="/about">
-            <About name="Test User" />
+            <About name={query.get("name")} />
           </Route>
           {/* Place more specific routes on top, and more relaxed 
           routes like / in the bottom. Swith will take the first 
@@ -38,7 +45,7 @@ export default class App extends Component {
         </Switch>
       </Layout>
     );
-  }
+  
 }
 
 registerServiceWorker();
