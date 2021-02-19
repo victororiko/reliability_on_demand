@@ -1,14 +1,14 @@
 import * as React from 'react';
 
 export interface IAboutProps {
-    name:string | null;
+    // name:string | null;
 }
 
-export function About (props: IAboutProps) {
+export function About (props: any) {
   return (
     <div>
       About page
-      name = {props.name}
+      All props = {JSON.stringify(props)}
     </div>
   );
 }

@@ -40,7 +40,7 @@ export class NavMenu extends Component {
                   <NavLink tag={Link} className="text-dark" to="/sql-data?name=SQL">SQL data</NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/about?name=About" search="?hello=world">About</NavLink>
+                  <NavLink tag={Link} className="text-dark" to="/about" search="?hello=world">About</NavLink>
                 </NavItem>
               </ul>
             </Collapse>
