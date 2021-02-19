@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { Component, ReactElement } from "react";
 import { Container } from "reactstrap";
 import { NavMenu } from "./NavMenu";
 
