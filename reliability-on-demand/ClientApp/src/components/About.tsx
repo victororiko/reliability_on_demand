@@ -11,7 +11,8 @@ export function About (props: any) {
   return (
     <div>
       <h1>About</h1>
-      <h3>All params passed in = {JSON.stringify(params)}</h3>
+      <h3>All params passed in</h3>
+      <pre><code>{JSON.stringify(params,null, ' ')}</code></pre>
     </div>
   );
 }
