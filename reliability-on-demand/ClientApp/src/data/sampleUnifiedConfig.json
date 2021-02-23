@@ -1,0 +1,12 @@
+[
+    {
+        "ConfigID": "14d8cb5f-c716-4cfa-9b8d-27e598f7adbe",
+        "CreationDate": "2020-09-01T18:51:18.477",
+        "LastCacheDate": "0001-01-01T00:00:00",
+        "ExpiryDate": "2020-10-01T18:51:18.477",
+        "ConfigName": "TestConfig1",
+        "OwnerContact": "cosreldata",
+        "OwnerTeam": "PH Reliability",
+        "CacheFrequency": 2
+    }
+]

@@ -1,9 +1,17 @@
 import React, { Component } from "react";
 
-export class FetchData extends Component {
-  static displayName = FetchData.name;
+type MyProps = {
+  // message:string;
+}
+type MyState = {
+  all_releases: any[],
+  loading:boolean;
+};
 
-  constructor(props) {
+
+export class KustoData extends Component<MyProps,MyState> {
+
+  constructor(props:any) {
     super(props);
     this.state = { all_releases: [], loading: true };
   }
@@ -12,7 +20,7 @@ export class FetchData extends Component {
     this.populateReleaseData();
   }
 
-  static renderReleasesTable(all_releases) {
+  static renderReleasesTable(all_releases: any[]) {
     return (
       <table className="table table-striped" aria-labelledby="tabelLabel">
         <thead>
@@ -37,7 +45,7 @@ export class FetchData extends Component {
         <em>Loading...</em>
       </p>
     ) : (
-      FetchData.renderReleasesTable(this.state.all_releases)
+      KustoData.renderReleasesTable(this.state.all_releases)
     );
 
     return (
