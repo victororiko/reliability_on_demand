@@ -20,6 +20,7 @@ steps:
 - task: NuGetCommand@2
   displayName: 'NuGet restore'
   inputs:
+    command: restore
     restoreSolution: '$(solution)'
     feedsToUse: config
     nugetConfigPath: reliability.on.demand/NuGet.config
