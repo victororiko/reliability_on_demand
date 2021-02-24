@@ -18,10 +18,12 @@ steps:
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
+  displayName: 'NuGet restore'
   inputs:
-    command: 'restore'
     restoreSolution: '$(solution)'
-    feedsToUse: 'select'
+    feedsToUse: config
+    nugetConfigPath: reliability.on.demand/NuGet.config
+    externalFeedCredentials: KustoNuGet
 
 - task: VSBuild@1
   inputs:
