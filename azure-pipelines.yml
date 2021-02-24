@@ -21,17 +21,6 @@ variables:
 steps:
 - task: NuGetToolInstaller@1
 
-# Restore from a feed in a different organization
-- task: NuGetCommand@2
-  inputs:
-    command: 'restore'
-    feedsToUse: config
-    nugetConfigPath: ./nuget.config
-    restoreSolution: '**/*.sln'
-    externalFeedCredentials: 'KustoNuGet'
-    noCache: true
-  continueOnError: true
-
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
