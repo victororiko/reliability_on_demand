@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react'
+import * as React from 'react'
 
 interface Props {
   
 }
 
-export const Home = (props: Props) : ReactElement => {
+export const Home = (props: Props) : React.ReactElement => {
   console.log(props);
   return (
     <div>

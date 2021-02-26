@@ -1,4 +1,4 @@
-import React, { Component, ReactElement } from "react";
+import * as React from "react";
 import { SampleConfig } from "../data/UnifiedConfig";
 type MyProps = {
     // message:string;
@@ -8,7 +8,7 @@ type MyState = {
     loading:boolean;
 };
 
-export class SQLData extends Component<MyProps,MyState> {
+export class SQLData extends React.Component<MyProps,MyState> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -48,7 +48,7 @@ export class SQLData extends Component<MyProps,MyState> {
     );
   }
 
-  render(): ReactElement {
+  render(): React.ReactElement {
     let contents = this.state.loading ? (
       <p>
         <em>Loading...</em>

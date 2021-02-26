@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import * as React from "react";
 
 type MyProps = {
   // message:string;
@@ -9,7 +9,7 @@ type MyState = {
 };
 
 
-export class KustoData extends Component<MyProps,MyState> {
+export class KustoData extends React.Component<MyProps,MyState> {
 
   constructor(props:any) {
     super(props);
