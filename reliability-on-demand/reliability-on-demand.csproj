@@ -8,6 +8,7 @@
     <SpaRoot>ClientApp\</SpaRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
     <RootNamespace>reliability_on_demand</RootNamespace>
+    <UserSecretsId>aa1c9a8f-b1e0-4f1c-a07b-0a14ec3cc5c3</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
