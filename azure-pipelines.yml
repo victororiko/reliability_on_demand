@@ -13,6 +13,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  clientAppDir: 'reliability-on-demand\ClientApp'
 
 steps:
 - task: NuGetToolInstaller@1
@@ -32,3 +33,27 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '12.x'
+  displayName: 'Install Node.js'
+
+- task: Npm@1
+  inputs:
+    command: 'install'
+    workingDir: '$(clientAppDir)'
+  displayName: 'npm install on ClientApp'
+
+- task: Npm@1
+  displayName: 'npm test'
+  inputs:
+    command: 'custom'
+    workingDir: '$(clientAppDir)'
+    customCommand: 'test'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/test-report.xml'
+    failTaskOnFailedTests: true

@@ -5,8 +5,8 @@
 appsettings.json
 
 # IDE-specific files
-.vscode
-
+.vscode/
+.config/
 
 # User-specific files
 *.suo
