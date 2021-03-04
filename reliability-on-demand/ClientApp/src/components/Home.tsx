@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Config } from './Config';
 
 interface Props {
   
@@ -12,6 +13,7 @@ export const Home = (props: Props) : React.ReactElement => {
         <p>
           To get started click on any of the tabs on the top right to explore current functionality.
         </p>
+        <Config />
       </div>
   )
 }
