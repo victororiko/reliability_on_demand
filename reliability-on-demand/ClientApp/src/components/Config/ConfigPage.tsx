@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createTheme, ITheme, Separator, Text } from '@fluentui/react';
-import { Ownership } from './Ownership';
+import { OwnershipSection } from './OwnershipSection';
 import { StudySection } from './StudySection';
 
 export interface IConfigProps {
@@ -19,7 +19,7 @@ export function ConfigPage(props: IConfigProps) {
     <div>
       <Text>Config Page</Text>
       <Separator theme={my_theme}>Ownership</Separator>
-      <Ownership />
+      <OwnershipSection />
       <Separator theme={my_theme}>Study</Separator>
       <StudySection />
       <Separator theme={my_theme}>Pivot</Separator>
