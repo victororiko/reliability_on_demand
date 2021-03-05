@@ -3,6 +3,7 @@ import { createTheme, ITheme, Separator, Text } from '@fluentui/react';
 import { OwnershipSection } from './OwnershipSection';
 import { StudySection } from './StudySection';
 import { PivotSection } from './PivotSection';
+import { MetricSection } from './MetricSection';
 
 export interface IConfigProps {
 }
@@ -30,6 +31,7 @@ export function ConfigPage(props: IConfigProps) {
       <PivotSection />
 
       <Separator theme={my_theme}>Metric</Separator>
+      <MetricSection />
     </div>
   );
 }
