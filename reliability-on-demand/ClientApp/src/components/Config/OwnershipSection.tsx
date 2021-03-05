@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Icon, Text, TextField } from "@fluentui/react";
+import { Text, TextField } from "@fluentui/react";
 import { initializeIcons } from '@uifabric/icons';
 initializeIcons();
 export interface IOwnershipSectionProps {
@@ -8,6 +8,7 @@ export interface IOwnershipSectionProps {
 export function OwnershipSection(props: IOwnershipSectionProps) {
     return (
         <div>
+
             <TextField label="Owner contact (alias)"
                 required
                 placeholder="e.g. karanda"

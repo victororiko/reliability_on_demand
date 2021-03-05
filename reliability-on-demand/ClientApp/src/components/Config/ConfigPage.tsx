@@ -18,7 +18,7 @@ const my_theme: ITheme = createTheme({
 export function ConfigPage(props: IConfigProps) {
   return (
     <div>
-      <Text variant="xxLarge">Config Page</Text>
+      <Text>Config Page</Text>
       
       <Separator theme={my_theme}>Ownership</Separator>
       <OwnershipSection />
