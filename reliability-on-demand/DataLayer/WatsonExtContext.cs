@@ -8,6 +8,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace reliability_on_demand.DataLayer
@@ -77,7 +78,7 @@ namespace reliability_on_demand.DataLayer
 
         public string GetAllUnifiedConfigs()
         {
-            return GetSQLResults("SELECT * FROM [dbo].[RELUnifiedConfig]");
+            return GetSQLResultsJSON("SELECT * FROM [dbo].[RELUnifiedConfig]");
         }
 
         public string GetSQLResults(string SQLquery)
@@ -96,6 +97,28 @@ namespace reliability_on_demand.DataLayer
                 string json = JsonConvert.SerializeObject(configList);
                 return json;
             }
+
+        }
+
+        public string GetSQLResultsJSON(string SQLquery){
+            // make sure to get results in JSON
+            SQLquery += " FOR JSON AUTO, Include_Null_Values";
+            StringBuilder sb = new StringBuilder(); 
+
+            // ensure that connection is open
+            this.Database.OpenConnection();
+
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = SQLquery;
+
+            using(var reader = cmd.ExecuteReader())
+            {
+                   while(reader.Read())
+                   {
+                       sb.Append(reader.GetString(0));
+                   }
+            }
+            return sb.ToString();
 
         }
 
