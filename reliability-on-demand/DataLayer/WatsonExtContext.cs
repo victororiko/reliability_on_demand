@@ -81,6 +81,12 @@ namespace reliability_on_demand.DataLayer
             return GetSQLResultsJSON("SELECT * FROM [dbo].[RELUnifiedConfig]");
         }
 
+        public string GetAllTeamConfigs()
+        {
+            return GetSQLResultsJSON("SELECT * FROM [dbo].[RELTeamConfig]");
+        }
+        
+
         public string GetSQLResults(string SQLquery)
         {
             // ensure that connection is open

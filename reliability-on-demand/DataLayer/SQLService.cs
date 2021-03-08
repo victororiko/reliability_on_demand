@@ -24,5 +24,10 @@
         {
             _context.UpdateRelOnDemandQuery(id, status, exception);
         }
+
+        string ISQLService.GetAllTeamConfigs()
+        {
+            return _context.GetAllTeamConfigs();
+        }
     }
 }

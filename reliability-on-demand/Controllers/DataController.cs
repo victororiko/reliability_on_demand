@@ -48,5 +48,12 @@ namespace reliability_on_demand.Controllers
         {
             return this._sqlservice.GetAllUnifiedConfigs();
         }
+
+        [Route("api/Data/GetAllTeamConfigs")]
+        [HttpGet]
+        public string GetAllTeamConfigs()
+        {
+            return this._sqlservice.GetAllUnifiedConfigs();
+        }
     }
 }
