@@ -100,6 +100,7 @@ namespace reliability_on_demand.DataLayer
 
         }
 
+        //Tutorial - https://visualstudiomagazine.com/articles/2017/08/01/returning-json.aspx
         public string GetSQLResultsJSON(string SQLquery){
             // make sure to get results in JSON
             SQLquery += " FOR JSON AUTO, Include_Null_Values";
