@@ -14,3 +14,12 @@ export interface SampleConfig {
     OwnerTeam:      string;
     CacheFrequency: number;
 }
+
+
+
+export interface TeamConfig {
+    ConfigID:              string;
+    OwnerContact:          string;
+    OwnerTeamFriendlyName: string;
+    OwnerTriageAlias:      string;
+}
