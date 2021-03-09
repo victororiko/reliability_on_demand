@@ -1,21 +1,50 @@
 import * as React from 'react';
-import { Dropdown, Text, TextField } from "@fluentui/react";
+import { Dropdown, TagItemSuggestionBase, TextField, IDropdownOption } from '@fluentui/react';
+import { TeamConfig } from '../../models/config.model';
 import { initializeIcons } from '@uifabric/icons';
 initializeIcons();
 export interface IOwnershipSectionProps {
 }
 
+export const OwnershipSection = (props: IOwnershipSectionProps) => {
+
+    const [teams, setTeams] = React.useState(null);
+    React.useEffect(() =>{
+        async function populateTeamData() {
+            const response = await fetch("api/Data/GetAllTeamConfigs");
+            const data = await response.json();
+            setTeams(data);
+        }
+        populateTeamData();
+    }, [])
 
 
-export function OwnershipSection(props: IOwnershipSectionProps) {
+    function getTeamNames(): import("@fluentui/react").IDropdownOption<any>[] {
+        // teams.map(item:TeamConfig => {
+        //     let container:IDropdownOption;
+        
+        //     container["key"] = item.OwnerTeamFriendlyName;
+        //     container["text"] = item.OwnerTeamFriendlyName;
+        
+        //     return container;
+        // });
+
+        return [
+            { key: 'Team1', text: 'Team1' },
+            { key: 'Team2', text: 'Team2' },
+            { key: 'Team3', text: 'Team3' },
+            { key: 'Team4', text: 'Team4' },
+            { key: 'createNew', text: 'Create a New Team' },
+        ]
+    }
     return (
         <div>
 
-            {/* User selects from [Build, Branch, Revision, OEM Model, OEM, Processor...] */}
+            {/* User selects from a list of teams that have been created. Otherwise creates a new team */}
             <Dropdown
                 label="Team"
                 placeholder="Select a Team"
-                options={getTeams()}
+                options={getTeamNames()}
                 required
                 aria-label="Select a Team"
             />
@@ -40,14 +69,7 @@ export function OwnershipSection(props: IOwnershipSectionProps) {
                 aria-label="Compute Resource Location" />
         </div>
     );
+
 }
-function getTeams(): import("@fluentui/react").IDropdownOption<any>[] {
-    return [
-        { key: 'Team1', text: 'Team1' },
-        { key: 'Team2', text: 'Team2' },
-        { key: 'Team3', text: 'Team3' },
-        { key: 'Team4', text: 'Team4' },
-        { key: 'Team5', text: 'Team5' },
-    ]
-}
+
 

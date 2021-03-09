@@ -1,0 +1,26 @@
+[
+  {
+    "ConfigID": "df560f74-8fc3-42a0-8eaf-23a7768dba03",
+    "OwnerContact": "dishah",
+    "OwnerTeamFriendlyName": "Client Fun Team 2",
+    "OwnerTriageAlias": "cosreldata"
+  },
+  {
+    "ConfigID": "7d0c1601-c42d-464d-a631-260e26ee636f",
+    "OwnerContact": "karanda",
+    "OwnerTeamFriendlyName": "Data sub team",
+    "OwnerTriageAlias": "cosreldata"
+  },
+  {
+    "ConfigID": "a5f258e2-1cfd-45ad-bbdf-421f59b023fd",
+    "OwnerContact": "rajroy",
+    "OwnerTeamFriendlyName": "Client Fun Team 3",
+    "OwnerTriageAlias": "cosreldata"
+  },
+  {
+    "ConfigID": "82099526-633d-467b-9a41-f9fb38bcee27",
+    "OwnerContact": "karanda",
+    "OwnerTeamFriendlyName": "Client Fun Team 1",
+    "OwnerTriageAlias": "osgreldev"
+  }
+]
