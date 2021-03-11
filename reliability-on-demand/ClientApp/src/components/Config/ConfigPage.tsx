@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { createTheme, ITheme, PrimaryButton, Separator, Text } from '@fluentui/react';
-import { OwnershipSection } from './OwnershipSection';
 import { StudySection } from './StudySection';
 import { PivotSection } from './PivotSection';
 import { MetricSection } from './MetricSection';
+import OwnershipSection from './OwnershipSection/OwnershipSection';
 
 export interface IConfigProps {
 }
