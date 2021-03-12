@@ -28,25 +28,10 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
         }
     }
 
-    extractTeamName(item: TeamConfig) {
-        return { 
-            key: item.ConfigID, 
-            text: item.OwnerTeamFriendlyName 
-        };
-    }
-
-    getTeamNamesOffline(): IDropdownOption<TeamName>[] {
-        var sampleTeamConfigs = this.getTeamConfigsOffline();
-        const result = sampleTeamConfigs.map(this.extractTeamName);
-        return result;
-    }
-
-    getTeamNames(): IDropdownOption<TeamName>[] {
-        const result = this.state.teamConfigs.map(this.extractTeamName);
-        return result;
-    }    
-
-    componentDidMount() {
+    /**
+     * Prior to rendering the component, load up team configs from backend
+     */
+     componentDidMount() {
         this.populateTeamConfigData();
     }
 
@@ -84,6 +69,25 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
             </div>
         )
     }
+
+    // helper methods
+    extractTeamName(item: TeamConfig) {
+        return { 
+            key: item.ConfigID, 
+            text: item.OwnerTeamFriendlyName 
+        };
+    }
+
+    getTeamNamesOffline(): IDropdownOption<TeamName>[] {
+        var sampleTeamConfigs = this.getTeamConfigsOffline();
+        const result = sampleTeamConfigs.map(this.extractTeamName);
+        return result;
+    }
+
+    getTeamNames(): IDropdownOption<TeamName>[] {
+        const result = this.state.teamConfigs.map(this.extractTeamName);
+        return result;
+    }  
 
     async populateTeamConfigData() {
         const response = await fetch("api/Data/GetAllTeamConfigs");
