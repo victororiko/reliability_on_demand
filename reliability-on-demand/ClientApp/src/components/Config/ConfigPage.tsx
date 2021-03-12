@@ -8,7 +8,7 @@ import OwnershipSection from './OwnershipSection/OwnershipSection';
 export interface IConfigProps {
 }
 
-const my_theme: ITheme = createTheme({
+export const largeTitle: ITheme = createTheme({
   fonts: {
     medium: {
       fontSize: '30px',
@@ -19,18 +19,15 @@ const my_theme: ITheme = createTheme({
 export function ConfigPage(props: IConfigProps) {
   return (
     <div>
-      <Text>Config Page</Text>
-      
-      <Separator theme={my_theme}>Ownership</Separator>
       <OwnershipSection />
       
-      <Separator theme={my_theme}>Study</Separator>
+      <Separator theme={largeTitle}>Study</Separator>
       <StudySection />
       
-      <Separator theme={my_theme}>Pivot</Separator>
+      <Separator theme={largeTitle}>Pivot</Separator>
       <PivotSection />
 
-      <Separator theme={my_theme}>Metric</Separator>
+      <Separator theme={largeTitle}>Metric</Separator>
       <MetricSection />
 
       <PrimaryButton>Submit</PrimaryButton>

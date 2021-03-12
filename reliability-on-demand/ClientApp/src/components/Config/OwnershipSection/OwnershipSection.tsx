@@ -1,7 +1,8 @@
-import { Dropdown, IDropdownOption, TextField } from "@fluentui/react";
+import { Dropdown, IDropdownOption, Separator, TextField } from "@fluentui/react";
 import * as React from "react";
 import { TeamConfig } from '../../../models/config.model';
-
+import { TeamDetails } from './TeamDetails';
+import { largeTitle } from '../ConfigPage';
 export interface OwnershipSectionProps {
     children?: React.ReactNode
 }
@@ -9,6 +10,7 @@ export interface OwnershipSectionProps {
 export interface OwnershipSectionState {
     teamConfigs: TeamConfig[];
     loading: boolean;
+    selectedTeam?: TeamConfig;
 }
 
 interface TeamName {
@@ -26,18 +28,36 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
         this.state = {
             teamConfigs: [],
             loading: true,
+            selectedTeam: undefined,
         }
     }
 
     /**
      * Prior to rendering the component, load up team configs from backend
      */
-     componentDidMount() {
+    componentDidMount() {
         this.populateTeamConfigData();
     }
 
     // required render method
-    render() {
+    render(): React.ReactElement {
+        let contents = this.state.loading ? (
+            <p>
+                <em>Loading...</em>
+            </p>
+        ) : (
+            this.renderContent()
+        );
+        return (
+            <div>
+              <Separator theme={largeTitle}>Ownership</Separator>
+              {contents}
+            </div>
+        );
+    }
+
+    // helper methods
+    renderContent() {
         return (
             <div>
 
@@ -47,36 +67,31 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
                     placeholder="Select a Team"
                     options={this.getTeamNames()}
                     required
+                    onChange={this.onChange}
                     aria-label="Select a Team"
                 />
 
-                <TextField label="Owner contact (alias)"
-                    required
-                    placeholder="e.g. karanda"
-                    aria-label="Owner contact (alias)" />
+                <TeamDetails currentTeam={this.state.selectedTeam} />
 
-                <TextField label="Owner Team Friendly Name"
-                    required
-                    placeholder="e.g. Client FUN"
-                    aria-label="Owner Team Friendly Name" />
-
-                <TextField label="Owner Triage (alias)"
-                    required
-                    placeholder="e.g. cosreldata"
-                    aria-label="Owner Triage (alias)" />
-
-                <TextField label="Compute Resource Location"
-                    placeholder="e.g. Data Bricks or Cosmos location"
-                    aria-label="Compute Resource Location" />
             </div>
         )
+
+    }
+    onChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption<TeamName> | undefined): void => {
+        this.setState(
+            {
+                selectedTeam: this.getTeamConfig(option?.key)
+            });
     }
 
-    // helper methods
+    getTeamConfig(id: string | number | undefined) {
+        return this.state.teamConfigs.find(x => x.ConfigID === id)
+    }
+
     extractTeamName(item: TeamConfig) {
-        return { 
-            key: item.ConfigID, 
-            text: item.OwnerTeamFriendlyName 
+        return {
+            key: item.ConfigID,
+            text: item.OwnerTeamFriendlyName
         };
     }
 
@@ -84,12 +99,12 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
         let result = this.state.teamConfigs.map(this.extractTeamName);
         result.push(
             {
-                key:"create new team",
-                text:"create new team"
+                key: "create new team",
+                text: "create new team"
             }
         )
         return result;
-    }  
+    }
 
     async populateTeamConfigData() {
         const response = await fetch("api/Data/GetAllTeamConfigs");
