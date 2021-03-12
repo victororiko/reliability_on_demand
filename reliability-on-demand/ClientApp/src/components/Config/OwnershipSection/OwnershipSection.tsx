@@ -7,8 +7,13 @@ export interface OwnershipSectionProps {
 }
 
 export interface OwnershipSectionState {
-    teamNames: TeamConfig[];
+    teamConfigs: TeamConfig[];
     loading: boolean;
+}
+
+interface TeamName {
+    key: string,
+    text: string
 }
 
 export default class OwnershipSection extends React.Component<OwnershipSectionProps, OwnershipSectionState> {
@@ -18,28 +23,31 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
         super(props)
         // set initial state which will be used by render() 
         this.state = {
-            teamNames: [],
+            teamConfigs: [],
             loading: true,
         }
     }
 
-    getTeamNames(){
-        let container:IDropdownOption;
-        this.state.teamNames.map(item => {
+    extractTeamName(item: TeamConfig) {
+        return { 
+            key: item.ConfigID, 
+            text: item.OwnerTeamFriendlyName 
+        };
+    }
 
-            container["key"] = item.OwnerTeamFriendlyName;
-            container["text"] = item.OwnerTeamFriendlyName;
+    getTeamNamesOffline(): IDropdownOption<TeamName>[] {
+        var sampleTeamConfigs = this.getTeamConfigsOffline();
+        const result = sampleTeamConfigs.map(this.extractTeamName);
+        return result;
+    }
 
-            return container;
-        });
+    getTeamNames(): IDropdownOption<TeamName>[] {
+        const result = this.state.teamConfigs.map(this.extractTeamName);
+        return result;
+    }    
 
-        return [
-            { key: 'Team1', text: 'Team1' },
-            { key: 'Team2', text: 'Team2' },
-            { key: 'Team3', text: 'Team3' },
-            { key: 'Team4', text: 'Team4' },
-            { key: 'createNew', text: 'Create a New Team' },
-        ]
+    componentDidMount() {
+        this.populateTeamConfigData();
     }
 
     render() {
@@ -77,9 +85,39 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
         )
     }
 
-    async populateConfigData() {
+    async populateTeamConfigData() {
         const response = await fetch("api/Data/GetAllTeamConfigs");
         const data = await response.json();
-        this.setState({ teamNames: data, loading: false });
-      }
+        this.setState({ teamConfigs: data, loading: false });
+    }
+
+   
+    getTeamConfigsOffline(): TeamConfig[] {
+        return [
+            {
+                "ConfigID": "df560f74-8fc3-42a0-8eaf-23a7768dba03",
+                "OwnerContact": "dishah",
+                "OwnerTeamFriendlyName": "Client Fun Team 2",
+                "OwnerTriageAlias": "cosreldata"
+            },
+            {
+                "ConfigID": "7d0c1601-c42d-464d-a631-260e26ee636f",
+                "OwnerContact": "karanda",
+                "OwnerTeamFriendlyName": "Data sub team",
+                "OwnerTriageAlias": "cosreldata"
+            },
+            {
+                "ConfigID": "a5f258e2-1cfd-45ad-bbdf-421f59b023fd",
+                "OwnerContact": "rajroy",
+                "OwnerTeamFriendlyName": "Client Fun Team 3",
+                "OwnerTriageAlias": "cosreldata"
+            },
+            {
+                "ConfigID": "82099526-633d-467b-9a41-f9fb38bcee27",
+                "OwnerContact": "karanda",
+                "OwnerTeamFriendlyName": "Client Fun Team 1",
+                "OwnerTriageAlias": "osgreldev"
+            }
+        ]
+    }
 }

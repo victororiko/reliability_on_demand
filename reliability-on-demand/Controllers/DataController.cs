@@ -53,7 +53,7 @@ namespace reliability_on_demand.Controllers
         [HttpGet]
         public string GetAllTeamConfigs()
         {
-            return this._sqlservice.GetAllUnifiedConfigs();
+            return this._sqlservice.GetAllTeamConfigs();
         }
     }
 }
