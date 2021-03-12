@@ -18,6 +18,7 @@ interface TeamName {
 
 export default class OwnershipSection extends React.Component<OwnershipSectionProps, OwnershipSectionState> {
 
+    // constructor 
     constructor(props: OwnershipSectionProps) {
         // required call
         super(props)
@@ -35,6 +36,7 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
         this.populateTeamConfigData();
     }
 
+    // required render method
     render() {
         return (
             <div>
@@ -78,14 +80,14 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
         };
     }
 
-    getTeamNamesOffline(): IDropdownOption<TeamName>[] {
-        var sampleTeamConfigs = this.getTeamConfigsOffline();
-        const result = sampleTeamConfigs.map(this.extractTeamName);
-        return result;
-    }
-
     getTeamNames(): IDropdownOption<TeamName>[] {
-        const result = this.state.teamConfigs.map(this.extractTeamName);
+        let result = this.state.teamConfigs.map(this.extractTeamName);
+        result.push(
+            {
+                key:"create new team",
+                text:"create new team"
+            }
+        )
         return result;
     }  
 
@@ -93,35 +95,5 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
         const response = await fetch("api/Data/GetAllTeamConfigs");
         const data = await response.json();
         this.setState({ teamConfigs: data, loading: false });
-    }
-
-   
-    getTeamConfigsOffline(): TeamConfig[] {
-        return [
-            {
-                "ConfigID": "df560f74-8fc3-42a0-8eaf-23a7768dba03",
-                "OwnerContact": "dishah",
-                "OwnerTeamFriendlyName": "Client Fun Team 2",
-                "OwnerTriageAlias": "cosreldata"
-            },
-            {
-                "ConfigID": "7d0c1601-c42d-464d-a631-260e26ee636f",
-                "OwnerContact": "karanda",
-                "OwnerTeamFriendlyName": "Data sub team",
-                "OwnerTriageAlias": "cosreldata"
-            },
-            {
-                "ConfigID": "a5f258e2-1cfd-45ad-bbdf-421f59b023fd",
-                "OwnerContact": "rajroy",
-                "OwnerTeamFriendlyName": "Client Fun Team 3",
-                "OwnerTriageAlias": "cosreldata"
-            },
-            {
-                "ConfigID": "82099526-633d-467b-9a41-f9fb38bcee27",
-                "OwnerContact": "karanda",
-                "OwnerTeamFriendlyName": "Client Fun Team 1",
-                "OwnerTriageAlias": "osgreldev"
-            }
-        ]
     }
 }
