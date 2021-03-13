@@ -85,12 +85,12 @@ export default class OwnershipSection extends React.Component<OwnershipSectionPr
     }
 
     getTeamConfig(id: string | number | undefined) {
-        return this.state.teamConfigs.find(x => x.ConfigID === id)
+        return this.state.teamConfigs.find(x => x.TeamID === id)
     }
 
     extractTeamName(item: TeamConfig) {
         return {
-            key: item.ConfigID,
+            key: item.TeamID,
             text: item.OwnerTeamFriendlyName
         };
     }

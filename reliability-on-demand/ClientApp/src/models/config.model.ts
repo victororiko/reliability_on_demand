@@ -18,7 +18,7 @@ export interface SampleConfig {
 
 
 export interface TeamConfig {
-    ConfigID:              string;
+    TeamID:              string;
     OwnerContact:          string;
     OwnerTeamFriendlyName: string;
     OwnerTriageAlias:      string;
