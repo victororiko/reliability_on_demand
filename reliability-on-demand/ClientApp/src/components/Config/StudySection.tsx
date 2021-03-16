@@ -8,31 +8,39 @@ export interface IStudySectionProps {
 const dropdownStyles = { dropdown: { width: 300 } };
 
 // TODO - create a service that makes all backend calls.
-function getFrequencies(){
+function getFrequencies() {
     return [
         { key: 'Once', text: 'Once' },
-        { key: '12 hours', text: '12 hours'},
+        { key: '12 hours', text: '12 hours' },
         { key: '24 hours', text: '24 hours' },
         { key: '3 days', text: '3 days' },
         { key: '7 days', text: '7 days' },
     ]
 }
 
-function getObservationWindows(){
+function getObservationWindows() {
     return [
         { key: '14 days', text: '14 days' },
     ]
 }
 
-function getDefaultExpiryDate():Date{
+function getDefaultExpiryDate(): Date {
     var now = new Date();
-    var current = new Date(now.getFullYear(), now.getMonth()+3, now.getDay());
+    var current = new Date(now.getFullYear(), now.getMonth() + 3, now.getDay());
     return current;
 }
 
 export function StudySection(props: IStudySectionProps) {
     return (
         <div>
+            <Dropdown
+                placeholder="Select a Study"
+                label="Study"
+                options={getFrequencies()}
+                required
+                styles={dropdownStyles}
+            />
+
             <TextField label="Study Name"
                 required
                 placeholder="e.g. WVD Study"
@@ -48,11 +56,10 @@ export function StudySection(props: IStudySectionProps) {
                 styles={dropdownStyles}
             />
 
-            <MyDatePicker defaultDate={new Date()} label={"Select an Start Date"}/>
+            <MyDatePicker defaultDate={new Date()} label={"Select an Start Date"} />
 
-            {/* TODO - set the correct start date to be 3 months from today */}
-            <MyDatePicker defaultDate={getDefaultExpiryDate()} label={"Select an Expiry Date"}/>
-            
+            <MyDatePicker defaultDate={getDefaultExpiryDate()} label={"Select an Expiry Date"} />
+
             {/* User selects from [14d] */}
             <Dropdown
                 placeholder="Select an observation window"
