@@ -55,5 +55,14 @@ namespace reliability_on_demand.Controllers
         {
             return this._sqlservice.GetAllTeamConfigs();
         }
+
+        //GetAllStudyConfigsForTeam
+        [Route("api/Data/GetAllStudyConfigsForTeam/{id?}")]
+        // [HttpGet("{id}")]   // GET api/Data/GetAllStudyConfigsForTeam/3 <-- TeamId
+        public string GetAllStudyConfigsForTeam(int TeamID)
+        {
+            return this._sqlservice.GetAllStudyConfigsForTeam(3);
+        }
+
     }
 }

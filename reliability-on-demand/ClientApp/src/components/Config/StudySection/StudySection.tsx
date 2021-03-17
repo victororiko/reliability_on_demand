@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { StudyConfig } from '../../../models/config.model';
 import { Dropdown, TextField } from "@fluentui/react";
 import { initializeIcons } from '@uifabric/icons';
 import { MyDatePicker } from '../../helpers/MyDatePicker';
@@ -9,6 +10,9 @@ export interface IStudySectionProps {
 }
 
 export interface IStudySectionState {
+    // studyConfigs: StudyConfig[];
+    // loading: boolean;
+    // selectedStudy?: StudyConfig;
 }
 
 const dropdownStyles = { dropdown: { width: 300 } };

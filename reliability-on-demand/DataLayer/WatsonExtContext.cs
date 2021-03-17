@@ -86,6 +86,29 @@ namespace reliability_on_demand.DataLayer
             return GetSQLResultsJSON("SELECT * FROM [dbo].[RELTeamConfig]");
         }
         
+        public string GetAllStudyConfigsForTeam(int TeamID)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetAllStudyConfigsForTeam";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@TeamID", TeamID));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder(); 
+            using(var reader = cmd.ExecuteReader())
+            {
+                   while(reader.Read())
+                   {
+                       sb.Append(reader.GetString(0));
+                   }
+            }
+            return sb.ToString();
+        }
 
         public string GetSQLResults(string SQLquery)
         {

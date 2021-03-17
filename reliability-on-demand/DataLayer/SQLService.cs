@@ -29,5 +29,11 @@
         {
             return _context.GetAllTeamConfigs();
         }
+
+        string ISQLService.GetAllStudyConfigsForTeam(int TeamID)
+        {
+            return _context.GetAllStudyConfigsForTeam(TeamID);
+        }
+
     }
 }
