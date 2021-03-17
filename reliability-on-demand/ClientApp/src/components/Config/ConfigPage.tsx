@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createTheme, ITheme, PrimaryButton, Separator, Text } from '@fluentui/react';
-import { StudySection } from './StudySection';
+import  StudySection  from './StudySection/StudySection';
 import { PivotSection } from './PivotSection';
 import { MetricSection } from './MetricSection';
 import OwnershipSection from './OwnershipSection/OwnershipSection';
@@ -24,11 +24,11 @@ export function ConfigPage(props: IConfigProps) {
       <Separator theme={largeTitle}>Study</Separator>
       <StudySection />
       
-      <Separator theme={largeTitle}>Pivot</Separator>
+      {/* <Separator theme={largeTitle}>Pivot</Separator>
       <PivotSection />
 
       <Separator theme={largeTitle}>Metric</Separator>
-      <MetricSection />
+      <MetricSection /> */}
 
       <PrimaryButton>Submit</PrimaryButton>
     </div>
