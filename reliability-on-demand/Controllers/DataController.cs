@@ -57,11 +57,10 @@ namespace reliability_on_demand.Controllers
         }
 
         //GetAllStudyConfigsForTeam
-        [Route("api/Data/GetAllStudyConfigsForTeam/{id?}")]
-        // [HttpGet("{id}")]   // GET api/Data/GetAllStudyConfigsForTeam/3 <-- TeamId
-        public string GetAllStudyConfigsForTeam(int TeamID)
+        [Route("api/Data/GetAllStudyConfigsForTeam")]
+        public string GetAllStudyConfigsForTeam(ConfigInquiry inquiry)
         {
-            return this._sqlservice.GetAllStudyConfigsForTeam(3);
+            return this._sqlservice.GetAllStudyConfigsForTeam(inquiry);
         }
 
     }

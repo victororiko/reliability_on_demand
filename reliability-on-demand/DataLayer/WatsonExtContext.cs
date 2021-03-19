@@ -86,7 +86,7 @@ namespace reliability_on_demand.DataLayer
             return GetSQLResultsJSON("SELECT * FROM [dbo].[RELTeamConfig]");
         }
         
-        public string GetAllStudyConfigsForTeam(int TeamID)
+        public string GetAllStudyConfigsForTeam(ConfigInquiry inquiry)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
@@ -96,7 +96,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.GetAllStudyConfigsForTeam";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@TeamID", TeamID));
+            cmd.Parameters.Add(new SqlParameter("@TeamID", inquiry.TeamID));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder(); 

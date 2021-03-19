@@ -8,7 +8,7 @@ namespace reliability_on_demand.DataLayer
         string GetAllUnifiedConfigs();
         string GetAllTeamConfigs();
 
-        string GetAllStudyConfigsForTeam(int TeamID);
+        string GetAllStudyConfigsForTeam(ConfigInquiry TeamID);
         int LogRelOnDemandQuery<T>(string username, string url, string access, T payload);
         void UpdateRelOnDemandQuery(int id, bool status, string exception);
     }
