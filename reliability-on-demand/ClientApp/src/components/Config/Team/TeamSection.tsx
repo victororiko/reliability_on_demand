@@ -18,7 +18,7 @@ interface TeamName {
     text: string
 }
 
-export default class OwnershipSection extends React.Component<OwnershipSectionProps, OwnershipSectionState> {
+export default class TeamSection extends React.Component<OwnershipSectionProps, OwnershipSectionState> {
 
     // constructor 
     constructor(props: OwnershipSectionProps) {

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { createTheme, ITheme, PrimaryButton, Separator, Text } from '@fluentui/react';
-import  StudySection  from './StudySection/StudySection';
+import  StudySection  from './Study/StudySection';
 import { PivotSection } from './PivotSection';
 import { MetricSection } from './MetricSection';
-import OwnershipSection from './OwnershipSection/OwnershipSection';
+import TeamSection from './Team/TeamSection';
 
 export interface IConfigProps {
 }
@@ -19,7 +19,7 @@ export const largeTitle: ITheme = createTheme({
 export function ConfigPage(props: IConfigProps) {
   return (
     <div>
-      <OwnershipSection />
+      <TeamSection />
       
       <StudySection inquiry={{TeamID:3}}/>
       
