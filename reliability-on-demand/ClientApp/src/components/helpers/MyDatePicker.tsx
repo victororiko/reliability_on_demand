@@ -50,6 +50,7 @@ const firstDayOfWeek = DayOfWeek.Sunday;
 interface IMyDatePickerProps{
   defaultDate:Date;
   label:string;
+  disabled:boolean;
 }
 
 export const MyDatePicker: React.FC<IMyDatePickerProps> = (props:IMyDatePickerProps) => (
@@ -62,6 +63,7 @@ export const MyDatePicker: React.FC<IMyDatePickerProps> = (props:IMyDatePickerPr
       strings={DayPickerStrings}
       ariaLabel="Select a date"
       value={props.defaultDate}
+      disabled={props.disabled}
     />
   </div>
 );

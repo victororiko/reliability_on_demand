@@ -16,16 +16,19 @@ export function StudyDetails(props: IStudyDetailsProps) {
                 placeholder="e.g. WVD Study"
                 aria-label="Study Name"
                 value={getStudyNamesOrDefault(props.currentStudy)}
+                disabled={props.currentStudy !== undefined}
             />
 
-            {/* 
+            
             <Dropdown
                 placeholder="Select a frequency"
                 label="Frequency"
-                options={this.getCacheFrequencies()}
+                options={frequencies}
+                selectedKey={props.currentStudy?.CacheFrequency+""}
                 required
+                disabled={props.currentStudy !== undefined}
             /> 
-            */}
+           
 
             {/* <MyDatePicker
                 defaultDate={new Date()}
@@ -35,6 +38,7 @@ export function StudyDetails(props: IStudyDetailsProps) {
             <MyDatePicker
                 defaultDate={getDefaultExpiryDate(props.currentStudy)}
                 label={"Select an Expiry Date"}
+                disabled={props.currentStudy !== undefined}
             />
 
             {/* User selects from [14d] */}
@@ -42,6 +46,8 @@ export function StudyDetails(props: IStudyDetailsProps) {
                 placeholder="Select an observation window"
                 label="Observation window"
                 options={getObservationWindows()}
+                selectedKey={props.currentStudy?.ObservationWindowDays+""}
+                disabled={props.currentStudy !== undefined}
             />
         </div>
     );
@@ -70,6 +76,17 @@ function getDefaultExpiryDate(currentStudy?:StudyConfig): Date {
 
 function getObservationWindows() {
     return [
-        { key: '14 days', text: '14 days' },
+        { key: '14', text: '14 days' },
     ]
 }
+
+const frequencies = 
+[
+    { key: '0', text: 'none' },
+    { key: '1', text: 'hourly' },
+    { key: '168', text: 'weekly' },
+    { key: '12', text: 'every 12 hours' },
+    { key: '24', text: 'every 24 hours' },
+    { key: '72', text: 'every 3 days' },
+
+]
