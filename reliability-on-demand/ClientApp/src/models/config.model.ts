@@ -15,15 +15,19 @@ export interface SampleConfig {
     CacheFrequency: number;
 }
 
+export interface ConfigInquiry{
+    TeamID: number;
+}
+
 export interface TeamConfig {
-    TeamID:              string;
+    TeamID:                string;
     OwnerContact:          string;
     OwnerTeamFriendlyName: string;
     OwnerTriageAlias:      string;
 }
 
 export interface StudyConfig {
-    StudyID:               number;
+    StudyID:               string;
     StudyName:             string;
     LastRefreshDate:       Date;
     LastModifiedDate:      Date;
@@ -32,3 +36,4 @@ export interface StudyConfig {
     TeamID:                number;
     ObservationWindowDays: number;
 }
+

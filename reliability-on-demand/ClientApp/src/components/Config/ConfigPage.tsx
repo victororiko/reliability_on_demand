@@ -21,8 +21,7 @@ export function ConfigPage(props: IConfigProps) {
     <div>
       <OwnershipSection />
       
-      <Separator theme={largeTitle}>Study</Separator>
-      <StudySection />
+      <StudySection inquiry={{TeamID:3}}/>
       
       {/* <Separator theme={largeTitle}>Pivot</Separator>
       <PivotSection />

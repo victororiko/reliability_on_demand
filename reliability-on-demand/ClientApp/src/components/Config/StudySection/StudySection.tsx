@@ -1,18 +1,27 @@
 import * as React from 'react';
-import { StudyConfig } from '../../../models/config.model';
-import { Dropdown, TextField } from "@fluentui/react";
+import { StudyConfig, ConfigInquiry } from '../../../models/config.model';
+import { Dropdown, IDropdownOption, Separator, TextField } from "@fluentui/react";
 import { initializeIcons } from '@uifabric/icons';
-import { MyDatePicker } from '../../helpers/MyDatePicker';
+import { StudyDetails } from './StudyDetails';
+import axios from 'axios';
+import { largeTitle } from '../ConfigPage';
 initializeIcons();
 
 export interface IStudySectionProps {
-    children?: React.ReactNode
+    children?: React.ReactNode,
+    inquiry: ConfigInquiry
 }
 
 export interface IStudySectionState {
-    // studyConfigs: StudyConfig[];
-    // loading: boolean;
-    // selectedStudy?: StudyConfig;
+    studyConfigs: StudyConfig[];
+    loading: boolean;
+    inquiry: ConfigInquiry;
+    selectedStudy?: StudyConfig;
+}
+
+interface StudyName {
+    key: string;
+    text: string;
 }
 
 const dropdownStyles = { dropdown: { width: 300 } };
@@ -23,71 +32,92 @@ export default class StudySection extends React.Component<IStudySectionProps, IS
         super(props)
 
         this.state = {
-
+            studyConfigs: [],
+            inquiry: this.props.inquiry,
+            loading: true,
+            selectedStudy: undefined
         }
     }
 
+    /**
+     * Prior to rendering the component, load up study configs from backend
+     */
+    componentDidMount() {
+        axios.post("api/Data/GetAllStudyConfigsForTeam", this.state.inquiry)
+            .then(res => {
+                console.log(res);
+                console.log(res.data);
+                this.setState({
+                    studyConfigs: res.data,
+                    loading: false
+                })
+            })
+    }
+
+
+
     render() {
-        return (<div>
+        let contents = this.state.loading ? (
+            <p>
+                <em>Loading...</em>
+            </p>
+        ) : (
+            this.renderContent()
+        );
+        return (
+            <div>
+              <Separator theme={largeTitle}>Study</Separator>
+              {contents}
+            </div>
+        );
+    }
+
+    renderContent() {
+        return(
+        <div>
             <Dropdown
-                placeholder="Select a Study"
                 label="Study"
-                options={this.getFrequencies()}
+                placeholder="Select a Study"
+                options={this.getStudieNames()}
                 required
-                styles={dropdownStyles}
+                onChange={this.onChange}
+                ariaLabel="Select a Study"
             />
 
-            <TextField label="Study Name"
-                required
-                placeholder="e.g. WVD Study"
-                aria-label="Study Name" />
-
-            {/* User selects from [once, 12 h/ 24 h/ 3 d/ 7d] */}
-            <Dropdown
-                placeholder="Select a frequency"
-                label="Frequency"
-                options=
-                {this.getFrequencies()}
-                required
-                styles={dropdownStyles}
-            />
-
-            <MyDatePicker defaultDate={new Date()} label={"Select an Start Date"} />
-
-            <MyDatePicker defaultDate={this.getDefaultExpiryDate()} label={"Select an Expiry Date"} />
-
-            {/* User selects from [14d] */}
-            <Dropdown
-                placeholder="Select an observation window"
-                label="Observation window"
-                options=
-                {this.getObservationWindows()}
-                styles={dropdownStyles}
-            />
-        </div>)
+            <StudyDetails currentStudy={this.state.selectedStudy} />
+        </div>
+        );
     }
 
     // helper methods
-    // TODO - create a service that makes all backend calls.
-    getFrequencies() {
-        return [
-            { key: 'Once', text: 'Once' },
-            { key: '12 hours', text: '12 hours' },
-            { key: '24 hours', text: '24 hours' },
-            { key: '3 days', text: '3 days' },
-            { key: '7 days', text: '7 days' },
-        ]
+    onChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption<StudyName> | undefined): void => {
+        this.setState(
+            {
+                selectedStudy: this.getStudyConfig(option?.key)
+            });
     }
 
-    getObservationWindows() {
-        return [
-            { key: '14 days', text: '14 days' },
-        ]
+    getStudyConfig(id: string | number | undefined) {
+        return this.state.studyConfigs.find(x => x.StudyID === id)
     }
 
-    getDefaultExpiryDate(): Date {
-        var now = new Date();
-        var current = new Date(now.getFullYear(), now.getMonth() + 3, now.getDay());
-        return current;
+    extractStudyNames(item: StudyConfig) {
+        return {
+            key: item.StudyID,
+            text: item.StudyName
+        };
     }
+
+    getStudieNames() {
+        let result = this.state.studyConfigs.map(this.extractStudyNames);
+        result.push(
+            {
+                key: "create new study",
+                text: "create new study"
+            }
+        )
+        return result;
+    }
+
+
 }
