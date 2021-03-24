@@ -1,6 +1,6 @@
 import { IDropdownOption, Dropdown, TextField, SpinButton } from '@fluentui/react';
 import * as React from 'react';
-import { initializeIcons } from '@uifabric/icons';
+import { initializeIcons } from '@fluentui/font-icons-mdl2';
 initializeIcons();
 
 export interface IMetricSectionProps {
