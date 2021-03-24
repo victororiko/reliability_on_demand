@@ -13,7 +13,8 @@ npm start
 ```
 <br>
 
-To add a new component follow these guidelines: 
+
+If you're interested in setting up VScode configs [youtube](https://www.youtube.com/watch?v=6VOUka1zGvk&t=192s&ab_channel=BetterDev) similar to what I used when I was creating this project: 
 
 
 # ClientApp (React)
