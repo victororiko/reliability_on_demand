@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StudyConfig, ConfigInquiry } from '../../../models/config.model';
-import { Dropdown, IDropdownOption, Separator, TextField } from "@fluentui/react";
+import { Dropdown, IDropdownOption, Separator } from "@fluentui/react";
 import { initializeIcons } from '@uifabric/icons';
 import { StudyDetails } from './StudyDetails';
 import axios from 'axios';
@@ -24,7 +24,6 @@ interface StudyName {
     text: string;
 }
 
-const dropdownStyles = { dropdown: { width: 300 } };
 
 export default class StudySection extends React.Component<IStudySectionProps, IStudySectionState> {
 
