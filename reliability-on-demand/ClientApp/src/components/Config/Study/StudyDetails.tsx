@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextField, Dropdown, IDropdownOption } from '@fluentui/react';
+import { TextField, Dropdown, IDropdownOption, PrimaryButton } from '@fluentui/react';
 import { MyDatePicker } from '../../helpers/MyDatePicker';
 import { StudyConfig } from '../../../models/config.model';
 import { S_IFCHR } from 'node:constants';
@@ -48,6 +48,10 @@ export function StudyDetails(props: IStudyDetailsProps) {
                 options={getObservationWindows()}
                 selectedKey={props.currentStudy?.ObservationWindowDays+""}
                 disabled={props.currentStudy !== undefined}
+            />
+            
+            <PrimaryButton text="Add"
+            disabled={props.currentStudy !== undefined} 
             />
         </div>
     );

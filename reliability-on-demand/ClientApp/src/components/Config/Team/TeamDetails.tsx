@@ -1,4 +1,4 @@
-import { TextField } from '@fluentui/react';
+import { PrimaryButton, TextField } from '@fluentui/react';
 import * as React from 'react';
 import { TeamConfig } from '../../../models/config.model';
 
@@ -38,6 +38,11 @@ export function TeamDetails(props: ITeamDetailsProps) {
                 aria-label="Compute Resource Location" 
                 disabled={props.currentTeam !== undefined}
                 />
+
+            <PrimaryButton text="Add"
+            disabled={props.currentTeam !== undefined} 
+            />
+
         </div>
     );
 }
