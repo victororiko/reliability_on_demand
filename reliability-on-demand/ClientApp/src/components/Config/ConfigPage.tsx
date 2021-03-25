@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createTheme, ITheme, PrimaryButton, Separator, Text } from '@fluentui/react';
+import { createTheme, ITheme, PrimaryButton} from '@fluentui/react';
 import  StudySection  from './Study/StudySection';
 import { PivotSection } from './PivotSection';
 import { MetricSection } from './MetricSection';
