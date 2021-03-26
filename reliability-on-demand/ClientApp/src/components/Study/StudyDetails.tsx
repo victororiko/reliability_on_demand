@@ -26,6 +26,7 @@ export function StudyDetails(props: IStudyDetailsProps) {
                 selectedKey={props.currentStudy?.CacheFrequency+""}
                 required
                 disabled={props.currentStudy !== undefined}
+                onChange={onFrequencyChange}
             /> 
            
 
@@ -94,3 +95,7 @@ const frequencies =
     { key: '72', text: 'every 3 days' },
 
 ]
+
+const onFrequencyChange = (event: React.FormEvent<HTMLDivElement>, option?: any): void => {
+    console.log(option?.key);
+}

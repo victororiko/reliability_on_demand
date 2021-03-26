@@ -93,7 +93,7 @@ export default class StudySection extends React.Component<IStudySectionProps, IS
         this.setState(
             {
                 selectedStudy: this.getStudyConfig(option?.key)
-            });
+            }); 
     }
 
     getStudyConfig(id: string | number | undefined) {
