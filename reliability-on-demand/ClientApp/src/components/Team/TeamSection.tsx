@@ -3,11 +3,12 @@ import * as React from "react";
 import { TeamConfig } from '../../models/config.model';
 import { TeamDetails } from './TeamDetails';
 import { largeTitle } from '../helpers/Styles';
-export interface OwnershipSectionProps {
-    children?: React.ReactNode
+export interface TeamSectionProps {
+    children?: React.ReactNode,
+    printHello?:any
 }
 
-export interface OwnershipSectionState {
+export interface TeamSectionState {
     teamConfigs: TeamConfig[];
     loading: boolean;
     selectedTeam?: TeamConfig;
@@ -18,10 +19,10 @@ interface TeamName {
     text: string
 }
 
-export default class TeamSection extends React.Component<OwnershipSectionProps, OwnershipSectionState> {
+export default class TeamSection extends React.Component<TeamSectionProps, TeamSectionState> {
 
     // constructor 
-    constructor(props: OwnershipSectionProps) {
+    constructor(props: TeamSectionProps) {
         // required call
         super(props)
         // set initial state which will be used by render() 
@@ -82,6 +83,7 @@ export default class TeamSection extends React.Component<OwnershipSectionProps, 
             {
                 selectedTeam: this.getTeamConfig(option?.key)
             });
+        this.props.printHello(this.state.selectedTeam);
     }
 
     getTeamConfig(id: string | number | undefined) {
