@@ -14,7 +14,7 @@ export function StudyDetails(props: IStudyDetailsProps) {
                 required
                 placeholder="e.g. WVD Study"
                 aria-label="Study Name"
-                value={getStudyNamesOrDefault(props.currentStudy)}
+                value={props.currentStudy?.StudyName}
                 disabled={props.currentStudy !== undefined}
             />
 
