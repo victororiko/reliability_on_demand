@@ -78,7 +78,7 @@ GO
 SELECT * from dbo.RELStudyConfig
 
 -- Select rows from a Table or View 'RELTeamConfig' in schema 'dbo'
-SELECT * FROM dbo.RELStudyConfig
+SELECT * FROM dbo.RELTeamConfig
 FOR JSON AUTO, Include_Null_Values
 GO
 
