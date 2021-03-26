@@ -1,0 +1,82 @@
+[
+    {
+        "StudyID": 1,
+        "StudyName": "WVD Studies",
+        "LastRefreshDate": "2021-02-18T10:34:09",
+        "LastModifiedDate": "2021-02-18T10:34:09",
+        "CacheFrequency": 0,
+        "Expiry": "2021-05-18T10:34:09",
+        "TeamID": 3,
+        "ObservationWindowDays": 14
+    },
+    {
+        "StudyID": 2,
+        "StudyName": "Retail Studies",
+        "LastRefreshDate": "2021-02-18T10:34:09",
+        "LastModifiedDate": "2021-02-18T10:34:09",
+        "CacheFrequency": 0,
+        "Expiry": "2021-05-18T10:34:09",
+        "TeamID": 3,
+        "ObservationWindowDays": 14
+    },
+    {
+        "StudyID": 3,
+        "StudyName": "Retail Studies - hourly",
+        "LastRefreshDate": "2021-02-18T10:34:09",
+        "LastModifiedDate": "2021-02-18T10:34:09",
+        "CacheFrequency": 1,
+        "Expiry": "2021-05-18T10:34:09",
+        "TeamID": 3,
+        "ObservationWindowDays": 14
+    },
+    {
+        "StudyID": 4,
+        "StudyName": "WVD Studies - weekly",
+        "LastRefreshDate": "2021-02-18T10:34:09",
+        "LastModifiedDate": "2021-02-18T10:34:09",
+        "CacheFrequency": 168,
+        "Expiry": "2021-05-18T10:34:09",
+        "TeamID": 3,
+        "ObservationWindowDays": 14
+    },
+    {
+        "StudyID": 5,
+        "StudyName": "WVD Studies - every 12 hours",
+        "LastRefreshDate": "2021-02-18T10:34:09",
+        "LastModifiedDate": "2021-02-18T10:34:09",
+        "CacheFrequency": 12,
+        "Expiry": "2021-05-18T10:34:09",
+        "TeamID": 3,
+        "ObservationWindowDays": 14
+    },
+    {
+        "StudyID": 6,
+        "StudyName": "Retail Studies - every 24 hours",
+        "LastRefreshDate": "2021-02-18T10:34:09",
+        "LastModifiedDate": "2021-02-18T10:34:09",
+        "CacheFrequency": 12,
+        "Expiry": "2021-05-18T10:34:09",
+        "TeamID": 3,
+        "ObservationWindowDays": 14
+    },
+    {
+        "StudyID": 7,
+        "StudyName": "Retail Studies - every 24 hours",
+        "LastRefreshDate": "2021-02-18T10:34:09",
+        "LastModifiedDate": "2021-02-18T10:34:09",
+        "CacheFrequency": 24,
+        "Expiry": "2021-05-18T10:34:09",
+        "TeamID": 3,
+        "ObservationWindowDays": 14
+    },
+    {
+        "StudyID": 8,
+        "StudyName": "Retail Studies - every 3 days",
+        "LastRefreshDate": "2021-02-18T10:34:09",
+        "LastModifiedDate": "2021-02-18T10:34:09",
+        "CacheFrequency": 72,
+        "Expiry": "2021-05-18T10:34:09",
+        "TeamID": 3,
+        "ObservationWindowDays": 14
+    }
+]
