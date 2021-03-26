@@ -1,6 +1,6 @@
 import { PrimaryButton, TextField } from '@fluentui/react';
 import * as React from 'react';
-import { TeamConfig } from '../../../models/config.model';
+import { TeamConfig } from '../../models/config.model';
 
 export interface ITeamDetailsProps {
     currentTeam?: TeamConfig;

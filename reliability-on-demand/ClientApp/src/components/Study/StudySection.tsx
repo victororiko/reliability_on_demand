@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { StudyConfig, ConfigInquiry } from '../../../models/config.model';
+import { StudyConfig, ConfigInquiry } from '../../models/config.model';
 import { Dropdown, IDropdownOption, Separator } from "@fluentui/react";
 import { initializeIcons } from '@uifabric/icons';
 import { StudyDetails } from './StudyDetails';
 import axios from 'axios';
-import { largeTitle } from '../ConfigPage';
+import { largeTitle } from '../helpers/Styles';
 initializeIcons();
 
 export interface IStudySectionProps {

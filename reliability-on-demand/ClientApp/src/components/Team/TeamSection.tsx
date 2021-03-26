@@ -1,8 +1,8 @@
 import { Dropdown, IDropdownOption, Separator, TextField } from "@fluentui/react";
 import * as React from "react";
-import { TeamConfig } from '../../../models/config.model';
+import { TeamConfig } from '../../models/config.model';
 import { TeamDetails } from './TeamDetails';
-import { largeTitle } from '../ConfigPage';
+import { largeTitle } from '../helpers/Styles';
 export interface OwnershipSectionProps {
     children?: React.ReactNode
 }

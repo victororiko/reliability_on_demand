@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { TextField, Dropdown, IDropdownOption, PrimaryButton } from '@fluentui/react';
-import { MyDatePicker } from '../../helpers/MyDatePicker';
-import { StudyConfig } from '../../../models/config.model';
-import { S_IFCHR } from 'node:constants';
+import { MyDatePicker } from '../helpers/MyDatePicker';
+import { StudyConfig } from '../../models/config.model';
 
 export interface IStudyDetailsProps {
     currentStudy?: StudyConfig;
@@ -84,6 +83,7 @@ function getObservationWindows() {
     ]
 }
 
+// TODO always get a fresh list of frequencies from SQL 
 const frequencies = 
 [
     { key: '0', text: 'none' },

@@ -1,7 +1,12 @@
 import * as React from 'react';
-import { createTheme, DefaultPalette, IStackItemStyles, IStackStyles, IStackTokens, ITheme, PrimaryButton, Stack } from '@fluentui/react';
-import StudySection from './Study/StudySection';
-import TeamSection from './Team/TeamSection';
+// Our components that make up the page
+import StudySection from '../Study/StudySection';
+import TeamSection from '../Team/TeamSection';
+
+// Stack
+import { containerStackTokens } from '../helpers/Styles';
+import { Stack } from '@fluentui/react';
+import { PrimaryButton } from '@fluentui/react';
 
 export interface IConfigProps {
   //TODO pass in the current user
@@ -18,14 +23,5 @@ export function ConfigPage() {
 }
 
 
-// Separator related styles
-export const largeTitle: ITheme = createTheme({
-  fonts: {
-    medium: {
-      fontSize: '30px',
-    },
-  },
-});
-// Stack related stuff
-const containerStackTokens: IStackTokens = { childrenGap: 10 };
+
 
