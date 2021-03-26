@@ -61,7 +61,7 @@ export default class StudySection extends React.Component<IStudySectionProps, IS
                 <em>Loading...</em>
             </p>
         ) : (
-            this.renderContent()
+            this.renderStudies()
         );
         return (
             <div>
@@ -71,7 +71,7 @@ export default class StudySection extends React.Component<IStudySectionProps, IS
         );
     }
 
-    renderContent() {
+    renderStudies() {
         return(
         <div>
             <Dropdown
