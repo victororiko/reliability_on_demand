@@ -48,6 +48,7 @@ export function StudyDetails(props: IStudyDetailsProps) {
                 options={getObservationWindows()}
                 selectedKey={props.currentStudy?.ObservationWindowDays+""}
                 disabled={props.currentStudy !== undefined}
+                onChange={onObservationWindowChange}
             />
             
             <PrimaryButton text="Add"
@@ -97,5 +98,9 @@ const frequencies =
 ]
 
 const onFrequencyChange = (event: React.FormEvent<HTMLDivElement>, option?: any): void => {
-    console.log(option?.key);
+    console.log(`frequency selected = ${option?.key}`);
+}
+
+const onObservationWindowChange = (event: React.FormEvent<HTMLDivElement>, option?: any): void => {
+    console.log(`Observation Window selected = ${option?.key}`);
 }
