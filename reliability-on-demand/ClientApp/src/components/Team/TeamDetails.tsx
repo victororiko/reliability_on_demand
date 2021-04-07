@@ -1,6 +1,7 @@
 import { PrimaryButton, TextField } from '@fluentui/react';
 import * as React from 'react';
 import { TeamConfig } from '../../models/config.model';
+import { replacerFunc } from "../../components/helpers/utils";
 
 export interface ITeamDetailsProps {
     currentTeam?: TeamConfig;
@@ -41,7 +42,7 @@ export function TeamDetails(props: ITeamDetailsProps) {
 
             <PrimaryButton text="Add"
                 disabled={props.currentTeam !== undefined}
-                onClick={(x) => console.log(`Added Team - ${JSON.stringify(x)}`) }
+                onClick={(x) => console.log(`Added Team - ${JSON.stringify(x,replacerFunc)}`) }
             />
 
         </div>
