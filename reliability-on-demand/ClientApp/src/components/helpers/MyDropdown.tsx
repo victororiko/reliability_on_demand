@@ -8,7 +8,9 @@ export interface IMyDropdownProps {
     showValueFor: string,
     enabled: boolean,
     handleOptionChange: any,
-
+    label: string,
+    placeholder: string,
+    required: boolean
 }
 
 export interface IMyDropdownState {
@@ -16,7 +18,7 @@ export interface IMyDropdownState {
     currentOption: IDropdownOption
 }
 
-export default class MyDropdown extends React.Component<IMyDropdownProps, IMyDropdownState> {
+export class MyDropdown extends React.Component<IMyDropdownProps, IMyDropdownState> {
     constructor(props: IMyDropdownProps) {
         super(props);
         this.state = {
@@ -26,7 +28,6 @@ export default class MyDropdown extends React.Component<IMyDropdownProps, IMyDro
     }
 
     componentDidMount() {
-        console.log('my dropdown component mounted - now parse the input')
         this.parseInputToState();
     }
 
@@ -35,9 +36,13 @@ export default class MyDropdown extends React.Component<IMyDropdownProps, IMyDro
             <div>
                 <Separator>My Custom Dropdown Component</Separator>
                 <Dropdown
+                    label={this.props.label}
+                    placeholder={this.props.placeholder}
+                    required={this.props.required}
                     options={this.state.parsedOptions}
                     disabled={!this.props.enabled}
                     onChange={this.onOptionChange}
+                    aria-label={this.props.label}
                 />
             </div>
         );
@@ -60,6 +65,10 @@ export default class MyDropdown extends React.Component<IMyDropdownProps, IMyDro
     }
     parseInputToState() {
         let newArr: IDropdownOption[] = this.props.data.map(this.extractDropdownOption);
+        newArr.push({
+            key:'-1',
+            text:'Add...'
+        })
         // set state based on data you get
         this.setState({
             parsedOptions: newArr

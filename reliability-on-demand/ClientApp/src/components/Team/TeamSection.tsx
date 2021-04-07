@@ -3,6 +3,8 @@ import * as React from "react";
 import { TeamConfig } from '../../models/config.model';
 import { TeamDetails } from './TeamDetails';
 import { largeTitle } from '../helpers/Styles';
+import { MyDropdown } from '../helpers/MyDropdown';
+
 export interface TeamSectionProps {
     children?: React.ReactNode,
     printHello?:any
@@ -61,24 +63,32 @@ export default class TeamSection extends React.Component<TeamSectionProps, TeamS
     renderContent() {
         return (
             <div>
-
                 {/* User selects from a list of teams that have been created. Otherwise creates a new team */}
-                <Dropdown
+                {/* <Dropdown
                     label="Team"
                     placeholder="Select a Team"
                     options={this.getTeamNames()}
                     required
                     onChange={this.onChange}
                     aria-label="Select a Team"
+                /> */}
+                <MyDropdown 
+                    label="Team"
+                    placeholder="Select a team"
+                    data={this.state.teamConfigs}
+                    enabled={true}
+                    required={true}
+                    useKey="TeamID"
+                    showValueFor="OwnerTeamFriendlyName"
+                    handleOptionChange={this.onTeamSelected} 
                 />
-
                 <TeamDetails currentTeam={this.state.selectedTeam} />
 
             </div>
         )
 
     }
-    onChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption<TeamName> | undefined): void => {
+    onTeamSelected = (option?: IDropdownOption): void => {
         this.setState(
             {
                 selectedTeam: this.getTeamConfig(option?.key)
