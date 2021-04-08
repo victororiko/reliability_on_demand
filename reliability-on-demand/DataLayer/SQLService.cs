@@ -30,9 +30,9 @@
             return _context.GetAllTeamConfigs();
         }
 
-        string ISQLService.GetAllStudyConfigsForTeam(ConfigInquiry TeamID)
+        string ISQLService.GetAllStudyConfigsForTeam(ConfigInquiry inquiry)
         {
-            return _context.GetAllStudyConfigsForTeam(TeamID);
+            return _context.GetAllStudyConfigsForTeam(inquiry);
         }
 
     }
