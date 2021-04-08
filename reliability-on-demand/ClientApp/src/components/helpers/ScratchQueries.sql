@@ -109,5 +109,21 @@ GO
 EXECUTE dbo.GetAllStudyConfigsForTeam 0 /*value_for_TeamID*/
 GO
 
+-- Examples for adding a new team
+-- Create the stored procedure in the specified schema
+CREATE PROCEDURE dbo.AddTeam
+    @OwnerContact /*parameter name*/ nvarchar(255) /*datatype*/ = 'no OwnerContact provided' /*default value*/,
+	@OwnerTeamFriendlyName /*parameter name*/ nvarchar(255) /*datatype*/ = 'no OwnerTeamFriendlyName provided' /*default value*/, 
+	@OwnerTriageAlias /*parameter name*/ nvarchar(255) /*datatype*/ = 'no OwnerTriageAlias provided' /*default value*/
+	
+-- add more stored procedure parameters here
+AS
+    -- body of the stored procedure
+    INSERT INTO [dbo].[RELTeamConfig]
+	VALUES (@OwnerContact, @OwnerTeamFriendlyName, @OwnerTriageAlias)
+
+
+EXECUTE dbo.AddTeam 'hello', 'world', 'hello@world.com'
+GO
 
 
