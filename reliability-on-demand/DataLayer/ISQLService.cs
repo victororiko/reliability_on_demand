@@ -10,6 +10,7 @@ namespace reliability_on_demand.DataLayer
 
         string GetAllStudyConfigsForTeam(ConfigInquiry inquiry);
         
+        
         int LogRelOnDemandQuery<T>(string username, string url, string access, T payload);
         void UpdateRelOnDemandQuery(int id, bool status, string exception);
     }
