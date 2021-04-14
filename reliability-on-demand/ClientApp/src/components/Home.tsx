@@ -10,9 +10,6 @@ export const Home = (props: Props) : React.ReactElement => {
   return (
     <div>
         <h2>Welcome to Reliability on Demand</h2>
-        <p>
-          To get started click on any of the tabs on the top right to explore current functionality.
-        </p>
         <ConfigPage />
       </div>
   )
