@@ -1,7 +1,6 @@
 import { PrimaryButton, TextField } from '@fluentui/react';
 import * as React from 'react';
 import { TeamConfig } from '../../models/config.model';
-import { replacerFunc } from "../../components/helpers/utils";
 import OwnerContactAlias from './OwnerContactAlias';
 import OwnerTeamFriendlyName from './OwnerTeamFriendlyName';
 import OwnerTraigeAlias from './OwnerTriageAlias';
