@@ -26,7 +26,7 @@ export default class OwnerTeamFriendlyNameAlias extends React.Component<IOwnerTe
                 value: event.target.value
             }
         );
-        this.props.callback_function(this.state.value);
+        this.props.callback_function(event.target.value);
     }
 
     getErrorMessage = (value: string): string => {
@@ -46,6 +46,7 @@ export default class OwnerTeamFriendlyNameAlias extends React.Component<IOwnerTe
                     aria-label="Owner Team Friendly Name"
                     disabled={this.props.currentTeam !== undefined}
                     required
+                    value={this.props.currentTeam?.OwnerTeamFriendlyName}
                 />
             </div>
         );

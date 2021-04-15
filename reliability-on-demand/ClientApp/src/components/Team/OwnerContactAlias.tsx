@@ -14,10 +14,10 @@ export interface IOwnerContactAliasState {
 export default class OwnerContactAlias extends React.Component<IOwnerContactAliasProps, IOwnerContactAliasState> {
     constructor(props: IOwnerContactAliasProps) {
         super(props);
-        this.handleUserInput = this.handleUserInput.bind(this)
         this.state = {
             value: ''
-        }
+        };
+        this.handleUserInput = this.handleUserInput.bind(this)
     }
 
     handleUserInput(event: any) {
@@ -26,7 +26,7 @@ export default class OwnerContactAlias extends React.Component<IOwnerContactAlia
                 value: event.target.value
             }
         )
-        this.props.callback_function(this.state.value);
+        this.props.callback_function(event.target.value);
     }
 
     getErrorMessage = (value: string): string => {
@@ -47,6 +47,7 @@ export default class OwnerContactAlias extends React.Component<IOwnerContactAlia
                     aria-label="Owner contact (alias)"
                     disabled={this.props.currentTeam !== undefined}
                     required
+                    value={this.props.currentTeam?.OwnerContact}
                 />
             </div>
         );

@@ -42,7 +42,7 @@ export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetails
     }
 
     getOwnerTeamFrienclyNameFromUser = (value: string) => {
-        this.state.newTeam.OwnerContact = value;
+        this.state.newTeam.OwnerTeamFriendlyName = value;
     }
     getOwnerTriageAliasUser = (value: string) => {
         this.state.newTeam.OwnerTriageAlias = value;

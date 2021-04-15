@@ -26,7 +26,7 @@ export default class OwnerTriageAlias extends React.Component<IOwnerTriageAliasP
                 value: event.target.value
             }
         );
-        this.props.callback_function(this.state.value);
+        this.props.callback_function(event.target.value);
     }
 
     getErrorMessage = (value: string): string => {
@@ -47,6 +47,7 @@ export default class OwnerTriageAlias extends React.Component<IOwnerTriageAliasP
                     aria-label="Owner contact (alias)"
                     disabled={this.props.currentTeam !== undefined}
                     required
+                    value={this.props.currentTeam?.OwnerTriageAlias}
                 />
             </div>
         );
