@@ -39,6 +39,10 @@ export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetails
         this.state.newTeam.OwnerContact = value;
     }
 
+    getOwnerTeamFrienclyNameFromUser = (value:string) => {
+        this.state.newTeam.OwnerContact = value;
+    }
+
     render() {
         return (
             <div>
@@ -46,7 +50,10 @@ export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetails
                     currentTeam={this.props.currentTeam}
                     callback_function={this.getOwnerStringFromUser}
                     />
-                <OwnerTeamFriendlyName currentTeam={this.props.currentTeam}/>
+                <OwnerTeamFriendlyName 
+                currentTeam={this.props.currentTeam}
+                callback_function={this.getOwnerTeamFrienclyNameFromUser}
+                />
                 <OwnerTraigeAlias currentTeam={this.props.currentTeam}/>
 
                 // optional section

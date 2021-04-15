@@ -4,6 +4,7 @@ import { TeamConfig } from '../../models/config.model';
 
 export interface IOwnerTeamFriendlyNameAliasProps {
     currentTeam?: TeamConfig;
+    callback_function:any;
 }
 
 export interface IOwnerTeamFriendlyNameAliasState {
@@ -25,7 +26,7 @@ export default class OwnerTeamFriendlyNameAlias extends React.Component<IOwnerTe
                 value: event.target.value
             }
         );
-
+        this.props.callback_function(this.state.value);
     }
 
     getErrorMessage = (value: string): string => {
