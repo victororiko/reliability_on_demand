@@ -11,27 +11,41 @@ export interface ITeamDetailsProps {
 }
 
 interface ITeamDetailsState {
-    newTeam?: TeamConfig;
+    newTeam: TeamConfig;
 }
 
 export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetailsState> {
 
     constructor(props: any) {
         super(props);
-        this.state = { newTeam: this.props.currentTeam };
+        this.state = { newTeam: 
+            {
+                TeamID: "-1",
+                OwnerContact:"",
+                OwnerTeamFriendlyName:"",
+                OwnerTriageAlias:""
+            } };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleSubmit(event: any) {
-        alert(`Add button was clicked! Result team = ${JSON.stringify(this.state.newTeam)}`);
+        // takes the current inputed values from user and makes a call to DB with the TeamConfig
+        alert(`Submit button was clicked! Result team = ${JSON.stringify(this.state.newTeam)}`);
         event.preventDefault();
         //(x) => console.log(`Added Team - ${JSON.stringify(x, replacerFunc)}`)
     }
 
+    getOwnerStringFromUser = (value:string) => {
+        this.state.newTeam.OwnerContact = value;
+    }
+
     render() {
         return (
-            <form onSubmit={ this.handleSubmit}>
-                <OwnerContactAlias currentTeam={this.props.currentTeam}/>
+            <div>
+                <OwnerContactAlias 
+                    currentTeam={this.props.currentTeam}
+                    callback_function={this.getOwnerStringFromUser}
+                    />
                 <OwnerTeamFriendlyName currentTeam={this.props.currentTeam}/>
                 <OwnerTraigeAlias currentTeam={this.props.currentTeam}/>
 
@@ -47,7 +61,7 @@ export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetails
                     onClick={this.handleSubmit}
                 />
 
-            </form>
+            </div>
         );
     }
 

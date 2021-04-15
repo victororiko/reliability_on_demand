@@ -24,7 +24,8 @@ export default class OwnerTeamFriendlyNameAlias extends React.Component<IOwnerTe
             {
                 value: event.target.value
             }
-        )
+        );
+
     }
 
     getErrorMessage = (value: string): string => {

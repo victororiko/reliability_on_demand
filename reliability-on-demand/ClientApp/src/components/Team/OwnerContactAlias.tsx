@@ -4,6 +4,7 @@ import { TeamConfig } from '../../models/config.model';
 
 export interface IOwnerContactAliasProps {
     currentTeam?: TeamConfig;
+    callback_function:any;
 }
 
 export interface IOwnerContactAliasState {
@@ -25,6 +26,7 @@ export default class OwnerContactAlias extends React.Component<IOwnerContactAlia
                 value: event.target.value
             }
         )
+        this.props.callback_function(this.state.value);
     }
 
     getErrorMessage = (value: string): string => {
