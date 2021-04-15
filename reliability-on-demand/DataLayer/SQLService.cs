@@ -35,5 +35,9 @@
             return _context.GetAllStudyConfigsForTeam(inquiry);
         }
 
+        string ISQLService.AddTeam(TeamConfig inquiry)
+        {
+           return _context.AddTeam(inquiry);
+        }
     }
 }

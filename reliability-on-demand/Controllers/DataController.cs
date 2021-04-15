@@ -64,5 +64,11 @@ namespace reliability_on_demand.Controllers
             return this._sqlservice.GetAllStudyConfigsForTeam(inquiry);
         }
 
+        [Route("api/Data/AddTeam")]
+        [HttpPost("[action]")]
+        public string AddTeam([FromBody]TeamConfig inquiry)
+        {
+            return this._sqlservice.AddTeam(inquiry);
+        }
     }
 }
