@@ -1,4 +1,5 @@
 import { PrimaryButton, TextField } from '@fluentui/react';
+import axios from 'axios';
 import * as React from 'react';
 import { TeamConfig } from '../../models/config.model';
 import OwnerContactAlias from './OwnerContactAlias';
@@ -31,9 +32,12 @@ export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetails
 
     handleSubmit(event: any) {
         // takes the current inputed values from user and makes a call to DB with the TeamConfig
-        alert(`Submit button was clicked! Result team = ${JSON.stringify(this.state.newTeam)}`);
+        alert(`You just added a new team! The values you entered = ${JSON.stringify(this.state.newTeam)}`);
         event.preventDefault();
-        //(x) => console.log(`Added Team - ${JSON.stringify(x, replacerFunc)}`)
+        axios.post("api/Data/AddTeam", this.state.newTeam)
+            .then(res => {
+                console.log(res);
+            })
     }
 
     getOwnerStringFromUser = (value: string) => {
