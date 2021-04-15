@@ -33,6 +33,9 @@ export default class TeamSection extends React.Component<TeamSectionProps, TeamS
             loading: true,
             selectedTeam: undefined,
         }
+
+
+        this.onTeamSelected = this.onTeamSelected.bind(this);
     }
 
     /**
@@ -64,14 +67,6 @@ export default class TeamSection extends React.Component<TeamSectionProps, TeamS
         return (
             <div>
                 {/* User selects from a list of teams that have been created. Otherwise creates a new team */}
-                {/* <Dropdown
-                    label="Team"
-                    placeholder="Select a Team"
-                    options={this.getTeamNames()}
-                    required
-                    onChange={this.onChange}
-                    aria-label="Select a Team"
-                /> */}
                 <MyDropdown 
                     label="Team"
                     placeholder="Select a team"

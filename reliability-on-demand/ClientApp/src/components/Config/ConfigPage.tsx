@@ -19,7 +19,8 @@ export interface IConfigState {
 
 export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
   constructor(props: IConfigProps) {
-    super(props)
+      super(props);
+      this.printTeam = this.printTeam.bind(this);
   }
 
   componentDidMount() {
