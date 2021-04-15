@@ -4,6 +4,7 @@ import { TeamConfig } from '../../models/config.model';
 
 export interface IOwnerTriageAliasProps {
     currentTeam?: TeamConfig;
+    callback_function:any;
 }
 
 export interface IOwnerTriageAliasState {
@@ -24,7 +25,8 @@ export default class OwnerTriageAlias extends React.Component<IOwnerTriageAliasP
             {
                 value: event.target.value
             }
-        )
+        );
+        this.props.callback_function(this.state.value);
     }
 
     getErrorMessage = (value: string): string => {

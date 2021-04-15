@@ -18,13 +18,15 @@ export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetails
 
     constructor(props: any) {
         super(props);
-        this.state = { newTeam: 
+        this.state = {
+            newTeam:
             {
                 TeamID: "-1",
-                OwnerContact:"",
-                OwnerTeamFriendlyName:"",
-                OwnerTriageAlias:""
-            } };
+                OwnerContact: "",
+                OwnerTeamFriendlyName: "",
+                OwnerTriageAlias: ""
+            }
+        };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
@@ -35,26 +37,32 @@ export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetails
         //(x) => console.log(`Added Team - ${JSON.stringify(x, replacerFunc)}`)
     }
 
-    getOwnerStringFromUser = (value:string) => {
+    getOwnerStringFromUser = (value: string) => {
         this.state.newTeam.OwnerContact = value;
     }
 
-    getOwnerTeamFrienclyNameFromUser = (value:string) => {
+    getOwnerTeamFrienclyNameFromUser = (value: string) => {
         this.state.newTeam.OwnerContact = value;
+    }
+    getOwnerTriageAliasUser = (value: string) => {
+        this.state.newTeam.OwnerTriageAlias = value;
     }
 
     render() {
         return (
             <div>
-                <OwnerContactAlias 
+                <OwnerContactAlias
                     currentTeam={this.props.currentTeam}
                     callback_function={this.getOwnerStringFromUser}
-                    />
-                <OwnerTeamFriendlyName 
-                currentTeam={this.props.currentTeam}
-                callback_function={this.getOwnerTeamFrienclyNameFromUser}
                 />
-                <OwnerTraigeAlias currentTeam={this.props.currentTeam}/>
+                <OwnerTeamFriendlyName
+                    currentTeam={this.props.currentTeam}
+                    callback_function={this.getOwnerTeamFrienclyNameFromUser}
+                />
+                <OwnerTraigeAlias 
+                    currentTeam={this.props.currentTeam} 
+                    callback_function={this.getOwnerTriageAliasUser}
+                    />
 
                 // optional section
                 <TextField label="Compute Resource Location"
