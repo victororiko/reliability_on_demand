@@ -7,10 +7,9 @@ import TeamSection from '../Team/TeamSection';
 import { containerStackTokens } from '../helpers/Styles';
 import { Stack } from '@fluentui/react';
 import { PrimaryButton } from '@fluentui/react';
-import { ConfigInquiry, TeamConfig } from '../../models/config.model';
+import { TeamConfig } from '../../models/config.model';
 
 export interface IConfigProps {
-  //TODO pass in the current user
 }
 
 export interface IConfigState {
