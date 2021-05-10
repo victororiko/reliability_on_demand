@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Workflows>
+	<!-- https://xflow.microsoft.com/Workflows/Details/Rel.RIOD.PopulationAggregator.T4 -->
+	<Workflow Name="Rel.RIOD.PopulationAggregator.T4"
+			  Enabled="true"
+			  Author ="cosreldata"
+			  FolderName ="PlatformHealth.Reliability"
+			  RecurrenceUnit="2"
+			  RecurrenceAmount="12"
+			  Start="2021-03-01T12:00:00"
+			  Email="cosreldata@microsoft.com"
+			  TriggeredByWorkflow="WatsonSnapshotUserModeStatus"
+			  TriggeredByActivity="WatsonSnapshotUserModeStatus.Finished"
+            >
+		<ConfigBases>
+			<ConfigBase Name="MissionControlBYODT4" File="MissionControlBYODT4.xml"/>
+		</ConfigBases>
+		<Parameters>
+			<Parameter Name="__vc" Value="https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat" />
+			<Parameter Name="_scopePath" Value="$(CLUSTER_ROOT);$(CLUSTER_ROOT)/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Schema;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Policy"/>
+			<Parameter Name="_priority" Value="998"/>
+			<Parameter Name="_tokenAllocation" Value="30"/>
+			<Parameter Name="_inputDayLookBack" Value="14"/>
+			<Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel"/>
+			<Parameter Name="_OSCadence" Value="Development;Development-Skip"/>
+			<Parameter Name="_outputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/"/>
+			<Parameter Name="_inputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/"/>
+		</Parameters>
+		<Activities>
+			<Activity Name="PopulationAggregator" ConfigBase="MissionControlBYODT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
+				<Parameters>
+					<Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.PopulationAggregator.script.scopet4"/>
+					<Parameter Name="_inputFilterExpression" Value="(DeviceFamily ?? string.Empty).ToLowerInvariant()== &quot;windows.desktop&quot; AND !(bool)(IsTestLab ?? false)"/>
+					<Parameter Name="_inputOSBuildDefinitionFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json"/>
+					<Parameter Name="_applyUnifiedOSConfig" Value="yes"/>
+					<Parameter Name="_outputStreamName" Value="RIOD.DevicePopulation.ss"/>
+					<Parameter Name="_tokenAllocation" Value="60"/>
+					<Parameter Name="_priority" Value="998"/>
+				</Parameters>
+			</Activity>
+		</Activities>
+	</Workflow>
+</Workflows>
