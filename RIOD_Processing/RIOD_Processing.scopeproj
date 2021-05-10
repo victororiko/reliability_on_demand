@@ -26,10 +26,21 @@
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Script Include="Scope.script" />
-    <ScriptCode Include="Scope.script.cs">
-      <DependentUpon>Scope.script</DependentUpon>
-    </ScriptCode>
+    <Content Include="RIOD.Pivot.PivotInfoConfig.json">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="RIOD.PivotAggregator.wfdef">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="RIOD.PivotInfoAndValues.script.scopet4">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="RIOD.PopulationAggregator.script.scopet4">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="RIOD.PopulationAggregator.wfdef">
+      <SubType>Content</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(AppData)\Microsoft\ScopeStudio\MsBuild\1.0\Scope.targets" />
 </Project>
