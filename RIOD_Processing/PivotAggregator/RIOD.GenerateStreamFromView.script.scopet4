@@ -1,0 +1,65 @@
+﻿//Script GUID:ce3ae8d7-5608-4d1b-8bc9-3448a4ea0902
+//Used for tracking history
+//Script generate streams from views that are consumed by the logic app to ingest the schema
+
+<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@ import namespace = "VcClient" #>
+
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+    string ViewsToStream = @"";
+	string outputFolder = @"";
+    
+    // Verify/Check if we are running under XFlow
+    if (context != null)
+    {	
+        ViewsToStream = (string)context.GetParameter<string>("_ViewsToStream", ViewsToStream);
+		outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
+    }
+#>
+
+#DECLARE rootFolder string = "/shares/asimov.prod.data";
+#DECLARE deviceCensusDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Device.Census.dll", @rootFolder);
+#DECLARE commonUtilitiesDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Common.Utilities.dll", @rootFolder);
+#DECLARE commonParsersDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Common.Parsers.dll", @rootFolder);
+
+REFERENCE @deviceCensusDll;
+REFERENCE @commonUtilitiesDll;
+REFERENCE @commonParsersDll;
+
+USING Microsoft.Telemetry.Device.Census;
+USING Microsoft.Telemetry.Common.Utilities;
+USING Microsoft.Telemetry.Common.Parsers;
+
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy; 
+
+REFERENCE @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Relevance.ScopeLib.dll";
+USING Microsoft.SegmentRelevance.ScopeLib;
+
+<#
+    for (int i=0; i<ViewsToStream.Split(';').Length; i++)
+    {
+
+	int length = ViewsToStream.Split(';')[i].Split('/').Length;
+	string filename = ViewsToStream.Split(';')[i].Split('/')[length-1].Split('.')[0];
+	string outputname = String.Format("{0}/{1}.ss",outputFolder,filename);
+#>
+		result = SELECT TOP 10 * 
+				 FROM
+				 (
+					VIEW @"<#=ViewsToStream.Split(';')[i]#>"
+				 );
+
+		
+
+[Privacy.Asset.NonPersonal]
+OUTPUT result
+TO SSTREAM @"<#=outputname#>"
+   WITH STREAMEXPIRY "20";
+
+<#
+	}
+#>
