@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Workflows>
+  <!-- https://xflow.microsoft.com/Workflows/Details/Rel.RIOD.Test.T4 -->
+  <Workflow Name="Rel.RIOD.Test.T4"
+            Enabled="disabled"
+            Author ="anjgoel"
+            FolderName ="PlatformHealth.Reliability"
+            RecurrenceUnit="2"
+            Version="1.0.2"
+            RecurrenceAmount="4"
+            Start="2017-11-07T08:00:00"
+            Email="anjgoel@microsoft.com"
+            >
+    <ConfigBases>
+      <ConfigBase Name="Metrics" File="Metrics.xml"/>
+    </ConfigBases>
+
+    <Parameters>
+      <Parameter Name="__vc" Value="https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat" />
+      <Parameter Name="_scopePath" Value="$(CLUSTER_ROOT);$(CLUSTER_ROOT)/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Schema;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Policy"/>
+      <Parameter Name="_priority" Value="999"/>
+      <Parameter Name="_tokenAllocation" Value="80"/>
+      <Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel"/>
+    </Parameters>
+
+    <Activities>
+      <!-- https://osgwiki.com/wiki/XFlow/ActivityClass/RecurrentScopeActivity#What_are_the_Default_Asimov_Credentials_Available.3F -->
+      <Activity Name="GenerateStreams" ConfigBase="Metrics" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
+        <Parameters>
+          <Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Staging/Reliability/FailureCurve/PPE_Results/RIOD.FeederJsonReader.script.scopet4"/>
+        </Parameters>
+      </Activity>
+    </Activities>
+  </Workflow>
+</Workflows>
