@@ -7,7 +7,7 @@
             Author ="cosreldata"
             FolderName ="PlatformHealth.Reliability"
             RecurrenceUnit="2"
-            Version="1.0.52"
+            Version="1.0.2"
             RecurrenceAmount="4"
             Start="2017-11-07T08:00:00"
             Email="cosreldata@microsoft.com"
@@ -28,7 +28,7 @@
       <!-- https://osgwiki.com/wiki/XFlow/ActivityClass/RecurrentScopeActivity#What_are_the_Default_Asimov_Credentials_Available.3F -->
       <Activity Name="GenerateStreams" ConfigBase="Metrics" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
         <Parameters>
-          <Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Metrics/GeneratingStreamsFromView.script.scopet4"/>
+          <Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Metrics/RIOD.GenerateStreamFromView.script.scopet4"/>
           <Parameter Name="_outputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/PivotInputStreams/"/>
           <Parameter Name="_ViewsToStream" Value="/shares/asimov.prod.data/Public/Processed/Flighting/MachineDeviceDriverDailyFactTable/MachineDeviceDriverDaily.view;/shares/asimov.prod.data/Public/Processed/Flighting/MachineCensusFactTable/MachineConsolidatedFactTable.view;/shares/asimov.prod.data/Public/Processed/Device/Census/Consolidated/DeviceCensusConsolidated.View"/>
         </Parameters>

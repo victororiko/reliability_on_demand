@@ -11,12 +11,16 @@
     var context = Host.GetHostOption("T4Context") as IT4TransformContext;
     string ViewsToStream = @"";
 	string outputFolder = @"";
+	string watsonAggUserViewStreamName = @"WatsonSnapshotAggViewUserMode.ss";
+	string watsonAggKernelViewStreamName = @"WatsonSnapshotAggViewKernelMode.ss";
     
     // Verify/Check if we are running under XFlow
     if (context != null)
     {	
         ViewsToStream = (string)context.GetParameter<string>("_ViewsToStream", ViewsToStream);
 		outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
+		watsonAggUserViewStreamName = (string)context.GetParameter<string>("_watsonAggUserViewStreamName", watsonAggUserViewStreamName);
+		watsonAggKernelViewStreamName = (string)context.GetParameter<string>("_watsonAggKernelViewStreamName", watsonAggKernelViewStreamName);
     }
 #>
 
@@ -33,11 +37,19 @@ USING Microsoft.Telemetry.Device.Census;
 USING Microsoft.Telemetry.Common.Utilities;
 USING Microsoft.Telemetry.Common.Parsers;
 
+MODULE "shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module" AS w;
+
 MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
 USING Privacy; 
 
 REFERENCE @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Relevance.ScopeLib.dll";
 USING Microsoft.SegmentRelevance.ScopeLib;
+
+#DECLARE watsonAggUserViewStreamPath string = @"<#= string.Format("{0}/{1}",outputFolder, watsonAggUserViewStreamName) #>";
+#DECLARE watsonAggKernelViewStreamPath string = @"<#= string.Format("{0}/{1}",outputFolder, watsonAggKernelViewStreamName) #>";
+
+REFERENCE "shares/asimov.prod.data/PublicPartner/Processed/WebPlatform/Modules/ScopeHelpers/PrivateHelpers.dll";
+USING Microsoft.WebPlatform.ScopeHelpers.Private;
 
 <#
     for (int i=0; i<ViewsToStream.Split(';').Length; i++)
@@ -63,3 +75,31 @@ TO SSTREAM @"<#=outputname#>"
 <#
 	}
 #>
+
+
+    
+    
+watsonAggUserModeViewData = 
+        w.WatsonSnapshotView
+(
+    watsonEventNameList = new ARRAY<string> { "appcrash" },
+    numHours = 24
+);
+
+[Privacy.Asset.NonPersonal]
+OUTPUT watsonAggUserModeViewData
+TO SSTREAM @watsonAggUserViewStreamPath
+WITH STREAMEXPIRY "20";
+
+
+watsonAggKernelModeViewData = 
+        w.WatsonSnapshotView
+(
+    watsonEventNameList = new ARRAY<string> { "kernelmode" },
+    numHours = 24
+);
+
+[Privacy.Asset.NonPersonal]
+OUTPUT watsonAggKernelModeViewData
+TO SSTREAM @watsonAggKernelViewStreamPath
+WITH STREAMEXPIRY "20";
