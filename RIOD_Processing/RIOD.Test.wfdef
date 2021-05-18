@@ -4,13 +4,13 @@
   <!-- https://xflow.microsoft.com/Workflows/Details/Rel.RIOD.Test.T4 -->
   <Workflow Name="Rel.RIOD.Test.T4"
             Enabled="disabled"
-            Author ="anjgoel"
+            Author ="cosreldata"
             FolderName ="PlatformHealth.Reliability"
             RecurrenceUnit="2"
             Version="1.0.2"
             RecurrenceAmount="4"
             Start="2017-11-07T08:00:00"
-            Email="anjgoel@microsoft.com"
+            Email="cosreldata@microsoft.com"
             >
     <ConfigBases>
       <ConfigBase Name="Metrics" File="Metrics.xml"/>
