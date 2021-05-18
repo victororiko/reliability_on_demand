@@ -82,12 +82,15 @@ TO SSTREAM @"<#=outputname#>"
 watsonAggUserModeViewData = 
         w.WatsonSnapshotView
 (
-    watsonEventNameList = new ARRAY<string> { "appcrash" },
+    watsonEventNameList = new ARRAY<string> { "{appcrash}","{apphang}" },
     numHours = 24
 );
 
+selectedWatsonUserMode = SELECT TOP 1000000 * 
+						FROM watsonAggUserModeViewData;
+
 [Privacy.Asset.NonPersonal]
-OUTPUT watsonAggUserModeViewData
+OUTPUT selectedWatsonUserMode
 TO SSTREAM @watsonAggUserViewStreamPath
 WITH STREAMEXPIRY "20";
 
@@ -95,11 +98,15 @@ WITH STREAMEXPIRY "20";
 watsonAggKernelModeViewData = 
         w.WatsonSnapshotView
 (
-    watsonEventNameList = new ARRAY<string> { "kernelmode" },
-    numHours = 24
+    watsonEventNameList = new ARRAY<string> { "{kernelmode}" },
+    numHours = 24,
+	snapshotSource = "KernelMode"
 );
 
+selectedWatsonKernelMode = SELECT TOP 1000000 * 
+						FROM watsonAggKernelModeViewData;
+
 [Privacy.Asset.NonPersonal]
-OUTPUT watsonAggKernelModeViewData
+OUTPUT selectedWatsonKernelMode
 TO SSTREAM @watsonAggKernelViewStreamPath
 WITH STREAMEXPIRY "20";
