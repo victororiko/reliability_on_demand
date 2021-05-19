@@ -86,7 +86,7 @@ watsonAggUserModeViewData =
     numHours = 24
 );
 
-selectedWatsonUserMode = SELECT TOP 50000 * 
+selectedWatsonUserMode = SELECT TOP 10000 * 
 						FROM watsonAggUserModeViewData;
 
 [Privacy.Asset.NonPersonal]
@@ -103,7 +103,7 @@ watsonAggKernelModeViewData =
 	snapshotSource = "KernelMode"
 );
 
-selectedWatsonKernelMode = SELECT TOP 50000 * 
+selectedWatsonKernelMode = SELECT TOP 10000 * 
 						FROM watsonAggKernelModeViewData;
 
 [Privacy.Asset.NonPersonal]
