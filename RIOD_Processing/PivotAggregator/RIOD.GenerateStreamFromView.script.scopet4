@@ -59,7 +59,7 @@ USING Microsoft.WebPlatform.ScopeHelpers.Private;
 	string filename = ViewsToStream.Split(';')[i].Split('/')[length-1].Split('.')[0];
 	string outputname = String.Format("{0}/{1}.ss",outputFolder,filename);
 #>
-		result = SELECT TOP 100000 * 
+		result = SELECT TOP 50000 * 
 				 FROM
 				 (
 					VIEW @"<#=ViewsToStream.Split(';')[i]#>"
