@@ -1,0 +1,110 @@
+﻿<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "VcClient" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@include file="ReadTextFromStream.scopet4" #>
+<#@ import namespace = "System" #>
+<#@ assembly name= "NEWTONSOFT.JSON.DLL" #>
+<#@ import namespace = "Newtonsoft.Json" #>
+<#@ import namespace = "Newtonsoft.Json.Linq" #>
+<#@include file="ConfigurationHelper.scopet4" #>
+<#@include file="DebugOutput.scopet4" #>
+<#@include file="SchemaExplorer.scopet4" #>
+<#@include file="GetLatestStreamDate.scopet4" #>
+<#@include file="SaveTextToStream.scopet4" #>
+
+
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+
+	string feederJSONFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/RIOD.PivotColumns.json"; 
+	string inputFolder = @"shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/PivotInputStreams";
+
+    // Check if we are running under XFlow
+    if (context != null)
+    {
+       feederJSONFile = (string)context.GetParameter<string>("_feederJSONFile", feederJSONFile);
+	   inputFolder = (string)context.GetParameter<string>("_inputFolder", inputFolder);
+    }
+
+	string configContent = ReadTextFromStream(feederJSONFile);
+	Dictionary<string, string> configInfo = new Dictionary<string, string>();
+
+	JArray jsonFeederConfig = JArray.Parse(configContent);
+
+	foreach (JObject content in jsonFeederConfig.Children<JObject>())
+    {
+		string source = content["SourceName"].ToString();
+		JArray jsonColumns = JArray.Parse(content["columns"].ToString());
+		var columns ="";
+		int columnPtr = 0;
+
+		foreach (JObject column in jsonColumns.Children<JObject>())
+        {
+			var name = column["ColumnName"].ToString();
+			if(columnPtr>0)
+				columns = columns + ";" + name;
+			else
+				columns = name;
+
+			columnPtr++;
+
+		}
+
+		configInfo.Add(source,columns);
+	}
+	
+
+#>
+
+// Import Next Generation Privacy annotation module 
+// Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy; 
+
+res = SELECT * FROM
+	 (SSTREAM @"shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/PivotInputStreams/DeviceCensusConsolidated.ss");
+
+<#  int i =0;
+	for(;i< configInfo.Count; i++)
+	{
+		var ele = configInfo.ElementAt(i);
+		var source = ele.Key;
+		var cols = ele.Value.Split(';');
+	#>
+
+		res_<#=i#> = SELECT
+
+	<#
+		int ptr = 0;
+
+		for(int j=0;j< cols.Length;j++)
+		{
+			if(ptr > 0)
+			{
+	#>
+				,
+		
+	<#
+			}
+			
+	#>
+			<#=cols[j]#>
+	<#
+			ptr++;
+		}
+	#>
+
+		FROM
+
+		(SSTREAM @"<#=string.Format("{0}/{1}",inputFolder,source)#>");
+
+	<#
+	}
+	#>
+	 
+
+OUTPUT res
+TO SSTREAM @"shares/asimov.prod.data/PublicPartner/Staging/Reliability/FailureCurve/PPE_Results/res.ss"
+WITH STREAMEXPIRY "10";
+
