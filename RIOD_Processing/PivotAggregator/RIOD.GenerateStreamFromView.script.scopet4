@@ -59,7 +59,8 @@ USING Microsoft.WebPlatform.ScopeHelpers.Private;
 	string filename = ViewsToStream.Split(';')[i].Split('/')[length-1].Split('.')[0];
 	string outputname = String.Format("{0}/{1}.ss",outputFolder,filename);
 #>
-		result = SELECT TOP 50000 * 
+		result = SELECT TOP 50000 *,
+						"Population" AS SourceType
 				 FROM
 				 (
 					VIEW @"<#=ViewsToStream.Split(';')[i]#>"
@@ -86,7 +87,8 @@ watsonAggUserModeViewData =
     numHours = 24
 );
 
-selectedWatsonUserMode = SELECT TOP 10000 * 
+selectedWatsonUserMode = SELECT TOP 10000 *,
+								"Failure" AS SourceType
 						FROM watsonAggUserModeViewData;
 
 [Privacy.Asset.NonPersonal]
@@ -103,7 +105,8 @@ watsonAggKernelModeViewData =
 	snapshotSource = "KernelMode"
 );
 
-selectedWatsonKernelMode = SELECT TOP 10000 * 
+selectedWatsonKernelMode = SELECT TOP 10000 *,
+								  "Failure" AS SourceType
 						FROM watsonAggKernelModeViewData;
 
 [Privacy.Asset.NonPersonal]
