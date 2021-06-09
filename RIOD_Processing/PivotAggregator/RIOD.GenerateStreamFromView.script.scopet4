@@ -60,7 +60,7 @@ USING Microsoft.WebPlatform.ScopeHelpers.Private;
 	string outputname = String.Format("{0}/{1}.ss",outputFolder,filename);
 #>
 		result = SELECT TOP 50000 *,
-						"Population" AS SourceType
+						"Population" AS PopulationSourceType
 				 FROM
 				 (
 					VIEW @"<#=ViewsToStream.Split(';')[i]#>"
@@ -88,7 +88,7 @@ watsonAggUserModeViewData =
 );
 
 selectedWatsonUserMode = SELECT TOP 10000 *,
-								"Failure" AS SourceType
+								"Failure" AS FailureSourceType
 						FROM watsonAggUserModeViewData;
 
 [Privacy.Asset.NonPersonal]
@@ -106,7 +106,7 @@ watsonAggKernelModeViewData =
 );
 
 selectedWatsonKernelMode = SELECT TOP 10000 *,
-								  "Failure" AS SourceType
+								  "Failure" AS FailureSourceType
 						FROM watsonAggKernelModeViewData;
 
 [Privacy.Asset.NonPersonal]
