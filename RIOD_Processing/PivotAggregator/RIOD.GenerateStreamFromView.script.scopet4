@@ -13,6 +13,9 @@
 	string outputFolder = @"";
 	string watsonAggUserViewStreamName = @"WatsonSnapshotAggViewUserMode.ss";
 	string watsonAggKernelViewStreamName = @"WatsonSnapshotAggViewKernelMode.ss";
+	string UsageView = @"";
+	int inputDayLookBack = 1;
+    DateTime today = DateTime.UtcNow;
     
     // Verify/Check if we are running under XFlow
     if (context != null)
@@ -21,6 +24,7 @@
 		outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
 		watsonAggUserViewStreamName = (string)context.GetParameter<string>("_watsonAggUserViewStreamName", watsonAggUserViewStreamName);
 		watsonAggKernelViewStreamName = (string)context.GetParameter<string>("_watsonAggKernelViewStreamName", watsonAggKernelViewStreamName);
+		UsageView = (string)context.GetParameter<string>("_UsageView", UsageView);
     }
 #>
 
@@ -28,6 +32,9 @@
 #DECLARE deviceCensusDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Device.Census.dll", @rootFolder);
 #DECLARE commonUtilitiesDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Common.Utilities.dll", @rootFolder);
 #DECLARE commonParsersDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Common.Parsers.dll", @rootFolder);
+#DECLARE endDate DateTime = DateTime.Parse("<#=today#>");
+#DECLARE dtStartDate DateTime = @endDate.Date.AddDays(-<#=inputDayLookBack#>);
+#DECLARE dtEndDate DateTime = @endDate;
 
 REFERENCE @deviceCensusDll;
 REFERENCE @commonUtilitiesDll;
@@ -77,6 +84,39 @@ TO SSTREAM @"<#=outputname#>"
 	}
 #>
 
+
+<#
+    for (int i=0; i<UsageView.Split(';').Length; i++)
+    {
+
+	int length = UsageView.Split(';')[i].Split('/').Length;
+	string filename = UsageView.Split(';')[i].Split('/')[length-1].Split('.')[0];
+	string outputname = String.Format("{0}/{1}.ss",outputFolder,filename);
+#>
+		result = SELECT TOP 50000 *,
+						"Usage" AS UsageSourceType
+				 FROM
+				 (
+					VIEW @"<#=UsageView.Split(';')[i]#>"
+					PARAMS
+					(
+						sparseStreamSet = true,
+						startDate = @dtStartDate,
+						endDate = @dtEndDate,
+						DataSource = @"AppInteractivity"
+					)
+				 );
+
+		
+
+[Privacy.Asset.NonPersonal]
+OUTPUT result
+TO SSTREAM @"<#=outputname#>"
+   WITH STREAMEXPIRY "20";
+
+<#
+	}
+#>
 
     
     
