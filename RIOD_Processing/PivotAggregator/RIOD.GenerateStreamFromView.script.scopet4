@@ -67,7 +67,8 @@ USING Microsoft.WebPlatform.ScopeHelpers.Private;
 	string outputname = String.Format("{0}/{1}.ss",outputFolder,filename);
 #>
 		result = SELECT TOP 50000 *,
-						"Population" AS PopulationSourceType
+						"Population" AS PopulationSourceType,
+						 String.Concat("ViewPath-","<#=ViewsToStream.Split(';')[i]#>") AS ViewSourcePath
 				 FROM
 				 (
 					VIEW @"<#=ViewsToStream.Split(';')[i]#>"
@@ -94,7 +95,8 @@ TO SSTREAM @"<#=outputname#>"
 	string outputname = String.Format("{0}/{1}.ss",outputFolder,filename);
 #>
 		result = SELECT TOP 50000 *,
-						"Usage" AS UsageSourceType
+						"Usage" AS UsageSourceType,
+						String.Concat("ViewPath-","<#=UsageView.Split(';')[i]#>") AS ViewSourcePath
 				 FROM
 				 (
 					VIEW @"<#=UsageView.Split(';')[i]#>"
@@ -128,7 +130,8 @@ watsonAggUserModeViewData =
 );
 
 selectedWatsonUserMode = SELECT TOP 10000 *,
-								"Failure" AS FailureSourceType
+								"Failure" AS FailureSourceType,
+								String.Concat("ViewPath-","shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module") AS ViewSourcePath
 						FROM watsonAggUserModeViewData;
 
 [Privacy.Asset.NonPersonal]
@@ -146,7 +149,8 @@ watsonAggKernelModeViewData =
 );
 
 selectedWatsonKernelMode = SELECT TOP 10000 *,
-								  "Failure" AS FailureSourceType
+								  "Failure" AS FailureSourceType,
+								  String.Concat("ViewPath-","shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module") AS ViewSourcePath 
 						FROM watsonAggKernelModeViewData;
 
 [Privacy.Asset.NonPersonal]
