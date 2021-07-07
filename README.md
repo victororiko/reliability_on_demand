@@ -1,14 +1,49 @@
+# Getting started
+- Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [VS Code](https://code.visualstudio.com/)
+- Install [node.js](https://nodejs.org/en/download/)
+- Clone this repo
+- Create a new branch with hyphenated naming convention e.g. fix-main or add-tests
+- Go to Azure KeyVault page: [relondemandvault>appsettings](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/asset/Microsoft_Azure_KeyVault/Secret/https://relondemandvault.vault.azure.net/secrets/appsettings/644af47b6a344ee59e4f7fdc58c7fd6e)
+- copy secret value, and paste it in a new file named  ```appsettings.json``` under reliability-on-demand folder<br>
+-- File path should look like this: {your repo path}\reliability.on.demand\reliability-on-demand\appsettings.json
+- Open the solution, and Run it (press F5)
+- If the project doesn't run you may need to install required node dependencies: 
+```
+cd ClientApp
+npm install
+```
+<br>
+
+# Current Branch policies
+1. You cannot make commits to main directly
+2. You need to create PRs to pull in changes to main
+3. Your PR needs to pass the build CI pipeline [reliability.on.demand](https://microsoft.visualstudio.com/OS.Fun/_build?definitionId=62545&_a=summary)<br>
+4. PR may warn you if:
+- you don't have a work item attached
+- you don't haven't resolved all comments
+
+These policies are in place to make sure we don't regress any functionality, and created in hopes of delivering quality code at a faster velocity following industry standards on web development :) ___Please do not change these policies unless you really need to___
+
+You can view these policies at [Branch policy for main](https://microsoft.visualstudio.com/OS.Fun/_settings/repositories?_a=policiesMid&repo=df56f54f-6e05-4a43-befd-6e2d660cf7e1&refs=refs%2Fheads%2Fmain)
+
+How to's?
+[Protect your Git branches with policies - Azure Repos | Microsoft Docs](https://docs.microsoft.com/en-us/azure/devops/repos/git/branch-policies?view=azure-devops)
+# Build pipeline
+Current build pipeline [reliability.on.demand](https://microsoft.visualstudio.com/OS.Fun/_build?definitionId=62545&_a=summary)<br>
+This is where you can make changes to YAML file that contains all the steps for a build pipeline. A [cool walk-through](https://www.youtube.com/watch?v=FFxww1-M25E&ab_channel=RahulNath) on creating a react app and testing it using the build pipeline. 
+
+# Overall code organization
 Here's the overall code flow + a few key points to keep in mind: <br>
-### Server
-Program.cs --> Startup.cs --> ClientApp
-### Client
-ClientApp --> index.tsx --> Layout.tsx --> components folder 
+## Server
+Program.cs ---uses---> Startup.cs ---builds---> ASP .NET Core App
+## Client
+ClientApp/ --> index.tsx --> Layout.tsx --> components folder 
 - components folder contains all isolated components
 - each component has a both typescript + HTML 
 - a component is transpiled (.tsx --> .js + html) using babel 
 - run npm scripts as follows
 ```
-cd Client
+cd ClientApp
 npm start
 ```
 <br>
@@ -17,7 +52,6 @@ npm start
 If you're interested in setting up VScode configs [youtube](https://www.youtube.com/watch?v=6VOUka1zGvk&t=192s&ab_channel=BetterDev) similar to what I used when I was creating this project: 
 
 
-# ClientApp (React)
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 **Note**<br>

@@ -10,7 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
+  solution: '**/reliability-on-demand.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   clientAppDir: 'reliability-on-demand\ClientApp'

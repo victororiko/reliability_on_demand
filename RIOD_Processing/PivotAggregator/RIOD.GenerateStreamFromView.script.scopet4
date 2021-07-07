@@ -1,0 +1,159 @@
+﻿//Script GUID:ce3ae8d7-5608-4d1b-8bc9-3448a4ea0902
+//Used for tracking history
+//Script generate streams from views that are consumed by the logic app to ingest the schema
+
+<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@ import namespace = "VcClient" #>
+
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+    string ViewsToStream = @"";
+	string outputFolder = @"";
+	string watsonAggUserViewStreamName = @"WatsonSnapshotAggViewUserMode.ss";
+	string watsonAggKernelViewStreamName = @"WatsonSnapshotAggViewKernelMode.ss";
+	string UsageView = @"";
+	int inputDayLookBack = 1;
+    DateTime today = DateTime.UtcNow;
+    
+    // Verify/Check if we are running under XFlow
+    if (context != null)
+    {	
+        ViewsToStream = (string)context.GetParameter<string>("_ViewsToStream", ViewsToStream);
+		outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
+		watsonAggUserViewStreamName = (string)context.GetParameter<string>("_watsonAggUserViewStreamName", watsonAggUserViewStreamName);
+		watsonAggKernelViewStreamName = (string)context.GetParameter<string>("_watsonAggKernelViewStreamName", watsonAggKernelViewStreamName);
+		UsageView = (string)context.GetParameter<string>("_UsageView", UsageView);
+    }
+#>
+
+#DECLARE rootFolder string = "/shares/asimov.prod.data";
+#DECLARE deviceCensusDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Device.Census.dll", @rootFolder);
+#DECLARE commonUtilitiesDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Common.Utilities.dll", @rootFolder);
+#DECLARE commonParsersDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Common.Parsers.dll", @rootFolder);
+#DECLARE endDate DateTime = DateTime.Parse("<#=today#>");
+#DECLARE dtStartDate DateTime = @endDate.Date.AddDays(-<#=inputDayLookBack#>);
+#DECLARE dtEndDate DateTime = @endDate;
+
+REFERENCE @deviceCensusDll;
+REFERENCE @commonUtilitiesDll;
+REFERENCE @commonParsersDll;
+
+USING Microsoft.Telemetry.Device.Census;
+USING Microsoft.Telemetry.Common.Utilities;
+USING Microsoft.Telemetry.Common.Parsers;
+
+MODULE "shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module" AS w;
+
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy; 
+
+REFERENCE @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Relevance.ScopeLib.dll";
+USING Microsoft.SegmentRelevance.ScopeLib;
+
+#DECLARE watsonAggUserViewStreamPath string = @"<#= string.Format("{0}/{1}",outputFolder, watsonAggUserViewStreamName) #>";
+#DECLARE watsonAggKernelViewStreamPath string = @"<#= string.Format("{0}/{1}",outputFolder, watsonAggKernelViewStreamName) #>";
+
+REFERENCE "shares/asimov.prod.data/PublicPartner/Processed/WebPlatform/Modules/ScopeHelpers/PrivateHelpers.dll";
+USING Microsoft.WebPlatform.ScopeHelpers.Private;
+
+<#
+    for (int i=0; i<ViewsToStream.Split(';').Length; i++)
+    {
+
+	int length = ViewsToStream.Split(';')[i].Split('/').Length;
+	string filename = ViewsToStream.Split(';')[i].Split('/')[length-1].Split('.')[0];
+	string outputname = String.Format("{0}/{1}.ss",outputFolder,filename);
+#>
+		result = SELECT TOP 50000 *,
+						"Population" AS PopulationSourceType,
+						 String.Concat("ViewPath-","<#=ViewsToStream.Split(';')[i]#>") AS ViewSourcePath
+				 FROM
+				 (
+					VIEW @"<#=ViewsToStream.Split(';')[i]#>"
+				 );
+
+		
+
+[Privacy.Asset.NonPersonal]
+OUTPUT result
+TO SSTREAM @"<#=outputname#>"
+   WITH STREAMEXPIRY "20";
+
+<#
+	}
+#>
+
+
+<#
+    for (int i=0; i<UsageView.Split(';').Length; i++)
+    {
+
+	int length = UsageView.Split(';')[i].Split('/').Length;
+	string filename = UsageView.Split(';')[i].Split('/')[length-1].Split('.')[0];
+	string outputname = String.Format("{0}/{1}.ss",outputFolder,filename);
+#>
+		result = SELECT TOP 50000 *,
+						"Usage" AS UsageSourceType,
+						String.Concat("ViewPath-","<#=UsageView.Split(';')[i]#>") AS ViewSourcePath
+				 FROM
+				 (
+					VIEW @"<#=UsageView.Split(';')[i]#>"
+					PARAMS
+					(
+						sparseStreamSet = true,
+						startDate = @dtStartDate,
+						endDate = @dtEndDate,
+						DataSource = @"AppInteractivity"
+					)
+				 );
+
+		
+
+[Privacy.Asset.NonPersonal]
+OUTPUT result
+TO SSTREAM @"<#=outputname#>"
+   WITH STREAMEXPIRY "20";
+
+<#
+	}
+#>
+
+    
+    
+watsonAggUserModeViewData = 
+        w.WatsonSnapshotView
+(
+    watsonEventNameList = new ARRAY<string> { "{appcrash}","{apphang}" },
+    numHours = 24
+);
+
+selectedWatsonUserMode = SELECT TOP 10000 *,
+								"Failure" AS FailureSourceType,
+								String.Concat("ViewPath-","shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module") AS ViewSourcePath
+						FROM watsonAggUserModeViewData;
+
+[Privacy.Asset.NonPersonal]
+OUTPUT selectedWatsonUserMode
+TO SSTREAM @watsonAggUserViewStreamPath
+WITH STREAMEXPIRY "20";
+
+
+watsonAggKernelModeViewData = 
+        w.WatsonSnapshotView
+(
+    watsonEventNameList = new ARRAY<string> { "{kernelmode}" },
+    numHours = 24,
+	snapshotSource = "KernelMode"
+);
+
+selectedWatsonKernelMode = SELECT TOP 10000 *,
+								  "Failure" AS FailureSourceType,
+								  String.Concat("ViewPath-","shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module") AS ViewSourcePath 
+						FROM watsonAggKernelModeViewData;
+
+[Privacy.Asset.NonPersonal]
+OUTPUT selectedWatsonKernelMode
+TO SSTREAM @watsonAggKernelViewStreamPath
+WITH STREAMEXPIRY "20";

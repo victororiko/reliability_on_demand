@@ -1,0 +1,74 @@
+﻿[
+  {
+    "PivotName": "Processor",
+    "PivotSource": "RIODPopulation",
+    "PivotColumnName": "ProcessorModel",
+    "PivotDataType": "",
+    "MinBuild": "18362",
+    "MaxBuild": "22000"
+  },
+  {
+    "PivotName": ",TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,StudyId,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,SMode,SModeState,WPId",
+    "PivotSource": "RIODPopulation",
+    "PivotColumnName": "TotalPhysicalRAM",
+    "PivotDataType": "",
+    "MinBuild": "18362",
+    "MaxBuild": "22000"
+  },
+  {
+    "PivotName": ",TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,StudyId,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,SMode,SModeState,WPId",
+    "PivotSource": "RIODPopulation",
+    "PivotColumnName": "PrimaryDiskType",
+    "PivotDataType": "",
+    "MinBuild": "18362",
+    "MaxBuild": "22000"
+  },
+  {
+    "PivotName": ",TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,StudyId,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,SMode,SModeState,WPId",
+    "PivotSource": "RIODPopulation",
+    "PivotColumnName": "PrimaryDiskTypeName",
+    "PivotDataType": "",
+    "MinBuild": "18362",
+    "MaxBuild": "22000"
+  },
+  {
+    "PivotName": ",TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,StudyId,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,SMode,SModeState,WPId",
+    "PivotSource": "RIODPopulation",
+    "PivotColumnName": "ProcessorCores",
+    "PivotDataType": "",
+    "MinBuild": "18362",
+    "MaxBuild": "22000"
+  },
+  {
+    "PivotName": ",TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,StudyId,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,SMode,SModeState,WPId",
+    "PivotSource": "RIODPopulation",
+    "PivotColumnName": "ProcessorPhysicalCores",
+    "PivotDataType": "",
+    "MinBuild": "18362",
+    "MaxBuild": "22000"
+  },
+  {
+    "PivotName": ",TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,StudyId,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,SMode,SModeState,WPId",
+    "PivotSource": "RIODPopulation",
+    "PivotColumnName": "CommercialId",
+    "PivotDataType": "",
+    "MinBuild": "18362",
+    "MaxBuild": "22000"
+  },
+  {
+    "PivotName": ",TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,StudyId,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,SMode,SModeState,WPId",
+    "PivotSource": "RIODPopulation",
+    "PivotColumnName": "FlightRing",
+    "PivotDataType": "",
+    "MinBuild": "18362",
+    "MaxBuild": "22000"
+  },
+  {
+    "PivotName": ",TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,StudyId,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,SMode,SModeState,WPId",
+    "PivotSource": "RIODPopulation",
+    "PivotColumnName": "FirmwareVersion",
+    "PivotDataType": "",
+    "MinBuild": "18362",
+    "MaxBuild": "22000"
+  }
+]
