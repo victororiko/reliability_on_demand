@@ -32,7 +32,7 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
     return (
       <Stack tokens={containerStackTokens}>
         <TeamSection printHello={this.printTeam} />
-        <StudySection inquiry={{ TeamID: this.extractTeamIDFromState()}} />
+        {/* <StudySection inquiry={{ TeamID: this.extractTeamIDFromState()}} /> */}
       </Stack>
     );
   }
