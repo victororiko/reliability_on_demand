@@ -21,6 +21,12 @@ variables:
   value: 'reliability-on-demand\ClientApp'
 
 steps:
+
+- checkout: self
+  clean: true
+  submodules: true
+  persistCredentials: true
+
 - task: NuGetToolInstaller@1
 
 # Avoiding ambiguous reference for NuGet
