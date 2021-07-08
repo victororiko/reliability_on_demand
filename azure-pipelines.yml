@@ -57,3 +57,13 @@ steps:
     testResultsFormat: 'JUnit'
     testResultsFiles: '**/test-report.xml'
     failTaskOnFailedTests: true
+
+- template: ./canaveralBuild.yml
+  parameters:
+    configuration: 'Release'
+    fakeDeployment: true
+    targets: 'Build'
+    userName: $(BuildUserName)
+    userPassword: $(BuildUserPassword)
+    clientId: $(DeploymentClientId)
+    clientSecret: $(DeploymentClientSecret)
