@@ -1,0 +1,129 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <!--
+  //
+  // This file contains the targets used to build all the projects.
+  // 
+  // NB: The properties BuildInParallel and SkipNonexistentProjects should be defined in the
+  //     .setting file.
+  //
+  -->
+  
+  <!-- Hook and re-define the Build target. -->
+
+  <PropertyGroup>
+    <BuildDependsOn>
+      $(BuildDependsOn);
+      CoreBuild
+    </BuildDependsOn>
+  </PropertyGroup>
+
+  <Target Name="Build" DependsOnTargets="$(BuildDependsOn)" />
+
+  <Target Name="CoreBuild">
+    <MSBuild
+      Projects="@(ProjectFiles)"
+      Condition="'$(CanaveralToolsDirectory)' == ''"
+      BuildInParallel="$(BuildInParallel)"
+      SkipNonexistentProjects="$(SkipNonexistentProjects)"
+      Targets="Build"
+    />
+    <ProjectBuild
+      Projects="@(ProjectFiles)"
+      Condition="'$(CanaveralToolsDirectory)' != ''"
+      BuildInParallel="$(BuildInParallel)"
+      SkipNonexistentProjects="$(SkipNonexistentProjects)"
+      Targets="Build"
+    />
+  </Target>
+
+  <!-- Hook and re-define the Rebuild target. -->
+
+  <PropertyGroup>
+    <RebuildDependsOn>
+      $(RebuildDependsOn);
+      CoreRebuild
+    </RebuildDependsOn>
+  </PropertyGroup>
+
+  <Target Name="Rebuild" DependsOnTargets="$(RebuildDependsOn)" />
+
+  <Target Name="CoreRebuild">
+    <MSBuild
+      Projects="@(ProjectFiles)"
+      Condition="'$(CanaveralToolsDirectory)' == ''"
+      BuildInParallel="$(BuildInParallel)"
+      SkipNonexistentProjects="$(SkipNonexistentProjects)"
+      Targets="Rebuild"
+    />
+    <ProjectBuild
+      Projects="@(ProjectFiles)"
+      Condition="'$(CanaveralToolsDirectory)' != ''"
+      BuildInParallel="$(BuildInParallel)"
+      SkipNonexistentProjects="$(SkipNonexistentProjects)"
+      Targets="Rebuild"
+    />
+  </Target>
+
+  <!-- Hook and re-define the Clean target. -->
+
+  <PropertyGroup>
+    <CleanDependsOn>
+      $(CleanDependsOn);
+      CoreClean
+    </CleanDependsOn>
+  </PropertyGroup>
+ 
+  <Target Name="Clean" DependsOnTargets="$(CleanDependsOn)" />
+
+  <Target Name="CoreClean">
+    <MSBuild
+      Projects="@(ProjectFiles)"
+      Condition="'$(CanaveralToolsDirectory)' == ''"
+      BuildInParallel="$(BuildInParallel)"
+      SkipNonexistentProjects="$(SkipNonexistentProjects)"
+      Targets="Clean"
+    />
+    <ProjectBuild
+      Projects="@(ProjectFiles)"
+      Condition="'$(CanaveralToolsDirectory)' != ''"
+      BuildInParallel="$(BuildInParallel)"
+      SkipNonexistentProjects="$(SkipNonexistentProjects)"
+      Targets="Clean"
+    />
+  </Target>
+
+  <!-- Define the Deploy target. -->
+
+  <PropertyGroup>
+    <DeployDependsOn>
+      CoreDeploy
+    </DeployDependsOn>
+  </PropertyGroup>
+ 
+  <Target Name="Deploy" DependsOnTargets="$(DeployDependsOn)" />
+
+  <!-- NB: Because Deploy is not a standard target, we need to import this .targets file
+           to supply a default definition for the Deploy target. -->
+
+  <Target Name="CoreDeploy">
+    <MSBuild
+      Projects="@(ProjectFiles)"
+      Condition="'$(CanaveralToolsDirectory)' == ''"
+      BuildInParallel="$(BuildInParallel)"
+      SkipNonexistentProjects="$(SkipNonexistentProjects)"
+      Properties="CustomBeforeMicrosoftCommonTargets=$(MSBuildThisFileDirectory)\root.deploy.targets"
+      Targets="Deploy"
+    />
+    <ProjectBuild
+      Projects="@(ProjectFiles)"
+      Condition="'$(CanaveralToolsDirectory)' != ''"
+      BuildInParallel="$(BuildInParallel)"
+      SkipNonexistentProjects="$(SkipNonexistentProjects)"
+      Properties="CustomBeforeMicrosoftCommonTargets=$(MSBuildThisFileDirectory)\root.deploy.targets"
+      Targets="Deploy"
+    />
+  </Target>
+
+  <Import Project="$(CanaveralToolsDirectory)\Canaveral.targets" Condition="'$(CanaveralToolsDirectory)' != ''" />
+</Project>

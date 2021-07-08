@@ -1,0 +1,253 @@
+##
+## This build steps template handles installing the Canaveral tools and running MSBuild.
+##
+
+parameters:
+  canaveralPackageName: 'Canaveral'
+  canaveralQuality: 'Release'
+  skipInstall: false
+  toolsDirectory: ''
+  platform: ''
+  configuration: 'Debug'
+  projectFile: '$(Build.SourcesDirectory)\dirs.proj'
+  targets: 'Build'
+  restore: false
+  fakeDeployment: true
+  customProperties: 'SkipScopeCompilation=true'
+  userName: 'USER NAME NOT DEFINED'
+  userPassword: 'USER PASSWORD NOT DEFINED'
+  clientId: ''
+  clientSecret: ''
+  buildArtifactOutputPath: ''
+  deploymentStatePipelineName: ''
+  deploymentStateBuildBranch: 'refs/heads/master'
+  deploymentStateProjectName: 'OSGData'
+  deploymentStateInputFile: ''
+  publishDeploymentState: true
+
+steps:
+
+##
+## Install the latest version of Canaveral using the PowerShell script.
+##
+
+- task: PowerShell@2
+  displayName: 'Install Canaveral'
+  condition: ne('${{ parameters.skipInstall }}', true)
+  inputs:
+    targetType: filePath
+    filePath: $(Build.SourcesDirectory)/.build/scripts/installCanaveral.ps1
+    arguments: '$(Build.SourcesDirectory)\packages -Package ${{ parameters.canaveralPackageName }} -Quality ${{ parameters.canaveralQuality }} -SetAdoVariables'
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+##
+## Or, just set the tools directory based on the input parameter.
+##
+
+- task: PowerShell@2
+  displayName: 'Set Canaveral Tools Directory'
+  condition: eq('${{ parameters.skipInstall }}', true)
+  inputs:
+    targetType: inline
+    script: |
+      Write-Host "CanaveralToolsDirectory = ${{ parameters.toolsDirectory }}"
+      Write-Host "##vso[task.setvariable variable=CanaveralToolsDirectory]${{ parameters.toolsDirectory }}"
+
+##
+## Download the deployment state file from the latest completed CI build, if specified.
+##
+
+- task: DownloadBuildArtifacts@0
+  displayName: 'Download Previous Deployment State'
+  condition: and(eq('${{ parameters.deploymentStateInputFile }}', ''), ne('${{ parameters.deploymentStatePipelineName }}', ''))
+  continueOnError: true
+  inputs:
+    buildType: specific
+    project: ${{ parameters.deploymentStateProjectName }}
+    pipeline: ${{ parameters.deploymentStatePipelineName }}
+    buildVersionToDownload: latestFromBranch
+    allowPartiallySucceededBuilds: true
+    branchName: ${{ parameters.deploymentStateBuildBranch }}
+    tags: publishedDeploymentState
+    downloadType: single
+    artifactName: DeploymentState
+    downloadPath: '$(System.ArtifactsDirectory)\PreviousDeploymentState'
+
+##
+## Set the deployment state input file path.
+##
+
+- task: PowerShell@2
+  name: SetDeploymentStateInputFilePath
+  displayName: 'Set Deployment State Input File Path'
+  inputs:
+    targetType: inline
+    script: |
+
+      $deploymentStateInputFilePath = ''
+      if ('${{ parameters.deploymentStateInputFile }}' -ne '')
+      {
+          $deploymentStateInputFilePath = '${{ parameters.deploymentStateInputFile }}'
+      }
+      else
+      {
+          $testPath = "$env:SYSTEM_ARTIFACTSDIRECTORY\PreviousDeploymentState\DeploymentState\deploymentState.json"
+
+          if (Test-Path -Path $testPath)
+          {
+              $deploymentStateInputFilePath = $testPath
+          }
+      }
+      Write-Host "DeploymentStateInputFilePath = $deploymentStateInputFilePath"
+      Write-Host "##vso[task.setvariable variable=DeploymentStateInputFilePath]$deploymentStateInputFilePath"
+
+##
+## Publish the deployment state input file, if available, and if we're not deploying.
+##
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Upload Build Artifact: Deployment State Input File'
+  condition: and(succeeded(), and(eq(contains('${{ parameters.targets }}', 'deploy'), false), ne(variables['DeploymentStateInputFilePath'], '')))
+  continueOnError: true
+  inputs:
+    pathtoPublish: $(DeploymentStateInputFilePath)
+    artifactName: 'DeploymentState-Input'
+
+##
+## Generate an RSP file to avoid passing secret variables on the command line.
+##
+
+- task: PowerShell@2
+  displayName: 'Create MSBuild Response File'
+  inputs:
+    targetType: inline
+    script: |
+      $responseContent =  "/t:${{ parameters.targets }}`n"
+      $responseContent += "/restore:${{ parameters.restore }}`n"
+      $responseContent += "/p:DeploymentUserName=${{ parameters.userName }}`n"
+      $responseContent += "/p:DeploymentPassword=""${{ parameters.userPassword }}""`n"
+      $responseContent += "/p:DeploymentClientId=${{ parameters.clientId }}`n"
+      $responseContent += "/p:DeploymentClientSecret=""${{ parameters.clientSecret }}""`n"
+      $responseContent += "/logger:CanaveralSummaryLogger,""$(CanaveralToolsDirectory)\CanaveralBuildTasks.dll""`n"
+      $responseContent += "/p:RootDirectory=""$(Build.SourcesDirectory)""`n"
+      $responseContent += "/p:CanaveralToolsDirectory=""$(CanaveralToolsDirectory)""`n"
+      $responseContent += "/p:FakeDeployment=${{ parameters.fakeDeployment }}`n"
+      $responseContent += "/p:DeploymentStateInputFilePath=""$env:DeploymentStateInputFilePath""`n"
+      $responseContent += "/p:DeploymentStateOutputFilePath=""$(Agent.TempDirectory)\deploymentState.json""`n"
+      $responseContent += "/p:BuildArtifactOutputPath=""${{ parameters.buildArtifactOutputPath }}""`n"
+      $responseContent += "/p:${{ parameters.customProperties }}`n"
+
+      if ('${{ parameters.targets }}' -ne 'deploy')
+      {
+          $responseContent += "/p:WorkflowRepositoryTag=$(Build.Repository.Name)`n"
+      }
+
+      Write-Host $responseContent
+
+      Set-Content -Path "$(Agent.TempDirectory)\msbuild.rsp" -Value $responseContent
+
+##
+## Run MSBuild.exe using the generated RSP file.
+##
+
+- task: MSBuild@1
+  displayName: 'Run MSBuild (${{ parameters.targets }})'
+  inputs:
+    solution: '${{ parameters.projectFile }}'
+    platform: ${{ parameters.platform }}
+    configuration: ${{ parameters.configuration }}
+    msbuildArguments: '@$(Agent.TempDirectory)\msbuild.rsp'
+
+##
+## Delete the generated RSP file.
+##
+
+- task: DeleteFiles@1
+  displayName: 'Delete MSBuild Response File'
+  condition: always()
+  inputs:
+    Contents: '$(Agent.TempDirectory)\msbuild.rsp'
+
+##
+## Set the HaveCanaveralBuildArtifactsToDeploy based on the presence or absence of Canaveral
+## build artifacts.
+##
+
+- task: PowerShell@2
+  name: CanaveralDeploymentArtifactCheck
+  displayName: 'Check for Deployment Artifacts'
+  condition: and(succeeded(), ne('${{ parameters.buildArtifactOutputPath }}', ''))
+  inputs:
+    targetType: inline
+    script: |
+      $haveDeploymentArtifacts = if (('${{ parameters.buildArtifactOutputPath }}' -ne '') -and (Test-Path -Path '${{ parameters.buildArtifactOutputPath }}\deploy.proj')) { 'true' } else { 'false' }
+      Write-Host "HaveCanaveralBuildArtifactsToDeploy = $haveDeploymentArtifacts"
+      Write-Host "##vso[task.setvariable variable=HaveCanaveralBuildArtifactsToDeploy;isOutput=true]$haveDeploymentArtifacts"
+
+##
+## Publish the build artifacts that need to be deployed.
+##
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Upload Build Artifact: Canaveral Deployment Artifacts'
+  condition: and(succeeded(), eq(variables['CanaveralDeploymentArtifactCheck.HaveCanaveralBuildArtifactsToDeploy'], true))
+  inputs:
+    pathtoPublish: '${{ parameters.buildArtifactOutputPath }}'
+    artifactName: 'CanaveralDeploy'
+    publishLocation: 'Container'
+
+##
+## Publish the Canaveral tools directory as a build artifact if we have Canaveral deployment artifacts.
+##
+
+- task: CopyFiles@2
+  displayName: 'Copy Canaveral Tools Directory'
+  condition: and(succeeded(), eq(variables['CanaveralDeploymentArtifactCheck.HaveCanaveralBuildArtifactsToDeploy'], true))
+  inputs:
+    sourceFolder: '$(CanaveralToolsDirectory)'
+    targetFolder: '$(Build.ArtifactStagingDirectory)\CanaveralToolsDirectory'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Upload Build Artifact: Canaveral Tools Directory'
+  condition: and(succeeded(), and(ne('${{ parameters.skipInstall }}', true), eq(variables['CanaveralDeploymentArtifactCheck.HaveCanaveralBuildArtifactsToDeploy'], true)))
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)\CanaveralToolsDirectory'
+    artifactName: 'CanaveralToolsDirectory'
+    publishLocation: 'Container'
+
+##
+## Publish the deployment state output file.  If we are deploying, use a build artifact and set the
+## build tag that denotes that this build published a deployment state file (this is used above when
+## we query for the previous build that has a deployment state file artifact -- see the "Download
+## Previous Deployment State" task).  Otherwise, use a pipeline artifact.
+##
+
+- task: CopyFiles@2
+  displayName: 'Copy Deployment State Output File'
+  inputs:
+    sourceFolder: '$(Agent.TempDirectory)'
+    targetFolder: '$(Build.ArtifactStagingDirectory)\DeploymentState'
+    contents: 'deploymentState.json'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Upload Build Artifact: Deployment State Output File'
+  condition: and(succeeded(), contains('${{ parameters.targets }}', 'deploy'))
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)\DeploymentState'
+    artifactName: 'DeploymentState'
+
+- task: PowerShell@2
+  displayName: 'Set PublishedDeploymentState Build Tag'
+  condition: and(succeeded(), contains('${{ parameters.targets }}', 'deploy'))
+  inputs:
+    targetType: inline
+    script: |
+      Write-Host "##vso[build.addbuildtag]publishedDeploymentState"
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Upload Pipeline Artifact: Post-Build Deployment State Output File'
+  condition: and(succeeded(), eq(contains('${{ parameters.targets }}', 'deploy'), false))
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)\DeploymentState'
+    artifactName: 'DeploymentState-PostBuild'
