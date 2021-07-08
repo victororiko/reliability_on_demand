@@ -7,7 +7,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'Package ES Standard Build'
+  name: 'Package ES Standard Build'
   
 variables:
   solution: '**/reliability-on-demand.sln'
