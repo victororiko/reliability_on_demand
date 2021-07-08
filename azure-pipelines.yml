@@ -10,10 +10,15 @@ pool:
   name: 'Package ES Standard Build'
   
 variables:
-  solution: '**/reliability-on-demand.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-  clientAppDir: 'reliability-on-demand\ClientApp'
+- group: 'Canaveral_ADO_Variable'
+- name: solution
+  value: '**/reliability-on-demand.sln'
+- name: buildPlatform
+  value: 'Any CPU'
+- name: buildConfiguration
+  value: 'Release'
+- name: clientAppDir
+  value: 'reliability-on-demand\ClientApp'
 
 steps:
 - task: NuGetToolInstaller@1
