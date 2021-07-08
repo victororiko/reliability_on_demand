@@ -1,8 +1,0 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-
-  <!-- This is an empty Deploy target we can import into non-Canaveral projects to
-       allow us to execute the Deploy target via dirs.proj. -->
-
-  <Target Name="Deploy" />
-
-</Project>
