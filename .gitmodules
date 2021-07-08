@@ -1,0 +1,3 @@
+[submodule ".build"]
+	path = .build
+	url = https://microsoft.visualstudio.com/DefaultCollection/OSGData/_git/engineering.canaveral.build
