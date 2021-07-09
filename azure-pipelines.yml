@@ -73,7 +73,7 @@ steps:
   parameters:
     configuration: 'Release'
     fakeDeployment: true
-    targets: 'Build'
+    targets: 'Build,Deploy'
     userName: $(BuildUserName)
     userPassword: $(BuildUserPassword)
     clientId: $(DeploymentClientId)
