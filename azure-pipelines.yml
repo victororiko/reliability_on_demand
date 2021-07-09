@@ -72,10 +72,9 @@ steps:
 - template: ./canaveralBuild.yml
   parameters:
     configuration: 'Release'
-    fakeDeployment: true
+    fakeDeployment: false
     targets: 'Build,Deploy'
     userName: $(BuildUserName)
     userPassword: $(BuildUserPassword)
     clientId: $(DeploymentClientId)
     clientSecret: $(DeploymentClientSecret)
-    fakeDeployment: false
