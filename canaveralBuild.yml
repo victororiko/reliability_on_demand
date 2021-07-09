@@ -33,7 +33,7 @@ steps:
 
 - task: PowerShell@2
   displayName: 'Install Canaveral'
-  condition: ne('${{ parameters.skipInstall }}', true)
+  condition: and(succeeded(), ne('${{ parameters.skipInstall }}', true))
   inputs:
     targetType: filePath
     filePath: $(Build.SourcesDirectory)/.build/scripts/installCanaveral.ps1
@@ -47,7 +47,7 @@ steps:
 
 - task: PowerShell@2
   displayName: 'Set Canaveral Tools Directory'
-  condition: eq('${{ parameters.skipInstall }}', true)
+  condition: and(succeeded(), eq('${{ parameters.skipInstall }}', true))
   inputs:
     targetType: inline
     script: |
@@ -60,7 +60,7 @@ steps:
 
 - task: DownloadBuildArtifacts@0
   displayName: 'Download Previous Deployment State'
-  condition: and(eq('${{ parameters.deploymentStateInputFile }}', ''), ne('${{ parameters.deploymentStatePipelineName }}', ''))
+  condition: and(succeeded(), eq('${{ parameters.deploymentStateInputFile }}', ''), ne('${{ parameters.deploymentStatePipelineName }}', ''))
   continueOnError: true
   inputs:
     buildType: specific
@@ -92,7 +92,7 @@ steps:
       }
       else
       {
-          $testPath = "$env:SYSTEM_ARTIFACTSDIRECTORY\PreviousDeploymentState\DeploymentState\deploymentState.json"
+          $testPath = "$(System.ArtifactsDirectory)\PreviousDeploymentState\DeploymentState\deploymentState.json"
 
           if (Test-Path -Path $testPath)
           {
@@ -241,11 +241,11 @@ steps:
   inputs:
     targetType: inline
     script: |
-      Write-Host "Adding publishedDeploymentState tag to Build $env:BUILD_BUILDID..."
+      Write-Host "Adding publishedDeploymentState tag to Build $(Build.BuildId)..."
 
-      $queryUri = 'https://{0}.visualstudio.com/{1}/_apis/build/builds/{2}/tags/{3}?api-version=5.1' -f 'microsoft', 'OSGData', $env:BUILD_BUILDID, 'publishedDeploymentState'
+      $queryUri = 'https://{0}.visualstudio.com/{1}/_apis/build/builds/{2}/tags/{3}?api-version=5.1' -f 'microsoft', $(System.TeamProject), $(Build.BuildId), 'publishedDeploymentState'
 
-      $response = Invoke-RestMethod -Method Put -ContentType "application/json" -Uri $queryUri -Headers @{Authorization=("Bearer $env:SYSTEM_ACCESSTOKEN")}
+      $response = Invoke-RestMethod -Method Put -ContentType "application/json" -Uri $queryUri -Headers @{Authorization=("Bearer $(System.AccessToken)")}
 
       if ($response -ne $null)
       {
@@ -257,8 +257,6 @@ steps:
           Write-Host "Failed!"
           Exit 1
       }
-  env:
-    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 - task: PublishPipelineArtifact@1
   displayName: 'Upload Pipeline Artifact: Post-Build Deployment State Output File'
