@@ -26,7 +26,7 @@
 
     <Activities>
       <!-- https://osgwiki.com/wiki/XFlow/ActivityClass/RecurrentScopeActivity#What_are_the_Default_Asimov_Credentials_Available.3F -->
-      <Activity Name="GenerateStreams" ConfigBase="Metrics" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
+      <Activity Name="GenerateStreamsTest" ConfigBase="Metrics" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
         <Parameters>
           <Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Staging/Reliability/FailureCurve/PPE_Results/RIOD.FeederJsonReader.script.scopet4"/>
         </Parameters>
