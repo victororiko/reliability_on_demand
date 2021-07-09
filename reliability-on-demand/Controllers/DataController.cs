@@ -48,5 +48,27 @@ namespace reliability_on_demand.Controllers
         {
             return this._sqlservice.GetAllUnifiedConfigs();
         }
+
+        [Route("api/Data/GetAllTeamConfigs")]
+        [HttpGet]
+        public string GetAllTeamConfigs()
+        {
+            return this._sqlservice.GetAllTeamConfigs();
+        }
+
+        //GetAllStudyConfigsForTeam
+        [Route("api/Data/GetAllStudyConfigsForTeam")]
+        [HttpPost("[action]")]
+        public string GetAllStudyConfigsForTeam([FromBody]ConfigInquiry inquiry)
+        {
+            return this._sqlservice.GetAllStudyConfigsForTeam(inquiry);
+        }
+
+        [Route("api/Data/AddTeam")]
+        [HttpPost("[action]")]
+        public string AddTeam([FromBody]TeamConfig inquiry)
+        {
+            return this._sqlservice.AddTeam(inquiry);
+        }
     }
 }

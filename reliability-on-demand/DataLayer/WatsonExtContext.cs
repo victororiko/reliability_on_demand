@@ -8,6 +8,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace reliability_on_demand.DataLayer
@@ -77,7 +78,61 @@ namespace reliability_on_demand.DataLayer
 
         public string GetAllUnifiedConfigs()
         {
-            return GetSQLResults("SELECT * FROM [dbo].[RELUnifiedConfig]");
+            return GetSQLResultsJSON("SELECT * FROM [dbo].[RELUnifiedConfig]");
+        }
+
+        public string GetAllTeamConfigs()
+        {
+            return GetSQLResultsJSON("SELECT * FROM [dbo].[RELTeamConfig]");
+        }
+
+        public string AddTeam(TeamConfig inquiry)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.AddTeam";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@OwnerContact", inquiry.OwnerContact));
+            cmd.Parameters.Add(new SqlParameter("@OwnerTeamFriendlyName", inquiry.OwnerTeamFriendlyName));
+            cmd.Parameters.Add(new SqlParameter("@OwnerTriageAlias", inquiry.OwnerTriageAlias));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+        public string GetAllStudyConfigsForTeam(ConfigInquiry inquiry)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetAllStudyConfigsForTeam";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@TeamID", inquiry.TeamID));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
         }
 
         public string GetSQLResults(string SQLquery)
@@ -96,6 +151,30 @@ namespace reliability_on_demand.DataLayer
                 string json = JsonConvert.SerializeObject(configList);
                 return json;
             }
+
+        }
+
+        //Tutorial - https://visualstudiomagazine.com/articles/2017/08/01/returning-json.aspx
+        public string GetSQLResultsJSON(string SQLquery)
+        {
+            // make sure to get results in JSON
+            SQLquery += " FOR JSON AUTO, Include_Null_Values";
+            StringBuilder sb = new StringBuilder();
+
+            // ensure that connection is open
+            this.Database.OpenConnection();
+
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = SQLquery;
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
 
         }
 

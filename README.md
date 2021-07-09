@@ -48,8 +48,9 @@ npm start
 ```
 <br>
 
-# Getting Started with React
-(all the fun stuff under **ClientApp** folder)
+
+If you're interested in setting up VScode configs [youtube](https://www.youtube.com/watch?v=6VOUka1zGvk&t=192s&ab_channel=BetterDev) similar to what I used when I was creating this project: 
+
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 

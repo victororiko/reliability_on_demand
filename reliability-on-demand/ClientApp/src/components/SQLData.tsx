@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SampleConfig } from "../data/UnifiedConfig";
+import { SampleConfig } from "../models/config.model";
 type MyProps = {
     // message:string;
 }
