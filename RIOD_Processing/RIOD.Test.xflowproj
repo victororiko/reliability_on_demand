@@ -4,6 +4,9 @@
 
   <ItemGroup>
     <Xflow Include="RIOD.Test.wfdef" />
+    <DeployToAdls Include="RIOD.FeederJsonReader.script.scopet4">
+      <DestinationDirectory>local/PublicPartner/Staging/Reliability/FailureCurve/PPE_Results/</DestinationDirectory>
+    </DeployToAdls>
   </ItemGroup>
 
   <Import Project="$(CanaveralToolsDirectory)\Canaveral.targets" />
