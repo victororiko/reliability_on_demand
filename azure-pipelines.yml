@@ -7,15 +7,26 @@ trigger:
 - main
 
 pool:
-  vmImage: 'windows-latest'
-
+  name: 'Package ES Standard Build'
+  
 variables:
-  solution: '**/reliability-on-demand.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-  clientAppDir: 'reliability-on-demand\ClientApp'
+- group: 'Canaveral_ADO_Variable'
+- name: solution
+  value: '**/reliability-on-demand.sln'
+- name: buildPlatform
+  value: 'Any CPU'
+- name: buildConfiguration
+  value: 'Release'
+- name: clientAppDir
+  value: 'reliability-on-demand\ClientApp'
 
 steps:
+
+- checkout: self
+  clean: true
+  submodules: true
+  persistCredentials: true
+
 - task: NuGetToolInstaller@1
 
 # Avoiding ambiguous reference for NuGet
@@ -57,3 +68,13 @@ steps:
     testResultsFormat: 'JUnit'
     testResultsFiles: '**/test-report.xml'
     failTaskOnFailedTests: true
+
+- template: ./canaveralBuild.yml
+  parameters:
+    configuration: 'Release'
+    fakeDeployment: true
+    targets: 'Build'
+    userName: $(BuildUserName)
+    userPassword: $(BuildUserPassword)
+    clientId: $(DeploymentClientId)
+    clientSecret: $(DeploymentClientSecret)

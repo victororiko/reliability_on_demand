@@ -3,7 +3,7 @@
 
   <!-- Insert any custom settings here. -->
 
-  <Import Project=".root\root.props" />
+  <Import Project=".build\root.props" />
 
   <!-- Reference all projects (as ProjectFiles) here. -->
 
@@ -11,7 +11,7 @@
     <ProjectFiles Include="**\*.xflowproj" />
   </ItemGroup>
 
-  <Import Project=".root\root.traversal.targets" />
+  <Import Project=".build\root.traversal.targets" />
 
   <!-- Insert any custom targets here. -->
 
