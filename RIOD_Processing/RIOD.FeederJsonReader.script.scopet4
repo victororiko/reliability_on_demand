@@ -66,7 +66,7 @@ Testing canaveral deployment
 MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
 USING Privacy; 
 
-res = SELECT * FROM
+res1 = SELECT * FROM
 	 (SSTREAM @"shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/PivotInputStreams/DeviceCensusConsolidated.ss");
 
 <#  int i =0;
@@ -108,7 +108,7 @@ res = SELECT * FROM
 	#>
 	 
 
-OUTPUT res
+OUTPUT res1
 TO SSTREAM @"shares/asimov.prod.data/PublicPartner/Staging/Reliability/FailureCurve/PPE_Results/res.ss"
-WITH STREAMEXPIRY "10";
+WITH STREAMEXPIRY "5";
 
