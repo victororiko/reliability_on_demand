@@ -13,6 +13,10 @@
 <#@include file="GetLatestStreamDate.scopet4" #>
 <#@include file="SaveTextToStream.scopet4" #>
 
+/*
+Testing canaveral deployment
+*/
+
 
 <#
     var context = Host.GetHostOption("T4Context") as IT4TransformContext;

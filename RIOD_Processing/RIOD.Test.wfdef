@@ -7,7 +7,6 @@
             Author ="cosreldata"
             FolderName ="PlatformHealth.Reliability"
             RecurrenceUnit="2"
-            Version="1.0.5"
             RecurrenceAmount="4"
             Start="2017-11-07T08:00:00"
             Email="cosreldata@microsoft.com"
