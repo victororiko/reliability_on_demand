@@ -4,9 +4,6 @@
 
   <ItemGroup>
     <Xflow Include="RIOD.FailureAggregator.wfdef" />
-    <DeployToAdls Include="UnifiedSchema.FailureCurve.CensusDevices.v2.script.scopet4">
-      <DestinationDirectory>local/PublicPartner/Processed/Reliability/Resources/Scripts/FailureCurve/</DestinationDirectory>
-    </DeployToAdls>
   </ItemGroup>
 
   <Import Project="$(CanaveralToolsDirectory)\Canaveral.targets" />
