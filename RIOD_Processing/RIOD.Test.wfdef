@@ -3,7 +3,7 @@
 <Workflows>
   <!-- https://xflow.microsoft.com/Workflows/Details/Rel.RIOD.Test.T4 -->
   <Workflow Name="Rel.RIOD.Test.T4"
-            Enabled="0"
+            Enabled="false"
             Author ="cosreldata"
             FolderName ="PlatformHealth.Reliability"
             RecurrenceUnit="2"
