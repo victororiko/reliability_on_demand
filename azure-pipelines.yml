@@ -45,15 +45,16 @@ steps:
     workingDir: '$(clientAppDir)'
   displayName: 'npm install on ClientApp'
 
-- task: Npm@1
-  displayName: 'npm test'
-  inputs:
-    command: 'custom'
-    workingDir: '$(clientAppDir)'
-    customCommand: 'test'
+# UNCOMMENT TO RUN REACT TESTS
+# - task: Npm@1
+#   displayName: 'npm test'
+#   inputs:
+#     command: 'custom'
+#     workingDir: '$(clientAppDir)'
+#     customCommand: 'test'
 
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: '**/test-report.xml'
-    failTaskOnFailedTests: true
+# - task: PublishTestResults@2
+#   inputs:
+#     testResultsFormat: 'JUnit'
+#     testResultsFiles: '**/test-report.xml'
+#     failTaskOnFailedTests: true
