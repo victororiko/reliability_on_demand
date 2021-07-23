@@ -13,6 +13,10 @@
 <#@include file="GetLatestStreamDate.scopet4" #>
 <#@include file="SaveTextToStream.scopet4" #>
 
+/*
+Testing canaveral deployment
+*/
+
 
 <#
     var context = Host.GetHostOption("T4Context") as IT4TransformContext;
@@ -62,49 +66,21 @@
 MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
 USING Privacy; 
 
-res = SELECT * FROM
-	 (SSTREAM @"shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/PivotInputStreams/DeviceCensusConsolidated.ss");
+vsocache = SELECT * FROM (VIEW "users/anjgoel/VSOCache_v2.view");
 
-<#  int i =0;
-	for(;i< configInfo.Count; i++)
-	{
-		var ele = configInfo.ElementAt(i);
-		var source = ele.Key;
-		var cols = ele.Value.Split(';');
-	#>
+OUTPUT vsocache
+TO SSTREAM @"users/anjgoel/vsocache.ss"
+WITH STREAMEXPIRY "5";
 
-		res_<#=i#> = SELECT
+VSOIterations = SELECT * FROM (VIEW "users/anjgoel/VSOIterations_v2.view");
 
-	<#
-		int ptr = 0;
+OUTPUT VSOIterations
+TO SSTREAM @"users/anjgoel/VSOIterations.ss"
+WITH STREAMEXPIRY "5";
 
-		for(int j=0;j< cols.Length;j++)
-		{
-			if(ptr > 0)
-			{
-	#>
-				,
-		
-	<#
-			}
-			
-	#>
-			<#=cols[j]#>
-	<#
-			ptr++;
-		}
-	#>
+VSOLinks = SELECT * FROM (VIEW "users/anjgoel/VSOLinks_v2.view");
 
-		FROM
-
-		(SSTREAM @"<#=string.Format("{0}/{1}",inputFolder,source)#>");
-
-	<#
-	}
-	#>
-	 
-
-OUTPUT res
-TO SSTREAM @"shares/asimov.prod.data/PublicPartner/Staging/Reliability/FailureCurve/PPE_Results/res.ss"
-WITH STREAMEXPIRY "10";
+OUTPUT VSOLinks
+TO SSTREAM @"users/anjgoel/VSOLinks.ss"
+WITH STREAMEXPIRY "5";
 

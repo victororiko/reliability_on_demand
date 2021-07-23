@@ -1,0 +1,9 @@
+﻿<T4TransformConfig>
+  
+  <!-- Reference the script from the cluster -->
+  <script src="@@_script@@" />
+
+  <!-- T4 path -->
+  <t4Path>shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common;shares/asimov.prod.data/Public/Resources/Latest/Asimov</t4Path>
+
+</T4TransformConfig>
