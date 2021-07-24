@@ -69,7 +69,7 @@ USING Microsoft.WebPlatform.ScopeHelpers.Private;
 		result = SELECT TOP 50000 *,
 						"Population" AS PopulationSourceType,
 						 String.Concat("ViewPath-","<#=ViewsToStream.Split(';')[i]#>") AS ViewSourcePath,
-						 String.Concat("SourceType-","All") AS SourceSubTye
+						 String.Concat("SourceType-","AllMode") AS SourceSubTye
 				 FROM
 				 (
 					VIEW @"<#=ViewsToStream.Split(';')[i]#>"
@@ -98,7 +98,7 @@ TO SSTREAM @"<#=outputname#>"
 		result = SELECT TOP 50000 *,
 						"Usage" AS UsageSourceType,
 						String.Concat("ViewPath-","<#=UsageView.Split(';')[i]#>") AS ViewSourcePath,
-						 String.Concat("SourceType-","All") AS SourceSubTye
+						 String.Concat("SourceType-","AllMode") AS SourceSubTye
 				 FROM
 				 (
 					VIEW @"<#=UsageView.Split(';')[i]#>"
