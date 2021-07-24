@@ -68,7 +68,8 @@ USING Microsoft.WebPlatform.ScopeHelpers.Private;
 #>
 		result = SELECT TOP 50000 *,
 						"Population" AS PopulationSourceType,
-						 String.Concat("ViewPath-","<#=ViewsToStream.Split(';')[i]#>") AS ViewSourcePath
+						 String.Concat("ViewPath-","<#=ViewsToStream.Split(';')[i]#>") AS ViewSourcePath,
+						 String.Concat("SourceType-","AllMode") AS SourceSubTye
 				 FROM
 				 (
 					VIEW @"<#=ViewsToStream.Split(';')[i]#>"
@@ -96,7 +97,8 @@ TO SSTREAM @"<#=outputname#>"
 #>
 		result = SELECT TOP 50000 *,
 						"Usage" AS UsageSourceType,
-						String.Concat("ViewPath-","<#=UsageView.Split(';')[i]#>") AS ViewSourcePath
+						String.Concat("ViewPath-","<#=UsageView.Split(';')[i]#>") AS ViewSourcePath,
+						 String.Concat("SourceType-","AllMode") AS SourceSubTye
 				 FROM
 				 (
 					VIEW @"<#=UsageView.Split(';')[i]#>"
@@ -131,7 +133,8 @@ watsonAggUserModeViewData =
 
 selectedWatsonUserMode = SELECT TOP 10000 *,
 								"Failure" AS FailureSourceType,
-								String.Concat("ViewPath-","shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module") AS ViewSourcePath
+								String.Concat("ViewPath-","shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module") AS ViewSourcePath,
+						 String.Concat("SourceType-","UserMode") AS SourceSubTye
 						FROM watsonAggUserModeViewData;
 
 [Privacy.Asset.NonPersonal]
@@ -150,7 +153,8 @@ watsonAggKernelModeViewData =
 
 selectedWatsonKernelMode = SELECT TOP 10000 *,
 								  "Failure" AS FailureSourceType,
-								  String.Concat("ViewPath-","shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module") AS ViewSourcePath 
+								  String.Concat("ViewPath-","shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module") AS ViewSourcePath,
+						 String.Concat("SourceType-","KernelMode") AS SourceSubTye
 						FROM watsonAggKernelModeViewData;
 
 [Privacy.Asset.NonPersonal]
