@@ -197,5 +197,40 @@ namespace reliability_on_demand.DataLayer
             return list;
         }
 
+        //Get all verticals from the Failure vertical SQL table
+        public string GetAllMainVerticals()
+        {
+            return GetSQLResultsJSON("SELECT VerticalName,PivotSourceSubType FROM [dbo].[RELFailureVertical]");
+        }
+
+        //Get all pivots for that vertical
+        public string GetAllailurePivotNamesForAVertical(string sourcesubtype)
+        {
+            string query = string.Format("SELECT PivotID,PivotSourceColumnName FROM [dbo].[RELPivotInfo] AS info INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource WHERE info.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
+            return GetSQLResultsJSON(query);
+        }
+
+        //Get all defaults for that vertical
+        public string GetAllDefaultFailurePivotsForAVertical(string sourcesubtype)
+        {
+            string query = string.Format("SELECT info.PivotID,info.PivotSourceColumnName,smap.IsSelectColumn,smap.IsKeyColumn,smap.IsApportionColumn,smap.IsApportionJoinColumn,PivotScopeID FROM RELStudyPivotConfigDefault AS smap INNER JOIN RELPivotInfo AS info ON smap.PivotKey = info.PivotKey INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource WHERE smap.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
+            string res = GetSQLResultsJSON(query);
+            return res;
+        }
+
+        //Get all configured values for that vertical and study id
+        public string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid)
+        {
+            string query = string.Format("SELECT info.PivotID,info.PivotSourceColumnName,config.IsApportionColumn,config.IsApportionJoinColumn,config.IsKeyColumn,config.IsSelectColumn,PivotScopeID FROM RELPivotInfo AS info INNER JOIN RELStudyPivotConfig AS config ON info.PivotID = config.PivotID INNER JOIN RELPivotSourceMap AS map ON map.PivotSource = info.PivotSource WHERE config.StudyID = {0} AND map.PivotSourceType LIKE 'Failure%' AND config.PivotSourceSubType LIKE '{1}'", studyid, sourcesubtype);
+            string res = GetSQLResultsJSON(query);
+            return res;
+        }
+
+        //Update all the watson call configured parameters for a study
+        public void UpdateFailureSavedConfig(FailureConfig f)
+        {
+
+        }
+
     }
 }

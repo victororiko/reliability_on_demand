@@ -39,5 +39,31 @@
         {
            return _context.AddTeam(inquiry);
         }
+
+        string ISQLService.GetAllMainVerticals()
+        {
+            string str = _context.GetAllMainVerticals();
+            return str;
+        }
+
+        string ISQLService.GetAllailurePivotNamesForAVertical(string sourcesubtype)
+        {
+            return _context.GetAllailurePivotNamesForAVertical(sourcesubtype);
+        }
+
+        string ISQLService.GetAllDefaultFailurePivotsForAVertical(string sourcesubtype)
+        {
+            return _context.GetAllDefaultFailurePivotsForAVertical(sourcesubtype);
+        }
+
+        string ISQLService.GetAllConfiguredFailurePivotsForAVertical(FailureConfig f)
+        {
+            return _context.GetAllConfiguredFailurePivotsForAVertical(f.PivotSourceSubType, f.StudyID);
+        }
+
+        void ISQLService.UpdateFailureSavedConfig(FailureConfig f)
+        {
+            _context.UpdateFailureSavedConfig(f);
+        }
     }
 }
