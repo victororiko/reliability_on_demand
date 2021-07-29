@@ -49,6 +49,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
      * Prior to rendering the component, load up study configs from backend
      */
     componentDidMount() {
+        this.onPivotDropdownLoad();
         this.populateData();
     }
 
@@ -79,7 +80,6 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
                 })
 
         this.setState({ loading: false });
-        this.onPivotDropdownLoad();
     }
 
     getDefaultPivotKeys() {
@@ -129,9 +129,18 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
     }
 
-    checkboxChange = (ev?: React.FormEvent<HTMLDivElement>, checked?: boolean): void => {
+    checkboxChange = (ev?: React.FormEvent<HTMLInputElement>, checked?: boolean): void => {
 
-        this.setState({ hasPivotSelectionChanged: true });
+        var target = (ev?.target.id).toString();
+
+        var arr = target.split('_');
+
+        var row = parseInt(arr[0]), col = arr[1];
+
+        this.requiredPivotTableData[row][col] = checked;
+
+        // ev?.preventDefault();
+        this.forceUpdate();
 
     }
 
@@ -174,6 +183,20 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
     render(): React.ReactElement {
 
+        this.cols = [];
+        this.buildColumnArray();
+
+        let pivottable = (
+            <DetailsList
+                items={(this.requiredPivotTableData)}
+                setKey="set"
+                columns={this.cols}
+                onRenderItemColumn={this._renderItemColumn}
+                //onItemInvoked={this._onItemInvoked}
+                selectionMode={SelectionMode.none}
+            />
+        );
+
          let pivotdropdown = (
 
             <div>
@@ -185,12 +208,10 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
                      onChange={this.onSelectingPivot}
                      multiSelect options={this.getPivotNames(this.state.pivotsList)}
                      selectedKeys={this.state.selectedPivotsOnlyKey}
-                   // isOptionDisabled={false}
                 />
             </div>
         );
 
-        let pivottable = this.renderPivotTable();
 
         return (<div>
             {pivotdropdown}
@@ -216,45 +237,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         return [];
     }
 
-
-    renderPivotTable() {
-
-        return (
-            <DetailsList
-                items={this.requiredPivotTableData}
-                setKey="set"
-                columns={this.cols}
-                onRenderItemColumn={this._renderItemColumn}
-                onItemInvoked={this._onItemInvoked}
-                selectionMode={SelectionMode.none}
-            />
-        );
-    }
-
-
-    private _onItemInvoked(item: any, index: number | undefined): void {
-        alert(`Item ${item.name} at index ${index} has been invoked.`);
-    }
-
-
-    _renderItemColumn(item: Pair, index: number, column: IColumn) {
-        const fieldContent = item[column.fieldName as keyof Pair] as string;
-
-        if (column.key == 'PivotID')
-            return null;
-        else if (column.key != 'PivotName') {
-
-            return (
-                <span>
-                    <Checkbox checked={Boolean(fieldContent)} onChange={this.checkboxChange.bind(this)} />
-                </span>
-            );
-        }
-        else
-            return <span>{fieldContent}</span>;
-    }
-
-
+    
     getRequiredSchemaForPivotTable() {
 
         for (let ele of this.resultantPivotSQL) {
@@ -312,11 +295,24 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         this.getRequiredSchemaForPivotTable();
         this.getDefaultPivotKeys();
     }
-    
 
+    _renderItemColumn(item: Pair, index: number, column: IColumn) {
+        const fieldContent = item[column.fieldName as keyof Pair] as string;
 
+        if (column.key == 'PivotID')
+            return null;
+        else if (column.key != 'PivotName') {
 
-
-
+            return (
+                <span>
+                    <Checkbox checked={Boolean(fieldContent)} id={index + '_' + column.key} onChange={this.checkboxChange} />
+                </span>
+            );
+        }
+        else
+            return <span>{fieldContent}</span>;
+    }
 
 }
+
+
