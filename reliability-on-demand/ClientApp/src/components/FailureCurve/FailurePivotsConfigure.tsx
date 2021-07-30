@@ -209,8 +209,6 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         }
 
         this.requiredPivotTableData = updated;
-
-
     }
 
 
@@ -279,9 +277,6 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
     }
 
 
-
-
-
     //azure function to validate filter expression
     async _validateClicked() {
 
@@ -299,10 +294,6 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             })
             
     }
-
-
-
-
 
 
     extractPivotName(item: Pivot) {
