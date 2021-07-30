@@ -7,7 +7,7 @@
 export interface FailureConfig {
     StudyID: number;
     PivotSourceSubType: string;
-    Pivots: Pivot[];
+    Pivots: PivotTable[];
 }
 
 
@@ -40,6 +40,9 @@ export interface PivotTable {
     IsApportionPivot: boolean;
     IsApportionJoinPivot: boolean;
     IsScopeFilter: boolean;
+    PivotScopeID: number;
+    FilterExpression: string;
+    FilterExpressionOperator: string;
 }
 
 export interface SmapSQL {
@@ -48,6 +51,7 @@ export interface SmapSQL {
     IsApportionColumn: boolean;
     IsApportionJoinColumn: boolean;
     PivotScopeID: number;
+    filter: Filter;
 }
 
 export interface PivotSQLResult {
@@ -55,5 +59,11 @@ export interface PivotSQLResult {
     PivotID: number;
     smap: SmapSQL;
 }
+
+export interface Filter {
+    PivotScopeValue: string;
+    PivotScopeOperator: string;
+}
+
 
 

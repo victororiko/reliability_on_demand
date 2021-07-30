@@ -6,8 +6,9 @@
  */
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using reliability_on_demand.DataLayer;
-
+using System.Collections.Generic;
 
 namespace reliability_on_demand.Controllers
 {
@@ -102,9 +103,9 @@ namespace reliability_on_demand.Controllers
 
         [Route("api/Data/UpdateFailureSavedConfig")]
         [HttpPost("[action]")]
-        public void UpdateFailureSavedConfig([FromBody]FailureConfig f)
+        public void UpdateFailureSavedConfig([FromBody]FailureConfig fg)
         {
-            this._sqlservice.UpdateFailureSavedConfig(f);
+            this._sqlservice.UpdateFailureSavedConfig(fg);
         }
     }
 }

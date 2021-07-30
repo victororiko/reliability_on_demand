@@ -14,6 +14,8 @@ namespace reliability_on_demand.DataLayer
         public bool IsApportionPivot { get; set; }
         public bool IsApportionJoinPivot { get; set; }
         public bool IsScopeFilter { get; set; }
+        public int PivotScopeID { get; set; }
         public string FilterExpression { get; set; }
+        public string FilterExpressionOperator { get; set; }
     }
 }

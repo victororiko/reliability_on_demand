@@ -40,7 +40,6 @@ export default class FailureSection extends React.Component<FailureSectionProps,
     constructor(props: FailureSectionProps) {
         super(props)
         this._alertClicked = this._alertClicked.bind(this);
-        this._onChange = this._onChange.bind(this);
 
         this.state = {
             verticals: [],
@@ -55,7 +54,6 @@ export default class FailureSection extends React.Component<FailureSectionProps,
             selectedSourceSubType: '',
         }
 
-        this.populatePivotsData = this.populatePivotsData.bind(this);
 
     }
 
@@ -92,10 +90,6 @@ export default class FailureSection extends React.Component<FailureSectionProps,
         let failureDetailButton = this.renderFailureDetailsButton();
 
         let ConfigureButtonClicked = (this.state.isButtonClicked == true ? this.onConfigureVerticalButtonClicked() : '');
-
-        let pivotUI = (this.state.isSelectedVerticalSelected == true ? this.renderPivots() : '');
-
-        let pivotsTable = (this.state.hasPivotSelectionChanged == true ? this.renderPivotTable() : '');
 
         return (
             <div>
@@ -181,34 +175,7 @@ export default class FailureSection extends React.Component<FailureSectionProps,
     }
 
 
-
-
-
-
-
-
-
-
     onConfigureVerticalButtonClicked() {
-
-        /*
-        return (
-
-            <div>
-                <Separator theme={largeTitle}>Failure Aggregation Configuration</Separator>
-                <Dropdown
-                    placeholder="Select Vertical"
-                    label="Select Vertical"
-                    selectedKey="Select Vertical"
-                    onChange={this.onSelectingSelectedVertical}
-                    // eslint-disable-next-line react/jsx-no-bind
-                    options={this.getSelectedKeys()}
-
-                />
-            </div>
-        );
-        */
-
 
         return (
             <div>
@@ -217,6 +184,9 @@ export default class FailureSection extends React.Component<FailureSectionProps,
         );
     }
 
+
+
+    /*
     getSelectedKeys() {
         var options = this.selectedKeys;
         var placeholder: Pair = {
@@ -367,7 +337,7 @@ export default class FailureSection extends React.Component<FailureSectionProps,
     console.log('toggle is ' + (checked ? 'checked' : 'not checked'));
 }
 
-    /*
+    
     
      async onPivotDropdownLoad() {
 
