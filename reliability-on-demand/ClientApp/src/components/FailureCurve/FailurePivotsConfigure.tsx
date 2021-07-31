@@ -280,7 +280,11 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
     //azure function to validate filter expression
     async _validateClicked() {
 
-        await axios.post("https://riodfilterexpressionvalidator.azurewebsites.net/api/FailureFilterExpressionValidator?code=9s1D9YClMGI4Fwb0JcKufQtOG2sJTDhbtSiVj8YCEFJKDWLZZrZZog==", this.requiredPivotTableData, {
+        var input = {
+            name: this.requiredPivotTableData
+        };
+
+        await axios.post("https://riodfilterexpressionvalidator.azurewebsites.net/api/FailureFilterExpressionValidator?code=9s1D9YClMGI4Fwb0JcKufQtOG2sJTDhbtSiVj8YCEFJKDWLZZrZZog==", input, {
             headers: {
                 'Content-Type': 'application/json'
             }
