@@ -3,10 +3,12 @@
   <Import Project="$(RootDirectory)\global.props" />
 
   <ItemGroup>
+    <!-- 
     <Xflow Include="RIOD.GeneratingStreamsFromView.wfdef" />
     <DeployToAdls Include="RIOD.GenerateStreamFromView.script.scopet4">
       <DestinationDirectory>local/PublicPartner/Processed/Reliability/Resources/Scripts/Metrics/</DestinationDirectory>
     </DeployToAdls>
+    -->
   </ItemGroup>
 
   <Import Project="$(CanaveralToolsDirectory)\Canaveral.targets" />

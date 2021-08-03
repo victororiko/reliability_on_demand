@@ -3,7 +3,9 @@
   <Import Project="$(RootDirectory)\global.props" />
 
   <ItemGroup>
+    <!-- 
     <Xflow Include="RIOD.PopulationAggregator.wfdef" />
+    -->
   </ItemGroup>
 
   <Import Project="$(CanaveralToolsDirectory)\Canaveral.targets" />

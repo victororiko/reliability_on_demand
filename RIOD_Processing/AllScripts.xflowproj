@@ -3,13 +3,17 @@
   <Import Project="$(RootDirectory)\global.props" />
 
   <ItemGroup>
-    <!-- 
-    <Xflow Include="RIOD.PopulationAggregator.wfdef" />
-    <DeployToAdls Include="RIOD.PopulationAggregator.script.scopet4">
+    <DeployToAdls Include="RIOD.*.scopet4">
       <DestinationDirectory>local/PublicPartner/Processed/Reliability/RIOD/Resources/</DestinationDirectory>
     </DeployToAdls>
-    -->
+    <DeployToAdls Include="**/RIOD.*.scopet4">
+      <DestinationDirectory>local/PublicPartner/Processed/Reliability/RIOD/Resources/</DestinationDirectory>
+    </DeployToAdls>
+    
+    
+    <DeployToAdls Include="../Scripts/BugFiler.*.scopet4">
+      <DestinationDirectory>local/PublicPartner/Processed/Reliability/Resources/Scripts/BugFiler/</DestinationDirectory>
+    </DeployToAdls>
   </ItemGroup>
-
   <Import Project="$(CanaveralToolsDirectory)\Canaveral.targets" />
 </Project>
