@@ -21,6 +21,7 @@ export interface IFailurePivotsConfigureState {
     selectedPivots: Pair[];
     selectedPivotsOnlyKey: number[];
     isFilterExpValid: boolean;
+    validateAZKey: string;
 }
 
 export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfigureProps, IFailurePivotsConfigureState> {
@@ -280,11 +281,29 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
     //azure function to validate filter expression
     async _validateClicked() {
 
+        await axios.post("api/Data/ValidateAzureFunctionCall", {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                console.log(res.data);
+                this.setState({ validateAZKey: res.data });
+            }).catch((err) => {
+                console.log('Axios Error:', err.message);
+
+            })
+
+
         var input = {
             name: this.requiredPivotTableData
         };
 
-        await axios.post("https://riodfilterexpressionvalidator.azurewebsites.net/api/FailureFilterExpressionValidator?code=9s1D9YClMGI4Fwb0JcKufQtOG2sJTDhbtSiVj8YCEFJKDWLZZrZZog==", input, {
+        var url = "https://riodfilterexpressionvalidator.azurewebsites.net/api/FailureFilterExpressionValidator?code=" + this.state.validateAZKey;
+
+        await axios.post(url, {
+            name: this.requiredPivotTableData
+        }, {
             headers: {
                 'Content-Type': 'application/json'
             }

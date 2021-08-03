@@ -65,5 +65,10 @@
         {
             _context.UpdateFailureSavedConfig(f);
         }
+
+        string ISQLService.ValidateAzureFunctionCall()
+        {
+            return _context.ValidateAzureFunctionCall();
+        }
     }
 }

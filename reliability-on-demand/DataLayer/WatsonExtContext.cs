@@ -17,9 +17,12 @@ namespace reliability_on_demand.DataLayer
     {
         private string connectionString = null;
 
+        private string validateAzureFunctionKey = null;
+
         public WatsonExtContext(IOptions<ValueSettings> valueSettings, DbContextOptions options) : base(options)
         {
             connectionString = valueSettings.Value.relreportingdbsqlconn;
+            validateAzureFunctionKey = valueSettings.Value.FailureValidateAzureFunction;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -305,6 +308,12 @@ namespace reliability_on_demand.DataLayer
             insertionreader.Close();
 
             this.Database.CloseConnection();
+        }
+
+
+        public string ValidateAzureFunctionCall()
+        {
+            return this.validateAzureFunctionKey;
         }
 
 

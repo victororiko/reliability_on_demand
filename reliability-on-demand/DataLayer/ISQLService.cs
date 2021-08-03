@@ -18,6 +18,7 @@ namespace reliability_on_demand.DataLayer
         string GetAllDefaultFailurePivotsForAVertical(string sourcesubtype);
         string GetAllConfiguredFailurePivotsForAVertical(FailureConfig f);
         void UpdateFailureSavedConfig(FailureConfig f);
+        string ValidateAzureFunctionCall();
 
     }
 }
