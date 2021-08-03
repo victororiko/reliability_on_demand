@@ -299,7 +299,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             name: this.requiredPivotTableData
         };
 
-        var url = "https://riodfilterexpressionvalidator.azurewebsites.net/api/FailureFilterExpressionValidator?code=" + this.state.validateAZKey;
+        var url = "https://riodapis.azurewebsites.net/api/FailureFilterExpressionValidator?code=" + this.state.validateAZKey;
 
         await axios.post(url, {
             name: this.requiredPivotTableData
