@@ -12,5 +12,6 @@ namespace reliability_on_demand.Extensions
         public string VsoClientAssertion { get; set; }
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
+        public string FailureValidateAzureFunction { get; set; }
     }
 }

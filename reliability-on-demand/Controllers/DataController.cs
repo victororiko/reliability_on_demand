@@ -6,8 +6,9 @@
  */
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using reliability_on_demand.DataLayer;
-
+using System.Collections.Generic;
 
 namespace reliability_on_demand.Controllers
 {
@@ -69,6 +70,50 @@ namespace reliability_on_demand.Controllers
         public string AddTeam([FromBody]TeamConfig inquiry)
         {
             return this._sqlservice.AddTeam(inquiry);
+        }
+
+        [Route("api/Data/GetAllMainVertical")]
+        [HttpPost("[action]")]
+        public string GetAllMainVertical()
+        {
+            return this._sqlservice.GetAllMainVerticals();
+        }
+
+        [Route("api/Data/GetAllailurePivotNamesForAVertical")]
+        [HttpPost("[action]")]
+        public string GetAllailurePivotNamesForAVertical([FromBody]string sourcetype)
+        {
+            string res = this._sqlservice.GetAllailurePivotNamesForAVertical(sourcetype);
+            return res;
+        }
+
+        [Route("api/Data/GetAllDefaultFailurePivotsForAVertical")]
+        [HttpPost("[action]")]
+        public string GetAllDefaultFailurePivotsForAVertical([FromBody]FailureConfig f)
+        {
+            return this._sqlservice.GetAllDefaultFailurePivotsForAVertical(f.PivotSourceSubType);
+        }
+
+        [Route("api/Data/GetAllConfiguredFailurePivotsForAVertical")]
+        [HttpPost("[action]")]
+        public string GetAllConfiguredFailurePivotsForAVertical([FromBody]FailureConfig f)
+        {
+            return this._sqlservice.GetAllConfiguredFailurePivotsForAVertical(f);
+        }
+
+        [Route("api/Data/UpdateFailureSavedConfig")]
+        [HttpPost("[action]")]
+        public void UpdateFailureSavedConfig([FromBody]FailureConfig fg)
+        {
+            this._sqlservice.UpdateFailureSavedConfig(fg);
+        }
+
+        [Route("api/Data/ValidateAzureFunctionCall")]
+        [HttpPost("[action]")]
+        public string ValidateAzureFunctionCall()
+        {
+            string res =  this._sqlservice.ValidateAzureFunctionCall();
+            return res;
         }
     }
 }

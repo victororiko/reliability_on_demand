@@ -8,6 +8,7 @@ import { containerStackTokens } from '../helpers/Styles';
 import { Stack } from '@fluentui/react';
 import { PrimaryButton } from '@fluentui/react';
 import { TeamConfig } from '../../models/config.model';
+import FailureSection from '../FailureCurve';
 
 export interface IConfigProps {
 }
@@ -33,7 +34,8 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
       <Stack tokens={containerStackTokens}>
         <TeamSection printHello={this.printTeam} />
         {/* Study section is incomplete - hence commented out*/}
-        {/* <StudySection inquiry={{ TeamID: this.extractTeamIDFromState()}} /> */}
+            {/* <StudySection inquiry={{ TeamID: this.extractTeamIDFromState()}} /> */}
+            <FailureSection studyid={2} />
       </Stack>
     );
   }

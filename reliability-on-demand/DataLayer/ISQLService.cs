@@ -13,6 +13,12 @@ namespace reliability_on_demand.DataLayer
         int LogRelOnDemandQuery<T>(string username, string url, string access, T payload);
         void UpdateRelOnDemandQuery(int id, bool status, string exception);
 
+        string GetAllMainVerticals();
+        string GetAllailurePivotNamesForAVertical(string sourcesubtype);
+        string GetAllDefaultFailurePivotsForAVertical(string sourcesubtype);
+        string GetAllConfiguredFailurePivotsForAVertical(FailureConfig f);
+        void UpdateFailureSavedConfig(FailureConfig f);
+        string ValidateAzureFunctionCall();
 
     }
 }
