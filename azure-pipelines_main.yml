@@ -4,7 +4,8 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- main
+- none
+pr: none
 
 pool:
   name: 'Package ES Standard Build'
@@ -74,7 +75,7 @@ steps:
   parameters:
     configuration: 'Release'
     fakeDeployment: false
-    targets: 'Deploy'
+    targets: 'Build,Deploy'
     userName: $(BuildUserName)
     userPassword: $(BuildUserPassword)
     clientId: $(DeploymentClientId)
