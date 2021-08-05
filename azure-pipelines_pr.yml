@@ -3,7 +3,9 @@
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
-trigger:
+trigger: none
+
+pr:
 - main
 
 pool:
@@ -74,7 +76,7 @@ steps:
   parameters:
     configuration: 'Release'
     fakeDeployment: false
-    targets: 'Build,Deploy'
+    targets: 'Build'
     userName: $(BuildUserName)
     userPassword: $(BuildUserPassword)
     clientId: $(DeploymentClientId)

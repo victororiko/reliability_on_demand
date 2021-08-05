@@ -3,13 +3,8 @@
   <Import Project="$(RootDirectory)\global.props" />
 
   <ItemGroup>
-    <!-- 
-    <Xflow Include="RIOD.PivotAggregator.wfdef" />
-    <DeployToAdls Include="RIOD.GenerateStreamFromView.script.scopet4">
-      <DestinationDirectory>local/PublicPartner/Processed/Reliability/Resources/Scripts/FailureCurve/</DestinationDirectory>
-    </DeployToAdls>
-    -->
+    <Xflow Include="*.wfdef" />
+    <Xflow Include="**/*.wfdef" />
   </ItemGroup>
-
   <Import Project="$(CanaveralToolsDirectory)\Canaveral.targets" />
 </Project>
