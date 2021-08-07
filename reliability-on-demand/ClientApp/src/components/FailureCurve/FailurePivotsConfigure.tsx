@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { Pair, Pivot, FailureConfig, PivotTable, PivotSQLResult} from '../../models/FailureConfig.model';
+import { Pair, Pivot, FailureConfig, PivotTable, PivotSQLResult } from '../../models/FailureConfig.model';
 import { initializeIcons } from '@uifabric/icons';
 //import { largeTitle } from '../helpers/Styles';
 import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TextField, DefaultButton } from "@fluentui/react";
@@ -73,18 +73,18 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
         var d = JSON.stringify(this.props.selectedVerticalForStudy.key);
 
-            await axios.post("api/Data/GetAllailurePivotNamesForAVertical", d, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(res => {
-                    console.log(res.data);
-                    this.setState({ pivotsList: res.data })
-                }).catch((err) => {
-                    console.log('Axios Error:', err.message);
+        await axios.post("api/Data/GetAllailurePivotNamesForAVertical", d, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                console.log(res.data);
+                this.setState({ pivotsList: res.data })
+            }).catch((err) => {
+                console.log('Axios Error:', err.message);
 
-                })
+            })
 
         this.setState({ loading: false });
     }
@@ -122,20 +122,8 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
         if (item) {
             let keyUpdated = item.selected ? [...this.state.selectedPivotsOnlyKey ?? [], item.key as number] : this.state.selectedPivotsOnlyKey?.filter(val => val !== item.key);
-            let updated: Pair[] = [];
+            let updated = item.selected ? [...this.state.selectedPivots ?? [], item as Pair] : this.state.selectedPivots?.filter(val => parseInt(val.key) !== item.key);
 
-            for (let p of this.state.selectedPivots) {
-                var flag = false;
-                for (let k of keyUpdated) {
-                    if (parseInt(p.key) == k) {
-                        flag = true;
-                        break;
-                    }
-                }
-
-                if (flag == true)
-                    updated.push(p);
-            }
 
             this.setState({
                 selectedPivots: updated,
@@ -143,7 +131,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             });
 
             this.updatePivotTableData(updated);
-           
+
         }
 
     }
@@ -203,7 +191,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             }
 
             if (flag == false) {
-                var item: PivotTable = { PivotID: parseInt(ele.key), PivotName: ele.text, IsApportionJoinPivot: false, IsApportionPivot: false, IsKeyPivot: false, IsScopeFilter: false, IsSelectPivot: false, FilterExpression: '', FilterExpressionOperator: '', PivotScopeID : 0 };
+                var item: PivotTable = { PivotID: parseInt(ele.key), PivotName: ele.text, IsApportionJoinPivot: false, IsApportionPivot: false, IsKeyPivot: false, IsScopeFilter: false, IsSelectPivot: false, FilterExpression: '', FilterExpressionOperator: '', PivotScopeID: 0 };
                 updated.push(item);
             }
 
@@ -228,7 +216,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             />
         );
 
-         let pivotdropdown = (
+        let pivotdropdown = (
 
             <div>
 
@@ -236,9 +224,9 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
                     placeholder="Select Pivots"
                     label="Select Pivots"
                     // eslint-disable-next-line react/jsx-no-bind
-                     onChange={this.onSelectingPivot}
-                     multiSelect options={this.getPivotNames(this.state.pivotsList)}
-                     selectedKeys={this.state.selectedPivotsOnlyKey}
+                    onChange={this.onSelectingPivot}
+                    multiSelect options={this.getPivotNames(this.state.pivotsList)}
+                    selectedKeys={this.state.selectedPivotsOnlyKey}
                 />
             </div>
         );
@@ -272,7 +260,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         return (
 
             <div>
-                <FailureCurveSave failureConfigToSave={failureObjToBePassed} />  
+                <FailureCurveSave failureConfigToSave={failureObjToBePassed} />
             </div>
         );
     }
@@ -315,7 +303,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
                 console.log('Axios Error:', err.message);
 
             })
-            
+
     }
 
 
@@ -336,7 +324,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         return [];
     }
 
-    
+
     getRequiredSchemaForPivotTable() {
 
         for (let ele of this.resultantPivotSQL) {
@@ -357,7 +345,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
     }
 
-    
+
     async onPivotDropdownLoad() {
 
         var input: FailureConfig = {
@@ -409,7 +397,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
                 <span>
                     <TextField value={fieldContent} id={index + '_' + column.key} onChange={this.handleChange} />
                 </span>
-                );
+            );
         }
         else if (column.key != 'PivotName') {
 
