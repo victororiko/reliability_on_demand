@@ -24,7 +24,6 @@ export interface FailureSectionState {
     isSelectedVerticalSelected: boolean;
     hasPivotSelectionChanged: boolean;
     selectedPivots?: Pair[];
-    selectedPivotTableAttrs: PivotSelection[];
     selectedSourceSubType: string;
 }
 
@@ -49,7 +48,6 @@ export default class FailureSection extends React.Component<FailureSectionProps,
             isSelectedVerticalSelected: false,
             hasPivotSelectionChanged: false,
             selectedPivots: [],
-            selectedPivotTableAttrs: [],
             selectedSourceSubType: '',
         }
 
@@ -138,10 +136,10 @@ export default class FailureSection extends React.Component<FailureSectionProps,
     }
 
 
-    onVerticalSelected = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+    onVerticalSelected?= (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number): void => {
 
-        if (item) {
-            let updated = item.selected ? [...this.state.selectedVerticals ?? [], item as Pair] : this.state.selectedVerticals?.filter(val => val.text !== item.text);
+        if (option) {
+            let updated = option.selected ? [...this.state.selectedVerticals ?? [], option as Pair] : this.state.selectedVerticals?.filter(val => val.text !== option.text);
 
             this.setState({
                 selectedVerticals: updated
@@ -158,13 +156,15 @@ export default class FailureSection extends React.Component<FailureSectionProps,
 
 
     extractVerticalName(item: Vertical) {
-        return {
+        var p: Pair = ({
             key: item.PivotSourceSubType,
             text: item.VerticalName
-        };
+        });
+
+        return p;
     }
 
-    getVerticalNames(): IDropdownOption<Vertical>[] {
+    getVerticalNames(): IDropdownOption<Pair>[] {
         let result = this.state.verticals.map(this.extractVerticalName);
         return result;
     }

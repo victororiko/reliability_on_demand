@@ -72,15 +72,17 @@ export class FailureSectionDetails extends React.Component<IFailureSectionDetail
     }
 
 
-    onVerticalSelected = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+    onVerticalSelected? = (event: React.FormEvent<HTMLDivElement>, item?: IDropdownOption,index?: number): void => {
 
-        if (item.key == "Select Vertical")
-            return;
+        if (item) {
+            if (item.key == "Select Vertical")
+                return;
 
-        this.setState({
-            isVerticalSelected: true,
-            selectedVertical: { key: item.key.toString(), text: item.text },
-        });
+            this.setState({
+                isVerticalSelected: true,
+                selectedVertical: { key: item.key.toString(), text: item.text },
+            });
+        }
     }
 
     renderPivots() {
