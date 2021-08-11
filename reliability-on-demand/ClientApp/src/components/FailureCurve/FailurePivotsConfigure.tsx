@@ -58,6 +58,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         this.getDefaultPivotKeys = this.getDefaultPivotKeys.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this._validateClicked = this._validateClicked.bind(this);
+        this.onOperatorSelected = this.onOperatorSelected.bind(this);
     }
 
    
@@ -174,6 +175,30 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         });
 
         this.forceUpdate();
+    }
+
+    onOperatorSelected?= (event: React.FormEvent<HTMLDivElement>, item?: IDropdownOption): void => {
+
+        if (item) {
+            var target = event?.target as HTMLInputElement;
+            var arr = target.id.toString().split('_');
+            var row = parseInt(arr[0]);
+            var col = arr[1];
+            this.mapPivotTableColumnValue(this.requiredPivotTableData, row, col, item.text);
+            this.forceUpdate();
+        }
+
+        //event.preventDefault();
+    }
+
+    selectedOperator() {
+
+        let res: Pair[] = [];
+
+        res.push({ key: "AND", text: "AND" });
+        res.push({ key: "OR", text: "OR" });
+
+        return res;
     }
 
     mapPivotTableColumnValue(arr: PivotTable[], row: number, colname: string, val: any) {
@@ -410,6 +435,9 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         this.getDefaultPivotKeys();
     }
 
+    
+
+
     _renderItemColumn(item: Pair, index?: number, column?: IColumn) {
         const fieldContent = (item[column?.fieldName as keyof Pair]) as string;
 
@@ -417,10 +445,23 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
         if (column?.key == 'PivotID')
             return <span/>;
-        else if (column?.key == 'FilterExpression' || column?.key == 'FilterExpressionOperator') {
+        else if (column?.key == 'FilterExpression') {
             return (
                 <span>
                     <TextField value={fieldContent} id={index + '_' + column?.name} onChange={this.handleChange} />
+                </span>
+            );
+        }
+        else if (column?.key == 'FilterExpressionOperator') {
+            return (
+                <span>
+                    <Dropdown
+                        selectedKey={fieldContent}
+                        // eslint-disable-next-line react/jsx-no-bind
+                        onChange={this.onOperatorSelected}
+                        options={this.selectedOperator()}
+                        id={index + '_' + column?.name}
+                    />
                 </span>
             );
         }
