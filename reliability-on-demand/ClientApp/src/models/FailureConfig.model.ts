@@ -51,13 +51,13 @@ export interface SmapSQL {
     IsApportionColumn: boolean;
     IsApportionJoinColumn: boolean;
     PivotScopeID: number;
-    filter: Filter;
+    scope: Filter[];
 }
 
 export interface PivotSQLResult {
     PivotSourceColumnName: string;
     PivotID: number;
-    smap: SmapSQL;
+    smap: SmapSQL[];
 }
 
 export interface Filter {

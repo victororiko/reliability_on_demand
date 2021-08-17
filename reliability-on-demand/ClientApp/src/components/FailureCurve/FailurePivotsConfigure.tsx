@@ -1,8 +1,8 @@
 ﻿import * as React from 'react';
-import { Pair, Pivot, FailureConfig, PivotTable, PivotSQLResult} from '../../models/FailureConfig.model';
+import { Pair, Pivot, FailureConfig, PivotTable, PivotSQLResult } from '../../models/FailureConfig.model';
 import { initializeIcons } from '@uifabric/icons';
 //import { largeTitle } from '../helpers/Styles';
-import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TextField, DefaultButton } from "@fluentui/react";
+import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TextField, DefaultButton, IDetailsHeaderProps, DetailsHeader, ITooltipHostProps, IDetailsColumnStyles, noWrap } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { FailureCurveSave } from '../FailureCurve/FailureCurveSave';
 import axios from 'axios';
@@ -26,7 +26,19 @@ export interface IFailurePivotsConfigureState {
 
 export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfigureProps, IFailurePivotsConfigureState> {
 
-    cols: IColumn[] = [];
+    headerStyle: Partial<IDetailsColumnStyles> = {
+        cellTitle: {
+            whiteSpace: 'noWrap',
+            textOverflow: 'clip',
+            lineHeight: 'normal',
+            minWidth: 100,
+            position: 'absolute',
+            maxWidth: 200,
+            isResizable: true,
+        }
+    }
+    cols: IColumn[] = [
+        { styles: this.headerStyle, key: 'name', name: 'Name', fieldName: 'name', minWidth: 100, }];
     configuredPivots: Pivot[] = [];
     requiredPivotTableData: PivotTable[] = [];
     resultantPivotSQL: PivotSQLResult[] = [];
@@ -35,21 +47,15 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
     constructor(props: any) {
         super(props)
 
-        this.state = ({
+        this.state = {
             loading: true,
             pivotsList: [],
             hasPivotSelectionChanged: false,
             selectedPivots: [],
             selectedPivotsOnlyKey: [],
             isFilterExpValid: true,
-        })
-
-        this.onSelectingPivot = this.onSelectingPivot.bind(this);
-        this.checkboxChange = this.checkboxChange.bind(this);
-        this._renderItemColumn = this._renderItemColumn.bind(this);
-        this.getDefaultPivotKeys = this.getDefaultPivotKeys.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this._validateClicked = this._validateClicked.bind(this);
+            validateAZKey: '',
+        };
     }
 
     /**
@@ -58,8 +64,16 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
     componentDidMount() {
         this.onPivotDropdownLoad();
         this.populateData();
+        this.onSelectingPivot = this.onSelectingPivot.bind(this);
+        this.onChange = this.onChange.bind(this);
+        this._renderItemColumn = this._renderItemColumn.bind(this);
+        this.getDefaultPivotKeys = this.getDefaultPivotKeys.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this._validateClicked = this._validateClicked.bind(this);
+        this.getBool = this.getBool.bind(this);
     }
 
+   
     buildColumnArray() {
         var arr = buildColumns(this.requiredPivotTableData);
 
@@ -73,18 +87,18 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
         var d = JSON.stringify(this.props.selectedVerticalForStudy.key);
 
-            await axios.post("api/Data/GetAllailurePivotNamesForAVertical", d, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(res => {
-                    console.log(res.data);
-                    this.setState({ pivotsList: res.data })
-                }).catch((err) => {
-                    console.log('Axios Error:', err.message);
+        await axios.post("api/Data/GetAllailurePivotNamesForAVertical", d, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                console.log(res.data);
+                this.setState({ pivotsList: res.data })
+            }).catch((err) => {
+                console.log('Axios Error:', err.message);
 
-                })
+            })
 
         this.setState({ loading: false });
     }
@@ -116,26 +130,14 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         return res;
     }
 
-    onSelectingPivot = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+    onSelectingPivot = (event?: React.FormEvent<HTMLDivElement>, item?: IDropdownOption): void => {
 
         this.setState({ hasPivotSelectionChanged: true });
 
         if (item) {
             let keyUpdated = item.selected ? [...this.state.selectedPivotsOnlyKey ?? [], item.key as number] : this.state.selectedPivotsOnlyKey?.filter(val => val !== item.key);
-            let updated: Pair[] = [];
+            let updated = item.selected ? [...this.state.selectedPivots ?? [], item as Pair] : this.state.selectedPivots?.filter(val => parseInt(val.key) !== item.key);
 
-            for (let p of this.state.selectedPivots) {
-                var flag = false;
-                for (let k of keyUpdated) {
-                    if (parseInt(p.key) == k) {
-                        flag = true;
-                        break;
-                    }
-                }
-
-                if (flag == true)
-                    updated.push(p);
-            }
 
             this.setState({
                 selectedPivots: updated,
@@ -143,33 +145,42 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             });
 
             this.updatePivotTableData(updated);
-           
+
         }
 
     }
 
-    checkboxChange = (ev?: React.FormEvent<HTMLInputElement>, checked?: boolean): void => {
+    onChange(ev?: React.FormEvent<HTMLElement | HTMLInputElement>, isChecked?: boolean) {
 
-        var target = (ev?.target.id).toString();
+        //const ev = event as React.ChangeEvent<HTMLInputElement>;
 
-        var arr = target.split('_');
+        var target = ev?.target as HTMLInputElement;
 
-        var row = parseInt(arr[0]), col = arr[1];
+        var arr = target.id.toString().split('_');
 
-        this.requiredPivotTableData[row][col] = checked;
+        var row = parseInt(arr[0]);
+        var col = arr[1];
+
+        //this.requiredPivotTableData[row][col as string] = checked;
+
+        //var val = (e.target.value == "on" ? true : false);
+
+        this.mapPivotTableColumnValue(this.requiredPivotTableData, row, col, target.checked);
 
         // ev?.preventDefault();
         this.forceUpdate();
 
     }
 
-    handleChange = (ev?: React.FormEvent<HTMLInputElement>, newValue?: string): void => {
-        var target = (ev?.target.id).toString();
-        var arr = target.split('_');
+    handleChange = (event: {}): void => {
+        const e = event as React.ChangeEvent<HTMLInputElement>;
+        var target = e?.target as HTMLInputElement;
+        var arr = target.id.toString().split('_');
 
-        var row = parseInt(arr[0]), col = arr[1];
+        var row = parseInt(arr[0]);
+        var col = arr[1];
 
-        this.requiredPivotTableData[row][col] = newValue;
+        this.mapPivotTableColumnValue(this.requiredPivotTableData, row, col, e.target.value);
 
         this.setState({
             isFilterExpValid: false,
@@ -177,6 +188,44 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
         this.forceUpdate();
     }
+
+    onOperatorSelected?= (event: React.FormEvent<HTMLDivElement>, item?: IDropdownOption): void => {
+
+        if (item) {
+            var target = event?.target as HTMLInputElement;
+            var arr = target.id.toString().split('_');
+            var row = parseInt(arr[0]);
+            var col = arr[1];
+            this.mapPivotTableColumnValue(this.requiredPivotTableData, row, col, item.text);
+            this.forceUpdate();
+        }
+
+        //event.preventDefault();
+    }
+
+    selectedOperator() {
+
+        let res: Pair[] = [];
+
+        res.push({ key: "AND", text: "AND" });
+        res.push({ key: "OR", text: "OR" });
+
+        return res;
+    }
+
+    mapPivotTableColumnValue(arr: PivotTable[], row: number, colname: string, val: any) {
+        switch (colname) {
+            case 'IsSelectPivot': arr[row].IsSelectPivot = val; break;
+            case 'IsKeyPivot': arr[row].IsKeyPivot = val; break;
+            case 'IsApportionPivot': arr[row].IsApportionPivot = val; break;
+            case 'IsApportionJoinPivot': arr[row].IsApportionJoinPivot = val; break;
+            case 'IsScopeFilter': arr[row].IsScopeFilter = val; break;
+            case 'FilterExpression': arr[row].FilterExpression = val; break;
+            case 'FilterExpressionOperator': arr[row].FilterExpressionOperator = val; break;
+            default: break;
+        }
+    }
+
 
     updatePivotTableData(input: Pair[]) {
         var updated: PivotTable[] = [];
@@ -203,7 +252,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             }
 
             if (flag == false) {
-                var item: PivotTable = { PivotID: parseInt(ele.key), PivotName: ele.text, IsApportionJoinPivot: false, IsApportionPivot: false, IsKeyPivot: false, IsScopeFilter: false, IsSelectPivot: false, FilterExpression: '', FilterExpressionOperator: '', PivotScopeID : 0 };
+                var item: PivotTable = { PivotID: parseInt(ele.key), PivotName: ele.text, IsApportionJoinPivot: false, IsApportionPivot: false, IsKeyPivot: false, IsScopeFilter: false, IsSelectPivot: false, FilterExpression: '', FilterExpressionOperator: '', PivotScopeID: 0 };
                 updated.push(item);
             }
 
@@ -228,7 +277,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             />
         );
 
-         let pivotdropdown = (
+        let pivotdropdown = (
 
             <div>
 
@@ -236,9 +285,9 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
                     placeholder="Select Pivots"
                     label="Select Pivots"
                     // eslint-disable-next-line react/jsx-no-bind
-                     onChange={this.onSelectingPivot}
-                     multiSelect options={this.getPivotNames(this.state.pivotsList)}
-                     selectedKeys={this.state.selectedPivotsOnlyKey}
+                    onChange={this.onSelectingPivot}
+                    multiSelect options={this.getPivotNames(this.state.pivotsList)}
+                    selectedKeys={this.state.selectedPivotsOnlyKey}
                 />
             </div>
         );
@@ -272,7 +321,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         return (
 
             <div>
-                <FailureCurveSave failureConfigToSave={failureObjToBePassed} />  
+                <FailureCurveSave failureConfigToSave={failureObjToBePassed} />
             </div>
         );
     }
@@ -280,6 +329,10 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
     //azure function to validate filter expression
     async _validateClicked() {
+
+        this.setState({
+            isFilterExpValid: false,
+        });
 
         await axios.post("api/Data/ValidateAzureFunctionCall", {
             headers: {
@@ -300,6 +353,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         };
 
         var url = "https://riodapis.azurewebsites.net/api/FailureFilterExpressionValidator?code=" + this.state.validateAZKey;
+        var flag;
 
         await axios.post(url, {
             name: this.requiredPivotTableData
@@ -310,14 +364,23 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         })
             .then(res => {
                 console.log(res.data);
-                this.setState({ isFilterExpValid: res.data });
+                var flag = this.getBool(res.data);
+                this.setState({
+                    isFilterExpValid: this.getBool(flag),
+                });
+                
             }).catch((err) => {
                 console.log('Axios Error:', err.message);
 
             })
-            
+
+
     }
 
+
+    getBool(val: any) {
+        return !!JSON.parse(String(val).toLowerCase());
+    }
 
     extractPivotName(item: Pivot) {
         return {
@@ -336,7 +399,6 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         return [];
     }
 
-    
     getRequiredSchemaForPivotTable() {
 
         for (let ele of this.resultantPivotSQL) {
@@ -357,7 +419,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
     }
 
-    
+
     async onPivotDropdownLoad() {
 
         var input: FailureConfig = {
@@ -398,26 +460,42 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         this.getDefaultPivotKeys();
     }
 
-    _renderItemColumn(item: Pair, index: number, column: IColumn) {
-        const fieldContent = item[column.fieldName as keyof Pair] as string;
+    
 
-        if (column.key == 'PivotID')
-            return null;
-        else if (column.key == 'FilterExpression' || column.key == 'FilterExpressionOperator') {
 
+    _renderItemColumn(item: Pair, index?: number, column?: IColumn) {
+        const fieldContent = (item[column?.fieldName as keyof Pair]) as string;
+
+        var colIndex = 0;
+
+        if (column?.key == 'PivotID')
+            return <span/>;
+        else if (column?.key == 'FilterExpression') {
             return (
                 <span>
-                    <TextField value={fieldContent} id={index + '_' + column.key} onChange={this.handleChange} />
-                </span>
-                );
-        }
-        else if (column.key != 'PivotName') {
-
-            return (
-                <span>
-                    <Checkbox checked={Boolean(fieldContent)} id={index + '_' + column.key} onChange={this.checkboxChange} />
+                    <TextField value={fieldContent} id={index + '_' + column?.name} onChange={this.handleChange} />
                 </span>
             );
+        }
+        else if (column?.key == 'FilterExpressionOperator') {
+            return (
+                <span>
+                    <Dropdown
+                        selectedKey={fieldContent}
+                        // eslint-disable-next-line react/jsx-no-bind
+                        onChange={this.onOperatorSelected}
+                        options={this.selectedOperator()}
+                        id={index + '_' + column?.name}
+                    />
+                </span>
+            );
+        }
+        else if (column?.key != 'PivotName') {
+                return (
+                    <span>
+                        <Checkbox checked={Boolean(fieldContent ?? false)} id={index + '_' + column?.key} onChange={this.onChange}/>
+                    </span>
+                );
         }
         else
             return <span>{fieldContent}</span>;
