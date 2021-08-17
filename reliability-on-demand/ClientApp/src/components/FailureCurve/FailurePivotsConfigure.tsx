@@ -2,7 +2,7 @@
 import { Pair, Pivot, FailureConfig, PivotTable, PivotSQLResult } from '../../models/FailureConfig.model';
 import { initializeIcons } from '@uifabric/icons';
 //import { largeTitle } from '../helpers/Styles';
-import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TextField, DefaultButton } from "@fluentui/react";
+import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TextField, DefaultButton, IDetailsHeaderProps, DetailsHeader, ITooltipHostProps, IDetailsColumnStyles, noWrap } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { FailureCurveSave } from '../FailureCurve/FailureCurveSave';
 import axios from 'axios';
@@ -26,7 +26,19 @@ export interface IFailurePivotsConfigureState {
 
 export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfigureProps, IFailurePivotsConfigureState> {
 
-    cols: IColumn[] = [];
+    headerStyle: Partial<IDetailsColumnStyles> = {
+        cellTitle: {
+            whiteSpace: 'noWrap',
+            textOverflow: 'clip',
+            lineHeight: 'normal',
+            minWidth: 100,
+            position: 'absolute',
+            maxWidth: 200,
+            isResizable: true,
+        }
+    }
+    cols: IColumn[] = [
+        { styles: this.headerStyle, key: 'name', name: 'Name', fieldName: 'name', minWidth: 100, }];
     configuredPivots: Pivot[] = [];
     requiredPivotTableData: PivotTable[] = [];
     resultantPivotSQL: PivotSQLResult[] = [];
@@ -58,7 +70,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         this.getDefaultPivotKeys = this.getDefaultPivotKeys.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this._validateClicked = this._validateClicked.bind(this);
-        this.onOperatorSelected = this.onOperatorSelected.bind(this);
+        this.getBool = this.getBool.bind(this);
     }
 
    
@@ -318,6 +330,10 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
     //azure function to validate filter expression
     async _validateClicked() {
 
+        this.setState({
+            isFilterExpValid: false,
+        });
+
         await axios.post("api/Data/ValidateAzureFunctionCall", {
             headers: {
                 'Content-Type': 'application/json'
@@ -337,6 +353,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         };
 
         var url = "https://riodapis.azurewebsites.net/api/FailureFilterExpressionValidator?code=" + this.state.validateAZKey;
+        var flag;
 
         await axios.post(url, {
             name: this.requiredPivotTableData
@@ -347,14 +364,23 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         })
             .then(res => {
                 console.log(res.data);
-                this.setState({ isFilterExpValid: Boolean(res.data) });
+                var flag = this.getBool(res.data);
+                this.setState({
+                    isFilterExpValid: this.getBool(flag),
+                });
+                
             }).catch((err) => {
                 console.log('Axios Error:', err.message);
 
             })
 
+
     }
 
+
+    getBool(val: any) {
+        return !!JSON.parse(String(val).toLowerCase());
+    }
 
     extractPivotName(item: Pivot) {
         return {
@@ -372,7 +398,6 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
 
         return [];
     }
-
 
     getRequiredSchemaForPivotTable() {
 
@@ -468,7 +493,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         else if (column?.key != 'PivotName') {
                 return (
                     <span>
-                        <Checkbox checked={Boolean(fieldContent ?? false)} id={index + '_' + column?.key} onChange={this.onChange} />
+                        <Checkbox checked={Boolean(fieldContent ?? false)} id={index + '_' + column?.key} onChange={this.onChange}/>
                     </span>
                 );
         }
