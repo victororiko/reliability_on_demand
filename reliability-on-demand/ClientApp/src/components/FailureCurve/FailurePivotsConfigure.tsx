@@ -5,6 +5,7 @@ import { initializeIcons } from '@uifabric/icons';
 import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TextField, DefaultButton, IDetailsHeaderProps, DetailsHeader, ITooltipHostProps, IDetailsColumnStyles, noWrap } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { FailureCurveSave } from '../FailureCurve/FailureCurveSave';
+import { FailureCurveFilterExpression } from '../FailureCurve/FailureCurveFilterExpression';
 import axios from 'axios';
 initializeIcons();
 
@@ -26,26 +27,13 @@ export interface IFailurePivotsConfigureState {
 
 export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfigureProps, IFailurePivotsConfigureState> {
 
-    headerStyle: Partial<IDetailsColumnStyles> = {
-        cellTitle: {
-            whiteSpace: 'noWrap',
-            textOverflow: 'clip',
-            lineHeight: 'normal',
-            minWidth: 100,
-            position: 'absolute',
-            maxWidth: 200,
-            isResizable: true,
-        }
-    }
-    cols: IColumn[] = [
-        { styles: this.headerStyle, key: 'name', name: 'Name', fieldName: 'name', minWidth: 100, }];
+    cols: IColumn[] = [];
     configuredPivots: Pivot[] = [];
     requiredPivotTableData: PivotTable[] = [];
     resultantPivotSQL: PivotSQLResult[] = [];
 
-
     constructor(props: any) {
-        super(props)
+        super(props);
 
         this.state = {
             loading: true,
@@ -56,6 +44,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             isFilterExpValid: true,
             validateAZKey: '',
         };
+
     }
 
     /**
@@ -69,8 +58,10 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         this._renderItemColumn = this._renderItemColumn.bind(this);
         this.getDefaultPivotKeys = this.getDefaultPivotKeys.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        this._validateClicked = this._validateClicked.bind(this);
-        this.getBool = this.getBool.bind(this);
+        //this.renderSaveButton = this.renderSaveButton.bind(this);
+        this.nextClicked = this.nextClicked.bind(this);
+        //this._validateClicked = this._validateClicked.bind(this);
+        //this.getBool = this.getBool.bind(this);
     }
 
    
@@ -292,22 +283,45 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             </div>
         );
 
-
+        /*
         let validatebutton = (<div>
             <DefaultButton text="Validate Filter Expression" onClick={this._validateClicked} allowDisabledFocus disabled={false} checked={false} />
         </div>);
+        */
 
-        let saveButton = (this.state.isFilterExpValid == true ? this.renderSaveButton() : '');
+        //let saveButton = (this.state.isFilterExpValid == true ? this.renderSaveButton() : '');
+
+        let nextButton = this.nextClicked();
 
         return (<div>
             {pivotdropdown}
             {pivottable}
-            {validatebutton}
-            {saveButton}
+            {nextButton}
         </div>);
 
     }
 
+    
+    nextClicked() {
+
+        var failureObjToBePassed: FailureConfig = {
+            StudyID: this.props.studyid,
+            PivotSourceSubType: this.props.selectedVerticalForStudy.key,
+            Pivots: this.requiredPivotTableData
+        };
+
+        
+
+        return (
+
+            <div>
+                <FailureCurveFilterExpression failureConfigToSave={failureObjToBePassed}/>
+            </div>
+        );
+    }
+
+
+    /*
     renderSaveButton() {
 
         var failureObjToBePassed: FailureConfig = {
@@ -325,9 +339,11 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             </div>
         );
     }
+    */
 
 
     //azure function to validate filter expression
+    /*
     async _validateClicked() {
 
         this.setState({
@@ -381,6 +397,8 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
     getBool(val: any) {
         return !!JSON.parse(String(val).toLowerCase());
     }
+
+*/
 
     extractPivotName(item: Pivot) {
         return {

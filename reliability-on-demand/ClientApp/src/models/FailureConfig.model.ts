@@ -65,5 +65,13 @@ export interface Filter {
     PivotScopeOperator: string;
 }
 
+export interface FilterExpTable {
+    RelationalOperator: string;
+    PivotName: string;
+    Operator: string;
+    PivotValue: string;
+    PivotID: number;
+    PivotScopeID: number;
+}
 
 
