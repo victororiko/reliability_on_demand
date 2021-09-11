@@ -1,4 +1,4 @@
-﻿import { DefaultButton } from '@fluentui/react';
+﻿import { DefaultButton, Label, TooltipHost } from '@fluentui/react';
 import * as React from 'react';
 import { FailureConfig } from '../../models/FailureConfig.model';
 import axios from 'axios';
@@ -16,34 +16,54 @@ export interface IFailureCurveSaveState {
 export class FailureCurveSave extends React.Component<IFailureCurveSaveProps, IFailureCurveSaveState> {
     constructor(props: IFailureCurveSaveProps) {
         super(props);
+
+        this.state = ({
+            hasSavedFailureCurve: false,
+        });
         this._saveClicked = this._saveClicked.bind(this);
     }
 
     componentDidMount() {
-        this.setState({
-            hasSavedFailureCurve : false,
-        })
+        this._saveClicked = this._saveClicked.bind(this);
+        this.state = ({
+            hasSavedFailureCurve: false,
+        });
     }
 
     render() {
-        return (
+
+        let saveButton = (
+            <TooltipHost
+                content="Click to save all the selected configuration"
+            >
             <div>
                 <DefaultButton text="Save Config" onClick={this._saveClicked} allowDisabledFocus disabled={false} checked={false} />
-            </div>
+                </div>
+            </TooltipHost>
         );
+
+        let saveStatement = this.state.hasSavedFailureCurve == true ? (<div><Label>Data has been saved successfully</Label></div>): '';
+
+        return (<div>
+            {saveButton}
+            {saveStatement}
+        </div>);
     }
 
 
     async _saveClicked() {
 
-        axios.post('api/Data/UpdateFailureSavedConfig', this.props.failureConfigToSave
+
+        axios.post('api/Data/SavedFailureConfig', this.props.failureConfigToSave
         )
             .then(response => {
                 console.log(response.data);
+                this.setState({ hasSavedFailureCurve: true });
             })
             .catch(err => {
                 console.log(err);
             })
+            
     }
 
     

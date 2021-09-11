@@ -1,7 +1,8 @@
-﻿import { buildColumns, DefaultButton, DetailsList, Dropdown, IColumn, SelectionMode, TextField } from '@fluentui/react';
+﻿import { buildColumns, DefaultButton, DetailsList, Dropdown, IColumn, IDictionary, IDropdownOption, SelectionMode, Spinner, SpinnerSize, TextField, TooltipHost } from '@fluentui/react';
 import * as React from 'react';
-import { FailureConfig, Pair, Pivot, FilterExpTable, PivotTable } from '../../models/FailureConfig.model';
+import { FailureConfig, Pair, FilterExpTable, PivotScopeFilter } from '../../models/FailureConfig.model';
 import axios from 'axios';
+import { FailureCurveSave } from '../FailureCurve/FailureCurveSave';
 // Our components that make up the page
 
 
@@ -14,6 +15,8 @@ export interface IFailureCurveFilterExpressionState {
     PivotsToFilter: Pair[],
     RelationalOperators: Pair[],
     Operators: Pair[],
+    hasRowDeleted: boolean,
+    hasRowAdded: boolean,
 }
 
 export class FailureCurveFilterExpression extends React.Component<IFailureCurveFilterExpressionProps, IFailureCurveFilterExpressionState> {
@@ -25,17 +28,27 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
     constructor(props: any) {
         super(props);
 
-        this.setState({
+        this.state = ({
             PivotsToFilter: [],
             RelationalOperators: [],
-            Operators: []
+            Operators: [],
+            hasRowDeleted: false,
+            hasRowAdded: false,
         });
 
-        
+
 
     }
 
     componentDidMount() {
+
+        this.state = ({
+            PivotsToFilter: [],
+            RelationalOperators: [],
+            Operators: [],
+            hasRowDeleted: false,
+            hasRowAdded: false,
+        });
         this.nextClicked = this.nextClicked.bind(this);
         this.loadPivots = this.loadPivots.bind(this);
         this.loadRelationalOperators = this.loadRelationalOperators.bind(this);
@@ -43,13 +56,14 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
         this.buildColumnArray = this.buildColumnArray.bind(this);
         this.renderDetailedList = this.renderDetailedList.bind(this);
         this.addClicked = this.addClicked.bind(this);
-        this.onPivotSelected = this.onPivotSelected.bind(this);
         this.deleteClicked = this.deleteClicked.bind(this);
         this.onTextBoxChange = this.onTextBoxChange.bind(this);
         this._renderItemColumn = this._renderItemColumn.bind(this);
         this.getPivotID = this.getPivotID.bind(this);
+        this.renderSaveButton = this.renderSaveButton.bind(this);
         this.loadRelationalOperators();
         this.loadOperators();
+        
     }
 
     loadRelationalOperators() {
@@ -83,7 +97,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
         var arr: Pair[] = [];
 
         for (let ele of this.props.failureConfigToSave.Pivots) {
-            if (ele.IsScopeFilter = true) {
+            if (ele.IsScopeFilter == true) {
                 arr.push({ key: ele.PivotID.toString(), text: ele.PivotName });
 
                 var exp = ele.FilterExpression;
@@ -106,7 +120,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
                             var trimele = eleRop.trim();
                             if (trimele != null && trimele != '') {
                                 var op = this.getContainingElementFromArr(trimele, this.state.Operators);
-                                var val = trimele.split(op ?? '')[1];
+                                var val = (trimele.split(op ?? '')[1]).trim();
 
                                 if (ctr == (ropArr.length - 1))
                                     this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: ele.FilterExpressionOperator });
@@ -152,28 +166,111 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
 
     render(): React.ReactElement {
-
-
         let nextButton = (<div>
-            <DefaultButton text="Next" onClick={this.nextClicked} allowDisabledFocus disabled={false} checked={false} />
+            <TooltipHost
+                content="Click Next to configure the filter expression"
+            >
+                <DefaultButton text="Next" onClick={this.nextClicked} allowDisabledFocus disabled={false} checked={false} />
+            </TooltipHost>
         </div>);
 
         let detailedList = this.HasNextClicked == true ? this.renderDetailedList() : '';
 
+        //let spinner = (this.state.hasRowDeleted == true || this.state.hasRowAdded == true) ? this.displaySpinner() : '';
+
+        let saveButton = (this.HasNextClicked == true ? this.renderSaveButton(): '');
+
         return (<div>
             { nextButton }
             {detailedList}
+            {saveButton}
             </div>
             );
         
     }
 
+    displaySpinner() {
+        return (<div><Spinner size={SpinnerSize.medium} /></div>);
+    }
+
+    renderSaveButton() {
+
+        var pivotexpMap: PivotScopeFilter[] = [];
+
+        var ctr = 0;
+
+        for (let d of this.DefaultPivot) {
+            var pid = d.PivotID;
+            var flag = false;
+
+            for (var i = 0; i < pivotexpMap.length; i++) {
+                var id = pivotexpMap[i].PivotID;
+
+                if (pid == id) {
+                    var filterexp = pivotexpMap[i].FilterExpression;
+                    var exp = filterexp + " " + pivotexpMap[i].RelationalOperator + " " + d.PivotName + " " + d.Operator + " " + d.PivotValue;
+                    var rop = d.RelationalOperator;
+                    pivotexpMap[i].FilterExpression = exp;
+                    pivotexpMap[i].RelationalOperator = rop;
+                    flag = true;
+                    break;
+                }
+
+            }
+
+            if (flag == false) {
+                var filterexp = d.PivotName + " " + d.Operator + " " + d.PivotValue;
+                pivotexpMap.push({ PivotID: d.PivotID, FilterExpression: filterexp, RelationalOperator: d.RelationalOperator });
+            }
+
+            if (ctr == (this.DefaultPivot.length - 1)) {
+                pivotexpMap[pivotexpMap.length - 1].RelationalOperator = '';
+            }
+
+            ctr++;
+
+        }
+
+
+        for (let ele of pivotexpMap) {
+            var pid = ele.PivotID;
+
+            for (var i = 0; i < this.props.failureConfigToSave.Pivots.length; i++) {
+                var id = this.props.failureConfigToSave.Pivots[i].PivotID;
+                if (pid == id) {
+                    this.props.failureConfigToSave.Pivots[i].FilterExpression = ele.FilterExpression;
+                    this.props.failureConfigToSave.Pivots[i].FilterExpressionOperator = ele.RelationalOperator;
+                    break;
+                }
+            }
+        }
+
+        
+        for (var i = 0; i < this.props.failureConfigToSave.Pivots.length; i++) {
+            if (this.props.failureConfigToSave.Pivots[i].PivotScopeID == null)
+                this.props.failureConfigToSave.Pivots[i].PivotScopeID = 0;
+        }
+        
+
+
+        return (
+
+            <div>
+                <FailureCurveSave failureConfigToSave={this.props.failureConfigToSave} />
+            </div>
+        );
+
+    }
+
 
     nextClicked() {
 
+        //this.DefaultPivot = [];
+        
         this.loadPivots();
         this.buildColumnArray();
         this.HasNextClicked = true;
+        this.setState({ hasRowDeleted: false });
         
     }
 
@@ -181,34 +278,123 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
     renderDetailedList() {
         return (
             <div>
+                <TooltipHost
+                    content="Configure the filter expression"
+                >
                 <DetailsList
                     items={(this.DefaultPivot)}
                     setKey="set"
                     columns={this.cols}
                     onRenderItemColumn={this._renderItemColumn}
                     selectionMode={SelectionMode.none}
-                />
+                    />
+                </TooltipHost>
             </div>
         );
     }
 
 
-    addClicked() {
+    addClicked(id: any) {
 
-        this.DefaultPivot.push({ PivotID: 0, PivotName: '', PivotValue: '', PivotScopeID: 0, Operator:'', RelationalOperator: '' });
+        this.setState({ hasRowAdded: true });
+
+        var item: FilterExpTable= ({ PivotID: 0, PivotName: '', PivotValue: '', PivotScopeID: 0, Operator: '', RelationalOperator: '' });
+
+        this.DefaultPivot = [...this.DefaultPivot.slice(0, id), item, ...this.DefaultPivot.slice(id)];
+
+        this.setState({ hasRowAdded: false });
     }
 
-    deleteClicked() {
+    deleteClicked(id: any) {
+
+        this.setState({ hasRowDeleted: true });
+        var res = this.DefaultPivot;
+        this.DefaultPivot = [];
+
+        for (var i = 0; i < res.length; i++) {
+
+            if (i !== id) {
+                this.DefaultPivot.push(res[i]);
+            }
+        }
+
+        this.setState({ hasRowDeleted: false });
+    }
+
+    onPivotSelected?= (event: React.FormEvent<HTMLDivElement>, item?: IDropdownOption): void => {
+
+        if (item) {
+            var target = event?.target as HTMLInputElement;
+            var arr = target.id.toString().split('_');
+            var row = parseInt(arr[0]);
+            var col = arr[1];
+            this.mapPivotTableColumnValue(this.DefaultPivot, row, col, item.text);
+            this.mapPivotTableColumnValue(this.DefaultPivot, row, 'PivotID', item.key);
+            this.forceUpdate();
+            this.cols = [];
+            this.buildColumnArray();
+        }
 
     }
 
-    onPivotSelected() {
+    onOperatorSelected?= (event: React.FormEvent<HTMLDivElement>, item?: IDropdownOption): void => {
+
+        if (item) {
+            var target = event?.target as HTMLInputElement;
+            var arr = target.id.toString().split('_');
+            var row = parseInt(arr[0]);
+            var col = arr[1];
+            this.mapPivotTableColumnValue(this.DefaultPivot, row, col, item.text);
+            this.forceUpdate();
+            this.cols = [];
+            this.buildColumnArray();
+        }
 
     }
 
-    onTextBoxChange() {
+    onRelationalOperatorSelected?= (event: React.FormEvent<HTMLDivElement>, item?: IDropdownOption): void => {
+
+        if (item) {
+            var target = event?.target as HTMLInputElement;
+            var arr = target.id.toString().split('_');
+            var row = parseInt(arr[0]);
+            var col = arr[1];
+            this.mapPivotTableColumnValue(this.DefaultPivot, row, col, item.text);
+            this.forceUpdate();
+            this.cols = [];
+            this.buildColumnArray();
+        }
 
     }
+
+    onTextBoxChange = (event: {}): void => {
+        const e = event as React.ChangeEvent<HTMLInputElement>;
+        var target = e?.target as HTMLInputElement;
+        var arr = target.id.toString().split('_');
+
+        var row = parseInt(arr[0]);
+        var col = arr[1];
+
+        this.mapPivotTableColumnValue(this.DefaultPivot, row, col, e.target.value);
+        this.forceUpdate();
+        e.preventDefault();
+        this.cols = [];
+        this.buildColumnArray();
+    }
+
+
+    mapPivotTableColumnValue(arr: FilterExpTable[], row: number, colname: string, val: any) {
+        switch (colname) {
+            case 'Operator': arr[row].Operator = val; break;
+            case 'PivotID': arr[row].PivotID = val; break;
+            case 'PivotName': arr[row].PivotName = val; break;
+            case 'PivotScopeID': arr[row].PivotScopeID = val; break;
+            case 'PivotValue': arr[row].PivotValue = val; break;
+            case 'RelationalOperator': arr[row].RelationalOperator = val; break;
+            default: break;
+        }
+    }
+
 
     getPivotID(input: any) {
 
@@ -228,17 +414,18 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
         var colIndex = 0;
 
-        if (column?.key == 'Add/Delete')
+        if (column?.key == 'Add/Delete') {
+
             return (
                 <span>
-                    <DefaultButton text="+" onClick={this.addClicked} allowDisabledFocus disabled={false} checked={false} />
-                    <DefaultButton text="X" onClick={this.deleteClicked} allowDisabledFocus disabled={false} checked={false} />
+                    <DefaultButton text="+" onClick={() => this.addClicked(index)} id={index?.toString()} allowDisabledFocus disabled={false} checked={false} />
+                    <DefaultButton text="X" onClick={() => this.deleteClicked(index)} id={index?.toString()} allowDisabledFocus disabled={false} checked={false}/>
                 </span>
             );
+        }
         else if (column?.key == 'PivotName') {
             var val = { fieldContent };
             var key = this.getPivotID(val);
-            this.forceUpdate();
 
             return (
                 <span>
@@ -258,7 +445,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
                     <Dropdown
                         selectedKey={fieldContent}
                         // eslint-disable-next-line react/jsx-no-bind
-                        onChange={this.onPivotSelected}
+                        onChange={this.onOperatorSelected}
                         options={this.state.Operators}
                         id={index + '_' + column?.name}
                     />
@@ -271,7 +458,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
                     <Dropdown
                         selectedKey={fieldContent}
                         // eslint-disable-next-line react/jsx-no-bind
-                        onChange={this.onPivotSelected}
+                        onChange={this.onRelationalOperatorSelected}
                         options={this.state.RelationalOperators}
                         id={index + '_' + column?.name}
                     />

@@ -2,7 +2,7 @@
 import { Vertical, Pair, Pivot } from '../../models/FailureConfig.model';
 import { initializeIcons } from '@uifabric/icons';
 import { largeTitle } from '../helpers/Styles';
-import { Label, Text, Separator, DetailsList, IColumn, Toggle, TooltipHost, Icon, buildColumns } from "@fluentui/react";
+import { Label, Text, Separator, DetailsList, IColumn, Toggle, TooltipHost, Icon, buildColumns, ITooltipHostStyles } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { DefaultButton } from '@fluentui/react/lib/Button';
 import { FailureSectionDetails } from '../FailureCurve/FailureSectionDetails';
@@ -102,7 +102,11 @@ export default class FailureSection extends React.Component<FailureSectionProps,
     renderFailureDetailsButton() {
         return (
             <div>
-                <DefaultButton text="Configure Failure Curve" onClick={this._alertClicked} allowDisabledFocus disabled={false} checked={false} />
+                <TooltipHost
+                    content="Press this button if all the required verticals are selected and you would like to configure them one by one"
+                >
+                    <DefaultButton text="Configure Failure Curve" onClick={this._alertClicked} allowDisabledFocus disabled={false} checked={false} />
+                </TooltipHost>
             </div>
         );
     }
@@ -110,10 +114,15 @@ export default class FailureSection extends React.Component<FailureSectionProps,
     renderSelectedVerticals() {
         return (
             <div>
+                <TooltipHost
+                    content="List of verticals you selected to configure for your study"
+                >
                 <Label>
                     Selected Vertical
-            </Label>
-                { this.selectedKeys.map(key => (<Text block>{key.text}</Text>))}
+                    </Label>
+                </TooltipHost>
+                    {this.selectedKeys.map(key => (<Text block>{key.text}</Text>))}
+
             </div>
         );
     }
@@ -122,6 +131,9 @@ export default class FailureSection extends React.Component<FailureSectionProps,
 
         return (
             <div>
+                <TooltipHost
+                    content="Select all the verticals you would like to configure for your study"
+                >
                 <Dropdown
                     placeholder="Select Verticals"
                     label="Select Verticals"
@@ -129,8 +141,8 @@ export default class FailureSection extends React.Component<FailureSectionProps,
                     onChange={this.onVerticalSelected}
                     multiSelect options={this.getVerticalNames()}
 
-                />
-
+                    />
+                </TooltipHost>
             </div>
         );
     }

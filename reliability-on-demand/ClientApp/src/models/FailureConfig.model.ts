@@ -74,4 +74,11 @@ export interface FilterExpTable {
     PivotScopeID: number;
 }
 
+export interface PivotScopeFilter {
+    PivotID: number;
+    FilterExpression: string;
+    RelationalOperator: string;
+}
+
+
 

@@ -2,7 +2,7 @@
 import { Pair, Pivot, FailureConfig, PivotTable, PivotSQLResult } from '../../models/FailureConfig.model';
 import { initializeIcons } from '@uifabric/icons';
 //import { largeTitle } from '../helpers/Styles';
-import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TextField, DefaultButton, IDetailsHeaderProps, DetailsHeader, ITooltipHostProps, IDetailsColumnStyles, noWrap } from "@fluentui/react";
+import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TextField, DefaultButton, IDetailsHeaderProps, DetailsHeader, ITooltipHostProps, IDetailsColumnStyles, noWrap, TooltipHost } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { FailureCurveSave } from '../FailureCurve/FailureCurveSave';
 import { FailureCurveFilterExpression } from '../FailureCurve/FailureCurveFilterExpression';
@@ -69,7 +69,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         var arr = buildColumns(this.requiredPivotTableData);
 
         for (let ele of arr) {
-            if (ele.fieldName != 'PivotID' && ele.fieldName != 'PivotScopeID')
+            if (ele.fieldName != 'PivotID' && ele.fieldName != 'PivotScopeID' && ele.fieldName != 'FilterExpressionOperator' && ele.fieldName != 'FilterExpression')
                 this.cols.push(ele);
         }
     }
@@ -259,19 +259,25 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         this.buildColumnArray();
 
         let pivottable = (
+            <TooltipHost
+                content="Select/Deselect what kind of Pivot it is in the Watson call"
+            >
             <DetailsList
                 items={(this.requiredPivotTableData)}
                 setKey="set"
                 columns={this.cols}
                 onRenderItemColumn={this._renderItemColumn}
                 selectionMode={SelectionMode.none}
-            />
+                />
+            </TooltipHost>
         );
 
         let pivotdropdown = (
 
             <div>
-
+                <TooltipHost
+                    content="Select/Deselect Pivots based on if it is part of failure curve"
+                >
                 <Dropdown
                     placeholder="Select Pivots"
                     label="Select Pivots"
@@ -279,17 +285,11 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
                     onChange={this.onSelectingPivot}
                     multiSelect options={this.getPivotNames(this.state.pivotsList)}
                     selectedKeys={this.state.selectedPivotsOnlyKey}
-                />
+                    />
+                </TooltipHost>
             </div>
         );
 
-        /*
-        let validatebutton = (<div>
-            <DefaultButton text="Validate Filter Expression" onClick={this._validateClicked} allowDisabledFocus disabled={false} checked={false} />
-        </div>);
-        */
-
-        //let saveButton = (this.state.isFilterExpValid == true ? this.renderSaveButton() : '');
 
         let nextButton = this.nextClicked();
 
@@ -487,7 +487,8 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         var colIndex = 0;
 
         if (column?.key == 'PivotID')
-            return <span/>;
+            return <span />;
+        /*
         else if (column?.key == 'FilterExpression') {
             return (
                 <span>
@@ -508,6 +509,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
                 </span>
             );
         }
+        */
         else if (column?.key != 'PivotName') {
                 return (
                     <span>
