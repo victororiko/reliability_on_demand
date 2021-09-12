@@ -156,11 +156,15 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
     buildColumnArray() {
         var arr = buildColumns(this.DefaultPivot);
 
-        this.cols.push({ key: 'Add/Delete', name: 'Add/Delete', fieldName: 'Add/Delete', minWidth: 100, maxWidth: 200, isResizable: true });
+        this.cols.push({ key: 'Add/Delete', name: 'Add/Delete', fieldName: 'Add/Delete', minWidth: 50, maxWidth: 100, isResizable: true });
 
         for (let ele of arr) {
-            if (ele.fieldName != 'PivotID' && ele.fieldName != 'PivotScopeID')
-                this.cols.push(ele);
+            if (ele.fieldName == 'Operator')
+                this.cols.push({ key: ele.fieldName ?? '', name: ele.fieldName ?? '', fieldName: ele.fieldName ?? '', minWidth: 100, maxWidth: 100, isResizable: true });
+            else if (ele.fieldName == 'PivotName')
+                this.cols.push({ key: ele.fieldName ?? '', name: ele.fieldName ?? '', fieldName: ele.fieldName ?? '', minWidth: 100, maxWidth: 350, isResizable: true });
+            else if (ele.fieldName != 'PivotID' && ele.fieldName != 'PivotScopeID')
+                this.cols.push({ key: ele.fieldName ?? '', name: ele.fieldName ?? '', fieldName: ele.fieldName ?? '', minWidth: 100, maxWidth: 300, isResizable: true });
         }
     }
 
@@ -418,8 +422,15 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
             return (
                 <span>
-                    <DefaultButton text="+" onClick={() => this.addClicked(index)} id={index?.toString()} allowDisabledFocus disabled={false} checked={false} />
-                    <DefaultButton text="X" onClick={() => this.deleteClicked(index)} id={index?.toString()} allowDisabledFocus disabled={false} checked={false}/>
+                    <view style={{
+                        minWidth: 10,
+                        maxWidth: 10,
+                        minHeight: 10,
+                        maxHeight: 10,
+                    }}>
+                        <DefaultButton text="+" onClick={() => this.addClicked(index)} id={index?.toString()} allowDisabledFocus disabled={false} checked={false} style={{ maxWidth: 5, minWidth: 5, maxHeight: 50, minHeight: 30 }} />
+                        <DefaultButton text="X" onClick={() => this.deleteClicked(index)} id={index?.toString()} allowDisabledFocus disabled={false} checked={false} style={{ maxWidth: 5, minWidth: 5, maxHeight: 50, minHeight: 30 }} />
+                        </view>
                 </span>
             );
         }
