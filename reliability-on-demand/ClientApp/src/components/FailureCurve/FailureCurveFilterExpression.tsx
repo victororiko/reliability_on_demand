@@ -106,12 +106,12 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
                     if (eleExp != null && eleExp != '') {
                         var rop = this.getContainingElementFromArr(eleExp, this.state.RelationalOperators);
 
-                        var ropArr;
+                        var ropArr: string[]=[];
 
-                        if (rop != '' || rop != undefined)
-                            ropArr = eleExp.split(rop);
+                        if ((typeof rop != 'undefined') && (rop != '' ))
+                            ropArr = eleExp.split(rop??'');
                         else
-                            ropArr = eleExp;
+                            ropArr[0] = eleExp;
 
                         var ctr = 0;
 
