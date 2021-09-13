@@ -102,35 +102,37 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
                 var exp = ele.FilterExpression;
 
-                for (let eleExp of exp.split(ele.PivotName)) {
-                    if (eleExp != null && eleExp != '') {
-                        var rop = this.getContainingElementFromArr(eleExp, this.state.RelationalOperators);
+                if (exp != null && exp != '') {
+                    for (let eleExp of exp.split(ele.PivotName)) {
+                        if (eleExp != null && eleExp != '') {
+                            var rop = this.getContainingElementFromArr(eleExp, this.state.RelationalOperators);
 
-                        var ropArr: string[]=[];
+                            var ropArr: string[] = [];
 
-                        if ((typeof rop != 'undefined') && (rop != '' ))
-                            ropArr = eleExp.split(rop??'');
-                        else
-                            ropArr[0] = eleExp;
+                            if ((typeof rop != 'undefined') && (rop != ''))
+                                ropArr = eleExp.split(rop ?? '');
+                            else
+                                ropArr[0] = eleExp;
 
-                        var ctr = 0;
+                            var ctr = 0;
 
-                        for (let eleRop of ropArr) {
+                            for (let eleRop of ropArr) {
 
-                            var trimele = eleRop.trim();
-                            if (trimele != null && trimele != '') {
-                                var op = this.getContainingElementFromArr(trimele, this.state.Operators);
-                                var val = (trimele.split(op ?? '')[1]).trim();
+                                var trimele = eleRop.trim();
+                                if (trimele != null && trimele != '') {
+                                    var op = this.getContainingElementFromArr(trimele, this.state.Operators);
+                                    var val = (trimele.split(op ?? '')[1]).trim();
 
-                                if (ctr == (ropArr.length - 1))
-                                    this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: ele.FilterExpressionOperator });
-                                else
-                                    this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: rop ?? '' });
+                                    if (ctr == (ropArr.length - 1))
+                                        this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: ele.FilterExpressionOperator });
+                                    else
+                                        this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: rop ?? '' });
+                                }
+
+                                ctr = ctr + 1;
                             }
 
-                            ctr = ctr + 1;
                         }
-
                     }
                 }
                 
@@ -249,12 +251,37 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
             }
         }
 
+
+        //setting the filterexpression to '' in case of delete and pivotscopeid to null
+        for (var i = 0; i < this.props.failureConfigToSave.Pivots.length; i++) {
+            var pivotscopeid = this.props.failureConfigToSave.Pivots[i].PivotScopeID;
+            var pid = this.props.failureConfigToSave.Pivots[i].PivotID;
+
+            if (pivotscopeid != null && pivotscopeid != 0) {
+                var flag = false;
+                for (let ele of pivotexpMap) {
+                    if (pid == ele.PivotID) {
+                        flag = true;
+                        break;
+                    }
+                }
+
+
+                if (flag == false) {
+                    this.props.failureConfigToSave.Pivots[i].FilterExpression = '';
+                    this.props.failureConfigToSave.Pivots[i].FilterExpressionOperator = '';
+                    this.props.failureConfigToSave.Pivots[i].PivotScopeID = 0;
+                }
+            }
+        }
+
+
+
         
         for (var i = 0; i < this.props.failureConfigToSave.Pivots.length; i++) {
             if (this.props.failureConfigToSave.Pivots[i].PivotScopeID == null)
                 this.props.failureConfigToSave.Pivots[i].PivotScopeID = 0;
         }
-        
 
 
         return (
