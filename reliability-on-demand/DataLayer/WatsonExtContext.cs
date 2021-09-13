@@ -311,11 +311,6 @@ namespace reliability_on_demand.DataLayer
         }
 
 
-        public string ValidateAzureFunctionCall()
-        {
-            return this.validateAzureFunctionKey;
-        }
-
 
     }
 }

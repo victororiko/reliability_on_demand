@@ -107,13 +107,5 @@ namespace reliability_on_demand.Controllers
         {
             this._sqlservice.UpdateFailureSavedConfig(fg);
         }
-
-        [Route("api/Data/ValidateAzureFunctionCall")]
-        [HttpPost("[action]")]
-        public string ValidateAzureFunctionCall()
-        {
-            string res =  this._sqlservice.ValidateAzureFunctionCall();
-            return res;
-        }
     }
 }
