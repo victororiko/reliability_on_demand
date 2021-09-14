@@ -296,8 +296,8 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
     nextClicked() {
 
-        //this.DefaultPivot = [];
-        
+        this.DefaultPivot = [];
+        this.cols = [];
         this.loadPivots();
         this.buildColumnArray();
         this.HasNextClicked = true;
