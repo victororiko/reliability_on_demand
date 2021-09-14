@@ -35,7 +35,7 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
         <TeamSection printHello={this.printTeam} />
         {/* Study section is incomplete - hence commented out*/}
             {/* <StudySection inquiry={{ TeamID: this.extractTeamIDFromState()}} /> */}
-            <FailureSection studyid={2} />
+            <FailureSection studyid={3} />
       </Stack>
     );
   }

@@ -270,7 +270,7 @@ namespace reliability_on_demand.DataLayer
             for (var i = 0; i < f.Pivots.Count; i++)
             {
                 var p = f.Pivots[i];
-                if (p.IsScopeFilter == true)
+                if (p.IsScopeFilter == true && p.FilterExpression!=null && p.FilterExpression!="")
                 {
                     
                     query += string.Format("INSERT INTO RELPivotScope(PivotScopeID,PivotScopeValue,PivotScopeOperator) VALUES({0},'{1}','{2}')", scopeid, p.FilterExpression, p.FilterExpressionOperator);
@@ -290,7 +290,7 @@ namespace reliability_on_demand.DataLayer
             for (var i = 0; i < f.Pivots.Count; i++)
             {
                 var p = f.Pivots[i];
-                if (p.PivotScopeID == 0 && p.IsScopeFilter == false)
+                if (p.PivotScopeID == 0 || p.IsScopeFilter == false)
                 {
                     insertionquery += string.Format("INSERT INTO RELStudyPivotConfig(RelationID,StudyID,PivotID,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES({0},{1},{2},{3},{4},{5},{6},'{7}')", RelationId,f.StudyID, p.PivotID, Convert.ToInt32(p.IsSelectPivot), Convert.ToInt32(p.IsApportionPivot), Convert.ToInt32(p.IsKeyPivot), Convert.ToInt32(p.IsApportionJoinPivot), f.PivotSourceSubType);
                 }
