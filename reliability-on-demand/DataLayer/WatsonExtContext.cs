@@ -279,9 +279,12 @@ namespace reliability_on_demand.DataLayer
                 }
             }
 
-            cmd.CommandText = query;
-            var reader = cmd.ExecuteReader();
-            reader.Close();
+            if (query != null && query != "")
+            {
+                cmd.CommandText = query;
+                var reader = cmd.ExecuteReader();
+                reader.Close();
+            }
             
 
             var cmdInsert = this.Database.GetDbConnection().CreateCommand();
@@ -301,11 +304,14 @@ namespace reliability_on_demand.DataLayer
                 RelationId++;
             }
 
-            cmdInsert.CommandText = insertionquery;
+            if (insertionquery != null && insertionquery != "")
+            {
+                cmdInsert.CommandText = insertionquery;
 
-            var insertionreader = cmdInsert.ExecuteReader();
+                var insertionreader = cmdInsert.ExecuteReader();
 
-            insertionreader.Close();
+                insertionreader.Close();
+            }
 
             this.Database.CloseConnection();
         }
