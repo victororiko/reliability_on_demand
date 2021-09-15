@@ -1,3 +1,12 @@
+## Troubleshooting 
+If you run into issues where the website doesn't open up for you following these steps should help you recover:
+1. Delete `package-lock.json` (not package.json!) and/or yarn.lock in your project folder.
+2. Delete `node_modules` in your project folder.
+3. Press F5 to do a clean run (which performs npm install) for you.
+
+Important link for fixing (react-scripts)[https://github.com/facebook/create-react-app/issues/11174] 
+If you face any Component Governance issues in the build - (this is how you resolve them)[https://onebranch.visualstudio.com/OneBranch/_wiki/wikis/OneBranch.wiki/4572/Component-Governance] 
+
 # Getting started
 - Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [VS Code](https://code.visualstudio.com/)
 - Install [node.js](https://nodejs.org/en/download/)

@@ -14,8 +14,6 @@ parameters:
   restore: false
   fakeDeployment: true
   customProperties: 'SkipScopeCompilation=true'
-  userName: 'USER NAME NOT DEFINED'
-  userPassword: 'USER PASSWORD NOT DEFINED'
   clientId: ''
   clientSecret: ''
   buildArtifactOutputPath: ''
@@ -92,7 +90,7 @@ steps:
       }
       else
       {
-          $testPath = "$(System.ArtifactsDirectory)\PreviousDeploymentState\DeploymentState\deploymentState.json"
+          $testPath = "$env:SYSTEM_ARTIFACTSDIRECTORY\PreviousDeploymentState\DeploymentState\deploymentState.json"
 
           if (Test-Path -Path $testPath)
           {
@@ -108,7 +106,7 @@ steps:
 
 - task: PublishBuildArtifacts@1
   displayName: 'Upload Build Artifact: Deployment State Input File'
-  condition: and(succeeded(), and(eq(contains('${{ parameters.targets }}', 'deploy'), false), ne(variables['DeploymentStateInputFilePath'], '')))
+  condition: and(succeeded(), eq(contains('${{ parameters.targets }}', 'deploy'), false), ne(variables['DeploymentStateInputFilePath'], ''))
   continueOnError: true
   inputs:
     pathtoPublish: $(DeploymentStateInputFilePath)
@@ -125,8 +123,6 @@ steps:
     script: |
       $responseContent =  "/t:${{ parameters.targets }}`n"
       $responseContent += "/restore:${{ parameters.restore }}`n"
-      $responseContent += "/p:DeploymentUserName=${{ parameters.userName }}`n"
-      $responseContent += "/p:DeploymentPassword=""${{ parameters.userPassword }}""`n"
       $responseContent += "/p:DeploymentClientId=${{ parameters.clientId }}`n"
       $responseContent += "/p:DeploymentClientSecret=""${{ parameters.clientSecret }}""`n"
       $responseContent += "/logger:CanaveralSummaryLogger,""$(CanaveralToolsDirectory)\CanaveralBuildTasks.dll""`n"
@@ -210,7 +206,7 @@ steps:
 
 - task: PublishBuildArtifacts@1
   displayName: 'Upload Build Artifact: Canaveral Tools Directory'
-  condition: and(succeeded(), and(ne('${{ parameters.skipInstall }}', true), eq(variables['CanaveralDeploymentArtifactCheck.HaveCanaveralBuildArtifactsToDeploy'], true)))
+  condition: and(succeeded(), ne('${{ parameters.skipInstall }}', true), eq(variables['CanaveralDeploymentArtifactCheck.HaveCanaveralBuildArtifactsToDeploy'], true))
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)\CanaveralToolsDirectory'
     artifactName: 'CanaveralToolsDirectory'
@@ -241,11 +237,11 @@ steps:
   inputs:
     targetType: inline
     script: |
-      Write-Host "Adding publishedDeploymentState tag to Build $(Build.BuildId)..."
+      Write-Host "Adding publishedDeploymentState tag to Build $env:BUILD_BUILDID..."
 
-      $queryUri = 'https://{0}.visualstudio.com/{1}/_apis/build/builds/{2}/tags/{3}?api-version=5.1' -f 'microsoft', '$(System.TeamProject)', $(Build.BuildId), 'publishedDeploymentState'
+      $queryUri = 'https://{0}.visualstudio.com/{1}/_apis/build/builds/{2}/tags/{3}?api-version=5.1' -f 'microsoft', '$(System.TeamProject)', $env:BUILD_BUILDID, 'publishedDeploymentState'
 
-      $response = Invoke-RestMethod -Method Put -ContentType "application/json" -Uri $queryUri -Headers @{Authorization=("Bearer $(System.AccessToken)")}
+      $response = Invoke-RestMethod -Method Put -ContentType "application/json" -Uri $queryUri -Headers @{Authorization=("Bearer $env:SYSTEM_ACCESSTOKEN")}
 
       if ($response -ne $null)
       {
@@ -257,10 +253,12 @@ steps:
           Write-Host "Failed!"
           Exit 1
       }
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
-- task: PublishPipelineArtifact@1
-  displayName: 'Upload Pipeline Artifact: Post-Build Deployment State Output File'
-  condition: and(succeeded(), eq(contains('${{ parameters.targets }}', 'deploy'), false))
-  inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)\DeploymentState'
-    artifactName: 'DeploymentState-PostBuild'
+# - task: PublishPipelineArtifact@1
+#   displayName: 'Upload Pipeline Artifact: Post-Build Deployment State Output File'
+#   condition: and(succeeded(), eq(contains('${{ parameters.targets }}', 'deploy'), false))
+#   inputs:
+#     targetPath: '$(Build.ArtifactStagingDirectory)\DeploymentState'
+#     artifactName: 'DeploymentState-PostBuild'
