@@ -91,6 +91,9 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
         })
     }
 
+    // It loads the splits the filter expression in the SQL table and break it into pieces desired by UI to represent
+    // Like SQL data has "Build >= 21000" => this function will add a row in "DefaultPivot" array with (PivotID,Build,21000,PivotScopeID,>=, RelationalOperator)
+    // This help in populating the detailedlist controls with the required information.
     loadPivots() {
 
         var PivotsToFilterTemp: Pair[] = [];
@@ -104,10 +107,13 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
                 if (exp != null && exp != '') {
                     for (let eleExp of exp.split(ele.PivotName)) {
                         if (eleExp != null && eleExp != '') {
+
+                            // First find which relational operator is contained in the filter expression
                             var rop = this.getContainingElementFromArr(eleExp, this.state.RelationalOperators);
 
                             var ropArr: string[] = [];
 
+                            // Split the array based on the relational operator it contains
                             if ((typeof rop != 'undefined') && (rop != ''))
                                 ropArr = eleExp.split(rop ?? '');
                             else
@@ -119,6 +125,8 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
                                 var trimele = eleRop.trim();
                                 if (trimele != null && trimele != '') {
+
+                                    //Check which logical operator does the filter expression contains
                                     var op = this.getContainingElementFromArr(trimele, this.state.Operators);
                                     var val = (trimele.split(op ?? '')[1]).trim();
 
@@ -138,10 +146,13 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
             }
         }
 
+        if (this.DefaultPivot == null || this.DefaultPivot.length == 0)
+            this.DefaultPivot.push({ PivotID: 0, PivotName: '', PivotValue: '', PivotScopeID: 0, Operator: '', RelationalOperator: ''});
+
         this.setState({ PivotsToFilter: PivotsToFilterTemp });
     }
 
-
+    // It checks which element from the array does the input contains
     getContainingElementFromArr(input: string, arr: Pair[]) {
         var res;
         for (let op of arr) {
@@ -198,12 +209,18 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
         return (<div><Spinner size={SpinnerSize.medium} /></div>);
     }
 
+
+    /* This function reduces the inputs provided using filter expression UI by the user into one filter expression per pivot
+     * followed by updating the filter expression and the relational operator for each pivot in the failureconfig variable.
+     * Finally passes the object to the save component for saving the data.
+     */
     renderSaveButton() {
 
         var pivotexpMap: PivotScopeFilter[] = [];
 
         var DefaultPivotPtr = 0;
 
+        // Iterating over all the rows provided by the filter expression UI and reducing them to one for each pivot
         for (let d of this.DefaultPivot) {
             var pid = d.PivotID;
             var flag = false;
@@ -236,7 +253,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
         }
 
-
+        // Updating the obj with the new filter expression and operator provided by the end user using UI
         for (let ele of pivotexpMap) {
             var pid = ele.PivotID;
 
@@ -276,7 +293,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
 
 
-        
+        // Setting pivotscopeid to 0 instead of null so that it doesn't cause any error while passing to data controller
         for (var i = 0; i < this.props.failureConfigToSave.Pivots.length; i++) {
             if (this.props.failureConfigToSave.Pivots[i].PivotScopeID == null)
                 this.props.failureConfigToSave.Pivots[i].PivotScopeID = 0;
