@@ -93,11 +93,11 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
     loadPivots() {
 
-        var arr: Pair[] = [];
+        var PivotsToFilterTemp: Pair[] = [];
 
         for (let ele of this.props.failureConfigToSave.Pivots) {
             if (ele.IsScopeFilter == true) {
-                arr.push({ key: ele.PivotID.toString(), text: ele.PivotName });
+                PivotsToFilterTemp.push({ key: ele.PivotID.toString(), text: ele.PivotName });
 
                 var exp = ele.FilterExpression;
 
@@ -113,7 +113,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
                             else
                                 ropArr[0] = eleExp;
 
-                            var ctr = 0;
+                            var ropArrPtr = 0;
 
                             for (let eleRop of ropArr) {
 
@@ -122,13 +122,13 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
                                     var op = this.getContainingElementFromArr(trimele, this.state.Operators);
                                     var val = (trimele.split(op ?? '')[1]).trim();
 
-                                    if (ctr == (ropArr.length - 1))
+                                    if (ropArrPtr == (ropArr.length - 1))
                                         this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: ele.FilterExpressionOperator });
                                     else
                                         this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: rop ?? '' });
                                 }
 
-                                ctr = ctr + 1;
+                                ropArrPtr = ropArrPtr + 1;
                             }
 
                         }
@@ -138,7 +138,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
             }
         }
 
-        this.setState({ PivotsToFilter: arr });
+        this.setState({ PivotsToFilter: PivotsToFilterTemp });
     }
 
 
@@ -202,7 +202,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
         var pivotexpMap: PivotScopeFilter[] = [];
 
-        var ctr = 0;
+        var DefaultPivotPtr = 0;
 
         for (let d of this.DefaultPivot) {
             var pid = d.PivotID;
@@ -228,11 +228,11 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
                 pivotexpMap.push({ PivotID: d.PivotID, FilterExpression: filterexp, RelationalOperator: d.RelationalOperator });
             }
 
-            if (ctr == (this.DefaultPivot.length - 1)) {
+            if (DefaultPivotPtr == (this.DefaultPivot.length - 1)) {
                 pivotexpMap[pivotexpMap.length - 1].RelationalOperator = '';
             }
 
-            ctr++;
+            DefaultPivotPtr++;
 
         }
 
