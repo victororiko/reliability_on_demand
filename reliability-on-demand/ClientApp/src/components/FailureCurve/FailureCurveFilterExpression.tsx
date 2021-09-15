@@ -1,7 +1,6 @@
 ﻿import { buildColumns, DefaultButton, DetailsList, Dropdown, IColumn, IDictionary, IDropdownOption, SelectionMode, Spinner, SpinnerSize, TextField, TooltipHost } from '@fluentui/react';
 import * as React from 'react';
 import { FailureConfig, Pair, FilterExpTable, PivotScopeFilter } from '../../models/FailureConfig.model';
-import axios from 'axios';
 import { FailureCurveSave } from '../FailureCurve/FailureCurveSave';
 // Our components that make up the page
 

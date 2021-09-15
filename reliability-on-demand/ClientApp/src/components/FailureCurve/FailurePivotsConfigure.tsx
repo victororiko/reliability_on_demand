@@ -1,10 +1,8 @@
 ﻿import * as React from 'react';
 import { Pair, Pivot, FailureConfig, PivotTable, PivotSQLResult } from '../../models/FailureConfig.model';
 import { initializeIcons } from '@uifabric/icons';
-//import { largeTitle } from '../helpers/Styles';
-import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TextField, DefaultButton, IDetailsHeaderProps, DetailsHeader, ITooltipHostProps, IDetailsColumnStyles, noWrap, TooltipHost } from "@fluentui/react";
+import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TooltipHost } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
-import { FailureCurveSave } from '../FailureCurve/FailureCurveSave';
 import { FailureCurveFilterExpression } from '../FailureCurve/FailureCurveFilterExpression';
 import axios from 'axios';
 initializeIcons();
