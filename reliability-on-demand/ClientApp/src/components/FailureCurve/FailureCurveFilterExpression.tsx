@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { FailureConfig, Pair, FilterExpTable, PivotScopeFilter } from '../../models/FailureConfig.model';
 import { FailureCurveSave } from '../FailureCurve/FailureCurveSave';
+import '../FailureCurve/FailureCurveSection.css';
 // Our components that make up the page
 
 
@@ -465,15 +466,8 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
             return (
                 <span>
-                    <view style={{
-                        minWidth: 10,
-                        maxWidth: 10,
-                        minHeight: 10,
-                        maxHeight: 10,
-                    }}>
-                        <DefaultButton text="+" onClick={() => this.addClicked(index)} id={index?.toString()} allowDisabledFocus disabled={false} checked={false} style={{ maxWidth: 5, minWidth: 5, maxHeight: 50, minHeight: 30 }} />
-                        <DefaultButton text="X" onClick={() => this.deleteClicked(index)} id={index?.toString()} allowDisabledFocus disabled={false} checked={false} style={{ maxWidth: 5, minWidth: 5, maxHeight: 50, minHeight: 30 }} />
-                        </view>
+                    <DefaultButton text="+" onClick={() => this.addClicked(index)} id={index?.toString()} allowDisabledFocus disabled={false} checked={false} className="Button" />
+                    <DefaultButton text="X" onClick={() => this.deleteClicked(index)} id={index?.toString()} allowDisabledFocus disabled={false} checked={false} className="Button" />
                 </span>
             );
         }
