@@ -43,6 +43,7 @@ export interface PivotTable {
     PivotScopeID: number;
     FilterExpression: string;
     FilterExpressionOperator: string;
+    UIInputDataType: string;
 }
 
 export interface SmapSQL {
@@ -57,6 +58,7 @@ export interface SmapSQL {
 export interface PivotSQLResult {
     PivotSourceColumnName: string;
     PivotID: number;
+    UIInputDataType: string;
     smap: SmapSQL[];
 }
 
@@ -72,6 +74,7 @@ export interface FilterExpTable {
     PivotValue: string;
     PivotID: number;
     PivotScopeID: number;
+    UIInputDataType: string;
 }
 
 export interface PivotScopeFilter {

@@ -356,7 +356,8 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
                 IsScopeFilter: (ele.smap[0].PivotScopeID != null ? true : false),
                 PivotScopeID: ele.smap[0].PivotScopeID,
                 FilterExpression: ele.smap[0].scope[0].PivotScopeValue,
-                FilterExpressionOperator: ele.smap[0].scope[0].PivotScopeOperator
+                FilterExpressionOperator: ele.smap[0].scope[0].PivotScopeOperator,
+                UIInputDataType: ele.UIInputDataType
             }
             this.requiredPivotTableData.push(item);
         }

@@ -24,6 +24,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
     DefaultPivot: FilterExpTable[] = [];
     cols: IColumn[] = [];
     HasNextClicked: boolean = false;
+    pivotValuePlaceholder: string = '';
 
     constructor(props: any) {
         super(props);
@@ -79,13 +80,14 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
     loadOperators() {
         var arr: Pair[] = [];
+        // Order is important as '>=' should be detected and not be confused with '>' 
         arr.push({ key: '', text: '' });
-        arr.push({ key: '>', text: '>' });
-        arr.push({ key: '<', text: '<' });
         arr.push({ key: '>=', text: '>=' });
         arr.push({ key: '<=', text: '<=' });
         arr.push({ key: '==', text: '==' });
         arr.push({ key: '!=', text: '!=' });
+        arr.push({ key: '<', text: '<' });
+        arr.push({ key: '>', text: '>' });
 
         this.setState({
             Operators: arr,
@@ -132,9 +134,9 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
                                     var val = (trimele.split(op ?? '')[1]).trim();
 
                                     if (ropArrPtr == (ropArr.length - 1))
-                                        this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: ele.FilterExpressionOperator });
+                                        this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: ele.FilterExpressionOperator, UIInputDataType: ele.UIInputDataType });
                                     else
-                                        this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: rop ?? '' });
+                                        this.DefaultPivot.push({ PivotID: ele.PivotID, PivotName: ele.PivotName, PivotValue: val, PivotScopeID: ele.PivotScopeID, Operator: op ?? '', RelationalOperator: rop ?? '', UIInputDataType: ele.UIInputDataType });
                                 }
 
                                 ropArrPtr = ropArrPtr + 1;
@@ -148,7 +150,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
         }
 
         if (this.DefaultPivot == null || this.DefaultPivot.length == 0)
-            this.DefaultPivot.push({ PivotID: 0, PivotName: '', PivotValue: '', PivotScopeID: 0, Operator: '', RelationalOperator: ''});
+            this.DefaultPivot.push({ PivotID: 0, PivotName: '', PivotValue: '', PivotScopeID: 0, Operator: '', RelationalOperator: '', UIInputDataType: '' });
 
         this.setState({ PivotsToFilter: PivotsToFilterTemp });
     }
@@ -170,13 +172,12 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
         var arr = buildColumns(this.DefaultPivot);
 
         this.cols.push({ key: 'Add/Delete', name: 'Add/Delete', fieldName: 'Add/Delete', minWidth: 50, maxWidth: 100, isResizable: true });
-
+        this.cols.push({ key: 'PivotName', name: 'PivotName', fieldName: 'PivotName', minWidth: 100, maxWidth: 350, isResizable: true });
+        this.cols.push({ key: 'Operator', name: 'Operator', fieldName: 'Operator', minWidth: 100, maxWidth: 100, isResizable: true });
+        this.cols.push({ key: 'PivotValue', name: 'PivotValue', fieldName:  'PivotValue', minWidth: 100, maxWidth: 300, isResizable: true });
+       
         for (let ele of arr) {
-            if (ele.fieldName == 'Operator')
-                this.cols.push({ key: ele.fieldName ?? '', name: ele.fieldName ?? '', fieldName: ele.fieldName ?? '', minWidth: 100, maxWidth: 100, isResizable: true });
-            else if (ele.fieldName == 'PivotName')
-                this.cols.push({ key: ele.fieldName ?? '', name: ele.fieldName ?? '', fieldName: ele.fieldName ?? '', minWidth: 100, maxWidth: 350, isResizable: true });
-            else if (ele.fieldName != 'PivotID' && ele.fieldName != 'PivotScopeID')
+            if (ele.fieldName != 'PivotID' && ele.fieldName != 'PivotScopeID' && ele.fieldName != 'PivotName' && ele.fieldName != 'Operator' && ele.fieldName != 'PivotValue' && ele.fieldName != 'UIInputDataType')
                 this.cols.push({ key: ele.fieldName ?? '', name: ele.fieldName ?? '', fieldName: ele.fieldName ?? '', minWidth: 100, maxWidth: 300, isResizable: true });
         }
     }
@@ -346,7 +347,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
         this.setState({ hasRowAdded: true });
 
-        var item: FilterExpTable= ({ PivotID: 0, PivotName: '', PivotValue: '', PivotScopeID: 0, Operator: '', RelationalOperator: '' });
+        var item: FilterExpTable = ({ PivotID: 0, PivotName: '', PivotValue: '', PivotScopeID: 0, Operator: '', RelationalOperator: '', UIInputDataType:'' });
 
         this.DefaultPivot = [...this.DefaultPivot.slice(0, id), item, ...this.DefaultPivot.slice(id)];
 
@@ -378,6 +379,14 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
             var col = arr[1];
             this.mapPivotTableColumnValue(this.DefaultPivot, row, col, item.text);
             this.mapPivotTableColumnValue(this.DefaultPivot, row, 'PivotID', item.key);
+
+            for (let ele of this.DefaultPivot) {
+                if (ele.PivotID == item.key && ele.UIInputDataType!='') {
+                    this.pivotValuePlaceholder = ele.UIInputDataType;
+                    break;
+                }
+            }
+
             this.forceUpdate();
             this.cols = [];
             this.buildColumnArray();
@@ -515,7 +524,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
         }
         else
             return (<span>
-                <TextField value={fieldContent} id={index + '_' + column?.name} onChange={this.onTextBoxChange} />
+                <TextField value={fieldContent} id={index + '_' + column?.name} onChange={this.onTextBoxChange} placeholder={this.pivotValuePlaceholder} />
             </span>);
     }
 
