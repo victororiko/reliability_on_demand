@@ -8,6 +8,7 @@ namespace reliability_on_demand.DataLayer
     public class Pivot
     {
         public int PivotID { get; set; }
+        public string UIInputDataType { get; set; }
         public string PivotName { get; set; }
         public bool IsSelectPivot { get; set; }
         public bool IsKeyPivot { get; set; }

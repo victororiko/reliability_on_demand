@@ -101,19 +101,11 @@ namespace reliability_on_demand.Controllers
             return this._sqlservice.GetAllConfiguredFailurePivotsForAVertical(f);
         }
 
-        [Route("api/Data/UpdateFailureSavedConfig")]
+        [Route("api/Data/SavedFailureConfig")]
         [HttpPost("[action]")]
-        public void UpdateFailureSavedConfig([FromBody]FailureConfig fg)
+        public void SavedFailureConfig([FromBody]FailureConfig fg)
         {
             this._sqlservice.UpdateFailureSavedConfig(fg);
-        }
-
-        [Route("api/Data/ValidateAzureFunctionCall")]
-        [HttpPost("[action]")]
-        public string ValidateAzureFunctionCall()
-        {
-            string res =  this._sqlservice.ValidateAzureFunctionCall();
-            return res;
         }
     }
 }

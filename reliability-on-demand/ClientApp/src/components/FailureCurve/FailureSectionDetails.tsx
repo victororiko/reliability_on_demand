@@ -1,8 +1,7 @@
 ﻿import * as React from 'react';
 import { Pair } from '../../models/FailureConfig.model';
 import { initializeIcons } from '@uifabric/icons';
-import { largeTitle } from '../helpers/Styles';
-import {Separator } from "@fluentui/react";
+import { TooltipHost } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { FailurePivotsConfigure } from '../FailureCurve/FailurePivotsConfigure';
 initializeIcons();
@@ -50,14 +49,19 @@ export class FailureSectionDetails extends React.Component<IFailureSectionDetail
 
     render(): React.ReactElement {
 
-        let verticalSection = (<div> <Dropdown
+        let verticalSection = (<div>
+            <TooltipHost
+                content="Select the vertical to configure from the selected list"
+            >
+            <Dropdown
             label="Select Vertical"
             placeholder="Select Vertical"
             selectedKey={this.state.selectedVertical.key}
             // eslint-disable-next-line react/jsx-no-bind
             onChange={this.onVerticalSelected}
             options={this.selectedVerticalsWithPlaceHolder}
-        />
+                />
+            </TooltipHost>
         </div>);
 
         let pivotSection = (this.state.isVerticalSelected == true ? this.renderPivots() : '');
@@ -88,7 +92,7 @@ export class FailureSectionDetails extends React.Component<IFailureSectionDetail
     renderPivots() {
         return (
             <div>
-                <FailurePivotsConfigure studyid={this.props.studyid} selectedVerticalForStudy={this.state.selectedVertical} />
+                    <FailurePivotsConfigure studyid={this.props.studyid} selectedVerticalForStudy={this.state.selectedVertical} />
             </div>
         );
     }

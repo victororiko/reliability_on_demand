@@ -25,6 +25,7 @@ export interface Pivot {
     IsApportionJoinPivot: boolean;
     PivotScopeID: number;
     FilterExpression: string;
+    UIInputDataType: string;
 }
 
 export interface Pair {
@@ -43,6 +44,7 @@ export interface PivotTable {
     PivotScopeID: number;
     FilterExpression: string;
     FilterExpressionOperator: string;
+    UIInputDataType: string;
 }
 
 export interface SmapSQL {
@@ -57,12 +59,29 @@ export interface SmapSQL {
 export interface PivotSQLResult {
     PivotSourceColumnName: string;
     PivotID: number;
+    UIInputDataType: string;
     smap: SmapSQL[];
 }
 
 export interface Filter {
     PivotScopeValue: string;
     PivotScopeOperator: string;
+}
+
+export interface FilterExpTable {
+    RelationalOperator: string;
+    PivotName: string;
+    Operator: string;
+    PivotValue: string;
+    PivotID: number;
+    PivotScopeID: number;
+    UIInputDataType: string;
+}
+
+export interface PivotScopeFilter {
+    PivotID: number;
+    FilterExpression: string;
+    RelationalOperator: string;
 }
 
 

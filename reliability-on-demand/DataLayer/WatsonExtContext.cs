@@ -209,14 +209,14 @@ namespace reliability_on_demand.DataLayer
         //Get all pivots for that vertical
         public string GetAllailurePivotNamesForAVertical(string sourcesubtype)
         {
-            string query = string.Format("SELECT PivotID,PivotSourceColumnName FROM [dbo].[RELPivotInfo] AS info INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource WHERE info.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
+            string query = string.Format("SELECT PivotID,PivotSourceColumnName,UIInputDataType FROM [dbo].[RELPivotInfo] AS info INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource WHERE info.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
             return GetSQLResultsJSON(query);
         }
 
         //Get all defaults for that vertical
         public string GetAllDefaultFailurePivotsForAVertical(string sourcesubtype)
         {
-            string query = string.Format("SELECT info.PivotID,info.PivotSourceColumnName,smap.IsSelectColumn,smap.IsKeyColumn,smap.IsApportionColumn,smap.IsApportionJoinColumn,smap.PivotScopeID,scope.PivotScopeValue,scope.PivotScopeOperator FROM RELStudyPivotConfigDefault AS smap INNER JOIN RELPivotInfo AS info ON smap.PivotKey = info.PivotKey INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource INNER JOIN RELPivotScope AS scope ON smap.PivotScopeID = scope.PivotScopeID WHERE smap.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
+            string query = string.Format("SELECT info.PivotID,info.PivotSourceColumnName,info.UIInputDataType,smap.IsSelectColumn,smap.IsKeyColumn,smap.IsApportionColumn,smap.IsApportionJoinColumn,smap.PivotScopeID,scope.PivotScopeValue,scope.PivotScopeOperator FROM RELStudyPivotConfigDefault AS smap INNER JOIN RELPivotInfo AS info ON smap.PivotKey = info.PivotKey INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource LEFT OUTER JOIN RELPivotScope AS scope ON smap.PivotScopeID = scope.PivotScopeID WHERE smap.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
             string res = GetSQLResultsJSON(query);
             return res;
         }
@@ -224,7 +224,7 @@ namespace reliability_on_demand.DataLayer
         //Get all configured values for that vertical and study id
         public string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid)
         {
-            string query = string.Format("SELECT info.PivotID,info.PivotSourceColumnName,smap.IsApportionColumn,smap.IsApportionJoinColumn,smap.IsKeyColumn,smap.IsSelectColumn,smap.PivotScopeID,scope.PivotScopeValue,scope.PivotScopeOperator FROM RELPivotInfo AS info INNER JOIN RELStudyPivotConfig AS smap ON info.PivotID = smap.PivotID INNER JOIN RELPivotSourceMap AS map ON map.PivotSource = info.PivotSource INNER JOIN RELPivotScope AS scope ON smap.PivotScopeID = scope.PivotScopeID WHERE smap.StudyID = {0} AND map.PivotSourceType LIKE 'Failure%' AND smap.PivotSourceSubType LIKE '{1}'", studyid, sourcesubtype);
+            string query = string.Format("SELECT info.PivotID,info.PivotSourceColumnName,info.UIInputDataType,smap.IsApportionColumn,smap.IsApportionJoinColumn,smap.IsKeyColumn,smap.IsSelectColumn,smap.PivotScopeID,scope.PivotScopeValue,scope.PivotScopeOperator FROM RELPivotInfo AS info INNER JOIN RELStudyPivotConfig AS smap ON info.PivotID = smap.PivotID INNER JOIN RELPivotSourceMap AS map ON map.PivotSource = info.PivotSource LEFT OUTER JOIN RELPivotScope AS scope ON smap.PivotScopeID = scope.PivotScopeID WHERE smap.StudyID = {0} AND map.PivotSourceType LIKE 'Failure%' AND smap.PivotSourceSubType LIKE '{1}'", studyid, sourcesubtype);
             string res = GetSQLResultsJSON(query);
             return res;
         }
@@ -245,13 +245,13 @@ namespace reliability_on_demand.DataLayer
 
             if (count>0)
             {
+                cmd.CommandText = string.Format("DELETE FROM RELPivotScope WHERE PivotScopeID IN (SELECT PivotScopeID FROM RELStudyPivotConfig WHERE StudyID={0} AND PivotSourceSubType='{1}')", f.StudyID, f.PivotSourceSubType);
+                var pivotscopereader = cmd.ExecuteReader();
+                pivotscopereader.Close();
+
                 cmd.CommandText = string.Format("DELETE FROM RELStudyPivotConfig WHERE StudyID = {0} AND PivotSourceSubType LIKE '{1}'", f.StudyID, f.PivotSourceSubType);
                 var reader = cmd.ExecuteReader();
                 reader.Close();
-
-                cmd.CommandText = string.Format("DELETE FROM RELPivotScope WHERE PivotScopeID IN (SELECT PivotScopeID FROM RELStudyPivotConfig WHERE StudyID={0} AND PivotSourceSubType='{1}')",f.StudyID,f.PivotSourceSubType);
-                var pivotscopereader = cmd.ExecuteReader();
-                pivotscopereader.Close();
             }
 
             this.AddFailureConfigToSQL(f,maxscopeid,maxRelationId);
@@ -270,7 +270,7 @@ namespace reliability_on_demand.DataLayer
             for (var i = 0; i < f.Pivots.Count; i++)
             {
                 var p = f.Pivots[i];
-                if (p.IsScopeFilter == true)
+                if (p.IsScopeFilter == true && p.FilterExpression!=null && p.FilterExpression!="")
                 {
                     
                     query += string.Format("INSERT INTO RELPivotScope(PivotScopeID,PivotScopeValue,PivotScopeOperator) VALUES({0},'{1}','{2}')", scopeid, p.FilterExpression, p.FilterExpressionOperator);
@@ -279,9 +279,12 @@ namespace reliability_on_demand.DataLayer
                 }
             }
 
-            cmd.CommandText = query;
-            var reader = cmd.ExecuteReader();
-            reader.Close();
+            if (query != null && query != "")
+            {
+                cmd.CommandText = query;
+                var reader = cmd.ExecuteReader();
+                reader.Close();
+            }
             
 
             var cmdInsert = this.Database.GetDbConnection().CreateCommand();
@@ -290,9 +293,9 @@ namespace reliability_on_demand.DataLayer
             for (var i = 0; i < f.Pivots.Count; i++)
             {
                 var p = f.Pivots[i];
-                if (p.PivotScopeID == 0 && p.IsScopeFilter == false)
+                if (p.PivotScopeID == 0 || p.IsScopeFilter == false)
                 {
-                    insertionquery += string.Format("INSERT INTO RELStudyPivotConfig(RelationID,StudyID,PivotID,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES({0},{1},{2},{3},{4},{5},{6},{7})", RelationId,f.StudyID, p.PivotID, Convert.ToInt32(p.IsSelectPivot), Convert.ToInt32(p.IsApportionPivot), Convert.ToInt32(p.IsKeyPivot), Convert.ToInt32(p.IsApportionJoinPivot), f.PivotSourceSubType);
+                    insertionquery += string.Format("INSERT INTO RELStudyPivotConfig(RelationID,StudyID,PivotID,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES({0},{1},{2},{3},{4},{5},{6},'{7}')", RelationId,f.StudyID, p.PivotID, Convert.ToInt32(p.IsSelectPivot), Convert.ToInt32(p.IsApportionPivot), Convert.ToInt32(p.IsKeyPivot), Convert.ToInt32(p.IsApportionJoinPivot), f.PivotSourceSubType);
                 }
                 else
                 {
@@ -301,20 +304,18 @@ namespace reliability_on_demand.DataLayer
                 RelationId++;
             }
 
-            cmdInsert.CommandText = insertionquery;
+            if (insertionquery != null && insertionquery != "")
+            {
+                cmdInsert.CommandText = insertionquery;
 
-            var insertionreader = cmdInsert.ExecuteReader();
+                var insertionreader = cmdInsert.ExecuteReader();
 
-            insertionreader.Close();
+                insertionreader.Close();
+            }
 
             this.Database.CloseConnection();
         }
 
-
-        public string ValidateAzureFunctionCall()
-        {
-            return this.validateAzureFunctionKey;
-        }
 
 
     }
