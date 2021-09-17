@@ -248,7 +248,17 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             }
 
             if (flag == false) {
-                var item: PivotTable = { PivotID: parseInt(ele.key), PivotName: ele.text, IsApportionJoinPivot: false, IsApportionPivot: false, IsKeyPivot: false, IsScopeFilter: false, IsSelectPivot: false, FilterExpression: '', FilterExpressionOperator: '', PivotScopeID: 0 };
+
+                var tobeAddedePivotDataType = '';
+
+                for (let element of this.state.pivotsList) {
+                    if (element.PivotID == parseInt(ele.key)) {
+                        tobeAddedePivotDataType = element.UIInputDataType;
+                        break;
+                    }
+                }
+
+                var item: PivotTable = { PivotID: parseInt(ele.key), PivotName: ele.text, IsApportionJoinPivot: false, IsApportionPivot: false, IsKeyPivot: false, IsScopeFilter: false, IsSelectPivot: false, FilterExpression: '', FilterExpressionOperator: '', PivotScopeID: 0, UIInputDataType: tobeAddedePivotDataType };
                 updated.push(item);
             }
 

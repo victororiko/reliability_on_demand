@@ -25,6 +25,7 @@ export interface Pivot {
     IsApportionJoinPivot: boolean;
     PivotScopeID: number;
     FilterExpression: string;
+    UIInputDataType: string;
 }
 
 export interface Pair {

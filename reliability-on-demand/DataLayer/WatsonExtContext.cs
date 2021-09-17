@@ -209,7 +209,7 @@ namespace reliability_on_demand.DataLayer
         //Get all pivots for that vertical
         public string GetAllailurePivotNamesForAVertical(string sourcesubtype)
         {
-            string query = string.Format("SELECT PivotID,PivotSourceColumnName FROM [dbo].[RELPivotInfo] AS info INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource WHERE info.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
+            string query = string.Format("SELECT PivotID,PivotSourceColumnName,UIInputDataType FROM [dbo].[RELPivotInfo] AS info INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource WHERE info.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
             return GetSQLResultsJSON(query);
         }
 
