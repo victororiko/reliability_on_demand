@@ -2,7 +2,7 @@
 import { Vertical, Pair, Pivot } from '../../models/FailureConfig.model';
 import { initializeIcons } from '@uifabric/icons';
 import { largeTitle } from '../helpers/Styles';
-import { Label, Text, Separator, IColumn, TooltipHost, buildColumns } from "@fluentui/react";
+import { Label, Text, Separator, IColumn, TooltipHost, buildColumns, Link } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { DefaultButton } from '@fluentui/react/lib/Button';
 import { FailureSectionDetails } from '../FailureCurve/FailureSectionDetails';
@@ -73,6 +73,9 @@ export default class FailureSection extends React.Component<FailureSectionProps,
 
     render(): React.ReactElement {
 
+        let wikiLink = (<div><Link href="https://www.osgwiki.com/index.php?veaction=edit&preload=Template%3APageCreation%2FDefault%2FBlankPage&preloadparams%5B%5D=Navigating+through+RIOD+portal&title=RIOD_-_Failure_Curve_Section&create=Create+Page" underline>
+            Wiki
+        </Link></div>);
 
         let verticals = this.state.loading ? (
             <p>
@@ -91,6 +94,7 @@ export default class FailureSection extends React.Component<FailureSectionProps,
         return (
             <div>
                 <Separator theme={largeTitle}>Failure Vertical Section</Separator>
+                {wikiLink}
                 {verticals}
                 {selectedVerticals}
                 {failureDetailButton}
