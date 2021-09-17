@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { FailureConfig, Pair, FilterExpTable, PivotScopeFilter } from '../../models/FailureConfig.model';
 import { FailureCurveSave } from '../FailureCurve/FailureCurveSave';
+import { FailureCurveValidate } from '../FailureCurve/FailureCurveValidate';
 import '../FailureCurve/FailureCurveSection.css';
 // Our components that make up the page
 
@@ -196,12 +197,15 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
         //let spinner = (this.state.hasRowDeleted == true || this.state.hasRowAdded == true) ? this.displaySpinner() : '';
 
-        let saveButton = (this.HasNextClicked == true ? this.renderSaveButton(): '');
+        let saveButton = (this.HasNextClicked == true ? this.renderSaveButton() : '');
+
+        let vaildateButton = (this.HasNextClicked == true ? this.renderValidate() : '');
 
         return (<div>
             { nextButton }
             {detailedList}
             {saveButton}
+            {vaildateButton}
             </div>
             );
         
@@ -209,6 +213,14 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
 
     displaySpinner() {
         return (<div><Spinner size={SpinnerSize.medium} /></div>);
+    }
+
+
+    renderValidate() {
+        return (
+            <div>
+                <FailureCurveValidate FilterExpArr={this.DefaultPivot} />
+            </div>);
     }
 
 
@@ -310,6 +322,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
         );
 
     }
+
 
 
     nextClicked() {

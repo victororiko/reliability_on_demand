@@ -74,7 +74,7 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
             else if (ele.fieldName?.includes('Apportion')) {
                 this.cols.push({ key: ele.fieldName ?? '', name: ele.fieldName ?? '', fieldName: ele.fieldName ?? '', minWidth: 50, maxWidth: 150, isResizable: true });
             }
-            else if (ele.fieldName != 'PivotID' && ele.fieldName != 'PivotScopeID' && ele.fieldName != 'FilterExpressionOperator' && ele.fieldName != 'FilterExpression')
+            else if (ele.fieldName != 'PivotID' && ele.fieldName != 'PivotScopeID' && ele.fieldName != 'FilterExpressionOperator' && ele.fieldName != 'FilterExpression' && ele.fieldName != 'UIInputDataType')
                 this.cols.push({ key: ele.fieldName ?? '', name: ele.fieldName ?? '', fieldName: ele.fieldName ?? '', minWidth: 50, maxWidth: 100, isResizable: true });
         }
     }

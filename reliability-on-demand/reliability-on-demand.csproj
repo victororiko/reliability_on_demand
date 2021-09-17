@@ -31,11 +31,15 @@
   <ItemGroup>
     <None Remove="ClientApp\src\components\FailureCurve\FailureCurveFilterExpression.tsx" />
     <None Remove="ClientApp\src\components\FailureCurve\FailureCurveSave.tsx" />
+    <None Remove="ClientApp\src\components\FailureCurve\FailureCurveValidate.tsx" />
     <None Remove="ClientApp\src\components\FailureCurve\FailurePivotsConfigure.tsx" />
   </ItemGroup>
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\components\FailureCurve\FailureCurveFilterExpression.tsx">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ClientApp\src\components\FailureCurve\FailureCurveValidate.tsx">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="ClientApp\src\components\FailureCurve\FailureCurveSave.tsx" />
