@@ -10,7 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using reliability_on_demand.Extensions;
 using System.IO;
-
+using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace reliability_on_demand
 {
@@ -18,7 +19,15 @@ namespace reliability_on_demand
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Run();
+            var host = CreateHostBuilder(args);
+
+            var config = host.Services.GetRequiredService<IConfiguration>();
+
+            foreach (var c in config.AsEnumerable())
+            {
+                Console.WriteLine(c.Key + " = " + c.Value);
+            }
+            host.Run();
         }
 
         public static IWebHost CreateHostBuilder(string[] args) =>
