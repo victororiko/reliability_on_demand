@@ -6,7 +6,6 @@ import TeamSection from '../Team/TeamSection';
 // Stack
 import { containerStackTokens } from '../helpers/Styles';
 import { Stack } from '@fluentui/react';
-import { PrimaryButton } from '@fluentui/react';
 import { TeamConfig } from '../../models/config.model';
 import FailureSection from '../FailureCurve';
 
@@ -19,8 +18,8 @@ export interface IConfigState {
 
 export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
   constructor(props: IConfigProps) {
-      super(props);
-      this.printTeam = this.printTeam.bind(this);
+    super(props);
+    this.printTeam = this.printTeam.bind(this);
   }
 
   componentDidMount() {
@@ -33,19 +32,18 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
     return (
       <Stack tokens={containerStackTokens}>
         <TeamSection printHello={this.printTeam} />
-        {/* Study section is incomplete - hence commented out*/}
-            {/* <StudySection inquiry={{ TeamID: this.extractTeamIDFromState()}} /> */}
-            <FailureSection studyid={3} />
+        <StudySection inquiry={{ TeamID: this.extractTeamIDFromState() }} />
+        {/* <FailureSection studyid={3} /> */}
       </Stack>
     );
   }
 
-  extractTeamIDFromState():number{
+  extractTeamIDFromState(): number {
     return 3;
   }
 
   printTeam = (selectedTeam: TeamConfig) => {
-    console.log(selectedTeam);
+    console.log("selectedTeam = " + JSON.stringify(selectedTeam))
     this.setState(
       {
         currentTeam: selectedTeam

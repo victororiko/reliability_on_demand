@@ -35,4 +35,7 @@ bld/
 
 test-report.xml
 /.vs
+.vscode/launch.json
+.vscode/tasks.json
+reliability-on-demand/ClientApp/test-report.xml
 *.dgml

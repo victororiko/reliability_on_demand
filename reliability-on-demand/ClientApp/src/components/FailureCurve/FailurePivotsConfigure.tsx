@@ -1,11 +1,9 @@
 ﻿import * as React from 'react';
 import { Pair, Pivot, FailureConfig, PivotTable, PivotSQLResult } from '../../models/FailureConfig.model';
-import { initializeIcons } from '@uifabric/icons';
 import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TooltipHost } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { FailureCurveFilterExpression } from '../FailureCurve/FailureCurveFilterExpression';
 import axios from 'axios';
-initializeIcons();
 
 
 export interface IFailurePivotsConfigureProps {

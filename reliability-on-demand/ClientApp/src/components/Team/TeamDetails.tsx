@@ -36,7 +36,7 @@ export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetails
         event.preventDefault();
         axios.post("api/Data/AddTeam", this.state.newTeam)
             .then(res => {
-                console.log(res);
+                console.debug(res);
             })
     }
 

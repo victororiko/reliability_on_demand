@@ -1,6 +1,5 @@
 ﻿import * as React from 'react';
 import { Vertical, Pair, Pivot } from '../../models/FailureConfig.model';
-import { initializeIcons } from '@uifabric/icons';
 import { largeTitle } from '../helpers/Styles';
 import { Label, Text, Separator, IColumn, TooltipHost, buildColumns, Link } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
@@ -8,7 +7,6 @@ import { DefaultButton } from '@fluentui/react/lib/Button';
 import { FailureSectionDetails } from '../FailureCurve/FailureSectionDetails';
 
 
-initializeIcons();
 
 
 export interface FailureSectionProps {

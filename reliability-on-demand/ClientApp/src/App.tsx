@@ -7,13 +7,15 @@ import { SQLData } from "./components/SQLData";
 import { ParamsTest } from "./components/ParamsTest";
 import "./custom.css";
 import registerServiceWorker from "./registerServiceWorker";
+import { initializeIcons } from '@uifabric/icons';
+initializeIcons();
 
 export const App = () => {
     return (
       <Layout>
         <Switch>
           {/* Place more specific routes on top, and more relaxed 
-          routes like / in the bottom. Swith will take the first 
+          routes like / in the bottom. Switch will take the first 
           matching route and render appropriate component. It will 
         ignore rest of the routes once it has found matching route */}
           <Route path="/params-test" component={ParamsTest} />

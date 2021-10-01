@@ -6,7 +6,6 @@ interface Props {
 }
 
 export const Home = (props: Props) : React.ReactElement => {
-  console.log(props);
   return (
     <div>
         <h2>Welcome to Reliability on Demand</h2>

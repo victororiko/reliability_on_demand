@@ -4,10 +4,12 @@ import { TeamConfig } from '../../models/config.model';
 import { TeamDetails } from './TeamDetails';
 import { largeTitle } from '../helpers/Styles';
 import { MyDropdown } from '../helpers/MyDropdown';
+import axios from "axios";
+
 
 export interface TeamSectionProps {
     children?: React.ReactNode,
-    printHello?:any
+    printHello?: any
 }
 
 export interface TeamSectionState {
@@ -42,7 +44,14 @@ export default class TeamSection extends React.Component<TeamSectionProps, TeamS
      * Prior to rendering the component, load up team configs from backend
      */
     componentDidMount() {
-        this.populateTeamConfigData();
+        axios.get("api/Data/GetAllTeamConfigs")
+            .then(res => {
+                console.table(res.data);
+                this.setState({
+                    teamConfigs: res.data,
+                    loading: false
+                })
+            });
     }
 
     // required render method
@@ -56,8 +65,8 @@ export default class TeamSection extends React.Component<TeamSectionProps, TeamS
         );
         return (
             <div>
-              <Separator theme={largeTitle}>Ownership</Separator>
-              {contents}
+                <Separator theme={largeTitle}>Team</Separator>
+                {contents}
             </div>
         );
     }
@@ -67,7 +76,7 @@ export default class TeamSection extends React.Component<TeamSectionProps, TeamS
         return (
             <div>
                 {/* User selects from a list of teams that have been created. Otherwise creates a new team */}
-                <MyDropdown 
+                <MyDropdown
                     label="Team"
                     placeholder="Select a team"
                     data={this.state.teamConfigs}
@@ -75,7 +84,7 @@ export default class TeamSection extends React.Component<TeamSectionProps, TeamS
                     required={true}
                     useKey="TeamID"
                     showValueFor="OwnerTeamFriendlyName"
-                    handleOptionChange={this.onTeamSelected} 
+                    handleOptionChange={this.onTeamSelected}
                 />
                 <TeamDetails currentTeam={this.state.selectedTeam} />
 

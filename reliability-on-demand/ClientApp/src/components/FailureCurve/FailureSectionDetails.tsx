@@ -1,10 +1,8 @@
 ﻿import * as React from 'react';
 import { Pair } from '../../models/FailureConfig.model';
-import { initializeIcons } from '@uifabric/icons';
 import { TooltipHost } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { FailurePivotsConfigure } from '../FailureCurve/FailurePivotsConfigure';
-initializeIcons();
 
 
 export interface IFailureSectionDetailsProps {
