@@ -47,7 +47,7 @@ export default class OwnerTriageAlias extends React.Component<IOwnerTriageAliasP
                     aria-label="Owner contact (alias)"
                     disabled={this.props.currentTeam !== undefined}
                     required
-                    value={this.props.currentTeam?.OwnerTriageAlias}
+                    value={this.props.currentTeam?.ownerTriageAlias}
                 />
             </div>
         );

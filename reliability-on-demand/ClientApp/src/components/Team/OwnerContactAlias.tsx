@@ -47,7 +47,7 @@ export default class OwnerContactAlias extends React.Component<IOwnerContactAlia
                     aria-label="Owner contact (alias)"
                     disabled={this.props.currentTeam !== undefined}
                     required
-                    value={this.props.currentTeam?.OwnerContact}
+                    value={this.props.currentTeam?.ownerContact}
                 />
             </div>
         );

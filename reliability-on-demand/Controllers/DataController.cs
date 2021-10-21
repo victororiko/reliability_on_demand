@@ -3,6 +3,8 @@
  * Use a full path like [Route("api/Data/GetAllReleases")]  
  * Not a tokenized path like [Route("api/[controller]/GetAllReleases")]
  * Why? The full path maps back to exactly how the client calls the endpoint - making future debugging easier :) 
+ 
+ * To set up return types properly - refer to: https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/formatting?view=aspnetcore-5.0
  */
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -52,22 +54,34 @@ namespace reliability_on_demand.Controllers
 
         [Route("api/Data/GetAllTeamConfigs")]
         [HttpGet]
-        public string GetAllTeamConfigs()
+        public IActionResult GetAllTeamConfigs()
         {
-            return this._sqlservice.GetAllTeamConfigs();
+            var result = this._sqlservice.GetAllTeamConfigs();
+            if (result == null)
+            {
+                BadRequest("Could not get Teams");
+            }
+            return Ok(result);
         }
 
-        //GetAllStudyConfigsForTeam
-        [Route("api/Data/GetAllStudyConfigsForTeam")]
-        [HttpPost("[action]")]
-        public string GetAllStudyConfigsForTeam([FromBody]ConfigInquiry inquiry)
+        [HttpGet("api/Data/GetStudies/{teamId}")]
+        public string GetAllStudyConfigsForTeam(int teamId)
         {
-            return this._sqlservice.GetAllStudyConfigsForTeam(inquiry);
+            ConfigInquiry inquiry = new ConfigInquiry();
+            inquiry.TeamID = teamId;
+            return this._sqlservice.GetAllStudyConfigsForTeam(inquiry.TeamID);
+        }
+
+        [Route("api/Data/AddStudy")]
+        [HttpPost("[action]")]
+        public IActionResult AddStudy([FromBody] StudyConfig userCreatedStudy)
+        {
+            return Ok(this._sqlservice.AddStudy(userCreatedStudy));
         }
 
         [Route("api/Data/AddTeam")]
         [HttpPost("[action]")]
-        public string AddTeam([FromBody]TeamConfig inquiry)
+        public string AddTeam([FromBody] TeamConfig inquiry)
         {
             return this._sqlservice.AddTeam(inquiry);
         }
@@ -81,7 +95,7 @@ namespace reliability_on_demand.Controllers
 
         [Route("api/Data/GetAllailurePivotNamesForAVertical")]
         [HttpPost("[action]")]
-        public string GetAllailurePivotNamesForAVertical([FromBody]string sourcetype)
+        public string GetAllailurePivotNamesForAVertical([FromBody] string sourcetype)
         {
             string res = this._sqlservice.GetAllailurePivotNamesForAVertical(sourcetype);
             return res;
@@ -89,21 +103,21 @@ namespace reliability_on_demand.Controllers
 
         [Route("api/Data/GetAllDefaultFailurePivotsForAVertical")]
         [HttpPost("[action]")]
-        public string GetAllDefaultFailurePivotsForAVertical([FromBody]FailureConfig f)
+        public string GetAllDefaultFailurePivotsForAVertical([FromBody] FailureConfig f)
         {
             return this._sqlservice.GetAllDefaultFailurePivotsForAVertical(f.PivotSourceSubType);
         }
 
         [Route("api/Data/GetAllConfiguredFailurePivotsForAVertical")]
         [HttpPost("[action]")]
-        public string GetAllConfiguredFailurePivotsForAVertical([FromBody]FailureConfig f)
+        public string GetAllConfiguredFailurePivotsForAVertical([FromBody] FailureConfig f)
         {
             return this._sqlservice.GetAllConfiguredFailurePivotsForAVertical(f);
         }
 
         [Route("api/Data/SavedFailureConfig")]
         [HttpPost("[action]")]
-        public void SavedFailureConfig([FromBody]FailureConfig fg)
+        public void SavedFailureConfig([FromBody] FailureConfig fg)
         {
             this._sqlservice.UpdateFailureSavedConfig(fg);
         }

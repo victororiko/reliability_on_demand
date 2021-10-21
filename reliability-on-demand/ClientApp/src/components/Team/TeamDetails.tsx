@@ -5,29 +5,112 @@ import { TeamConfig } from '../../models/config.model';
 import OwnerContactAlias from './OwnerContactAlias';
 import OwnerTeamFriendlyName from './OwnerTeamFriendlyName';
 import OwnerTraigeAlias from './OwnerTriageAlias';
+import { TeamComboBox } from './TeamComboBox';
 
 export interface ITeamDetailsProps {
-    currentTeam?: TeamConfig;
+    startingTeamId:number
+    callBack: any
 }
 
 interface ITeamDetailsState {
+    teamConfigs: TeamConfig[];
+    loading: boolean;
+    currentTeam?: TeamConfig;
     newTeam: TeamConfig;
 }
 
-export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetailsState> {
-
+export default class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetailsState> {
     constructor(props: any) {
         super(props);
+        // set initial state which will be used by render() 
         this.state = {
+            teamConfigs: [],
+            loading: true,
+            currentTeam: undefined,
             newTeam:
             {
-                TeamID: "-1",
-                OwnerContact: "",
-                OwnerTeamFriendlyName: "",
-                OwnerTriageAlias: ""
+                teamID: -2, // this value is dropped in backend. SQL table auto-generates the TeamID. Using -2 to avoid with the -1 used in TeamCombobox
+                ownerContact: "",
+                ownerTeamFriendlyName: "",
+                ownerTriageAlias: ""
             }
         };
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+    /**
+     * Prior to rendering the component, load up team configs from backend
+     */
+    componentDidMount() {
+        axios.get("api/Data/GetAllTeamConfigs")
+            .then(res => {
+                this.setState({
+                    teamConfigs: res.data as TeamConfig[],
+                    loading: false
+                })
+            })
+    }
+
+    // required render method
+    render(): React.ReactElement {
+        let contents = this.state.loading ? (
+            <p>
+                <em>Loading...</em>
+            </p>
+        ) : (
+            this.renderContent()
+        );
+        return (
+            <div>
+                {contents}
+            </div>
+        );
+    }
+    renderContent() {
+        return (
+            <div>
+                <TeamComboBox data={this.state.teamConfigs} callBack={this.selectCurrentTeam} />
+
+                <OwnerContactAlias
+                    currentTeam={this.state.currentTeam}
+                    callback_function={this.getOwnerStringFromUser}
+                />
+                <OwnerTeamFriendlyName
+                    currentTeam={this.state.currentTeam}
+                    callback_function={this.getOwnerTeamFrienclyNameFromUser}
+                />
+                <OwnerTraigeAlias
+                    currentTeam={this.state.currentTeam}
+                    callback_function={this.getOwnerTriageAliasUser}
+                />
+
+                {/* optional section */}
+                <TextField label="Compute Resource Location"
+                    placeholder="e.g. Data Bricks or Cosmos location"
+                    aria-label="Compute Resource Location"
+                    disabled={this.state.currentTeam !== undefined}
+                />
+
+                <PrimaryButton text="Add"
+                    disabled={this.state.currentTeam !== undefined}
+                    onClick={this.handleSubmit}
+                />
+
+            </div>
+        );
+    }
+
+    // functionality methods
+    selectCurrentTeam = (team_id_selection:number) => {
+        console.debug(`teamID selection from team combobox =>  ${team_id_selection}`);
+        this.setState({
+            currentTeam:this.getTeamFromNumber(team_id_selection)
+        });
+        this.props.callBack(team_id_selection);
+    }
+
+    private getTeamFromNumber(selection: number): TeamConfig | undefined {
+        let parsedStudy = this.state.teamConfigs.find(element => element.teamID === selection);
+        return parsedStudy;
     }
 
     handleSubmit(event: any) {
@@ -41,46 +124,13 @@ export class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetails
     }
 
     getOwnerStringFromUser = (value: string) => {
-        this.state.newTeam.OwnerContact = value;
+        this.state.newTeam.ownerContact = value;
     }
 
     getOwnerTeamFrienclyNameFromUser = (value: string) => {
-        this.state.newTeam.OwnerTeamFriendlyName = value;
+        this.state.newTeam.ownerTeamFriendlyName = value;
     }
     getOwnerTriageAliasUser = (value: string) => {
-        this.state.newTeam.OwnerTriageAlias = value;
+        this.state.newTeam.ownerTriageAlias = value;
     }
-
-    render() {
-        return (
-            <div>
-                <OwnerContactAlias
-                    currentTeam={this.props.currentTeam}
-                    callback_function={this.getOwnerStringFromUser}
-                />
-                <OwnerTeamFriendlyName
-                    currentTeam={this.props.currentTeam}
-                    callback_function={this.getOwnerTeamFrienclyNameFromUser}
-                />
-                <OwnerTraigeAlias 
-                    currentTeam={this.props.currentTeam} 
-                    callback_function={this.getOwnerTriageAliasUser}
-                    />
-
-                // optional section
-                <TextField label="Compute Resource Location"
-                    placeholder="e.g. Data Bricks or Cosmos location"
-                    aria-label="Compute Resource Location"
-                    disabled={this.props.currentTeam !== undefined}
-                />
-
-                <PrimaryButton text="Add"
-                    disabled={this.props.currentTeam !== undefined}
-                    onClick={this.handleSubmit}
-                />
-
-            </div>
-        );
-    }
-
 }

@@ -38,7 +38,6 @@ export const FrequencyDropdown = (props: Props) => {
     )
 }
 
-// TODO get a fresh list of frequencies from SQL when it's populated
 const hardCodedFrequencies: IDropdownOption[] =
     [
         { key: 0, text: 'none' },

@@ -26,32 +26,45 @@ export const StudyComboBox = (props: Props) => {
 
     const convertToOptions = (inputData: StudyConfig[]) => {
         let parsedList: IComboBoxOption[] = [];
-        parsedList = inputData.map(item => {
-            let rObj = {
-                key:item.StudyName,
-                text:item.StudyName
-            };
-            return rObj;
-        });
+        if (inputData) {
+            parsedList = inputData.map(item => {
+                let rObj = {
+                    key: item.StudyName,
+                    text: item.StudyName
+                };
+                return rObj;
+            });
+        }
         parsedList.push(
             {
-                key:"create new study",
-                text:"create new study"
+                key: "create new study",
+                text: "create new study"
             }
         );
         return parsedList;
     }
 
+    // preserve previous user selection if user selected a study -> changed team -> and 
+    // came back to original team selection
+    // Otherwise show default: create new study
+    const selectedKeyLogic = (inputData: StudyConfig[]) => {
+        if(inputData && inputData.length > 0)
+            return selectedItem && selectedItem.key !== "" ? selectedItem.key : "create new study";
+        else
+            return "create new study";
+    }
+
     return (
         <div>
             <VirtualizedComboBox
-                selectedKey={selectedItem ? selectedItem.key : "create new study"}
+                selectedKey={selectedKeyLogic(props.data)}
                 label="Study"
                 allowFreeform
                 autoComplete="on"
                 options={convertToOptions(props.data)}
                 useComboBoxAsMenuWidth
                 onChange={onChange}
+                // placeholder="type a study name to search OR create a new study"
             />
         </div>
 

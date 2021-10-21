@@ -1,4 +1,6 @@
-﻿namespace reliability_on_demand.DataLayer
+﻿using System.Collections.Generic;
+
+namespace reliability_on_demand.DataLayer
 {
     public class SQLService : ISQLService
     {
@@ -25,19 +27,18 @@
             _context.UpdateRelOnDemandQuery(id, status, exception);
         }
 
-        string ISQLService.GetAllTeamConfigs()
+        string ISQLService.GetAllStudyConfigsForTeam(int TeamID)
         {
-            return _context.GetAllTeamConfigs();
-        }
-
-        string ISQLService.GetAllStudyConfigsForTeam(ConfigInquiry inquiry)
-        {
-            return _context.GetAllStudyConfigsForTeam(inquiry);
+            return _context.GetAllStudyConfigsForTeam(TeamID);
         }
 
         string ISQLService.AddTeam(TeamConfig inquiry)
         {
            return _context.AddTeam(inquiry);
+        }
+
+        string ISQLService.AddStudy(StudyConfig userCreatedStudy){
+            return _context.AddStudy(userCreatedStudy);
         }
 
         string ISQLService.GetAllMainVerticals()
@@ -64,6 +65,11 @@
         void ISQLService.UpdateFailureSavedConfig(FailureConfig f)
         {
             _context.UpdateFailureSavedConfig(f);
+        }
+
+        public List<TeamConfig> GetAllTeamConfigs()
+        {
+            return _context.GetAllTeamConfigs();
         }
     }
 }

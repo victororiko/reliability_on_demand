@@ -1,7 +1,6 @@
 /* eslint-disable react/no-direct-mutation-state */
 import * as React from 'react';
-import { StudyConfig, ConfigInquiry } from '../../models/config.model';
-import { Separator } from "@fluentui/react";
+import { StudyConfig } from '../../models/config.model';
 import { StudyComboBox } from './StudyComboBox';
 import { StudyNameTextField } from './StudyNameTextField';
 import { FrequencyDropdown } from './FrequencyDropdown';
@@ -9,120 +8,117 @@ import { ExpiryDatePicker } from './ExpiryDatePicker';
 import { ObservationWindowDropdown } from './ObservationWindowDropdown';
 import { AddStudyButton } from './AddStudyButton';
 import axios from 'axios';
-import { largeTitle } from '../helpers/Styles';
-import { containerStackTokens } from '../helpers/Styles';
-import { Stack } from '@fluentui/react';
+import { useEffect, useState } from 'react';
 
 export interface IStudySectionProps {
-    children?: React.ReactNode,
-    inquiry: ConfigInquiry
-}
-export interface IStudySectionState {
-    studyConfigs: StudyConfig[];
-    loading: boolean;
-    inquiry: ConfigInquiry;
-    selectedStudy?: StudyConfig;
-    newStudy: StudyConfig;
+    team_id: number
 }
 
-export default class StudySection extends React.Component<IStudySectionProps, IStudySectionState> {
-    
-    constructor(props: any) {
-        super(props)
+export const StudySection = (props: IStudySectionProps) => {
+    const [studyConfigs, setStudyConfigs] = useState([]);
+    const [selectedStudy, setSelectedStudy] = useState<StudyConfig | undefined>(undefined); // starting state undefined keeps rest of the UI active
+    const [newStudyName, setNewStudyName] = useState<string>('');
+    const [newCacheFrequency, setNewCacheFrequency] = useState<number>(0);
+    const [newExpiry, setNewExpiry] = useState<Date>();
+    const [newObservationWindowDays, setNewObservationWindowDays] = useState<number>(0);
 
-        this.state = {
-            studyConfigs: [],
-            inquiry: this.props.inquiry,
-            loading: true,
-            selectedStudy: undefined,
-            newStudy: {} as StudyConfig
-        }
-    }
-    /**
-     * Prior to rendering the component, load up study configs from backend
-     */
-    componentDidMount() {
-        axios.post("api/Data/GetAllStudyConfigsForTeam", this.state.inquiry)
+
+    const loadStudies = (id: number) => {
+        axios.get(`api/Data/GetStudies/${props.team_id}`)
             .then(res => {
-                this.setState({
-                    studyConfigs: res.data,
-                    loading: false
-                })
-            })
-    }
-    render() {
-        let contents = this.state.loading ? (
-            <p>
-                <em>Loading...</em>
-            </p>
-        ) : (
-            this.renderStudies()
-        );
-        return (
-            <div>
-                <Separator theme={largeTitle}>Study</Separator>
-                {contents}
-            </div>
-        );
-    }
-    renderStudies() {
-        return (
-            <Stack tokens={containerStackTokens}>
-                <StudyComboBox data={this.state.studyConfigs} callBack={this.selectCurrentStudy} />
-                <StudyNameTextField currentStudy={this.state.selectedStudy} callBack={this.setNewStudyName} />
-                <FrequencyDropdown currentStudy={this.state.selectedStudy} callBack={this.setNewStudyFrequency}/>
-                <ExpiryDatePicker currentStudy={this.state.selectedStudy} callBack={this.setNewStudyDate}/>
-                <ObservationWindowDropdown currentStudy={this.state.selectedStudy} callBack={this.setNewStudyObservationWindow} />
-                <AddStudyButton currentStudy={this.state.selectedStudy} callBack={this.addNewStudyToBackend} />
-            </Stack>
-        );
+                if (res.data) {
+                    console.table(res.data);
+                    setStudyConfigs(res.data);
+                }
+                else {
+                    console.log('no studies found')
+                    setStudyConfigs([]);
+                }
+            });
     }
 
     // helper methods
     // Study Selection
-    selectCurrentStudy = (selection: string) => {
-        this.setState({
-            selectedStudy: this.getStudyFromString(selection)
-        })
+    const selectCurrentStudy = (selection: string) => {
+        setSelectedStudy(getStudyFromString(selection));
     }
-    getStudyFromString(selection: string): StudyConfig | undefined {
-        let parsedStudy = this.state.studyConfigs.find(element => element.StudyName === selection);
+    const getStudyFromString = (selection: string): StudyConfig | undefined => {
+        // extracting StudyName property out of each element and comparing it.
+        let parsedStudy = studyConfigs.find(({ StudyName }) => StudyName === selection);
         return parsedStudy;
     }
 
     // New Study Creation
     // Set new study's name based on user's input
-    setNewStudyName = (valueFromTextField: string) => {
-        this.state.newStudy.StudyName = valueFromTextField;
+    const getUserStudyName = (valueFromTextField: string) => {
+        setNewStudyName(valueFromTextField);
+    }
+    const getUserFrequency = (frequencyFromDropdown: number) => {
+        console.debug(frequencyFromDropdown);
+        setNewCacheFrequency(frequencyFromDropdown);
+    }
+    const getUserExpiryDate = (dateFromDatePicker: Date) => {
+        setNewExpiry(dateFromDatePicker);
+    }
+    const getUserObservationWindow = (selectionDays: number) => {
+        setNewObservationWindowDays(selectionDays);
     }
 
-    setNewStudyFrequency = (frequencyFromDropdown: number) => {
-        this.state.newStudy.CacheFrequency = frequencyFromDropdown;
+    const studyExists = (newStudy: StudyConfig): boolean => {
+        let dupeFound = studyConfigs.some(
+            (oldStudy: StudyConfig) => {
+                return oldStudy.StudyName === newStudy.StudyName
+                    && oldStudy.CacheFrequency === newStudy.CacheFrequency
+                    // FIXME: figure out how to check for equivalent dates -->  && oldStudy.Expiry.valueOf === newStudy.Expiry.valueOf
+            }
+        )
+        return dupeFound;
     }
-
-    setNewStudyDate = (dateFromDatePicker:Date) => {
-        this.state.newStudy.Expiry = dateFromDatePicker;
-    }
-
-    setNewStudyObservationWindow = (selectionDays:number) => {
-        this.state.newStudy.ObservationWindowDays = selectionDays;
-    }
-
-    addNewStudyToBackend = () => {
+    const addNewStudyToBackend = () => {
         // Validate new study first 
         // Study name check
-        let name = this.state.newStudy.StudyName;
-        let freq = this.state.newStudy.CacheFrequency;
-        let exp = this.state.newStudy.Expiry;
-        if(name === null || name === undefined || name === '')
+        let studyToAdd =
+            {
+                StudyName: newStudyName,
+                CacheFrequency: newCacheFrequency,
+                Expiry: newExpiry,
+                ObservationWindowDays: newObservationWindowDays
+            } as StudyConfig
+        if (newStudyName === null || newStudyName === undefined || newStudyName === '')
             alert('please specify a Name for the study you are adding');
         // Frequency check
-        else if(freq === null || freq === undefined)
+        else if (newCacheFrequency === null || newCacheFrequency === undefined)
             alert('please specify a Frequency for the study you are adding');
         // Expiry Date check
-        else if(exp === null || exp === undefined)
+        else if (newExpiry === null || newExpiry === undefined)
             alert('please specify an Expiry Date for the study you are adding');
-
-        else alert(`New Study to be added = \n${JSON.stringify(this.state.newStudy,null,4)}`)
+        // Check if study exists
+        else if (studyExists(studyToAdd))
+            alert('study already exists - please change one of the required fields');
+        else {
+            alert(`New Study to be added = \n${JSON.stringify(studyToAdd, null, 4)}`);
+            // add missing properties to pass a full study to backend
+            studyToAdd.LastModifiedDate = new Date();
+            studyToAdd.TeamID = props.team_id;
+            axios.post("api/Data/AddStudy", studyToAdd)
+                .then(() => {loadStudies(props.team_id)});
+            
+        }
     }
+    useEffect(() => {
+        loadStudies(props.team_id);
+        setSelectedStudy(undefined);
+    }, [props.team_id]);
+
+    return (
+        <div>
+            <h1>Study Section</h1>
+            <StudyComboBox data={studyConfigs} callBack={selectCurrentStudy} />
+            <StudyNameTextField currentStudy={selectedStudy} callBack={getUserStudyName} />
+            <FrequencyDropdown currentStudy={selectedStudy} callBack={getUserFrequency} />
+            <ExpiryDatePicker currentStudy={selectedStudy} callBack={getUserExpiryDate} />
+            <ObservationWindowDropdown currentStudy={selectedStudy} callBack={getUserObservationWindow} />
+            <AddStudyButton currentStudy={selectedStudy} callBack={addNewStudyToBackend} />
+        </div>
+    )
 }

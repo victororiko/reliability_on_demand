@@ -1,7 +1,8 @@
 ## Design principles
 These were learnings from initial coding exercies. Keeping these in mind will make your coding experience a lot smoother and enjoyable 
 1. Keep things Simple (KISS principle)
-2. Always use Functional components - why? it's easier to reason about.
+2. Always use Functional components - why? it's easier to reason about compared to Class components. 
+
 
 ### Adding new pages
 1. When adding a new section, create a folder: like the Study folder. 
@@ -16,8 +17,10 @@ If you run into issues where the website doesn't open up for you following these
 2. Delete `node_modules` in your project folder.
 3. Press F5 to do a clean run (which performs npm install) for you.
 
-Important link for fixing (react-scripts)[https://github.com/facebook/create-react-app/issues/11174] 
-If you face any Component Governance issues in the build - (this is how you resolve them)[https://onebranch.visualstudio.com/OneBranch/_wiki/wikis/OneBranch.wiki/4572/Component-Governance] 
+* use [React Developer Tools](https://reactjs.org/blog/2019/08/15/new-react-devtools.html) extension [for Edge](https://microsoftedge.microsoft.com/addons/detail/react-developer-tools/gpphkfbcpidddadnkolkpfckpihlkkil) and [for chrome](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi) to get a good view of the components, their state, and props passed in. 
+
+Important link for fixing [react-scripts](https://github.com/facebook/create-react-app/issues/11174)
+If you face any Component Governance issues in the build - [this is how you resolve them](https://onebranch.visualstudio.com/OneBranch/_wiki/wikis/OneBranch.wiki/4572/Component-Governance) 
 
 # Getting started
 

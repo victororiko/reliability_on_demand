@@ -46,7 +46,7 @@ export default class OwnerTeamFriendlyNameAlias extends React.Component<IOwnerTe
                     aria-label="Owner Team Friendly Name"
                     disabled={this.props.currentTeam !== undefined}
                     required
-                    value={this.props.currentTeam?.OwnerTeamFriendlyName}
+                    value={this.props.currentTeam?.ownerTeamFriendlyName}
                 />
             </div>
         );

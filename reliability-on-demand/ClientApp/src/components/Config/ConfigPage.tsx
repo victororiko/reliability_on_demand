@@ -1,52 +1,53 @@
 import * as React from 'react';
 // Our components that make up the page
-import StudySection from '../Study/StudySection';
-import TeamSection from '../Team/TeamSection';
+import { StudySection } from '../Study/StudySection';
 
 // Stack
 import { containerStackTokens } from '../helpers/Styles';
 import { Stack } from '@fluentui/react';
-import { TeamConfig } from '../../models/config.model';
 import FailureSection from '../FailureCurve';
+import TeamDetails from '../Team/TeamDetails';
 
 export interface IConfigProps {
 }
 
 export interface IConfigState {
-  currentTeam?: TeamConfig;
+  currentTeamId: number;
 }
 
 export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
   constructor(props: IConfigProps) {
     super(props);
-    this.printTeam = this.printTeam.bind(this);
+    this.selectTeam = this.selectTeam.bind(this);
+    this.state = {
+      currentTeamId: -1
+    }
   }
 
-  componentDidMount() {
-    this.setState({
-      currentTeam: undefined
-    })
-  }
+  // componentDidMount() {
+  //   this.setState({
+  //     currentTeamId: -1
+  //   })
+  // }
 
   render() {
     return (
       <Stack tokens={containerStackTokens}>
-        <TeamSection printHello={this.printTeam} />
-        <StudySection inquiry={{ TeamID: this.extractTeamIDFromState() }} />
-        <FailureSection studyid={3} />
+        <TeamDetails callBack={this.selectTeam} startingTeamId={this.state.currentTeamId} />
+        <StudySection team_id={this.state.currentTeamId} />
+        {/* <FailureSection studyid={3} /> */}
       </Stack>
     );
   }
 
   extractTeamIDFromState(): number {
-    return 3;
+    return this.state.currentTeamId;
   }
 
-  printTeam = (selectedTeam: TeamConfig) => {
-    console.log("selectedTeam = " + JSON.stringify(selectedTeam))
+  selectTeam = (selection: number) => {
     this.setState(
       {
-        currentTeam: selectedTeam
+        currentTeamId: selection
       }
     );
   }

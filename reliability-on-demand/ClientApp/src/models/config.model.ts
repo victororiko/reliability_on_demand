@@ -4,6 +4,8 @@
 //
 //   "Set quicktype target language"
 
+
+// Really IMP note: the API defaults camelCaseProperties
 export interface SampleConfig {
     ConfigID:       string;
     CreationDate:   string;
@@ -20,10 +22,10 @@ export interface ConfigInquiry{
 }
 
 export interface TeamConfig {
-    TeamID:                string;
-    OwnerContact:          string;
-    OwnerTeamFriendlyName: string;
-    OwnerTriageAlias:      string;
+    teamID:                number;
+    ownerContact:          string;
+    ownerTeamFriendlyName: string;
+    ownerTriageAlias:      string;
 }
 
 export interface StudyConfig {

@@ -15,6 +15,7 @@ namespace reliability_on_demand.DataLayer
 {
     public class WatsonExtContext : DbContext
     {
+        public DbSet<TeamConfig> TeamConfigs { get; set;}
         private string connectionString = null;
 
         private string validateAzureFunctionKey = null;
@@ -84,9 +85,18 @@ namespace reliability_on_demand.DataLayer
             return GetSQLResultsJSON("SELECT * FROM [dbo].[RELUnifiedConfig]");
         }
 
-        public string GetAllTeamConfigs()
+        public List<TeamConfig> GetAllTeamConfigs()
         {
-            return GetSQLResultsJSON("SELECT * FROM [dbo].[RELTeamConfig]");
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "SELECT * FROM [dbo].[RELTeamConfig]";
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                return DataReaderMapToList<TeamConfig>(reader);
+            }
         }
 
         public string AddTeam(TeamConfig inquiry)
@@ -114,7 +124,7 @@ namespace reliability_on_demand.DataLayer
             }
             return sb.ToString();
         }
-        public string GetAllStudyConfigsForTeam(ConfigInquiry inquiry)
+        public string GetAllStudyConfigsForTeam(int TeamID)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
@@ -124,7 +134,36 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.GetAllStudyConfigsForTeam";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@TeamID", inquiry.TeamID));
+            cmd.Parameters.Add(new SqlParameter("@TeamID", TeamID));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+
+        public string AddStudy(StudyConfig userCreatedStudy)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.AddStudy";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyName", userCreatedStudy.StudyName));
+            cmd.Parameters.Add(new SqlParameter("@LastModifiedDate", userCreatedStudy.LastModifiedDate));
+            cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userCreatedStudy.CacheFrequency));
+            cmd.Parameters.Add(new SqlParameter("@Expiry", userCreatedStudy.Expiry));
+            cmd.Parameters.Add(new SqlParameter("@TeamId", userCreatedStudy.TeamId));
+            cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userCreatedStudy.ObservationWindowDays));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
