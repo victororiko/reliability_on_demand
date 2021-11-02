@@ -63,6 +63,7 @@ This is where you can make changes to YAML file that contains all the steps for 
 Here's the overall code flow + a few key points to keep in mind: <br>
 ## Server
 Program.cs ---uses---> Startup.cs ---builds---> ASP .NET Core App
+<br>Using ASP.NET 5.0
 ## Client
 ClientApp/ --> index.tsx --> Layout.tsx --> components folder 
 - components folder contains all isolated components

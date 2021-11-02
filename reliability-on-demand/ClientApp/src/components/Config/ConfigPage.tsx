@@ -13,29 +13,26 @@ export interface IConfigProps {
 
 export interface IConfigState {
   currentTeamId: number;
+  currentStudyId: number;
 }
 
 export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
   constructor(props: IConfigProps) {
     super(props);
     this.selectTeam = this.selectTeam.bind(this);
+    // -1 denotes create new Item (like create new Team, create new Study etc...)
     this.state = {
-      currentTeamId: -1
+      currentTeamId: -1,
+      currentStudyId: -1
     }
   }
-
-  // componentDidMount() {
-  //   this.setState({
-  //     currentTeamId: -1
-  //   })
-  // }
 
   render() {
     return (
       <Stack tokens={containerStackTokens}>
         <TeamDetails callBack={this.selectTeam} startingTeamId={this.state.currentTeamId} />
-        <StudySection team_id={this.state.currentTeamId} />
-        {/* <FailureSection studyid={3} /> */}
+        <StudySection team_id={this.state.currentTeamId} callBack={this.selectStudy}/>
+        <FailureSection studyid={this.state.currentStudyId} /> 
       </Stack>
     );
   }
@@ -50,6 +47,14 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
         currentTeamId: selection
       }
     );
+  }
+
+  selectStudy = (item: number) => {
+    this.setState(
+      {
+        currentStudyId: item
+      }
+    )
   }
 }
 

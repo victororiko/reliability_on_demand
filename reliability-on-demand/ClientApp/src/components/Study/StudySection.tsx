@@ -11,7 +11,8 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 export interface IStudySectionProps {
-    team_id: number
+    team_id: number,
+    callBack: any
 }
 
 export const StudySection = (props: IStudySectionProps) => {
@@ -40,7 +41,9 @@ export const StudySection = (props: IStudySectionProps) => {
     // helper methods
     // Study Selection
     const selectCurrentStudy = (selection: string) => {
-        setSelectedStudy(getStudyFromString(selection));
+        let my_selection:StudyConfig | undefined = getStudyFromString(selection);
+        setSelectedStudy(my_selection);
+        props.callBack(my_selection ? my_selection.StudyID : -1);
     }
     const getStudyFromString = (selection: string): StudyConfig | undefined => {
         // extracting StudyName property out of each element and comparing it.

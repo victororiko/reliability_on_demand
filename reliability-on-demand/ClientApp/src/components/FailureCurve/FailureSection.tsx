@@ -1,11 +1,10 @@
 ﻿import * as React from 'react';
 import { Vertical, Pair, Pivot } from '../../models/FailureConfig.model';
-import { largeTitle } from '../helpers/Styles';
-import { Label, Text, Separator, IColumn, TooltipHost, buildColumns, Link } from "@fluentui/react";
+import { IColumn, TooltipHost, buildColumns } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { DefaultButton } from '@fluentui/react/lib/Button';
 import { FailureSectionDetails } from '../FailureCurve/FailureSectionDetails';
-
+import { WikiLink } from './WikiLink';
 
 
 
@@ -70,11 +69,6 @@ export default class FailureSection extends React.Component<FailureSectionProps,
     }
 
     render(): React.ReactElement {
-
-        let wikiLink = (<div><Link href="https://www.osgwiki.com/index.php?veaction=edit&preload=Template%3APageCreation%2FDefault%2FBlankPage&preloadparams%5B%5D=Navigating+through+RIOD+portal&title=RIOD_-_Failure_Curve_Section&create=Create+Page" underline>
-            Wiki
-        </Link></div>);
-
         let verticals = this.state.loading ? (
             <p>
                 <em>Loading...</em>
@@ -83,18 +77,18 @@ export default class FailureSection extends React.Component<FailureSectionProps,
             this.renderVerticals()
         );
 
-        let selectedVerticals = ((this.selectedKeys != null && this.selectedKeys.length > 0) ? this.renderSelectedVerticals() : '');
 
         let failureDetailButton = this.renderFailureDetailsButton();
 
-        let ConfigureButtonClicked = (this.state.isButtonClicked == true ? this.onConfigureVerticalButtonClicked() : '');
+        let ConfigureButtonClicked = (this.state.isButtonClicked === true ? this.onConfigureVerticalButtonClicked() : '');
 
         return (
             <div>
-                <Separator theme={largeTitle}>Failure Vertical Section</Separator>
-                {wikiLink}
+                <h1>Failure Curve Section</h1>
+                <WikiLink 
+                    title={'Wiki for this page'} 
+                    url={'https://www.osgwiki.com/wiki/RIOD_-_Failure_Curve_Section'} />
                 {verticals}
-                {selectedVerticals}
                 {failureDetailButton}
                 {ConfigureButtonClicked}
             </div>
@@ -113,21 +107,6 @@ export default class FailureSection extends React.Component<FailureSectionProps,
         );
     }
 
-    renderSelectedVerticals() {
-        return (
-            <div>
-                <TooltipHost
-                    content="List of verticals you selected to configure for your study"
-                >
-                <Label>
-                    Selected Vertical
-                    </Label>
-                </TooltipHost>
-                    {this.selectedKeys.map(key => (<Text block>{key.text}</Text>))}
-
-            </div>
-        );
-    }
 
     renderVerticals() {
 
@@ -137,8 +116,8 @@ export default class FailureSection extends React.Component<FailureSectionProps,
                     content="Select all the verticals you would like to configure for your study"
                 >
                 <Dropdown
-                    placeholder="Select Verticals"
-                    label="Select Verticals"
+                    placeholder="Select all the verticals you would like to configure for your study"
+                    label="Verticals List"
                     // eslint-disable-next-line react/jsx-no-bind
                     onChange={this.onVerticalSelected}
                     multiSelect options={this.getVerticalNames()}

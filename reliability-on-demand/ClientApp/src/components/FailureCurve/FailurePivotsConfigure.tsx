@@ -4,6 +4,7 @@ import { buildColumns, IColumn, DetailsList, Checkbox, SelectionMode, TooltipHos
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { FailureCurveFilterExpression } from '../FailureCurve/FailureCurveFilterExpression';
 import axios from 'axios';
+import { WikiLink } from './WikiLink';
 
 
 export interface IFailurePivotsConfigureProps {
@@ -272,21 +273,24 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         this.buildColumnArray();
 
         let pivottable = (
-            <TooltipHost
-                content="Select/Deselect what kind of Pivot it is in the Watson call"
-            >
-            <DetailsList
-                items={(this.requiredPivotTableData)}
-                setKey="set"
-                columns={this.cols}
-                onRenderItemColumn={this._renderItemColumn}
-                selectionMode={SelectionMode.none}
-                />
-            </TooltipHost>
+            <div>
+                <WikiLink title={'Watson Wiki'} url={'https://www.osgwiki.com/wiki/Watson_1508_SnapShot_API#WatsonSnapshotAggView_1508_parameters'} />
+                <TooltipHost
+                    content="Select/Deselect what kind of Pivot it is in the Watson call"
+                >
+                <DetailsList
+                    items={(this.requiredPivotTableData)}
+                    setKey="set"
+                    columns={this.cols}
+                    onRenderItemColumn={this._renderItemColumn}
+                    selectionMode={SelectionMode.none}
+                    />
+                </TooltipHost>
+            </div>
         );
 
         let pivotdropdown = (
-
+            // TODO fix backend here
             <div>
                 <TooltipHost
                     content="Select/Deselect Pivots based on if it is part of failure curve"
@@ -307,8 +311,8 @@ export class FailurePivotsConfigure extends React.Component<IFailurePivotsConfig
         let nextButton = this.nextClicked();
 
         return (<div>
-            {pivotdropdown}
-            {pivottable}
+            {pivotdropdown} 
+            {pivottable} 
             {nextButton}
         </div>);
 

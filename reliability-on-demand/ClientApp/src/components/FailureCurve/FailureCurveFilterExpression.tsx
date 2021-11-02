@@ -189,7 +189,7 @@ export class FailureCurveFilterExpression extends React.Component<IFailureCurveF
             <TooltipHost
                 content="Click Next to configure the filter expression"
             >
-                <DefaultButton text="Next" onClick={this.nextClicked} allowDisabledFocus disabled={false} checked={false} />
+                <DefaultButton text="Configure Filter Expression" onClick={this.nextClicked} allowDisabledFocus disabled={false} checked={false} />
             </TooltipHost>
         </div>);
 

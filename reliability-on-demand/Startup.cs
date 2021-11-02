@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -88,7 +89,10 @@ namespace reliability_on_demand
             // following snippet taken from:https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-5.0#attribute-routing-for-rest-apis
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                if (env.IsDevelopment())
+                    endpoints.MapControllers().WithMetadata(new AllowAnonymousAttribute());
+                else
+                    endpoints.MapControllers();
             });
 
             app.UseSpa(spa =>
