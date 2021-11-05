@@ -68,6 +68,7 @@ export default class TeamDetails extends React.Component<ITeamDetailsProps, ITea
     renderContent() {
         return (
             <div>
+                <h1>Team Section</h1>
                 <TeamComboBox data={this.state.teamConfigs} callBack={this.selectCurrentTeam} />
 
                 <OwnerContactAlias

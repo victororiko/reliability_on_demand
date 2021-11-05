@@ -8,7 +8,6 @@
     <SpaRoot>ClientApp\</SpaRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
     <RootNamespace>reliability_on_demand</RootNamespace>
-    <UserSecretsId>aa1c9a8f-b1e0-4f1c-a07b-0a14ec3cc5c3</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,24 +25,6 @@
     <Content Remove="$(SpaRoot)**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="ClientApp\src\components\FailureCurve\FailureCurveFilterExpression.tsx" />
-    <None Remove="ClientApp\src\components\FailureCurve\FailureCurveSave.tsx" />
-    <None Remove="ClientApp\src\components\FailureCurve\FailureCurveValidate.tsx" />
-    <None Remove="ClientApp\src\components\FailureCurve\FailurePivotsConfigure.tsx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\components\FailureCurve\FailureCurveFilterExpression.tsx">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\components\FailureCurve\FailureCurveValidate.tsx">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="ClientApp\src\components\FailureCurve\FailureCurveSave.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\FailureCurve\FailurePivotsConfigure.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

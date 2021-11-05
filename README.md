@@ -22,6 +22,16 @@ If you run into issues where the website doesn't open up for you following these
 Important link for fixing [react-scripts](https://github.com/facebook/create-react-app/issues/11174)
 If you face any Component Governance issues in the build - [this is how you resolve them](https://onebranch.visualstudio.com/OneBranch/_wiki/wikis/OneBranch.wiki/4572/Component-Governance) 
 
+## Deploying
+1. Please go to [Staging slot](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/b1ffe277-b0a8-466c-b97c-18bfa349594b/resourceGroups/riod_rg/providers/Microsoft.Web/sites/reliabilityondemand/slots/staging/appServices)
+2. If this is the first time you're deploying - Download publishing profile. 
+3. In Visual Studio right click `relaibility-on-demand`
+4. Select Publish
+5. Import the downloaded Publishing profile
+6. Click Publish
+7. On [Azure portal](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/b1ffe277-b0a8-466c-b97c-18bfa349594b/resourceGroups/riod_rg/providers/Microsoft.Web/sites/reliabilityondemand/slots/staging/appServices) 
+Click Swap and ***swap the 2 slots*** to get your new changes into production!!!
+
 # Getting started
 
 **[React Tutorial](https://reactjs.org/docs/hello-world.html)**
