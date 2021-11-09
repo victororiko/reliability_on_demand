@@ -1,9 +1,9 @@
-import * as React from "react";
-import { Container } from "reactstrap";
-import { NavMenu } from "./NavMenu";
+import * as React from 'react'
+import { Container } from 'reactstrap'
+import { NavMenu } from './NavMenu/NavMenu'
 
 interface Props {
-  children:React.ReactElement
+  children: React.ReactElement
 }
 
 export const Layout = (props: Props) => {
@@ -12,5 +12,5 @@ export const Layout = (props: Props) => {
       <NavMenu />
       <Container>{props.children}</Container>
     </div>
-  );
-};
+  )
+}

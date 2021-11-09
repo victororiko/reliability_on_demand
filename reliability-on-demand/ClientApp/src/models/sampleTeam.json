@@ -1,20 +1,20 @@
 [
-    {
-        "TeamID": 1,
-        "OwnerContact": "KARAN",
-        "OwnerTeamFriendlyName": "CLIENT FUN TEAM 1",
-        "OwnerTriageAlias": "COSRELDATA"
-    },
-    {
-        "TeamID": 3,
-        "OwnerContact": "KARANDA",
-        "OwnerTeamFriendlyName": "CLIENT FUN TEAM 2",
-        "OwnerTriageAlias": "COSRELDATA"
-    },
-    {
-        "TeamID": 4,
-        "OwnerContact": "rajroy",
-        "OwnerTeamFriendlyName": "CLIENT FUN TEAM 3",
-        "OwnerTriageAlias": "OSGRELDATA"
-    }
+  {
+    "TeamID": 1,
+    "OwnerContact": "KARAN",
+    "OwnerTeamFriendlyName": "CLIENT FUN TEAM 1",
+    "OwnerTriageAlias": "COSRELDATA"
+  },
+  {
+    "TeamID": 3,
+    "OwnerContact": "KARANDA",
+    "OwnerTeamFriendlyName": "CLIENT FUN TEAM 2",
+    "OwnerTriageAlias": "COSRELDATA"
+  },
+  {
+    "TeamID": 4,
+    "OwnerContact": "rajroy",
+    "OwnerTeamFriendlyName": "CLIENT FUN TEAM 3",
+    "OwnerTriageAlias": "OSGRELDATA"
+  }
 ]

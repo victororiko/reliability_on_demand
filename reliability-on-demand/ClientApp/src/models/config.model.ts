@@ -4,38 +4,36 @@
 //
 //   "Set quicktype target language"
 
-
 // Really IMP note: the API defaults camelCaseProperties
 export interface SampleConfig {
-    ConfigID:       string;
-    CreationDate:   string;
-    LastCacheDate:  string;
-    ExpiryDate:     string;
-    ConfigName:     string;
-    OwnerContact:   string;
-    OwnerTeam:      string;
-    CacheFrequency: number;
+  ConfigID: string
+  CreationDate: string
+  LastCacheDate: string
+  ExpiryDate: string
+  ConfigName: string
+  OwnerContact: string
+  OwnerTeam: string
+  CacheFrequency: number
 }
 
-export interface ConfigInquiry{
-    TeamID: number;
+export interface ConfigInquiry {
+  TeamID: number
 }
 
 export interface TeamConfig {
-    teamID:                number;
-    ownerContact:          string;
-    ownerTeamFriendlyName: string;
-    ownerTriageAlias:      string;
+  teamID: number
+  ownerContact: string
+  ownerTeamFriendlyName: string
+  ownerTriageAlias: string
 }
 
 export interface StudyConfig {
-    StudyID:               string;
-    StudyName:             string;
-    LastRefreshDate:       Date;
-    LastModifiedDate:      Date;
-    CacheFrequency:        number;
-    Expiry:                Date;
-    TeamID:                number;
-    ObservationWindowDays: number;
+  StudyID: string
+  StudyName: string
+  LastRefreshDate: Date
+  LastModifiedDate: Date
+  CacheFrequency: number
+  Expiry: Date
+  TeamID: number
+  ObservationWindowDays: number
 }
-

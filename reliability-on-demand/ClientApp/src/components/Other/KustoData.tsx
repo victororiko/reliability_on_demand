@@ -1,23 +1,22 @@
-import * as React from "react";
+import * as React from 'react'
+import { Loading } from '../helpers/Loading'
 
 type MyProps = {
   // message:string;
 }
 type MyState = {
-  all_releases: any[],
-  loading:boolean;
-};
+  all_releases: any[]
+  loading: boolean
+}
 
-
-export class KustoData extends React.Component<MyProps,MyState> {
-
-  constructor(props:any) {
-    super(props);
-    this.state = { all_releases: [], loading: true };
+export class KustoData extends React.Component<MyProps, MyState> {
+  constructor(props: any) {
+    super(props)
+    this.state = { all_releases: [], loading: true }
   }
 
   componentDidMount() {
-    this.populateReleaseData();
+    this.populateReleaseData()
   }
 
   static renderReleasesTable(all_releases: any[]) {
@@ -36,17 +35,15 @@ export class KustoData extends React.Component<MyProps,MyState> {
           ))}
         </tbody>
       </table>
-    );
+    )
   }
 
   render() {
     let contents = this.state.loading ? (
-      <p>
-        <em>Loading...</em>
-      </p>
+      <Loading message="Loading data from Kusto :)" />
     ) : (
       KustoData.renderReleasesTable(this.state.all_releases)
-    );
+    )
 
     return (
       <div>
@@ -54,12 +51,12 @@ export class KustoData extends React.Component<MyProps,MyState> {
         <p>List of all Releases stored in our Kusto instance.</p>
         {contents}
       </div>
-    );
+    )
   }
 
   async populateReleaseData() {
-    const response = await fetch("api/Data/GetAllReleases");
-    const data = await response.json();
-    this.setState({ all_releases: data, loading: false });
+    const response = await fetch('api/Data/GetAllReleases')
+    const data = await response.json()
+    this.setState({ all_releases: data, loading: false })
   }
 }

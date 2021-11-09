@@ -5,84 +5,80 @@
 //   "Set quicktype target language"
 
 export interface FailureConfig {
-    StudyID: number;
-    PivotSourceSubType: string;
-    Pivots: PivotTable[];
+  StudyID: number
+  PivotSourceSubType: string
+  Pivots: PivotTable[]
 }
 
-
 export interface Vertical {
-    VerticalName: string;
-    PivotSourceSubType: string;
+  VerticalName: string
+  PivotSourceSubType: string
 }
 
 export interface Pivot {
-    PivotSourceColumnName: string;
-    PivotID: number;
-    IsSelectPivot: boolean;
-    IsKeyPivot: boolean;
-    IsApportionPivot: boolean;
-    IsApportionJoinPivot: boolean;
-    PivotScopeID: number;
-    FilterExpression: string;
-    UIInputDataType: string;
+  PivotSourceColumnName: string
+  PivotID: number
+  IsSelectPivot: boolean
+  IsKeyPivot: boolean
+  IsApportionPivot: boolean
+  IsApportionJoinPivot: boolean
+  PivotScopeID: number
+  FilterExpression: string
+  UIInputDataType: string
 }
 
 export interface Pair {
-    key: string,
-    text: string
+  key: string
+  text: string
 }
 
 export interface PivotTable {
-    PivotID: number;
-    PivotName: string;
-    IsSelectPivot: boolean;
-    IsKeyPivot: boolean;
-    IsApportionPivot: boolean;
-    IsApportionJoinPivot: boolean;
-    IsScopeFilter: boolean;
-    PivotScopeID: number;
-    FilterExpression: string;
-    FilterExpressionOperator: string;
-    UIInputDataType: string;
+  PivotID: number
+  PivotName: string
+  IsSelectPivot: boolean
+  IsKeyPivot: boolean
+  IsApportionPivot: boolean
+  IsApportionJoinPivot: boolean
+  IsScopeFilter: boolean
+  PivotScopeID: number
+  FilterExpression: string
+  FilterExpressionOperator: string
+  UIInputDataType: string
 }
 
 export interface SmapSQL {
-    IsSelectColumn: boolean;
-    IsKeyColumn: boolean;
-    IsApportionColumn: boolean;
-    IsApportionJoinColumn: boolean;
-    PivotScopeID: number;
-    scope: Filter[];
+  IsSelectColumn: boolean
+  IsKeyColumn: boolean
+  IsApportionColumn: boolean
+  IsApportionJoinColumn: boolean
+  PivotScopeID: number
+  scope: Filter[]
 }
 
 export interface PivotSQLResult {
-    PivotSourceColumnName: string;
-    PivotID: number;
-    UIInputDataType: string;
-    smap: SmapSQL[];
+  PivotSourceColumnName: string
+  PivotID: number
+  UIInputDataType: string
+  smap: SmapSQL[]
 }
 
 export interface Filter {
-    PivotScopeValue: string;
-    PivotScopeOperator: string;
+  PivotScopeValue: string
+  PivotScopeOperator: string
 }
 
 export interface FilterExpTable {
-    RelationalOperator: string;
-    PivotName: string;
-    Operator: string;
-    PivotValue: string;
-    PivotID: number;
-    PivotScopeID: number;
-    UIInputDataType: string;
+  RelationalOperator: string
+  PivotName: string
+  Operator: string
+  PivotValue: string
+  PivotID: number
+  PivotScopeID: number
+  UIInputDataType: string
 }
 
 export interface PivotScopeFilter {
-    PivotID: number;
-    FilterExpression: string;
-    RelationalOperator: string;
+  PivotID: number
+  FilterExpression: string
+  RelationalOperator: string
 }
-
-
-
