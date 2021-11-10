@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { ComboBox, IComboBoxOption, SelectableOptionMenuItemType, IComboBox } from '@fluentui/react'
+
 const INITIAL_OPTIONS: IComboBoxOption[] = [
   { key: 'Header1', text: 'First heading', itemType: SelectableOptionMenuItemType.Header },
   { key: 'A', text: 'Option A' },
@@ -40,7 +41,7 @@ export const MyMultiSelectComboBox = (props: Props) => {
       index?: number,
       value?: string
     ): void => {
-      let selected = option?.selected
+      const selected = option?.selected
 
       if (option) {
         setSelectedKeys((prevSelectedKeys) =>

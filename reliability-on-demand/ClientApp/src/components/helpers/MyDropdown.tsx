@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-state */
 import { Dropdown, IDropdownOption, Separator } from '@fluentui/react'
 import * as React from 'react'
 import { FormEvent } from 'react'
@@ -31,6 +32,32 @@ export class MyDropdown extends React.Component<IMyDropdownProps, IMyDropdownSta
     this.parseInputToState()
   }
 
+  onOptionChange = (event: FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
+    this.props.handleOptionChange(option)
+  }
+
+  getTeamConfig(id: string | number | undefined) {
+    const ans = this.state.parsedOptions.find((x) => x.key === id)
+    return ans || { key: '', text: '' }
+  }
+
+  extractDropdownOption = (item: any) => ({
+      key: item[this.props.useKey],
+      text: item[this.props.showValueFor],
+    })
+
+  parseInputToState() {
+    const newArr: IDropdownOption[] = this.props.data.map(this.extractDropdownOption)
+    newArr.push({
+      key: '-1',
+      text: 'Add...',
+    })
+    // set state based on data you get
+    this.setState({
+      parsedOptions: newArr,
+    })
+  }
+
   public render() {
     return (
       <div>
@@ -46,33 +73,5 @@ export class MyDropdown extends React.Component<IMyDropdownProps, IMyDropdownSta
         />
       </div>
     )
-  }
-
-  onOptionChange = (event: FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
-    this.props.handleOptionChange(option)
-  }
-
-  getTeamConfig(id: string | number | undefined) {
-    const ans = this.state.parsedOptions.find((x) => x.key === id)
-    return ans ? ans : { key: '', text: '' }
-  }
-
-  extractDropdownOption = (item: any) => {
-    return {
-      key: item[this.props.useKey],
-      text: item[this.props.showValueFor],
-    }
-  }
-
-  parseInputToState() {
-    let newArr: IDropdownOption[] = this.props.data.map(this.extractDropdownOption)
-    newArr.push({
-      key: '-1',
-      text: 'Add...',
-    })
-    // set state based on data you get
-    this.setState({
-      parsedOptions: newArr,
-    })
   }
 }

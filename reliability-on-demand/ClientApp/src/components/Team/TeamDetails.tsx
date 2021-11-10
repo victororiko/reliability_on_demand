@@ -50,66 +50,8 @@ export default class TeamDetails extends React.Component<ITeamDetailsProps, ITea
     })
   }
 
-  // required render method
-  render(): React.ReactElement {
-    let contents = this.state.loading ? (
-      <Loading message="Getting Teams for you - hang tight" />
-    ) : (
-      this.renderContent()
-    )
-    return <div>{contents}</div>
-  }
-
-  renderContent() {
-    return (
-      <div>
-        <h1>Team Section</h1>
-        <TeamComboBox data={this.state.teamConfigs} callBack={this.selectCurrentTeam} />
-
-        <OwnerContactAlias
-          currentTeam={this.state.currentTeam}
-          callback_function={this.getOwnerStringFromUser}
-        />
-        <OwnerTeamFriendlyName
-          currentTeam={this.state.currentTeam}
-          callback_function={this.getOwnerTeamFrienclyNameFromUser}
-        />
-        <OwnerTraigeAlias
-          currentTeam={this.state.currentTeam}
-          callback_function={this.getOwnerTriageAliasUser}
-        />
-
-        {/* optional section */}
-        <TextField
-          label="Compute Resource Location"
-          placeholder="e.g. Data Bricks or Cosmos location"
-          aria-label="Compute Resource Location"
-          disabled={this.state.currentTeam !== undefined}
-        />
-
-        <PrimaryButton
-          text="Add"
-          disabled={this.state.currentTeam !== undefined}
-          onClick={this.handleSubmit}
-        />
-      </div>
-    )
-  }
-
   // functionality methods
-  selectCurrentTeam = (team_id_selection: number) => {
-    console.debug(`teamID selection from team combobox =>  ${team_id_selection}`)
-    this.setState({
-      currentTeam: this.getTeamFromNumber(team_id_selection),
-    })
-    this.props.callBack(team_id_selection)
-  }
-
-  private getTeamFromNumber(selection: number): TeamConfig | undefined {
-    let parsedStudy = this.state.teamConfigs.find((element) => element.teamID === selection)
-    return parsedStudy
-  }
-
+  
   handleSubmit(event: any) {
     // takes the current inputed values from user and makes a call to DB with the TeamConfig
     alert(
@@ -132,4 +74,67 @@ export default class TeamDetails extends React.Component<ITeamDetailsProps, ITea
   getOwnerTriageAliasUser = (value: string) => {
     this.state.newTeam.ownerTriageAlias = value
   }
+
+  private getTeamFromNumber(selection: number): TeamConfig | undefined {
+    const parsedStudy = this.state.teamConfigs.find((element) => element.teamID === selection)
+    return parsedStudy
+  }
+
+  selectCurrentTeam = (team_id_selection: number) => {
+    console.debug(`teamID selection from team combobox =>  ${team_id_selection}`)
+    this.setState({
+      currentTeam: this.getTeamFromNumber(team_id_selection),
+    })
+    this.props.callBack(team_id_selection)
+  }
+
+  
+
+  
+
+    // required render method
+    renderContent() {
+      return (
+        <div>
+          <h1>Team Section</h1>
+          <TeamComboBox data={this.state.teamConfigs} callBack={this.selectCurrentTeam} />
+  
+          <OwnerContactAlias
+            currentTeam={this.state.currentTeam}
+            callback_function={this.getOwnerStringFromUser}
+          />
+          <OwnerTeamFriendlyName
+            currentTeam={this.state.currentTeam}
+            callback_function={this.getOwnerTeamFrienclyNameFromUser}
+          />
+          <OwnerTraigeAlias
+            currentTeam={this.state.currentTeam}
+            callback_function={this.getOwnerTriageAliasUser}
+          />
+  
+          {/* optional section */}
+          <TextField
+            label="Compute Resource Location"
+            placeholder="e.g. Data Bricks or Cosmos location"
+            aria-label="Compute Resource Location"
+            disabled={this.state.currentTeam !== undefined}
+          />
+  
+          <PrimaryButton
+            text="Add"
+            disabled={this.state.currentTeam !== undefined}
+            onClick={this.handleSubmit}
+          />
+        </div>
+      )
+    }
+
+    render(): React.ReactElement {
+      const contents = this.state.loading ? (
+        <Loading message="Getting Teams for you - hang tight" />
+      ) : (
+        this.renderContent()
+      )
+      return <div>{contents}</div>
+    }
 }

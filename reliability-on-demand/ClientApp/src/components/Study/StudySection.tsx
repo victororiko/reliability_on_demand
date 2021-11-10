@@ -1,5 +1,7 @@
 /* eslint-disable react/no-direct-mutation-state */
 import * as React from 'react'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
 import { StudyConfig } from '../../models/config.model'
 import { StudyComboBox } from './StudyComboBox'
 import { StudyNameTextField } from './StudyNameTextField'
@@ -7,8 +9,6 @@ import { FrequencyDropdown } from './FrequencyDropdown'
 import { ExpiryDatePicker } from './ExpiryDatePicker'
 import { ObservationWindowDropdown } from './ObservationWindowDropdown'
 import { AddStudyButton } from './AddStudyButton'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
 import { Loading } from '../helpers/Loading'
 
 export interface IStudySectionProps {
@@ -42,13 +42,13 @@ export const StudySection = (props: IStudySectionProps) => {
   // helper methods
   // Study Selection
   const selectCurrentStudy = (selection: string) => {
-    let mySelection: StudyConfig | undefined = getStudyFromString(selection)
+    const mySelection: StudyConfig | undefined = getStudyFromString(selection)
     setSelectedStudy(mySelection)
     props.callBack(mySelection ? mySelection.StudyID : -1)
   }
   const getStudyFromString = (selection: string): StudyConfig | undefined => {
     // extracting StudyName property out of each element and comparing it.
-    let parsedStudy = studyConfigs.find(({ StudyName }) => StudyName === selection)
+    const parsedStudy = studyConfigs.find(({ StudyName }) => StudyName === selection)
     return parsedStudy
   }
 
@@ -69,19 +69,19 @@ export const StudySection = (props: IStudySectionProps) => {
   }
 
   const studyExists = (newStudy: StudyConfig): boolean => {
-    let dupeFound = studyConfigs.some((oldStudy: StudyConfig) => {
-      return (
+    const dupeFound = studyConfigs.some((oldStudy: StudyConfig) => 
+       (
         oldStudy.StudyName === newStudy.StudyName &&
         oldStudy.CacheFrequency === newStudy.CacheFrequency
       )
       // FIXME: figure out how to check for equivalent dates -->  && oldStudy.Expiry.valueOf === newStudy.Expiry.valueOf
-    })
+    )
     return dupeFound
   }
   const addNewStudyToBackend = () => {
     // Validate new study first
     // Study name check
-    let studyToAdd = {
+    const studyToAdd = {
       StudyName: newStudyName,
       CacheFrequency: newCacheFrequency,
       Expiry: newExpiry,
@@ -117,7 +117,7 @@ export const StudySection = (props: IStudySectionProps) => {
   return (
     <div>
       {loading ? (
-        <Loading message={'Getting Data for Study Section - hang tight'} />
+        <Loading message="Getting Data for Study Section - hang tight" />
       ) : (
         <div>
           <h1>Study Section</h1>

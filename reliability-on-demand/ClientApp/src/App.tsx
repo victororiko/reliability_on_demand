@@ -1,16 +1,16 @@
 import * as React from 'react'
 import { Route, Switch } from 'react-router'
+// icons doc: https://developer.microsoft.com/en-us/fluentui#/controls/web/icon
+import { initializeIcons } from '@fluentui/react/lib/Icons'
 import { Layout } from './components/Layout'
 import { ConfigPage } from './components/Config/ConfigPage'
 import { KustoData } from './components/Other/KustoData'
 import { ParamsTest } from './components/Other/ParamsTest'
 import './custom.css'
-// icons doc: https://developer.microsoft.com/en-us/fluentui#/controls/web/icon
-import { initializeIcons } from '@fluentui/react/lib/Icons'
+
 initializeIcons()
 
-export const App = () => {
-  return (
+export const App = () => (
     <Layout>
       <Switch>
         {/* Place more specific routes on top, and more relaxed 
@@ -29,4 +29,3 @@ export const App = () => {
       </Switch>
     </Layout>
   )
-}

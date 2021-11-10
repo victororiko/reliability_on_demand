@@ -6,11 +6,9 @@ interface Props {
   children: React.ReactElement
 }
 
-export const Layout = (props: Props) => {
-  return (
+export const Layout = (props: Props) => (
     <div>
       <NavMenu />
       <Container>{props.children}</Container>
     </div>
   )
-}

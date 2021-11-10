@@ -30,9 +30,7 @@ export default class OwnerContactAlias extends React.Component<
     this.props.callback_function(event.target.value)
   }
 
-  getErrorMessage = (value: string): string => {
-    return value === '' ? `Input value cannot be empty. Actual length is ${value.length}.` : ''
-  }
+  getErrorMessage = (value: string): string => value === '' ? `Input value cannot be empty. Actual length is ${value.length}.` : ''
 
   public render() {
     return (
@@ -48,7 +46,7 @@ export default class OwnerContactAlias extends React.Component<
           aria-label="Owner contact (alias)"
           disabled={this.props.currentTeam !== undefined}
           required
-          value={this.props.currentTeam?.ownerContact}
+          value={this.props.currentTeam ? this.props.currentTeam.ownerContact : this.state.value}
         />
       </div>
     )

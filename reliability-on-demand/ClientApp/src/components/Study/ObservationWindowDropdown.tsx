@@ -1,6 +1,7 @@
 import React from 'react'
 import { Dropdown, IDropdownOption } from '@fluentui/react'
 import { StudyConfig } from '../../models/config.model'
+
 interface Props {
   currentStudy?: StudyConfig
   callBack: any
@@ -17,7 +18,7 @@ export const ObservationWindowDropdown = (props: Props) => {
   const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
     if (currentStudy) {
       return currentStudy?.ObservationWindowDays
-    } else return selectedItem ? selectedItem.key : 0
+    } return selectedItem ? selectedItem.key : 0
   }
 
   return (

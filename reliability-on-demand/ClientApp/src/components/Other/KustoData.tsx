@@ -38,8 +38,14 @@ export class KustoData extends React.Component<MyProps, MyState> {
     )
   }
 
+  async populateReleaseData() {
+    const response = await fetch('api/Data/GetAllReleases')
+    const data = await response.json()
+    this.setState({ all_releases: data, loading: false })
+  }
+
   render() {
-    let contents = this.state.loading ? (
+    const contents = this.state.loading ? (
       <Loading message="Loading data from Kusto :)" />
     ) : (
       KustoData.renderReleasesTable(this.state.all_releases)
@@ -52,11 +58,5 @@ export class KustoData extends React.Component<MyProps, MyState> {
         {contents}
       </div>
     )
-  }
-
-  async populateReleaseData() {
-    const response = await fetch('api/Data/GetAllReleases')
-    const data = await response.json()
-    this.setState({ all_releases: data, loading: false })
   }
 }

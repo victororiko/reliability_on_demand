@@ -18,7 +18,7 @@ export const FrequencyDropdown = (props: Props) => {
   const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
     if (currentStudy) {
       return currentStudy?.CacheFrequency
-    } else return selectedItem ? selectedItem.key : 0
+    } return selectedItem ? selectedItem.key : 0
   }
 
   return (

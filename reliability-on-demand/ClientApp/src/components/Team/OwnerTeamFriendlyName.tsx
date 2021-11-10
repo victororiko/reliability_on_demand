@@ -30,9 +30,7 @@ export default class OwnerTeamFriendlyNameAlias extends React.Component<
     this.props.callback_function(event.target.value)
   }
 
-  getErrorMessage = (value: string): string => {
-    return value === '' ? `Input value cannot be empty. Actual length is ${value.length}.` : ''
-  }
+  getErrorMessage = (value: string): string => value === '' ? `Input value cannot be empty. Actual length is ${value.length}.` : ''
 
   public render() {
     return (
@@ -47,7 +45,8 @@ export default class OwnerTeamFriendlyNameAlias extends React.Component<
           aria-label="Owner Team Friendly Name"
           disabled={this.props.currentTeam !== undefined}
           required
-          value={this.props.currentTeam?.ownerTeamFriendlyName}
+          value={this.props.currentTeam ? 
+            this.props.currentTeam.ownerTeamFriendlyName : this.state.value}
         />
       </div>
     )

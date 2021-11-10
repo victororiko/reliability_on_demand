@@ -1,6 +1,7 @@
 import React from 'react'
 import { TextField } from '@fluentui/react'
 import { StudyConfig } from '../../models/config.model'
+
 interface Props {
   currentStudy?: StudyConfig
   callBack: any
@@ -19,7 +20,7 @@ export const StudyNameTextField = (props: Props) => {
   const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
     if (currentStudy) {
       return currentStudy?.StudyName
-    } else return textFieldValue
+    } return textFieldValue
   }
 
   return (

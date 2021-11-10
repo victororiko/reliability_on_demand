@@ -28,7 +28,7 @@ export const StudyComboBox = (props: Props) => {
     let parsedList: IComboBoxOption[] = []
     if (inputData) {
       parsedList = inputData.map((item) => {
-        let rObj = {
+        const rObj = {
           key: item.StudyName,
           text: item.StudyName,
         }
@@ -48,7 +48,7 @@ export const StudyComboBox = (props: Props) => {
   const selectedKeyLogic = (inputData: StudyConfig[]) => {
     if (inputData && inputData.length > 0)
       return selectedItem && selectedItem.key !== '' ? selectedItem.key : 'create new study'
-    else return 'create new study'
+    return 'create new study'
   }
 
   return (

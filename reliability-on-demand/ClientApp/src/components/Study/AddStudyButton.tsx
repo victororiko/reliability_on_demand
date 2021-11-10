@@ -7,8 +7,7 @@ interface Props {
   callBack: any
 }
 
-export const AddStudyButton = (props: Props) => {
-  return (
+export const AddStudyButton = (props: Props) => (
     <PrimaryButton
       text="Add Study"
       onClick={props.callBack}
@@ -16,4 +15,3 @@ export const AddStudyButton = (props: Props) => {
       disabled={props.currentStudy !== undefined}
     />
   )
-}
