@@ -4,4 +4,6 @@ interface Props {
   message: string
 }
 
-export const MessageBox = (props: Props) => <div>{props.message ?? 'no message to show'}</div>
+export const MessageBox = (props: Props) => {
+  return <div>{props.message ?? 'no message to show'}</div>
+}

@@ -20,11 +20,14 @@ export const StudySection = (props: IStudySectionProps) => {
   const [studyConfigs, setStudyConfigs] = useState([])
   const [loading, setLoading] = useState<boolean>(false)
   // starting state undefined keeps rest of the UI active
-  const [selectedStudy, setSelectedStudy] = useState<StudyConfig | undefined>(undefined) 
+  const [selectedStudy, setSelectedStudy] = useState<StudyConfig | undefined>(
+    undefined
+  )
   const [newStudyName, setNewStudyName] = useState<string>('')
   const [newCacheFrequency, setNewCacheFrequency] = useState<number>(0)
   const [newExpiry, setNewExpiry] = useState<Date>()
-  const [newObservationWindowDays, setNewObservationWindowDays] = useState<number>(0)
+  const [newObservationWindowDays, setNewObservationWindowDays] =
+    useState<number>(0)
 
   const loadStudies = (id: number) => {
     axios.get(`api/Data/GetStudies/${props.team_id}`).then((res) => {
@@ -48,7 +51,9 @@ export const StudySection = (props: IStudySectionProps) => {
   }
   const getStudyFromString = (selection: string): StudyConfig | undefined => {
     // extracting StudyName property out of each element and comparing it.
-    const parsedStudy = studyConfigs.find(({ StudyName }) => StudyName === selection)
+    const parsedStudy = studyConfigs.find(({ StudyName }) => {
+      return StudyName === selection
+    })
     return parsedStudy
   }
 
@@ -69,11 +74,13 @@ export const StudySection = (props: IStudySectionProps) => {
   }
 
   const studyExists = (newStudy: StudyConfig): boolean => {
-    const dupeFound = studyConfigs.some((oldStudy: StudyConfig) => 
-       (
-        oldStudy.StudyName === newStudy.StudyName &&
-        oldStudy.CacheFrequency === newStudy.CacheFrequency
-      )
+    const dupeFound = studyConfigs.some(
+      (oldStudy: StudyConfig) => {
+        return (
+          oldStudy.StudyName === newStudy.StudyName &&
+          oldStudy.CacheFrequency === newStudy.CacheFrequency
+        )
+      }
       // FIXME: figure out how to check for equivalent dates -->  && oldStudy.Expiry.valueOf === newStudy.Expiry.valueOf
     )
     return dupeFound
@@ -87,7 +94,11 @@ export const StudySection = (props: IStudySectionProps) => {
       Expiry: newExpiry,
       ObservationWindowDays: newObservationWindowDays,
     } as StudyConfig
-    if (newStudyName === null || newStudyName === undefined || newStudyName === '')
+    if (
+      newStudyName === null ||
+      newStudyName === undefined ||
+      newStudyName === ''
+    )
       alert('please specify a Name for the study you are adding')
     // Frequency check
     else if (newCacheFrequency === null || newCacheFrequency === undefined)
@@ -122,14 +133,26 @@ export const StudySection = (props: IStudySectionProps) => {
         <div>
           <h1>Study Section</h1>
           <StudyComboBox data={studyConfigs} callBack={selectCurrentStudy} />
-          <StudyNameTextField currentStudy={selectedStudy} callBack={getUserStudyName} />
-          <FrequencyDropdown currentStudy={selectedStudy} callBack={getUserFrequency} />
-          <ExpiryDatePicker currentStudy={selectedStudy} callBack={getUserExpiryDate} />
+          <StudyNameTextField
+            currentStudy={selectedStudy}
+            callBack={getUserStudyName}
+          />
+          <FrequencyDropdown
+            currentStudy={selectedStudy}
+            callBack={getUserFrequency}
+          />
+          <ExpiryDatePicker
+            currentStudy={selectedStudy}
+            callBack={getUserExpiryDate}
+          />
           <ObservationWindowDropdown
             currentStudy={selectedStudy}
             callBack={getUserObservationWindow}
           />
-          <AddStudyButton currentStudy={selectedStudy} callBack={addNewStudyToBackend} />
+          <AddStudyButton
+            currentStudy={selectedStudy}
+            callBack={addNewStudyToBackend}
+          />
         </div>
       )}
     </div>

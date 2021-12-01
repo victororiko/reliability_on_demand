@@ -10,7 +10,10 @@ interface Props {
 export const ObservationWindowDropdown = (props: Props) => {
   const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
   // when user selects a new dropdown value - replace current DropdownOption with that value
-  const onChange = (event: React.FormEvent<HTMLDivElement>, item: any): void => {
+  const onChange = (
+    event: React.FormEvent<HTMLDivElement>,
+    item: any
+  ): void => {
     setSelectedItem(item)
     props.callBack(item ? item.key : 0)
   }
@@ -18,7 +21,8 @@ export const ObservationWindowDropdown = (props: Props) => {
   const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
     if (currentStudy) {
       return currentStudy?.ObservationWindowDays
-    } return selectedItem ? selectedItem.key : 0
+    }
+    return selectedItem ? selectedItem.key : 0
   }
 
   return (

@@ -3,7 +3,7 @@ import * as React from 'react'
 import { Stack } from '@fluentui/react'
 import { StudySection } from '../Study/StudySection'
 import TeamDetails from '../Team/TeamDetails'
-import { FailureCurve } from '../FailureCurve';
+import { FailureCurve } from '../FailureCurve'
 
 // Stack
 import { containerStackTokens } from '../helpers/Styles'
@@ -48,7 +48,7 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
       <Stack tokens={containerStackTokens}>
         <TeamDetails callBack={this.selectTeam} startingTeamId={this.state.currentTeamId} />
         <StudySection team_id={this.state.currentTeamId} callBack={this.selectStudy} />
-        <FailureCurve study_id={this.state.currentStudyId} />
+        <FailureCurve studyid={this.state.currentStudyId} />
       </Stack>
     )
   }

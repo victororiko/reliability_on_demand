@@ -41,15 +41,15 @@ namespace reliability_on_demand.DataLayer
             return _context.AddStudy(userCreatedStudy);
         }
 
-        string ISQLService.GetAllMainVerticals()
+        string ISQLService.GetVerticals()
         {
-            string str = _context.GetAllMainVerticals();
+            string str = _context.GetVerticals();
             return str;
         }
 
-        string ISQLService.GetAllailurePivotNamesForAVertical(string sourcesubtype)
+        string ISQLService.GetPivots(string sourcesubtype)
         {
-            return _context.GetAllailurePivotNamesForAVertical(sourcesubtype);
+            return _context.GetPivots(sourcesubtype);
         }
 
         string ISQLService.GetAllDefaultFailurePivotsForAVertical(string sourcesubtype)
@@ -57,9 +57,9 @@ namespace reliability_on_demand.DataLayer
             return _context.GetAllDefaultFailurePivotsForAVertical(sourcesubtype);
         }
 
-        string ISQLService.GetAllConfiguredFailurePivotsForAVertical(FailureConfig f)
+        string ISQLService.GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid)
         {
-            return _context.GetAllConfiguredFailurePivotsForAVertical(f.PivotSourceSubType, f.StudyID);
+            return _context.GetAllConfiguredFailurePivotsForAVertical(sourcesubtype, studyid);
         }
 
         void ISQLService.UpdateFailureSavedConfig(FailureConfig f)

@@ -10,7 +10,8 @@ import './custom.css'
 
 initializeIcons()
 
-export const App = () => (
+export const App = () => {
+  return (
     <Layout>
       <Switch>
         {/* Place more specific routes on top, and more relaxed 
@@ -29,3 +30,4 @@ export const App = () => (
       </Switch>
     </Layout>
   )
+}

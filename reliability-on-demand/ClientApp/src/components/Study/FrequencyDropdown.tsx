@@ -9,7 +9,10 @@ interface Props {
 
 export const FrequencyDropdown = (props: Props) => {
   const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
-  const onChange = (event: React.FormEvent<HTMLDivElement>, item: any): void => {
+  const onChange = (
+    event: React.FormEvent<HTMLDivElement>,
+    item: any
+  ): void => {
     setSelectedItem(item)
     // send back the selection made by user or set it to default =
     props.callBack(item ? item.key : 0)
@@ -18,7 +21,8 @@ export const FrequencyDropdown = (props: Props) => {
   const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
     if (currentStudy) {
       return currentStudy?.CacheFrequency
-    } return selectedItem ? selectedItem.key : 0
+    }
+    return selectedItem ? selectedItem.key : 0
   }
 
   return (

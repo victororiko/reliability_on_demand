@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using reliability_on_demand.DataLayer;
 using reliability_on_demand.Extensions;
 using reliability_on_demand.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace reliability_on_demand
 {
@@ -67,14 +68,16 @@ namespace reliability_on_demand
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
+                logger.LogInformation("In Development.");
                 app.UseDeveloperExceptionPage();
             }
             else
             {
+                logger.LogInformation("Not Development.");
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();

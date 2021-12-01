@@ -5,4 +5,6 @@ interface Props {
   message: string
 }
 
-export const Loading = (props: Props) => <Spinner label={props.message} />
+export const Loading = (props: Props) => {
+  return <Spinner label={props.message} />
+}

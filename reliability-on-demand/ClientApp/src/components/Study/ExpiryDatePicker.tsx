@@ -1,5 +1,9 @@
 import React from 'react'
-import { DatePicker, defaultDatePickerStrings, mergeStyleSets } from '@fluentui/react'
+import {
+  DatePicker,
+  defaultDatePickerStrings,
+  mergeStyleSets,
+} from '@fluentui/react'
 import { useConst } from '@fluentui/react-hooks'
 import { StudyConfig } from '../../models/config.model'
 
@@ -26,9 +30,8 @@ export const ExpiryDatePicker = (props: Props) => {
       // let current = new Date(now.getFullYear(), now.getMonth() + 3, now.getDay());
       // return current;
       return today
-    } 
-      return new Date(currentStudy.Expiry)
-    
+    }
+    return new Date(currentStudy.Expiry)
   }
 
   const onChange = () => {

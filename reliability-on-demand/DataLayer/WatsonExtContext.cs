@@ -240,13 +240,13 @@ namespace reliability_on_demand.DataLayer
         }
 
         //Get all verticals from the Failure vertical SQL table
-        public string GetAllMainVerticals()
+        public string GetVerticals()
         {
             return GetSQLResultsJSON("SELECT VerticalName,PivotSourceSubType FROM [dbo].[RELFailureVertical]");
         }
 
         //Get all pivots for that vertical
-        public string GetAllailurePivotNamesForAVertical(string sourcesubtype)
+        public string GetPivots(string sourcesubtype)
         {
             string query = string.Format("SELECT PivotID,PivotSourceColumnName,UIInputDataType FROM [dbo].[RELPivotInfo] AS info INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource WHERE info.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
             return GetSQLResultsJSON(query);

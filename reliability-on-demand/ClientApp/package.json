@@ -73,7 +73,7 @@
     "test": "cross-env CI=true react-scripts test --env=jsdom --testResultsProcessor ./node_modules/jest-junit-reporter",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src --color --fix",
-    "format": "prettier --write 'src/**/*.{ts,tsx,scss,css,json}'",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "isready": "npm run format && npm run lint && npm run build"
   },
   "browserslist": {

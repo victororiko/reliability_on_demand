@@ -28,11 +28,13 @@ export class KustoData extends React.Component<MyProps, MyState> {
           </tr>
         </thead>
         <tbody>
-          {all_releases.map((element) => (
-            <tr>
-              <td>{element.Release}</td>
-            </tr>
-          ))}
+          {all_releases.map((element) => {
+            return (
+              <tr>
+                <td>{element.Release}</td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     )

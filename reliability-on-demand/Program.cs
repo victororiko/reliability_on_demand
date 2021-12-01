@@ -12,6 +12,7 @@ using reliability_on_demand.Extensions;
 using System.IO;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace reliability_on_demand
 {
@@ -20,13 +21,13 @@ namespace reliability_on_demand
         public static void Main(string[] args)
         {
             var host = CreateHostBuilder(args);
-
-            var config = host.Services.GetRequiredService<IConfiguration>();
-
-            foreach (var c in config.AsEnumerable())
-            {
-                Console.WriteLine(c.Key + " = " + c.Value);
-            }
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Host created.");
+            // var config = host.Services.GetRequiredService<IConfiguration>();
+            // foreach (var c in config.AsEnumerable())
+            // {
+            //     Console.WriteLine(c.Key + " = " + c.Value);
+            // }
             host.Run();
         }
 
@@ -45,6 +46,12 @@ namespace reliability_on_demand
                     config.AddAzureKeyVault(
                         settings.Vault, settings.ClientId, settings.ClientSecret);
 
+                })
+                 .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    logging.AddConsole();
                 })
                 //.UseApplicationInsights() --> this used to work in Microsoft.AspNetCore 2.0 ----> need to check how it translates to 3.0
                 .UseStartup<Startup>()

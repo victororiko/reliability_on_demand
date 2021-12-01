@@ -1,4 +1,9 @@
-import { IDropdownOption, Dropdown, TextField, SpinButton } from '@fluentui/react'
+import {
+  IDropdownOption,
+  Dropdown,
+  TextField,
+  SpinButton,
+} from '@fluentui/react'
 import * as React from 'react'
 
 export interface IMetricSectionProps {}

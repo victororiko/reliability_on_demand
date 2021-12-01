@@ -1,4 +1,8 @@
-import { IComboBox, IComboBoxOption, VirtualizedComboBox } from '@fluentui/react'
+import {
+  IComboBox,
+  IComboBoxOption,
+  VirtualizedComboBox,
+} from '@fluentui/react'
 import React, { FormEvent, useEffect } from 'react'
 import { StudyConfig } from '../../models/config.model'
 
@@ -19,7 +23,10 @@ export const StudyComboBox = (props: Props) => {
   // state
   const [selectedItem, setSelectedItem] = React.useState<IComboBoxOption>()
   // core interation methods
-  const onChange = (event: FormEvent<IComboBox>, option?: IComboBoxOption | undefined): void => {
+  const onChange = (
+    event: FormEvent<IComboBox>,
+    option?: IComboBoxOption | undefined
+  ): void => {
     setSelectedItem(option)
     props.callBack(option ? option.text : 'create new study')
   }
@@ -47,7 +54,9 @@ export const StudyComboBox = (props: Props) => {
   // Otherwise show default: create new study
   const selectedKeyLogic = (inputData: StudyConfig[]) => {
     if (inputData && inputData.length > 0)
-      return selectedItem && selectedItem.key !== '' ? selectedItem.key : 'create new study'
+      return selectedItem && selectedItem.key !== ''
+        ? selectedItem.key
+        : 'create new study'
     return 'create new study'
   }
 

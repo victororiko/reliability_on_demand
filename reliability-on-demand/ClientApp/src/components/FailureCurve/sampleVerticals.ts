@@ -1,4 +1,4 @@
-[
+export const sampleVerticals = [
   {
     "VerticalName": "oscrash",
     "PivotSourceSubType": "KernelMode"

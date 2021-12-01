@@ -9,9 +9,11 @@
 ## Running the project
 This repo contains both frontend ([React](https://reactjs.org/docs/hello-world.html)) and backend ([ASP.NET 5.0](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-5.0)) API.
 ### Backend - Debug
+Follow these steps if you need to make a lot of API changes. 
 1. Open solution reliability `reliability-on-demand.sln`
-2. Make sure `reliability_on_demand` is selected next to play button
+2. Make sure `IIS Express` is selected next to play button
 3. Click `F5` 
+4. Go to and endpoint like `http://localhost:8888/api/Data/GetAllTeamConfigs`
 ### Backend - Run
 1. Open terminal at folder `reliabiilty-on-demand`
 2. `dotnet run`
@@ -31,7 +33,7 @@ This repo contains both frontend ([React](https://reactjs.org/docs/hello-world.h
 ```
 2. Add a breakpoint to any typescript (`.tsx`or `.ts`) file 
 ### Frontent - Run
-1. Open terminal at folder `reliabiilty-on-demand`
+1. Open terminal at folder `ClientApp`
 2. `npm run start`
 
 ## Design guidance

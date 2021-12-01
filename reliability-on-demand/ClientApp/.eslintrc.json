@@ -70,6 +70,7 @@
     "@typescript-eslint/naming-convention":["warn"],
     "react/no-multi-comp": ["warn"],
     "react/prefer-stateless-function": ["warn"],
-    "react/require-default-props":["off"]
+    "react/require-default-props":["off"],
+    "arrow-body-style": ["error", "always"]
   }
 }

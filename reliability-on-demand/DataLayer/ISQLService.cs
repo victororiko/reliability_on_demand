@@ -12,10 +12,10 @@ namespace reliability_on_demand.DataLayer
         string GetAllStudyConfigsForTeam(int TeamID);
         int LogRelOnDemandQuery<T>(string username, string url, string access, T payload);
         void UpdateRelOnDemandQuery(int id, bool status, string exception);
-        string GetAllMainVerticals();
-        string GetAllailurePivotNamesForAVertical(string sourcesubtype);
+        string GetVerticals();
+        string GetPivots(string sourcesubtype);
         string GetAllDefaultFailurePivotsForAVertical(string sourcesubtype);
-        string GetAllConfiguredFailurePivotsForAVertical(FailureConfig f);
+        string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid);
         void UpdateFailureSavedConfig(FailureConfig f);
     }
 }

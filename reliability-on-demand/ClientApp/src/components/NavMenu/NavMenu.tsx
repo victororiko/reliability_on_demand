@@ -11,7 +11,7 @@ import {
 import { Link } from 'react-router-dom'
 import './NavMenu.css'
 
-export interface INavMenuProps { }
+export interface INavMenuProps {}
 
 export interface INavMenuState {
   collapsed: boolean
@@ -30,7 +30,9 @@ export class NavMenu extends React.Component<INavMenuProps, INavMenuState> {
   }
 
   toggleNavbar() {
-    this.setState((state) => ({ collapsed: !state.collapsed }))
+    this.setState((state) => {
+      return { collapsed: !state.collapsed }
+    })
   }
 
   render() {
@@ -57,7 +59,11 @@ export class NavMenu extends React.Component<INavMenuProps, INavMenuState> {
                   </NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/kusto-data?name=Kusto">
+                  <NavLink
+                    tag={Link}
+                    className="text-dark"
+                    to="/kusto-data?name=Kusto"
+                  >
                     Kusto data
                   </NavLink>
                 </NavItem>

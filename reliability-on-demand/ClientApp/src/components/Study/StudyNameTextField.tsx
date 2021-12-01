@@ -10,7 +10,10 @@ interface Props {
 export const StudyNameTextField = (props: Props) => {
   const [textFieldValue, setTextFieldValue] = React.useState('')
   const handleTextInput = React.useCallback(
-    (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+    (
+      event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+      newValue?: string
+    ) => {
       setTextFieldValue(newValue || '')
       props.callBack(newValue)
     },
@@ -20,7 +23,8 @@ export const StudyNameTextField = (props: Props) => {
   const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
     if (currentStudy) {
       return currentStudy?.StudyName
-    } return textFieldValue
+    }
+    return textFieldValue
   }
 
   return (

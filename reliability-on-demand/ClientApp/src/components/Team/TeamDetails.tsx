@@ -20,7 +20,10 @@ interface ITeamDetailsState {
   newTeam: TeamConfig
 }
 
-export default class TeamDetails extends React.Component<ITeamDetailsProps, ITeamDetailsState> {
+export default class TeamDetails extends React.Component<
+  ITeamDetailsProps,
+  ITeamDetailsState
+> {
   constructor(props: any) {
     super(props)
     // set initial state which will be used by render()
@@ -51,11 +54,13 @@ export default class TeamDetails extends React.Component<ITeamDetailsProps, ITea
   }
 
   // functionality methods
-  
+
   handleSubmit(event: any) {
     // takes the current inputed values from user and makes a call to DB with the TeamConfig
     alert(
-      `You just added a new team! The values you entered = ${JSON.stringify(this.state.newTeam)}`
+      `You just added a new team! The values you entered = ${JSON.stringify(
+        this.state.newTeam
+      )}`
     )
     event.preventDefault()
     axios.post('api/Data/AddTeam', this.state.newTeam).then((res) => {
@@ -76,65 +81,68 @@ export default class TeamDetails extends React.Component<ITeamDetailsProps, ITea
   }
 
   private getTeamFromNumber(selection: number): TeamConfig | undefined {
-    const parsedStudy = this.state.teamConfigs.find((element) => element.teamID === selection)
+    const parsedStudy = this.state.teamConfigs.find((element) => {
+      return element.teamID === selection
+    })
     return parsedStudy
   }
 
   selectCurrentTeam = (team_id_selection: number) => {
-    console.debug(`teamID selection from team combobox =>  ${team_id_selection}`)
+    console.debug(
+      `teamID selection from team combobox =>  ${team_id_selection}`
+    )
     this.setState({
       currentTeam: this.getTeamFromNumber(team_id_selection),
     })
     this.props.callBack(team_id_selection)
   }
 
-  
+  // required render method
+  renderContent() {
+    return (
+      <div>
+        <h1>Team Section</h1>
+        <TeamComboBox
+          data={this.state.teamConfigs}
+          callBack={this.selectCurrentTeam}
+        />
 
-  
+        <OwnerContactAlias
+          currentTeam={this.state.currentTeam}
+          callback_function={this.getOwnerStringFromUser}
+        />
+        <OwnerTeamFriendlyName
+          currentTeam={this.state.currentTeam}
+          callback_function={this.getOwnerTeamFrienclyNameFromUser}
+        />
+        <OwnerTraigeAlias
+          currentTeam={this.state.currentTeam}
+          callback_function={this.getOwnerTriageAliasUser}
+        />
 
-    // required render method
-    renderContent() {
-      return (
-        <div>
-          <h1>Team Section</h1>
-          <TeamComboBox data={this.state.teamConfigs} callBack={this.selectCurrentTeam} />
-  
-          <OwnerContactAlias
-            currentTeam={this.state.currentTeam}
-            callback_function={this.getOwnerStringFromUser}
-          />
-          <OwnerTeamFriendlyName
-            currentTeam={this.state.currentTeam}
-            callback_function={this.getOwnerTeamFrienclyNameFromUser}
-          />
-          <OwnerTraigeAlias
-            currentTeam={this.state.currentTeam}
-            callback_function={this.getOwnerTriageAliasUser}
-          />
-  
-          {/* optional section */}
-          <TextField
-            label="Compute Resource Location"
-            placeholder="e.g. Data Bricks or Cosmos location"
-            aria-label="Compute Resource Location"
-            disabled={this.state.currentTeam !== undefined}
-          />
-  
-          <PrimaryButton
-            text="Add"
-            disabled={this.state.currentTeam !== undefined}
-            onClick={this.handleSubmit}
-          />
-        </div>
-      )
-    }
+        {/* optional section */}
+        <TextField
+          label="Compute Resource Location"
+          placeholder="e.g. Data Bricks or Cosmos location"
+          aria-label="Compute Resource Location"
+          disabled={this.state.currentTeam !== undefined}
+        />
 
-    render(): React.ReactElement {
-      const contents = this.state.loading ? (
-        <Loading message="Getting Teams for you - hang tight" />
-      ) : (
-        this.renderContent()
-      )
-      return <div>{contents}</div>
-    }
+        <PrimaryButton
+          text="Add"
+          disabled={this.state.currentTeam !== undefined}
+          onClick={this.handleSubmit}
+        />
+      </div>
+    )
+  }
+
+  render(): React.ReactElement {
+    const contents = this.state.loading ? (
+      <Loading message="Getting Teams for you - hang tight" />
+    ) : (
+      this.renderContent()
+    )
+    return <div>{contents}</div>
+  }
 }

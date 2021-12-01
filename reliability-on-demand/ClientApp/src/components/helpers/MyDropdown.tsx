@@ -19,7 +19,10 @@ export interface IMyDropdownState {
   currentOption: IDropdownOption
 }
 
-export class MyDropdown extends React.Component<IMyDropdownProps, IMyDropdownState> {
+export class MyDropdown extends React.Component<
+  IMyDropdownProps,
+  IMyDropdownState
+> {
   constructor(props: IMyDropdownProps) {
     super(props)
     this.state = {
@@ -32,22 +35,31 @@ export class MyDropdown extends React.Component<IMyDropdownProps, IMyDropdownSta
     this.parseInputToState()
   }
 
-  onOptionChange = (event: FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
+  onOptionChange = (
+    event: FormEvent<HTMLDivElement>,
+    option?: IDropdownOption
+  ) => {
     this.props.handleOptionChange(option)
   }
 
   getTeamConfig(id: string | number | undefined) {
-    const ans = this.state.parsedOptions.find((x) => x.key === id)
+    const ans = this.state.parsedOptions.find((x) => {
+      return x.key === id
+    })
     return ans || { key: '', text: '' }
   }
 
-  extractDropdownOption = (item: any) => ({
+  extractDropdownOption = (item: any) => {
+    return {
       key: item[this.props.useKey],
       text: item[this.props.showValueFor],
-    })
+    }
+  }
 
   parseInputToState() {
-    const newArr: IDropdownOption[] = this.props.data.map(this.extractDropdownOption)
+    const newArr: IDropdownOption[] = this.props.data.map(
+      this.extractDropdownOption
+    )
     newArr.push({
       key: '-1',
       text: 'Add...',

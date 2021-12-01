@@ -1,7 +1,7 @@
 /**
  * Used in Comboboxes or Dropdowns
  */
-interface KeyTextPair {
+export interface KeyTextPair {
   /**
    * Arbitrary string associated with this option.
    */
@@ -24,19 +24,18 @@ export const convertToOptions = (
   useKey: string,
   numericKey: boolean
 ): KeyTextPair[] => {
-  let parsedList: KeyTextPair[] = [];
+  let parsedList: KeyTextPair[] = []
   parsedList = inputData.map((item: any, index: number) => {
     if (numericKey) {
       return {
         key: index,
         text: item[useKey],
       }
-    } 
-      return {
-        key: item[useKey],
-        text: item[useKey],
-      }
-    
+    }
+    return {
+      key: item[useKey],
+      text: item[useKey],
+    }
   })
   return parsedList
 }

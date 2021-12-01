@@ -10,7 +10,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using reliability_on_demand.DataLayer;
+using System;
 using System.Collections.Generic;
+using System;
+using Microsoft.Extensions.Logging;
 
 namespace reliability_on_demand.Controllers
 {
@@ -22,11 +25,13 @@ namespace reliability_on_demand.Controllers
     {
         private IKustoService _kustoservice;
         private ISQLService _sqlservice;
+        private ILogger<DataController> _logger;
 
-        public DataController(IKustoService kustoservice, ISQLService sqlservice)
+        public DataController(IKustoService kustoservice, ISQLService sqlservice, ILogger<DataController> logger)
         {
             this._kustoservice = kustoservice;
             this._sqlservice = sqlservice;
+            this._logger = logger;
         }
         /// <summary>
         /// Reliability Metrics Monitor GetAllReleases
@@ -39,44 +44,71 @@ namespace reliability_on_demand.Controllers
         //[Authorize]
         [Route("api/Data/GetAllReleases")]
         [HttpGet]
-        public string GetAllReleases()
+        public IActionResult GetAllReleases()
         {
-            string str = this._kustoservice.GetAllReleases();
-            return str;
-        }
-
-        [Route("api/Data/GetAllUnifiedConfigs")]
-        [HttpGet]
-        public string GetAllUnifiedConfigs()
-        {
-            return this._sqlservice.GetAllUnifiedConfigs();
+            try{
+                _logger.LogInformation("GetAllReleases was called");
+                string str = this._kustoservice.GetAllReleases();
+                return Ok(str);    
+            }
+            catch(Exception ex){
+                string message = $"Failed to get all releases from Kusto.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
         }
 
         [Route("api/Data/GetAllTeamConfigs")]
         [HttpGet]
         public IActionResult GetAllTeamConfigs()
         {
-            var result = this._sqlservice.GetAllTeamConfigs();
-            if (result == null)
-            {
-                BadRequest("Could not get Teams");
+            try{
+                _logger.LogInformation("GetAllTeamConfigs was called");
+                var result = this._sqlservice.GetAllTeamConfigs();
+                if (result == null)
+                {
+                    return BadRequest("Something wrong with the SQL Service. Could not get Teams. Please try again in a few mins.");
+                }
+                return Ok(result);
             }
-            return Ok(result);
+            catch(Exception ex){
+                string message = $"Failed GetAllTeamConfigs.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
         }
 
-        [HttpGet("api/Data/GetStudies/{teamId}")]
-        public string GetAllStudyConfigsForTeam(int teamId)
+        [Route("api/Data/GetStudies/{teamId}")]
+        [HttpGet]
+        public IActionResult GetAllStudyConfigsForTeam(int teamId)
         {
-            ConfigInquiry inquiry = new ConfigInquiry();
-            inquiry.TeamID = teamId;
-            return this._sqlservice.GetAllStudyConfigsForTeam(inquiry.TeamID);
+            try{
+                _logger.LogInformation($"GetAllStudyConfigsForTeam was called | teamId = {teamId}");
+                // TODO remove ConfigInquiry
+                ConfigInquiry inquiry = new ConfigInquiry();
+                inquiry.TeamID = teamId;
+                return Ok(this._sqlservice.GetAllStudyConfigsForTeam(inquiry.TeamID));
+            }
+            catch(Exception ex){
+                string message = $"Failed GetAllStudyConfigsForTeam.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
         }
 
         [Route("api/Data/AddStudy")]
         [HttpPost("[action]")]
         public IActionResult AddStudy([FromBody] StudyConfig userCreatedStudy)
         {
-            return Ok(this._sqlservice.AddStudy(userCreatedStudy));
+            try{
+                _logger.LogInformation($"AddStudy was called | StudyConfig = {userCreatedStudy}");
+                return Ok(this._sqlservice.AddStudy(userCreatedStudy));
+            }
+            catch(Exception ex){
+                string message = $"Failed AddStudy.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
         }
 
         [Route("api/Data/AddTeam")]
@@ -87,32 +119,45 @@ namespace reliability_on_demand.Controllers
         }
 
         [Route("api/Data/GetAllMainVertical")]
-        [HttpPost("[action]")]
-        public string GetAllMainVertical()
+        [HttpGet("[action]")]
+        public IActionResult GetAllMainVertical()
         {
-            return this._sqlservice.GetAllMainVerticals();
+            try
+            {
+                return Ok(this._sqlservice.GetVerticals());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [Route("api/Data/GetAllailurePivotNamesForAVertical")]
-        [HttpPost("[action]")]
-        public string GetAllailurePivotNamesForAVertical([FromBody] string sourcetype)
+        // learn more about optional params here - https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-5.0#conventional-routing-1
+        [HttpGet("api/Data/GetAllailurePivotNamesForAVertical/{sourcetype?}")]
+        public IActionResult GetAllailurePivotNamesForAVertical(string sourcetype)
         {
-            string res = this._sqlservice.GetAllailurePivotNamesForAVertical(sourcetype);
-            return res;
+            _logger.LogInformation($"sourcetype = {sourcetype}");
+            if(String.IsNullOrEmpty(sourcetype))
+                return BadRequest("Bad request. Please specify a sourcetype like KernelMode or UserMode");
+            string res = this._sqlservice.GetPivots(sourcetype);
+            return Ok(res);
         }
 
         [Route("api/Data/GetAllDefaultFailurePivotsForAVertical")]
         [HttpPost("[action]")]
         public string GetAllDefaultFailurePivotsForAVertical([FromBody] FailureConfig f)
         {
-            return this._sqlservice.GetAllDefaultFailurePivotsForAVertical(f.PivotSourceSubType);
+            var result = this._sqlservice.GetAllDefaultFailurePivotsForAVertical(f.PivotSourceSubType);
+            _logger.LogInformation("GetAllDefaultFailurePivotsForAVertical");
+            _logger.LogInformation($"result = {result}");
+            return result;
         }
 
-        [Route("api/Data/GetAllConfiguredFailurePivotsForAVertical")]
-        [HttpPost("[action]")]
-        public string GetAllConfiguredFailurePivotsForAVertical([FromBody] FailureConfig f)
+        [HttpGet("api/Data/GetAllConfiguredFailurePivotsForAVertical/sourcesubtype/{sourcesubtype}/studyid/{studyid}")]
+        public string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid)
         {
-            return this._sqlservice.GetAllConfiguredFailurePivotsForAVertical(f);
+            Console.WriteLine($"Inputs: sourcesubtype = {sourcesubtype} \t studyid = {studyid}");
+            return this._sqlservice.GetAllConfiguredFailurePivotsForAVertical(sourcesubtype, studyid);
         }
 
         [Route("api/Data/SavedFailureConfig")]

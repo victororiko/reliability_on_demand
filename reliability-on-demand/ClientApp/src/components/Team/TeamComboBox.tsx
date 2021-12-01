@@ -1,4 +1,8 @@
-import { IComboBox, IComboBoxOption, VirtualizedComboBox } from '@fluentui/react'
+import {
+  IComboBox,
+  IComboBoxOption,
+  VirtualizedComboBox,
+} from '@fluentui/react'
 import React, { FormEvent, useEffect } from 'react'
 import { TeamConfig } from '../../models/config.model'
 
@@ -19,7 +23,10 @@ export const TeamComboBox = (props: Props) => {
   // state
   const [selectedItem, setSelectedItem] = React.useState<IComboBoxOption>()
   // core interation methods
-  const onChange = (event: FormEvent<IComboBox>, option?: IComboBoxOption | undefined): void => {
+  const onChange = (
+    event: FormEvent<IComboBox>,
+    option?: IComboBoxOption | undefined
+  ): void => {
     setSelectedItem(option)
     props.callBack(option ? option.key : -1)
   }
