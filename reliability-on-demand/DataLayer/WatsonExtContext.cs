@@ -153,18 +153,25 @@ namespace reliability_on_demand.DataLayer
             //ensure that connection is open
             this.Database.OpenConnection();
 
-            // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.AddStudy";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-            // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyName", userCreatedStudy.StudyName));
-            cmd.Parameters.Add(new SqlParameter("@LastModifiedDate", userCreatedStudy.LastModifiedDate));
-            cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userCreatedStudy.CacheFrequency));
-            cmd.Parameters.Add(new SqlParameter("@Expiry", userCreatedStudy.Expiry));
-            cmd.Parameters.Add(new SqlParameter("@TeamId", userCreatedStudy.TeamId));
-            cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userCreatedStudy.ObservationWindowDays));
 
+            if (userCreatedStudy.StudyID.Equals("-1"))
+            {
+                // prepare store procedure with necessary parameters
+                cmd.CommandText = "dbo.AddStudy";
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                // add any params here
+                cmd.Parameters.Add(new SqlParameter("@StudyName", userCreatedStudy.StudyName));
+                cmd.Parameters.Add(new SqlParameter("@LastModifiedDate", userCreatedStudy.LastModifiedDate));
+                cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userCreatedStudy.CacheFrequency));
+                cmd.Parameters.Add(new SqlParameter("@Expiry", userCreatedStudy.Expiry));
+                cmd.Parameters.Add(new SqlParameter("@TeamId", userCreatedStudy.TeamId));
+                cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userCreatedStudy.ObservationWindowDays));
+            }
+            else
+            {
+                cmd.CommandText = string.Format("UPDATE RELStudyConfig SET StudyName = '{0}', LastRefreshDate = '{1}',CacheFrequency = {2},Expiry = '{3}',ObservationWindowDays={4} WHERE StudyID ={5} ", userCreatedStudy.StudyName,userCreatedStudy.LastModifiedDate,userCreatedStudy.CacheFrequency,userCreatedStudy.Expiry,userCreatedStudy.ObservationWindowDays,userCreatedStudy.StudyID);
+            }
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
             using (var reader = cmd.ExecuteReader())
@@ -243,6 +250,12 @@ namespace reliability_on_demand.DataLayer
         public string GetVerticals()
         {
             return GetSQLResultsJSON("SELECT VerticalName,PivotSourceSubType FROM [dbo].[RELFailureVertical]");
+        }
+
+        public string GetConfiguredVerticalForAStudy(int studyID)
+        {
+            String query = String.Format("SELECT f.VerticalName, PivotSourceSubType FROM RELFailureVertical AS f INNER JOIN RELFailureVerticalConfig AS c ON f.VerticalName = c.VerticalName WHERE c.StudyID = {0}",studyID);
+            return GetSQLResultsJSON(query);
         }
 
         //Get all pivots for that vertical

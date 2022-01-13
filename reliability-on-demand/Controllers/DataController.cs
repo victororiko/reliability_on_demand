@@ -12,7 +12,6 @@ using Newtonsoft.Json.Linq;
 using reliability_on_demand.DataLayer;
 using System;
 using System.Collections.Generic;
-using System;
 using Microsoft.Extensions.Logging;
 
 namespace reliability_on_demand.Controllers
@@ -130,6 +129,16 @@ namespace reliability_on_demand.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet("api/Data/GetConfiguredVerticalForAStudy/{studyID?}")]
+        public IActionResult GetConfiguredVerticalForAStudy(int studyID)
+        {
+            _logger.LogInformation($"studyID = {studyID}");
+            if (studyID <= 0)
+                return BadRequest("Bad request. Please specify a sourcetype like KernelMode or UserMode");
+            string res = this._sqlservice.GetConfiguredVerticalForAStudy(studyID);
+            return Ok(res);
         }
 
         // learn more about optional params here - https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-5.0#conventional-routing-1

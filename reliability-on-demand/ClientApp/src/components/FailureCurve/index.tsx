@@ -7,10 +7,12 @@ import * as React from 'react'
 import { IColumn, TooltipHost, buildColumns } from '@fluentui/react'
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown'
 import { DefaultButton } from '@fluentui/react/lib/Button'
+import axios from 'axios'
 import { Vertical, Pair, Pivot } from './model'
 import { FailureSectionDetails } from './FailureSectionDetails'
 import { WikiLink } from '../helpers/WikiLink'
 import { Loading } from '../helpers/Loading'
+
 
 export interface FailureSectionProps {
   studyid: number
@@ -19,13 +21,14 @@ export interface FailureSectionProps {
 export interface FailureSectionState {
   verticals: Vertical[]
   loading: boolean
-  selectedVerticals?: Pair[]
+  // selectedVerticals?: Pair[]
   isButtonClicked: boolean
   pivots: Pivot[]
-  isSelectedVerticalSelected: boolean
   hasPivotSelectionChanged: boolean
   selectedPivots?: Pair[]
-  selectedSourceSubType: string
+    selectedSourceSubType: string,
+    byDefaultVerticals: Vertical[],
+    prevStudyID: number
 }
 
 export class FailureCurve extends React.Component<
@@ -39,7 +42,18 @@ export class FailureCurve extends React.Component<
 
   cols: Array<IColumn> = []
 
-  studyPivotsData: Pivot[] = []
+    studyPivotsData: Pivot[] = []
+
+    byDefaultSelection: string[] = []
+
+    verticalDefaultKeys: string[] = []
+
+    selectedKeysOnly: string[] = []
+
+    hasVerticalOnChangeCalled: boolean = false
+
+    selectedVerticals: Pair[] = []
+
 
   constructor(props: FailureSectionProps) {
     super(props)
@@ -47,13 +61,14 @@ export class FailureCurve extends React.Component<
     this.state = {
       verticals: [],
       loading: true,
-      selectedVerticals: [],
+      // selectedVerticals: [],
       isButtonClicked: false,
       pivots: [],
-      isSelectedVerticalSelected: false,
       hasPivotSelectionChanged: false,
       selectedPivots: [],
-      selectedSourceSubType: '',
+        selectedSourceSubType: '',
+        byDefaultVerticals: [],
+        prevStudyID: -2
     }
   }
 
@@ -66,8 +81,8 @@ export class FailureCurve extends React.Component<
 
   // eslint-disable-next-line react/sort-comp
   extractVerticalName(item: Vertical) {
-    const p: Pair = {
-      key: item.PivotSourceSubType,
+      const p: Pair = {
+          key: item.PivotSourceSubType.concat('_', item.VerticalName),
       text: item.VerticalName,
     }
 
@@ -96,21 +111,25 @@ export class FailureCurve extends React.Component<
     )
   }
 
-  renderVerticals() {
-    return (
-      <div>
-        <TooltipHost content="Select all the verticals you would like to configure for your study">
-          <Dropdown
-            placeholder="Select all the verticals you would like to configure for your study"
-            label="Verticals List"
-            // eslint-disable-next-line react/jsx-no-bind
-            onChange={this.onVerticalSelected}
-            multiSelect
-            options={this.getVerticalNames()}
-          />
-        </TooltipHost>
-      </div>
-    )
+    renderVerticals() {
+
+            return (
+                <div>
+                    <TooltipHost content="Select all the verticals you would like to configure for your study">
+                        <Dropdown
+                            placeholder="Select all the verticals you would like to configure for your study"
+                            label="Verticals List"
+                            // eslint-disable-next-line react/jsx-no-bind
+                            onChange={this.onVerticalSelected}
+                            multiSelect
+                            options={this.getVerticalNames()}
+                            selectedKeys={this.getDefaultVerticalKeys()}
+
+                        />
+                    </TooltipHost>
+                </div>
+            )
+
   }
 
   onVerticalSelected? = (
@@ -118,51 +137,96 @@ export class FailureCurve extends React.Component<
     option?: IDropdownOption,
     _index?: number
   ): void => {
-    if (option) {
-      const updated = option.selected
-        ? [...(this.state.selectedVerticals ?? []), option as Pair]
-        : this.state.selectedVerticals?.filter((val) => {
-            return val.text !== option.text
-          })
+      if (option) {
 
-      this.setState({
-        selectedVerticals: updated,
-      })
-      this.onVerticalSelectionChangeText(updated)
+      const updated = option.selected
+        ? [...(this.selectedVerticals ?? []), option as Pair]
+        : this.selectedVerticals?.filter((val) => {
+            return val.text !== option.text
+        })
+
+
+          this.selectedVerticals = updated
+
+          this.onVerticalSelectionChangeText(updated)
+          this.setState({ prevStudyID: this.props.studyid })
     }
   }
 
-  onVerticalSelectionChangeText(input: any) {
-    if (input) this.selectedKeys = input
+    onVerticalSelectionChangeText(input: any) {
+
+        this.selectedKeysOnly = []
+
+      if (input) {
+
+          this.selectedKeys = input
+
+          for (let i = 0; i < this.selectedKeys.length; i++)
+              this.selectedKeysOnly.push(this.selectedKeys[i].key)
+      }
   }
 
   buildColumnArray() {
     this.cols = buildColumns(this.studyPivotsData)
   }
 
-  async populateVerticalData() {
-    const response = await fetch('api/Data/GetAllMainVertical')
-    const data = await response.json()
-    this.setState({ verticals: data, loading: false })
-  }
+    async populateVerticalData() {
+            const response = await fetch('api/Data/GetAllMainVertical')
+            const data = await response.json()
+        this.setState({ verticals: data, loading: false })
+    }
 
-  onConfigureVerticalButtonClicked() {
-    return (
-      <div>
-        <FailureSectionDetails
-          studyid={this.props.studyid}
-          selectedVerticalsForStudy={[...this.selectedKeys]}
-        />
-      </div>
-    )
-  }
+    async loadConfiguredVerticals() {
+
+        if (this.props.studyid > 0) {
+            await axios
+                .get(
+                    `api/Data/GetConfiguredVerticalForAStudy/${this.props.studyid}`
+                )
+                .then((res) => {
+                    console.log(res.data)
+                    this.setState({ byDefaultVerticals: res.data })
+                })
+                .catch((err) => {
+                    console.log('Axios Error:', err.message)
+                })
+        }
+    }
+
 
   getVerticalNames(): IDropdownOption<Pair>[] {
     const result = this.state.verticals.map(this.extractVerticalName)
     return result
-  }
+    }
 
-  render(): React.ReactElement {
+    getDefaultVerticalKeys() {
+        this.verticalDefaultKeys = [];
+
+        const tempSelectedPair: Pair[] = [];
+        
+        if (this.props.studyid > 0) {
+            for (let i = 0; i < this.state.byDefaultVerticals.length; i++) {
+                const k = this.state.byDefaultVerticals[i].PivotSourceSubType.concat("_", this.state.byDefaultVerticals[i].VerticalName)
+                const ele: Pair = { key: k, text: this.state.byDefaultVerticals[i].VerticalName}
+                this.verticalDefaultKeys.push(k);
+                tempSelectedPair.push(ele)
+            }
+
+            this.selectedKeys = this.state.byDefaultVerticals !== undefined && this.state.byDefaultVerticals.length > 0 ? this.state.byDefaultVerticals.map(this.extractVerticalName) : this.selectedKeys
+        }
+
+        if (this.state.prevStudyID != this.props.studyid) {
+            this.selectedVerticals = tempSelectedPair
+            return this.verticalDefaultKeys
+        }
+            return this.selectedKeysOnly
+
+    }
+
+
+    render(): React.ReactElement {
+
+        this.loadConfiguredVerticals();
     const verticals = this.state.loading ? (
       <Loading message="Getting Verticals for you - hang tight" />
     ) : (
@@ -171,12 +235,12 @@ export class FailureCurve extends React.Component<
 
     const failureDetailButton = this.renderFailureDetailsButton()
 
-    const ConfigureButtonClicked =
-      this.state.isButtonClicked === true ? (
-        <FailureSectionDetails
-          studyid={this.props.studyid}
-          selectedVerticalsForStudy={[...this.selectedKeys]}
-        />
+        const ConfigureButtonClicked =
+            (this.state.isButtonClicked === true) ? (
+                <FailureSectionDetails
+                    studyid={this.props.studyid}
+                    selectedVerticalsForStudy={[...this.selectedKeys]}
+                />
       ) : (
         ''
       )

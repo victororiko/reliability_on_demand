@@ -13,6 +13,7 @@ namespace reliability_on_demand.DataLayer
         int LogRelOnDemandQuery<T>(string username, string url, string access, T payload);
         void UpdateRelOnDemandQuery(int id, bool status, string exception);
         string GetVerticals();
+        string GetConfiguredVerticalForAStudy(int studyID);
         string GetPivots(string sourcesubtype);
         string GetAllDefaultFailurePivotsForAVertical(string sourcesubtype);
         string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid);

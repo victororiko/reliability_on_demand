@@ -47,6 +47,12 @@ namespace reliability_on_demand.DataLayer
             return str;
         }
 
+        string ISQLService.GetConfiguredVerticalForAStudy(int studyID)
+        {
+            string str = _context.GetConfiguredVerticalForAStudy(studyID);
+            return str;
+        }
+
         string ISQLService.GetPivots(string sourcesubtype)
         {
             return _context.GetPivots(sourcesubtype);

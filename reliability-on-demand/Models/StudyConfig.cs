@@ -5,6 +5,7 @@ namespace reliability_on_demand.DataLayer
 {
     public class StudyConfig
     {
+        public string StudyID { get; set; }
         public string StudyName { get; set; }
         public DateTime LastModifiedDate { get; set; }
         public int CacheFrequency { get; set; }
