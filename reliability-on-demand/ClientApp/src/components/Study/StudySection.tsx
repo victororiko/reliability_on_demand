@@ -59,7 +59,8 @@ export const StudySection = (props: IStudySectionProps) => {
 
   // New Study Creation
   // Set new study's name based on user's input
-  const getUserStudyName = (valueFromTextField: string) => {
+    const getUserStudyName = (valueFromTextField: string) => {
+        alert(valueFromTextField)
     setNewStudyName(valueFromTextField)
   }
   const getUserFrequency = (frequencyFromDropdown: number) => {
@@ -92,25 +93,32 @@ export const StudySection = (props: IStudySectionProps) => {
     // Fetching the correct study ID to send it to the backend
       const selectedStudyObj = getStudyFromString(selectedStudy?.StudyName ?? '')
       const selectedStudyID = (selectedStudyObj == null ? -1 : selectedStudyObj.StudyID)
+      const tempStudyName = ((newStudyName == '' && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.StudyName : newStudyName)
+      const tempCacheFreq = ((newCacheFrequency == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.CacheFrequency : newCacheFrequency)
+      const tempExpiryDate = ((newExpiry == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.Expiry : newExpiry)
+      const tempObsWindow = ((newObservationWindowDays == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.ObservationWindowDays : newObservationWindowDays)
 
-    const studyToAdd = {
-      StudyName: newStudyName,
-      CacheFrequency: newCacheFrequency,
-      Expiry: newExpiry,
-        ObservationWindowDays: newObservationWindowDays,
+      const studyToAdd = {
+          StudyName: tempStudyName,
+          CacheFrequency: tempCacheFreq,
+          Expiry: tempExpiryDate,
+          ObservationWindowDays: tempObsWindow,
         StudyID: selectedStudyID.toString()
-    } as StudyConfig
-    if (
-      newStudyName === null ||
-      newStudyName === undefined ||
-      newStudyName === ''
+      } as StudyConfig
+
+      alert(studyToAdd.StudyName.concat('new study name', newStudyName))
+
+      if (
+          tempStudyName === null ||
+          tempStudyName === undefined ||
+          tempStudyName === ''
     )
       alert('please specify a Name for the study you are adding')
-    // Frequency check
-    else if (newCacheFrequency === null || newCacheFrequency === undefined)
+      // Frequency check
+      else if (tempCacheFreq === null || tempCacheFreq === undefined)
       alert('please specify a Frequency for the study you are adding')
-    // Expiry Date check
-    else if (newExpiry === null || newExpiry === undefined)
+      // Expiry Date check
+      else if (tempExpiryDate === null || tempExpiryDate === undefined)
       alert('please specify an Expiry Date for the study you are adding')
     else {
       alert(`New Study to be added = \n${JSON.stringify(studyToAdd, null, 4)}`)

@@ -25,8 +25,10 @@ export const StudyNameTextField = (props: Props) => {
     const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
         // To make the field editable for update as well. OR condition is to clear the textbox when user wants to create a new study
         if (((currentStudy) && (currentStudy?.StudyID != previouStudyID)) || (previouStudyID !== '-2' && currentStudy === undefined)) {
+            // alert(currentStudy?.StudyName.concat(' textbox:', textFieldValue))
             return currentStudy?.StudyName
-    }
+
+        }
     return textFieldValue
   }
 

@@ -21,16 +21,16 @@ const controlClass = mergeStyleSets({
 
 export const ExpiryDatePicker = (props: Props) => {
   const today = useConst(new Date(Date.now()))
-    const [value, setValue] = React.useState<Date | undefined>(today)
+    const [value, setValue] = React.useState<Date | undefined>((new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay()+90)))
     const [previouStudyID, setPreviouStudyID] = React.useState('-2')
 
   const getDefaultExpiryDate = (currentStudy?: StudyConfig) => {
       if (((currentStudy) && (currentStudy?.StudyID != previouStudyID)) || (previouStudyID !== '-2' && currentStudy === undefined)) {
       // uncomment this section if you prefer to set default expiry to 3 months from now
       // let now = new Date();
-      // let current = new Date(now.getFullYear(), now.getMonth() + 3, now.getDay());
+       // let current = new Date(now.getFullYear(), now.getMonth() + 3, now.getDay());
           // return current;
-          return new Date(currentStudy?.Expiry ?? today)
+          return new Date(currentStudy?.Expiry ?? (new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay()+90)))
       }
 
       return value

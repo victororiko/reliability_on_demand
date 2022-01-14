@@ -17,14 +17,14 @@ export const ObservationWindowDropdown = (props: Props) => {
   ): void => {
     setPreviouStudyID(props.currentStudy?.StudyID ?? '')
     setSelectedItem(item)
-    props.callBack(item ? item.key : 0)
+    props.callBack(item ? item.key : 14)
   }
 
   const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
       if (((currentStudy) && (currentStudy?.StudyID != previouStudyID)) || (previouStudyID !== '-2' && currentStudy === undefined)) {
       return currentStudy?.ObservationWindowDays
     }
-    return selectedItem ? selectedItem.key : 0
+    return selectedItem ? selectedItem.key : 14
   }
 
   return (
