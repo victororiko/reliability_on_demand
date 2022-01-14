@@ -94,15 +94,14 @@ export const StudySection = (props: IStudySectionProps) => {
       const selectedStudyObj = getStudyFromString(selectedStudy?.StudyName ?? '')
       const selectedStudyID = (selectedStudyObj == null ? -1 : selectedStudyObj.StudyID)
       const tempStudyName = ((newStudyName == '' && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.StudyName : newStudyName)
-      const tempCacheFreq = ((newCacheFrequency == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.CacheFrequency : newCacheFrequency)
       const tempExpiryDate = ((newExpiry == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.Expiry : newExpiry)
-      const tempObsWindow = ((newObservationWindowDays == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.ObservationWindowDays : newObservationWindowDays)
+      alert(selectedStudyObj?.StudyName)
 
       const studyToAdd = {
           StudyName: tempStudyName,
-          CacheFrequency: tempCacheFreq,
+          CacheFrequency: newCacheFrequency,
           Expiry: tempExpiryDate,
-          ObservationWindowDays: tempObsWindow,
+          ObservationWindowDays: newObservationWindowDays,
         StudyID: selectedStudyID.toString()
       } as StudyConfig
 
@@ -115,7 +114,7 @@ export const StudySection = (props: IStudySectionProps) => {
     )
       alert('please specify a Name for the study you are adding')
       // Frequency check
-      else if (tempCacheFreq === null || tempCacheFreq === undefined)
+      else if (newCacheFrequency === null || newCacheFrequency === undefined)
       alert('please specify a Frequency for the study you are adding')
       // Expiry Date check
       else if (tempExpiryDate === null || tempExpiryDate === undefined)
