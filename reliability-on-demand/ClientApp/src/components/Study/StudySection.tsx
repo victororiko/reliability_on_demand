@@ -105,8 +105,6 @@ export const StudySection = (props: IStudySectionProps) => {
         StudyID: selectedStudyID.toString()
       } as StudyConfig
 
-      alert(studyToAdd.StudyName.concat('new study name', newStudyName))
-
       if (
           tempStudyName === null ||
           tempStudyName === undefined ||
