@@ -26,21 +26,23 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
     }
   }
 
-  // functionality methods
-  extractTeamIDFromState(): number {
-    return this.state.currentTeamId
-  }
-
+  
   selectTeam = (selection: number) => {
     this.setState({
       currentTeamId: selection,
     })
-  }
+    }
+
 
   selectStudy = (item: number) => {
     this.setState({
       currentStudyId: item,
     })
+    }
+
+    // functionality methods
+  extractTeamIDFromState(): number {
+    return this.state.currentTeamId
   }
 
   render() {

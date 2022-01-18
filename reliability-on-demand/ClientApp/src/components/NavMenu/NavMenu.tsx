@@ -18,7 +18,7 @@ export interface INavMenuState {
 }
 
 export class NavMenu extends React.Component<INavMenuProps, INavMenuState> {
-  static displayName = NavMenu.name
+  // static displayName = NavMenu.name
 
   constructor(props: any) {
     super(props)
