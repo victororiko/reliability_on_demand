@@ -60,7 +60,6 @@ export const StudySection = (props: IStudySectionProps) => {
   // New Study Creation
   // Set new study's name based on user's input
     const getUserStudyName = (valueFromTextField: string) => {
-        alert(valueFromTextField)
     setNewStudyName(valueFromTextField)
   }
   const getUserFrequency = (frequencyFromDropdown: number) => {
@@ -68,7 +67,6 @@ export const StudySection = (props: IStudySectionProps) => {
     setNewCacheFrequency(frequencyFromDropdown)
   }
     const getUserExpiryDate = (dateFromDatePicker: Date) => {
-        alert(dateFromDatePicker);
     setNewExpiry(dateFromDatePicker)
   }
   const getUserObservationWindow = (selectionDays: number) => {
@@ -95,13 +93,12 @@ export const StudySection = (props: IStudySectionProps) => {
       const selectedStudyID = (selectedStudyObj == null ? -1 : selectedStudyObj.StudyID)
       const tempStudyName = ((newStudyName == '' && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.StudyName : newStudyName)
       const tempExpiryDate = ((newExpiry == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.Expiry : newExpiry)
-      alert(selectedStudyObj?.StudyName)
-
-      const studyToAdd = {
+      
+      const studyToAddOrUpdate = {
           StudyName: tempStudyName,
-          CacheFrequency: newCacheFrequency,
+          CacheFrequency: ((newCacheFrequency == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.CacheFrequency : newCacheFrequency),
           Expiry: tempExpiryDate,
-          ObservationWindowDays: newObservationWindowDays,
+          ObservationWindowDays: ((newObservationWindowDays == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.ObservationWindowDays : newObservationWindowDays),
         StudyID: selectedStudyID.toString()
       } as StudyConfig
 
@@ -118,12 +115,12 @@ export const StudySection = (props: IStudySectionProps) => {
       else if (tempExpiryDate === null || tempExpiryDate === undefined)
       alert('please specify an Expiry Date for the study you are adding')
     else {
-      alert(`New Study to be added = \n${JSON.stringify(studyToAdd, null, 4)}`)
+      alert(`New Study to be added or updated = \n${JSON.stringify(studyToAddOrUpdate, null, 4)}`)
       // add missing properties to pass a full study to backend
-      studyToAdd.LastModifiedDate = new Date()
-      studyToAdd.TeamID = props.team_id
-      axios.post('api/Data/AddStudy', studyToAdd).then(() => {
-        loadStudies(props.team_id)
+      studyToAddOrUpdate.LastModifiedDate = new Date()
+      studyToAddOrUpdate.TeamID = props.team_id
+      axios.post('api/Data/AddStudy', studyToAddOrUpdate).then(() => {
+          loadStudies(props.team_id)
       })
     }
   }

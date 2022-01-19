@@ -41,7 +41,9 @@ export const StudyComboBox = (props: Props) => {
         }
         return rObj
       })
-    }
+      }
+
+      // -1 is used as key for the new study to just identify in the code whether user wants to add a study or update an existing study
     parsedList.push({
       key: '-1',
       text: 'create new study',

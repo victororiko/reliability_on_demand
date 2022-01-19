@@ -10,6 +10,7 @@ interface Props {
 
 export const FrequencyDropdown = (props: Props) => {
     const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
+    // -2 is just an initialization of the previous study id.
     const [previouStudyID, setPreviouStudyID] = React.useState('-2')
   const onChange = (
     event: React.FormEvent<HTMLDivElement>,
