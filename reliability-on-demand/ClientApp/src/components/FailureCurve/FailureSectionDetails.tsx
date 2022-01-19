@@ -63,8 +63,7 @@ export class FailureSectionDetails extends React.Component<
     index?: number
   ): void => {
     if (item) {
-      if (item.key == 'Select Vertical') return
-
+      if (item.key == 'Select Mode') return
       this.setState({
         isVerticalSelected: true,
         selectedVertical: { key: item.key.toString(), text: item.text },
@@ -89,7 +88,7 @@ export class FailureSectionDetails extends React.Component<
         <TooltipHost content="Select the vertical to configure from the selected list">
           <Dropdown
             label="Select Failure Mode"
-            placeholder="Select Failure Mode"
+            placeholder="Select Mode"
             selectedKey={this.state.selectedVertical.key}
             // eslint-disable-next-line react/jsx-no-bind
             onChange={this.onVerticalSelected}
@@ -100,7 +99,8 @@ export class FailureSectionDetails extends React.Component<
     )
 
     let pivotSection =
-      this.state.isVerticalSelected == true ? this.renderPivots() : ''
+          this.state.isVerticalSelected == true ? this.renderPivots() : ''
+
 
     return (
       <div>
