@@ -27,23 +27,25 @@ export const StudyComboBox = (props: Props) => {
     event: FormEvent<IComboBox>,
     option?: IComboBoxOption | undefined
   ): void => {
-    setSelectedItem(option)
-    props.callBack(option ? option.text : 'create new study')
+      setSelectedItem(option)
+      props.callBack(option?.text)
   }
 
   const convertToOptions = (inputData: StudyConfig[]) => {
     let parsedList: IComboBoxOption[] = []
     if (inputData) {
       parsedList = inputData.map((item) => {
-        const rObj = {
-          key: item.StudyName,
+          const rObj = {
+              key: item.StudyID.toString(),
           text: item.StudyName,
         }
         return rObj
       })
-    }
+      }
+
+      // -1 is used as key for the new study to just identify in the code whether user wants to add a study or update an existing study
     parsedList.push({
-      key: 'create new study',
+      key: '-1',
       text: 'create new study',
     })
     return parsedList
@@ -56,8 +58,8 @@ export const StudyComboBox = (props: Props) => {
     if (inputData && inputData.length > 0)
       return selectedItem && selectedItem.key !== ''
         ? selectedItem.key
-        : 'create new study'
-    return 'create new study'
+        : '-1'
+    return '-1'
   }
 
   return (

@@ -3,17 +3,16 @@ import { PrimaryButton } from '@fluentui/react'
 import { StudyConfig } from '../../models/config.model'
 
 interface Props {
-  currentStudy?: StudyConfig
+    ButtonName: string
   callBack: any
 }
 
 export const AddStudyButton = (props: Props) => {
   return (
-    <PrimaryButton
-      text="Add Study"
+      <PrimaryButton
+          text={props.ButtonName}
       onClick={props.callBack}
       allowDisabledFocus
-      disabled={props.currentStudy !== undefined}
     />
   )
 }

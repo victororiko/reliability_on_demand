@@ -1,5 +1,6 @@
 import { Dropdown, IDropdownOption } from '@fluentui/react'
 import React from 'react'
+import { InputGroupButtonDropdown } from 'reactstrap'
 import { StudyConfig } from '../../models/config.model'
 
 interface Props {
@@ -8,21 +9,24 @@ interface Props {
 }
 
 export const FrequencyDropdown = (props: Props) => {
-  const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
+    const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
+    // -2 is just an initialization of the previous study id.
+    const [previouStudyID, setPreviouStudyID] = React.useState('-2')
   const onChange = (
     event: React.FormEvent<HTMLDivElement>,
     item: any
   ): void => {
+      setPreviouStudyID(props.currentStudy?.StudyID ?? '')
     setSelectedItem(item)
     // send back the selection made by user or set it to default =
-    props.callBack(item ? item.key : 0)
+    props.callBack(item ? item.key : 24)
   }
 
-  const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
-    if (currentStudy) {
+    const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
+        if (((currentStudy) && (currentStudy?.StudyID != previouStudyID)) || (previouStudyID !== '-2' && currentStudy === undefined)) {
       return currentStudy?.CacheFrequency
     }
-    return selectedItem ? selectedItem.key : 0
+    return selectedItem ? selectedItem.key : 24
   }
 
   return (
@@ -33,7 +37,6 @@ export const FrequencyDropdown = (props: Props) => {
       onChange={onChange}
       options={hardCodedFrequencies}
       required
-      disabled={props.currentStudy !== undefined}
     />
   )
 }

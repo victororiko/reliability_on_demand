@@ -25,11 +25,11 @@ export const StudySection = (props: IStudySectionProps) => {
   )
   const [newStudyName, setNewStudyName] = useState<string>('')
   const [newCacheFrequency, setNewCacheFrequency] = useState<number>(0)
-  const [newExpiry, setNewExpiry] = useState<Date>()
-  const [newObservationWindowDays, setNewObservationWindowDays] =
-    useState<number>(0)
+    const [newExpiry, setNewExpiry] = useState<Date>()
+    const [newObservationWindowDays, setNewObservationWindowDays] =
+        useState<number>(0)
 
-  const loadStudies = (id: number) => {
+    const loadStudies = (id: number) => {
     axios.get(`api/Data/GetStudies/${props.team_id}`).then((res) => {
       if (res.data) {
         console.table(res.data)
@@ -43,10 +43,10 @@ export const StudySection = (props: IStudySectionProps) => {
   }
 
   // helper methods
-  // Study Selection
-  const selectCurrentStudy = (selection: string) => {
-    const mySelection: StudyConfig | undefined = getStudyFromString(selection)
-    setSelectedStudy(mySelection)
+    // Study Selection
+    const selectCurrentStudy = (selection: string) => {
+        const mySelection: StudyConfig | undefined = getStudyFromString(selection)
+        setSelectedStudy(mySelection)
     props.callBack(mySelection ? mySelection.StudyID : -1)
   }
   const getStudyFromString = (selection: string): StudyConfig | undefined => {
@@ -59,19 +59,19 @@ export const StudySection = (props: IStudySectionProps) => {
 
   // New Study Creation
   // Set new study's name based on user's input
-  const getUserStudyName = (valueFromTextField: string) => {
+    const getUserStudyName = (valueFromTextField: string) => {
     setNewStudyName(valueFromTextField)
   }
   const getUserFrequency = (frequencyFromDropdown: number) => {
     console.debug(frequencyFromDropdown)
     setNewCacheFrequency(frequencyFromDropdown)
   }
-  const getUserExpiryDate = (dateFromDatePicker: Date) => {
+    const getUserExpiryDate = (dateFromDatePicker: Date) => {
     setNewExpiry(dateFromDatePicker)
   }
   const getUserObservationWindow = (selectionDays: number) => {
     setNewObservationWindowDays(selectionDays)
-  }
+    }
 
   const studyExists = (newStudy: StudyConfig): boolean => {
     const dupeFound = studyConfigs.some(
@@ -88,34 +88,39 @@ export const StudySection = (props: IStudySectionProps) => {
   const addNewStudyToBackend = () => {
     // Validate new study first
     // Study name check
-    const studyToAdd = {
-      StudyName: newStudyName,
-      CacheFrequency: newCacheFrequency,
-      Expiry: newExpiry,
-      ObservationWindowDays: newObservationWindowDays,
-    } as StudyConfig
-    if (
-      newStudyName === null ||
-      newStudyName === undefined ||
-      newStudyName === ''
+    // Fetching the correct study ID to send it to the backend
+      const selectedStudyObj = getStudyFromString(selectedStudy?.StudyName ?? '')
+      const selectedStudyID = (selectedStudyObj == null ? -1 : selectedStudyObj.StudyID)
+      const tempStudyName = ((newStudyName == '' && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.StudyName : newStudyName)
+      const tempExpiryDate = ((newExpiry == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.Expiry : newExpiry)
+      
+      const studyToAddOrUpdate = {
+          StudyName: tempStudyName,
+          CacheFrequency: ((newCacheFrequency == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.CacheFrequency : newCacheFrequency),
+          Expiry: tempExpiryDate,
+          ObservationWindowDays: ((newObservationWindowDays == null && selectedStudyObj?.StudyID != '-1') ? selectedStudyObj?.ObservationWindowDays : newObservationWindowDays),
+        StudyID: selectedStudyID.toString()
+      } as StudyConfig
+
+      if (
+          tempStudyName === null ||
+          tempStudyName === undefined ||
+          tempStudyName === ''
     )
       alert('please specify a Name for the study you are adding')
-    // Frequency check
-    else if (newCacheFrequency === null || newCacheFrequency === undefined)
+      // Frequency check
+      else if (newCacheFrequency === null || newCacheFrequency === undefined)
       alert('please specify a Frequency for the study you are adding')
-    // Expiry Date check
-    else if (newExpiry === null || newExpiry === undefined)
+      // Expiry Date check
+      else if (tempExpiryDate === null || tempExpiryDate === undefined)
       alert('please specify an Expiry Date for the study you are adding')
-    // Check if study exists
-    else if (studyExists(studyToAdd))
-      alert('study already exists - please change one of the required fields')
     else {
-      alert(`New Study to be added = \n${JSON.stringify(studyToAdd, null, 4)}`)
+      alert(`New Study to be added or updated = \n${JSON.stringify(studyToAddOrUpdate, null, 4)}`)
       // add missing properties to pass a full study to backend
-      studyToAdd.LastModifiedDate = new Date()
-      studyToAdd.TeamID = props.team_id
-      axios.post('api/Data/AddStudy', studyToAdd).then(() => {
-        loadStudies(props.team_id)
+      studyToAddOrUpdate.LastModifiedDate = new Date()
+      studyToAddOrUpdate.TeamID = props.team_id
+      axios.post('api/Data/AddStudy', studyToAddOrUpdate).then(() => {
+          loadStudies(props.team_id)
       })
     }
   }
@@ -125,6 +130,11 @@ export const StudySection = (props: IStudySectionProps) => {
     setSelectedStudy(undefined)
   }, [props.team_id])
 
+    // Deciding the button name - Add or Update Study
+    const selectedStudyObj = getStudyFromString(selectedStudy?.StudyName ?? '')
+    const selectedStudyID = (selectedStudyObj == null ? -1 : selectedStudyObj.StudyID)
+    const buttonName = selectedStudyID != '-1' ? 'Update Study' : 'Add Study'
+
   return (
     <div>
       {loading ? (
@@ -132,8 +142,8 @@ export const StudySection = (props: IStudySectionProps) => {
       ) : (
         <div>
           <h1>Study Section</h1>
-          <StudyComboBox data={studyConfigs} callBack={selectCurrentStudy} />
-          <StudyNameTextField
+                      <StudyComboBox data={studyConfigs} callBack={selectCurrentStudy} />
+                      <StudyNameTextField
             currentStudy={selectedStudy}
             callBack={getUserStudyName}
           />
@@ -148,9 +158,8 @@ export const StudySection = (props: IStudySectionProps) => {
           <ObservationWindowDropdown
             currentStudy={selectedStudy}
             callBack={getUserObservationWindow}
-          />
-          <AddStudyButton
-            currentStudy={selectedStudy}
+                      />
+                      <AddStudyButton ButtonName={buttonName}
             callBack={addNewStudyToBackend}
           />
         </div>

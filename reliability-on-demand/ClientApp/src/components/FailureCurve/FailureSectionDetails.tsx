@@ -20,7 +20,8 @@ export class FailureSectionDetails extends React.Component<
   IFailureSectionDetailsProps,
   IFailureSectionDetailsState
 > {
-  selectedVerticalsWithPlaceHolder: Pair[] = []
+    selectedVerticalsWithPlaceHolder: Pair[] = []
+    selectedVerticalsWithPlaceHolderSet: Set<string> | undefined
 
   constructor(props: any) {
     super(props)
@@ -28,14 +29,21 @@ export class FailureSectionDetails extends React.Component<
     this.state = {
       loading: true,
       isVerticalSelected: false,
-      selectedVertical: { key: 'Select Vertical', text: 'Select Vertical' },
-    }
+        selectedVertical: { key: 'Select Mode', text: 'Select Mode' },
+      }
 
-    this.selectedVerticalsWithPlaceHolder = this.props.selectedVerticalsForStudy
-    this.selectedVerticalsWithPlaceHolder.push({
-      key: 'Select Vertical',
-      text: 'Select Vertical',
-    })
+      this.selectedVerticalsWithPlaceHolderSet = new Set <string>()
+
+      for (let i = 0; i < this.props.selectedVerticalsForStudy.length; i++) {
+          if (!this.selectedVerticalsWithPlaceHolderSet.has(this.props.selectedVerticalsForStudy[i].key.split('_')[0])) {
+              let ele = { key: this.props.selectedVerticalsForStudy[i].key.split('_')[0], text: this.props.selectedVerticalsForStudy[i].key.split('_')[0] };
+              this.selectedVerticalsWithPlaceHolder.push(ele)
+              this.selectedVerticalsWithPlaceHolderSet.add(this.props.selectedVerticalsForStudy[i].key.split('_')[0])
+          }
+      }
+
+      let ele = { key: 'Select Mode', text: 'Select Mode'}
+      this.selectedVerticalsWithPlaceHolder.push(ele)
   }
 
   /**
@@ -55,8 +63,7 @@ export class FailureSectionDetails extends React.Component<
     index?: number
   ): void => {
     if (item) {
-      if (item.key == 'Select Vertical') return
-
+      if (item.key == 'Select Mode') return
       this.setState({
         isVerticalSelected: true,
         selectedVertical: { key: item.key.toString(), text: item.text },
@@ -81,7 +88,7 @@ export class FailureSectionDetails extends React.Component<
         <TooltipHost content="Select the vertical to configure from the selected list">
           <Dropdown
             label="Select Failure Mode"
-            placeholder="Select Failure Mode"
+            placeholder="Select Mode"
             selectedKey={this.state.selectedVertical.key}
             // eslint-disable-next-line react/jsx-no-bind
             onChange={this.onVerticalSelected}
@@ -92,7 +99,8 @@ export class FailureSectionDetails extends React.Component<
     )
 
     let pivotSection =
-      this.state.isVerticalSelected == true ? this.renderPivots() : ''
+          this.state.isVerticalSelected == true ? this.renderPivots() : ''
+
 
     return (
       <div>
