@@ -185,7 +185,7 @@ export class FailureCurve extends React.Component<
                 )
                 .then((res) => {
                     console.log(res.data)
-                    this.setState({ byDefaultVerticals: res.data })
+                    this.setState({ byDefaultVerticals: res.data})
                 })
                 .catch((err) => {
                     console.log('Axios Error:', err.message)
@@ -225,8 +225,7 @@ export class FailureCurve extends React.Component<
 
 
     render(): React.ReactElement {
-
-        this.loadConfiguredVerticals();
+        const call = (this.state.byDefaultVerticals.length>0 ? '':this.loadConfiguredVerticals());
     const verticals = this.state.loading ? (
       <Loading message="Getting Verticals for you - hang tight" />
     ) : (
