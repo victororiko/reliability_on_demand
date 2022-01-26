@@ -254,7 +254,6 @@ export class FailureCurve extends React.Component<
 
 
     render(): React.ReactElement {
-        alert('infinte')
     const verticals = this.state.loading ? (
       <Loading message="Getting Verticals for you - hang tight" />
     ) : (
