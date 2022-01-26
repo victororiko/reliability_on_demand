@@ -21,14 +21,14 @@ export interface FailureSectionProps {
 export interface FailureSectionState {
   verticals: Vertical[]
   loading: boolean
-  // selectedVerticals?: Pair[]
+   selectedVerticals?: Pair[]
   isButtonClicked: boolean
   pivots: Pivot[]
   hasPivotSelectionChanged: boolean
   selectedPivots?: Pair[]
     selectedSourceSubType: string,
-    byDefaultVerticals: Vertical[],
-    prevStudyID: number
+    prevStudyID: number,
+    byDefaultVerticals: Vertical[]
 }
 
 export class FailureCurve extends React.Component<
@@ -54,6 +54,8 @@ export class FailureCurve extends React.Component<
 
     selectedVerticals: Pair[] = []
 
+    byDefaultVerticals: Vertical[] = []
+
 
   constructor(props: FailureSectionProps) {
     super(props)
@@ -61,14 +63,14 @@ export class FailureCurve extends React.Component<
     this.state = {
       verticals: [],
       loading: true,
-      // selectedVerticals: [],
+       selectedVerticals: [],
       isButtonClicked: false,
       pivots: [],
       hasPivotSelectionChanged: false,
       selectedPivots: [],
         selectedSourceSubType: '',
-        byDefaultVerticals: [],
-        prevStudyID: -2
+        prevStudyID: -2,
+        byDefaultVerticals:[]
     }
   }
 
@@ -77,7 +79,11 @@ export class FailureCurve extends React.Component<
    */
   componentDidMount() {
     this.populateVerticalData()
-  }
+    }
+
+    componentDidUpdate() {
+        this.loadConfiguredVerticals()
+    }
 
   // eslint-disable-next-line react/sort-comp
   extractVerticalName(item: Vertical) {
@@ -176,6 +182,27 @@ export class FailureCurve extends React.Component<
         this.setState({ verticals: data, loading: false })
     }
 
+    isSame(verticals1: Array<Vertical>, verticals2: Array<Vertical>) {
+        if (verticals1.length != verticals2.length) {
+            return false;
+        }
+
+        for (let i = 0; i < verticals1.length; i++) {
+            let flag = false;
+            for (let j = 0; j < verticals2.length; j++) {
+                if (verticals2[j].VerticalName === verticals1[i].VerticalName) {
+                    flag = true;
+                    break;
+                }
+            }
+
+            if (flag === false)
+                return false;
+        }
+
+        return true;
+    }
+
     async loadConfiguredVerticals() {
 
         if (this.props.studyid > 0) {
@@ -185,7 +212,9 @@ export class FailureCurve extends React.Component<
                 )
                 .then((res) => {
                     console.log(res.data)
-                    this.setState({ byDefaultVerticals: res.data })
+                    this.byDefaultVerticals = res.data
+                    if (!this.isSame(this.byDefaultVerticals, this.state.byDefaultVerticals))
+                        this.setState({ byDefaultVerticals: res.data })
                 })
                 .catch((err) => {
                     console.log('Axios Error:', err.message)
@@ -225,8 +254,6 @@ export class FailureCurve extends React.Component<
 
 
     render(): React.ReactElement {
-
-        this.loadConfiguredVerticals();
     const verticals = this.state.loading ? (
       <Loading message="Getting Verticals for you - hang tight" />
     ) : (
