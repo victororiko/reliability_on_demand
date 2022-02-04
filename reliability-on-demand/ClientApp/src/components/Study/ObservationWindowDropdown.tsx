@@ -8,8 +8,8 @@ interface Props {
 }
 
 export const ObservationWindowDropdown = (props: Props) => {
-    const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
-    const [previouStudyID, setPreviouStudyID] = React.useState('-2')
+  const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
+  const [previouStudyID, setPreviouStudyID] = React.useState('-2')
   // when user selects a new dropdown value - replace current DropdownOption with that value
   const onChange = (
     event: React.FormEvent<HTMLDivElement>,
@@ -21,7 +21,10 @@ export const ObservationWindowDropdown = (props: Props) => {
   }
 
   const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
-      if (((currentStudy) && (currentStudy?.StudyID != previouStudyID)) || (previouStudyID !== '-2' && currentStudy === undefined)) {
+    if (
+      (currentStudy && currentStudy?.StudyID != previouStudyID) ||
+      (previouStudyID !== '-2' && currentStudy === undefined)
+    ) {
       return currentStudy?.ObservationWindowDays
     }
     return selectedItem ? selectedItem.key : 14

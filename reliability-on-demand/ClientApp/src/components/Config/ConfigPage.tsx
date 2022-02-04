@@ -26,21 +26,19 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
     }
   }
 
-  
   selectTeam = (selection: number) => {
     this.setState({
       currentTeamId: selection,
     })
-    }
-
+  }
 
   selectStudy = (item: number) => {
     this.setState({
       currentStudyId: item,
     })
-    }
+  }
 
-    // functionality methods
+  // functionality methods
   extractTeamIDFromState(): number {
     return this.state.currentTeamId
   }
@@ -48,8 +46,14 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
   render() {
     return (
       <Stack tokens={containerStackTokens}>
-        <TeamDetails callBack={this.selectTeam} startingTeamId={this.state.currentTeamId} />
-        <StudySection team_id={this.state.currentTeamId} callBack={this.selectStudy} />
+        <TeamDetails
+          callBack={this.selectTeam}
+          startingTeamId={this.state.currentTeamId}
+        />
+        <StudySection
+          team_id={this.state.currentTeamId}
+          callBack={this.selectStudy}
+        />
         <FailureCurve studyid={this.state.currentStudyId} />
       </Stack>
     )

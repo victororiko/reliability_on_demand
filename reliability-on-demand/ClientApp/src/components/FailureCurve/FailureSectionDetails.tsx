@@ -20,8 +20,8 @@ export class FailureSectionDetails extends React.Component<
   IFailureSectionDetailsProps,
   IFailureSectionDetailsState
 > {
-    selectedVerticalsWithPlaceHolder: Pair[] = []
-    selectedVerticalsWithPlaceHolderSet: Set<string> | undefined
+  selectedVerticalsWithPlaceHolder: Pair[] = []
+  selectedVerticalsWithPlaceHolderSet: Set<string> | undefined
 
   constructor(props: any) {
     super(props)
@@ -29,21 +29,30 @@ export class FailureSectionDetails extends React.Component<
     this.state = {
       loading: true,
       isVerticalSelected: false,
-        selectedVertical: { key: 'Select Mode', text: 'Select Mode' },
+      selectedVertical: { key: 'Select Mode', text: 'Select Mode' },
+    }
+
+    this.selectedVerticalsWithPlaceHolderSet = new Set<string>()
+
+    for (let i = 0; i < this.props.selectedVerticalsForStudy.length; i++) {
+      if (
+        !this.selectedVerticalsWithPlaceHolderSet.has(
+          this.props.selectedVerticalsForStudy[i].key.split('_')[0]
+        )
+      ) {
+        let ele = {
+          key: this.props.selectedVerticalsForStudy[i].key.split('_')[0],
+          text: this.props.selectedVerticalsForStudy[i].key.split('_')[0],
+        }
+        this.selectedVerticalsWithPlaceHolder.push(ele)
+        this.selectedVerticalsWithPlaceHolderSet.add(
+          this.props.selectedVerticalsForStudy[i].key.split('_')[0]
+        )
       }
+    }
 
-      this.selectedVerticalsWithPlaceHolderSet = new Set <string>()
-
-      for (let i = 0; i < this.props.selectedVerticalsForStudy.length; i++) {
-          if (!this.selectedVerticalsWithPlaceHolderSet.has(this.props.selectedVerticalsForStudy[i].key.split('_')[0])) {
-              let ele = { key: this.props.selectedVerticalsForStudy[i].key.split('_')[0], text: this.props.selectedVerticalsForStudy[i].key.split('_')[0] };
-              this.selectedVerticalsWithPlaceHolder.push(ele)
-              this.selectedVerticalsWithPlaceHolderSet.add(this.props.selectedVerticalsForStudy[i].key.split('_')[0])
-          }
-      }
-
-      let ele = { key: 'Select Mode', text: 'Select Mode'}
-      this.selectedVerticalsWithPlaceHolder.push(ele)
+    let ele = { key: 'Select Mode', text: 'Select Mode' }
+    this.selectedVerticalsWithPlaceHolder.push(ele)
   }
 
   /**
@@ -99,8 +108,7 @@ export class FailureSectionDetails extends React.Component<
     )
 
     let pivotSection =
-          this.state.isVerticalSelected == true ? this.renderPivots() : ''
-
+      this.state.isVerticalSelected == true ? this.renderPivots() : ''
 
     return (
       <div>

@@ -1,12 +1,6 @@
 /* eslint-disable */
 import * as React from 'react'
-import {
-  Pair,
-  Pivot,
-  FailureConfig,
-  PivotTable,
-  PivotSQLResult,
-} from './model'
+import { Pair, Pivot, FailureConfig, PivotTable, PivotSQLResult } from './model'
 import {
   buildColumns,
   IColumn,
@@ -32,8 +26,8 @@ export interface IFailurePivotsConfigureState {
   selectedPivots: Pair[]
   selectedPivotsOnlyKey: number[]
   isFilterExpValid: boolean
-    validateAZKey: string
-    previousMode: string
+  validateAZKey: string
+  previousMode: string
 }
 
 export class FailurePivotsConfigure extends React.Component<
@@ -55,8 +49,8 @@ export class FailurePivotsConfigure extends React.Component<
       selectedPivots: [],
       selectedPivotsOnlyKey: [],
       isFilterExpValid: true,
-        validateAZKey: '',
-        previousMode:''
+      validateAZKey: '',
+      previousMode: '',
     }
   }
 
@@ -177,8 +171,8 @@ export class FailurePivotsConfigure extends React.Component<
       let updated = item.selected
         ? [...(this.state.selectedPivots ?? []), item as Pair]
         : this.state.selectedPivots?.filter(
-          (val) => parseInt(val.key) !== item.key
-        )
+            (val) => parseInt(val.key) !== item.key
+          )
 
       this.setState({
         selectedPivots: updated,
@@ -239,7 +233,7 @@ export class FailurePivotsConfigure extends React.Component<
     this.forceUpdate()
   }
 
-  onOperatorSelected?= (
+  onOperatorSelected? = (
     event: React.FormEvent<HTMLDivElement>,
     item?: IDropdownOption
   ): void => {
@@ -387,9 +381,8 @@ export class FailurePivotsConfigure extends React.Component<
     return []
   }
 
-    getRequiredSchemaForPivotTable() {
-
-        this.requiredPivotTableData = []
+  getRequiredSchemaForPivotTable() {
+    this.requiredPivotTableData = []
 
     for (let ele of this.resultantPivotSQL) {
       var item: PivotTable = {
@@ -424,13 +417,14 @@ export class FailurePivotsConfigure extends React.Component<
       StudyID: this.props.studyid,
       PivotSourceSubType: this.props.selectedVerticalForStudy.key,
       Pivots: [],
-      }
+    }
 
-      this.setState({ previousMode: this.props.selectedVerticalForStudy.key })
+    this.setState({ previousMode: this.props.selectedVerticalForStudy.key })
 
     await axios
       .get(
-        `api/Data/GetAllConfiguredFailurePivotsForAVertical/sourcesubtype/${input.PivotSourceSubType}/studyid/${input.StudyID}`)
+        `api/Data/GetAllConfiguredFailurePivotsForAVertical/sourcesubtype/${input.PivotSourceSubType}/studyid/${input.StudyID}`
+      )
       .then((res) => {
         console.log(res.data)
         this.resultantPivotSQL = res.data
@@ -502,9 +496,10 @@ export class FailurePivotsConfigure extends React.Component<
     } else return <span>{fieldContent}</span>
   }
 
-    render(): React.ReactElement {
-
-    ((this.state.previousMode != this.props.selectedVerticalForStudy.key) ? this.onPivotDropdownLoad() : '')
+  render(): React.ReactElement {
+    this.state.previousMode != this.props.selectedVerticalForStudy.key
+      ? this.onPivotDropdownLoad()
+      : ''
 
     this.cols = []
     this.buildColumnArray()

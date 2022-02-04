@@ -14,12 +14,7 @@ import {
   TooltipHost,
 } from '@fluentui/react'
 import * as React from 'react'
-import {
-  FailureConfig,
-  Pair,
-  FilterExpTable,
-  PivotScopeFilter,
-} from './model'
+import { FailureConfig, Pair, FilterExpTable, PivotScopeFilter } from './model'
 import { FailureCurveSave } from '../FailureCurve/FailureCurveSave'
 import { FailureCurveValidate } from '../FailureCurve/FailureCurveValidate'
 import '../FailureCurve/FailureCurveSection.css'

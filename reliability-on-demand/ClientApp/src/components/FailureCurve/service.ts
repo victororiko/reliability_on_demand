@@ -1,8 +1,10 @@
-import { Vertical } from "./model";
-import { sampleVerticals } from './sampleVerticals';
+import { Vertical } from './model'
+import { sampleVerticals } from './sampleVerticals'
 
-export const verticals = sampleVerticals;
-export const loadVerticals = ():Vertical[] => verticals
+export const verticals = sampleVerticals
+export const loadVerticals = (): Vertical[] => {
+  return verticals
+}
 
 // TODO uncomment this to make backend call
 // const loadVerticals = () => {
@@ -17,14 +19,16 @@ export const loadVerticals = ():Vertical[] => verticals
 //         .catch(err => console.error(err))
 // }
 
-export const getVerticalFromList = (list:string[]):Vertical[] => {
-    const parsedVerticalList:Vertical[] = [];
-    for(let i = 0; i < list.length; i++){
-        const selection = list[i];
-        const parsedVertical:Vertical | undefined = verticals.find(({ VerticalName }) => 
-        VerticalName === selection);
-        if(parsedVertical)
-            parsedVerticalList.push(parsedVertical);
-    }
-    return parsedVerticalList;
+export const getVerticalFromList = (list: string[]): Vertical[] => {
+  const parsedVerticalList: Vertical[] = []
+  for (let i = 0; i < list.length; i++) {
+    const selection = list[i]
+    const parsedVertical: Vertical | undefined = verticals.find(
+      ({ VerticalName }) => {
+        return VerticalName === selection
+      }
+    )
+    if (parsedVertical) parsedVerticalList.push(parsedVertical)
+  }
+  return parsedVerticalList
 }
