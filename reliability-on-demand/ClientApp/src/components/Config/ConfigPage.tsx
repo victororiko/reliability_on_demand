@@ -7,6 +7,7 @@ import { FailureCurve } from '../FailureCurve'
 
 // Stack
 import { containerStackTokens } from '../helpers/Styles'
+import { Metrics } from '../Metrics'
 
 export interface IConfigProps {}
 
@@ -55,6 +56,7 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
           callBack={this.selectStudy}
         />
         <FailureCurve studyid={this.state.currentStudyId} />
+        <Metrics studyid={this.state.currentStudyId} />
       </Stack>
     )
   }

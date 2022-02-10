@@ -18,5 +18,6 @@ namespace reliability_on_demand.DataLayer
         string GetAllDefaultFailurePivotsForAVertical(string sourcesubtype);
         string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid);
         void UpdateFailureSavedConfig(FailureConfig f);
+        string GetDefaultMetricsConfig();
     }
 }

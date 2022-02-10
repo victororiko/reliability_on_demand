@@ -368,7 +368,13 @@ namespace reliability_on_demand.DataLayer
             this.Database.CloseConnection();
         }
 
-
+        //Get default metrics
+        public string GetDefaultMetricsConfig()
+        {
+            string query = "SELECT * FROM [dbo].[RelMetricConfiguration_Defaults]";
+            string res = GetSQLResultsJSON(query);
+            return res;
+        }
 
     }
 }

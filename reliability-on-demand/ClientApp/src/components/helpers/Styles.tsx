@@ -8,4 +8,11 @@ export const largeTitle: ITheme = createTheme({
   },
 })
 // Stack related stuff
-export const containerStackTokens: IStackTokens = { childrenGap: 10 }
+export const containerStackTokens: IStackTokens = {
+  childrenGap: 10,
+}
+
+export const horizontalStackTokens: IStackTokens = {
+  childrenGap: 50,
+  padding: 10,
+}

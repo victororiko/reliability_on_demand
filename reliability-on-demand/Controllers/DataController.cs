@@ -175,5 +175,13 @@ namespace reliability_on_demand.Controllers
         {
             this._sqlservice.UpdateFailureSavedConfig(fg);
         }
+
+        [HttpGet("api/Data/GetDefaultMetricsConfig")]
+        public IActionResult GetDefaultMetricsConfig()
+        {
+            string res = this._sqlservice.GetDefaultMetricsConfig();
+            _logger.LogInformation("GetDefaultMetricsConfig");
+            return Ok(res);
+        }
     }
 }

@@ -77,5 +77,10 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.GetAllTeamConfigs();
         }
+        
+        string ISQLService.GetDefaultMetricsConfig()
+        {
+            return _context.GetDefaultMetricsConfig();
+        }
     }
 }
