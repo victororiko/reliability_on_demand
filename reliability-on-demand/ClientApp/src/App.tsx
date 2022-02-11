@@ -6,6 +6,7 @@ import { Layout } from './components/Layout'
 import { ConfigPage } from './components/Config/ConfigPage'
 import { KustoData } from './components/Other/KustoData'
 import { ParamsTest } from './components/Other/ParamsTest'
+import { AdminPage } from './components/Admin/index'
 import './custom.css'
 
 initializeIcons()
@@ -19,7 +20,8 @@ export const App = () => {
           matching route and render appropriate component. It will 
         ignore rest of the routes once it has found matching route */}
         <Route path="/params-test" component={ParamsTest} />
-        <Route path="/kusto-data" component={KustoData} />
+              <Route path="/kusto-data" component={KustoData} />
+              <Route path="/admin-page" component={AdminPage} />
         {/* If none of the previous routes render anything,
             this route acts as a fallback.
 

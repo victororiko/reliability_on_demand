@@ -110,11 +110,39 @@ namespace reliability_on_demand.Controllers
             }
         }
 
-        [Route("api/Data/AddTeam")]
+
+        [Route("api/Data/SaveTeam")]
         [HttpPost("[action]")]
-        public string AddTeam([FromBody] TeamConfig inquiry)
+        public IActionResult SaveTeam([FromBody] TeamConfig inquiry)
         {
-            return this._sqlservice.AddTeam(inquiry);
+            try
+            {
+                _logger.LogInformation($"SaveTeam was called | TeamConfig = {inquiry}");
+                return Ok(this._sqlservice.SaveTeam(inquiry));
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed Save Team.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [Route("api/Data/DeleteTeam")]
+        [HttpPost("[action]")]
+        public IActionResult DeleteTeam([FromBody] TeamConfig inquiry)
+        {
+            try
+            {
+                _logger.LogInformation($"Delete Team was called | TeamConfig = {inquiry}");
+                return Ok(this._sqlservice.DeleteTeam(inquiry));
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed Delete Team.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
         }
 
         [Route("api/Data/GetAllMainVertical")]

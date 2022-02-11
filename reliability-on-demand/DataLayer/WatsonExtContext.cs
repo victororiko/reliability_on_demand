@@ -99,19 +99,34 @@ namespace reliability_on_demand.DataLayer
             }
         }
 
-        public string AddTeam(TeamConfig inquiry)
+        public string SaveTeam(TeamConfig inquiry)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.AddTeam";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-            // add any params here
-            cmd.Parameters.Add(new SqlParameter("@OwnerContact", inquiry.OwnerContact));
-            cmd.Parameters.Add(new SqlParameter("@OwnerTeamFriendlyName", inquiry.OwnerTeamFriendlyName));
-            cmd.Parameters.Add(new SqlParameter("@OwnerTriageAlias", inquiry.OwnerTriageAlias));
+
+            if (inquiry.TeamID == -1)
+            {
+                cmd.CommandText = "dbo.AddTeam";
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                // add any params here
+                cmd.Parameters.Add(new SqlParameter("@OwnerContact", inquiry.OwnerContact));
+                cmd.Parameters.Add(new SqlParameter("@OwnerTeamFriendlyName", inquiry.OwnerTeamFriendlyName));
+                cmd.Parameters.Add(new SqlParameter("@OwnerTriageAlias", inquiry.OwnerTriageAlias));
+                cmd.Parameters.Add(new SqlParameter("@ComputeResourceLocation",inquiry.ComputeResourceLocation));
+            }
+            else
+            {
+                cmd.CommandText = "dbo.UpdateTeam";
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@OwnerContact", inquiry.OwnerContact));
+                cmd.Parameters.Add(new SqlParameter("@OwnerTeamFriendlyName", inquiry.OwnerTeamFriendlyName));
+                cmd.Parameters.Add(new SqlParameter("@OwnerTriageAlias", inquiry.OwnerTriageAlias));
+                cmd.Parameters.Add(new SqlParameter("@ComputeResourceLocation", inquiry.ComputeResourceLocation));
+                cmd.Parameters.Add(new SqlParameter("@TeamID", inquiry.TeamID));
+            }
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
@@ -124,8 +139,31 @@ namespace reliability_on_demand.DataLayer
             }
             return sb.ToString();
         }
-        public string GetAllStudyConfigsForTeam(int TeamID)
+
+        public string DeleteTeam(TeamConfig inquiry)
         {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+
+            cmd.CommandText = "dbo.DeleteTeam";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            cmd.Parameters.Add(new SqlParameter("@TeamID", inquiry.TeamID));
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+
+          public string GetAllStudyConfigsForTeam(int TeamID)
+          {
             //ensure that connection is open
             this.Database.OpenConnection();
 

@@ -59,6 +59,11 @@ export class NavMenu extends React.Component<INavMenuProps, INavMenuState> {
                   </NavLink>
                 </NavItem>
                 <NavItem>
+                  <NavLink tag={Link} className="text-dark" to="/admin-page">
+                    Admin Page
+                  </NavLink>
+                </NavItem>
+                <NavItem>
                   <NavLink
                     tag={Link}
                     className="text-dark"

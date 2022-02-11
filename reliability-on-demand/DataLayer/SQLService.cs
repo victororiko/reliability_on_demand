@@ -32,9 +32,9 @@ namespace reliability_on_demand.DataLayer
             return _context.GetAllStudyConfigsForTeam(TeamID);
         }
 
-        string ISQLService.AddTeam(TeamConfig inquiry)
+        string ISQLService.SaveTeam(TeamConfig inquiry)
         {
-           return _context.AddTeam(inquiry);
+           return _context.SaveTeam(inquiry);
         }
 
         string ISQLService.AddStudy(StudyConfig userCreatedStudy){
@@ -81,6 +81,11 @@ namespace reliability_on_demand.DataLayer
         string ISQLService.GetDefaultMetricsConfig()
         {
             return _context.GetDefaultMetricsConfig();
+        }
+
+        public string DeleteTeam(TeamConfig team)
+        {
+            return _context.DeleteTeam(team);
         }
     }
 }

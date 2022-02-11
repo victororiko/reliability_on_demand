@@ -127,12 +127,6 @@ export default class TeamDetails extends React.Component<
           aria-label="Compute Resource Location"
           disabled={this.state.currentTeam !== undefined}
         />
-
-        <PrimaryButton
-          text="Add"
-          disabled={this.state.currentTeam !== undefined}
-          onClick={this.handleSubmit}
-        />
       </div>
     )
   }

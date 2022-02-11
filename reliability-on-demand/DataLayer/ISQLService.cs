@@ -7,7 +7,7 @@ namespace reliability_on_demand.DataLayer
     {
         string GetAllUnifiedConfigs();
         List<TeamConfig> GetAllTeamConfigs();
-        string AddTeam(TeamConfig inquiry);
+        string SaveTeam(TeamConfig inquiry);
         string AddStudy(StudyConfig userCreatedStudy);
         string GetAllStudyConfigsForTeam(int TeamID);
         int LogRelOnDemandQuery<T>(string username, string url, string access, T payload);
@@ -19,5 +19,6 @@ namespace reliability_on_demand.DataLayer
         string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid);
         void UpdateFailureSavedConfig(FailureConfig f);
         string GetDefaultMetricsConfig();
+        string DeleteTeam(TeamConfig team);
     }
 }

@@ -9,5 +9,6 @@ namespace reliability_on_demand.DataLayer
         public string OwnerContact { get; set; }
         public string OwnerTeamFriendlyName { get; set; }
         public string OwnerTriageAlias { get; set; }
+        public string ComputeResourceLocation { get; set; }
     }
 }

@@ -73,3 +73,11 @@ export const convertSimpleTypeToOptions = (
 export const onlyUnique = (myArray: any[]) => {
   return [...new Set(myArray)]
 }
+
+
+/**
+ * Just saving some initialization values for previous and create
+ */
+
+export const CreateNewID = -1;
+export const DummyID = -2;
