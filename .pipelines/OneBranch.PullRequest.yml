@@ -40,6 +40,8 @@ variables:
   value: 'Release'
 - name: WindowsContainerImage
   value: 'cdpxwin1809.azurecr.io/global/vse2019:latest' # Docker image which is used to build the project https://aka.ms/obpipelines/containers
+- name: clientAppDir
+  value: 'reliability-on-demand\ClientApp'
 
 resources:
   repositories: 
@@ -80,7 +82,28 @@ extends:
           # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\build.official.gdnsuppress
 
         steps:
-          # Our Tasks
+          ##################### Start Our Tasks #####################
+          # .NET 
+
+          # React
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '12.x'
+            displayName: 'Install Node.js'
+
+          - task: Npm@1
+            inputs:
+              command: 'install'
+              workingDir: '$(clientAppDir)'
+            displayName: 'npm install'
+          
+          - task: CmdLine@2
+            inputs:
+              script: 'npm run prep'
+              workingDirectory: '$(clientAppDir)'
+            displayName: 'Format and Lint code'
+
+          # Canaveral
           - task: ArchiveFiles@2
             inputs:
               rootFolderOrFile: '$(build.sourcesDirectory)'
@@ -96,7 +119,7 @@ extends:
               clientId: $(DeploymentClientId)
               clientSecret: $(DeploymentClientSecret)
 
-          # OneBranch Tasks
+          ##################### End Our Tasks #####################
           - task: onebranch.pipeline.version@1 # generates automatic version. For other versioning options check https://aka.ms/obpipelines/versioning
             displayName: 'Setup BuildNumber'
             inputs:
