@@ -1,4 +1,4 @@
-import { TeamConfig} from '../../models/TeamModel'
+import { TeamConfig } from '../../models/TeamModel'
 
 export const getTeamFromID = (
   selection: number,

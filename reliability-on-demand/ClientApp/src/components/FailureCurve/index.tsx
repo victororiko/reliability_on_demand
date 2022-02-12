@@ -105,7 +105,9 @@ export class FailureCurve extends React.Component<
             }
             onClick={() => {
               return this.setState((prevState) => {
-                return { isButtonClicked: !prevState.isButtonClicked }
+                return {
+                  isButtonClicked: !prevState.isButtonClicked,
+                }
               })
             }}
             allowDisabledFocus

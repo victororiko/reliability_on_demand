@@ -20,8 +20,8 @@ export const App = () => {
           matching route and render appropriate component. It will 
         ignore rest of the routes once it has found matching route */}
         <Route path="/params-test" component={ParamsTest} />
-              <Route path="/kusto-data" component={KustoData} />
-              <Route path="/admin-page" component={AdminPage} />
+        <Route path="/kusto-data" component={KustoData} />
+        <Route path="/admin-page" component={AdminPage} />
         {/* If none of the previous routes render anything,
             this route acts as a fallback.
 

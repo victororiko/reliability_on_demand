@@ -9,34 +9,33 @@ export interface Props {
 }
 
 export const OwnerTeamFriendlyName = (props: Props) => {
-    const [textFieldValue, setTextFieldValue] = React.useState('')
-    const [previousTeamID, setPreviousTeamID] = React.useState(DummyID)
+  const [textFieldValue, setTextFieldValue] = React.useState('')
+  const [previousTeamID, setPreviousTeamID] = React.useState(DummyID)
   const handleTextInput = React.useCallback(
     (
       event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
       newValue?: string
-      ) => {
-          setPreviousTeamID(props.currentTeam?.teamID ?? CreateNewID)
-          setTextFieldValue(newValue || '')
+    ) => {
+      setPreviousTeamID(props.currentTeam?.teamID ?? CreateNewID)
+      setTextFieldValue(newValue || '')
       props.callback(newValue)
     },
     [props]
   )
 
   const getSelectedKey = (currenTeam: TeamConfig | undefined) => {
-      // To make the field editable for update as well.
-      if (currenTeam?.teamID !== previousTeamID) {
+    // To make the field editable for update as well.
+    if (currenTeam?.teamID !== previousTeamID) {
       props.callback(currenTeam?.ownerTeamFriendlyName)
       return currenTeam?.ownerTeamFriendlyName
-      }
+    }
 
     return textFieldValue
   }
 
-    React.useEffect(() => {
-        setTextFieldValue(props.currentTeam?.ownerTeamFriendlyName || '')
-    }, [props.currentTeam])
-
+  React.useEffect(() => {
+    setTextFieldValue(props.currentTeam?.ownerTeamFriendlyName || '')
+  }, [props.currentTeam])
 
   return (
     <TextField

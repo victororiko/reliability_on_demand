@@ -28,8 +28,8 @@ export const TeamComboBox = (props: Props) => {
     event: FormEvent<IComboBox>,
     option?: IComboBoxOption | undefined
   ): void => {
-      setSelectedItem(option)
-      props.callBack(option ? option.key : CreateNewID)
+    setSelectedItem(option)
+    props.callBack(option ? option.key : CreateNewID)
   }
 
   // -1 is just a way of checking in UI if user wants to add a new study or update a already existing study.
@@ -43,8 +43,8 @@ export const TeamComboBox = (props: Props) => {
       }
       return rObj
     })
-      parsedList.push({
-          key: CreateNewID,
+    parsedList.push({
+      key: CreateNewID,
       text: 'create new team',
     })
     return parsedList
@@ -52,8 +52,8 @@ export const TeamComboBox = (props: Props) => {
 
   return (
     <div>
-          <VirtualizedComboBox
-              selectedKey={selectedItem ? selectedItem.key : CreateNewID}
+      <VirtualizedComboBox
+        selectedKey={selectedItem ? selectedItem.key : CreateNewID}
         label="Team"
         allowFreeform
         autoComplete="on"
