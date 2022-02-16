@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Stack, Text } from '@fluentui/react'
 import { LowUsageMinimum } from './LowUsageMinimum'
 import { HighUsageMinimum } from './HighUsageMinimum'
@@ -6,8 +6,9 @@ import { horizontalStackTokens } from '../helpers/Styles'
 import { FailureRate } from './FailureRate'
 import { AddMetricButton } from './AddMetricButton'
 import { Metric } from './model'
+import { CreateNewID } from '../helpers/utils'
 
-type Props = {
+interface Props {
   metricData: Metric[]
   studyid: number
 }
@@ -19,7 +20,7 @@ export const MetricDetails = (props: Props) => {
   userMetric.MinUsageInMS = props.metricData[0].MinUsageInMS ?? 0
   userMetric.HighUsageMinInMS = props.metricData[0].HighUsageMinInMS ?? 0
   userMetric.FailureRateInHour = props.metricData[0].FailureRateInHour ?? 0
-  userMetric.StudyId = props.studyid ?? -1
+  userMetric.StudyId = props.studyid ?? CreateNewID
 
   const updateUserMetricMinUsage = (minUsage: number) => {
     userMetric.MinUsageInMS = minUsage
@@ -29,7 +30,6 @@ export const MetricDetails = (props: Props) => {
   }
   const updateUserMetricFailureRate = (failureRate: number) => {
     userMetric.FailureRateInHour = failureRate
-    console.table(userMetric)
   }
 
   return (

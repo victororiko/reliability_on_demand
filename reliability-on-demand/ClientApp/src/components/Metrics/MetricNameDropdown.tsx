@@ -1,34 +1,27 @@
-import React, { FormEvent } from 'react'
+import React, { FormEvent, useState } from 'react'
 import { Dropdown, IDropdownOption, Text } from '@fluentui/react'
 import { getDistinctMetricNames, Metric } from './model'
 import { convertSimpleTypeToOptions } from '../helpers/utils'
 import { MetricDetails } from './MetricDetails'
 
-type Props = {
+interface Props {
   metricData: Metric[]
   studyid: number
 }
 
 export const MetricNameDropdown = (props: Props) => {
-  const [selectedItem, setSelectedItem] = React.useState<
-    IDropdownOption | undefined
-  >(
-    props.metricData.length > 0
-      ? {
-          key: 0,
-          text: props.metricData[0].MetricName,
-        }
-      : {
-          key: 0,
-          text: '',
-        }
-  )
+  // initialize dropdown with first metric name
+  const [selectedItem, setSelectedItem] = useState<IDropdownOption>({
+    key: 0,
+    text: props.metricData[0].MetricName,
+  })
   const onChange = (
     event: FormEvent<HTMLDivElement>,
     option?: IDropdownOption<any> | undefined,
     index?: number | undefined
   ) => {
-    setSelectedItem(option)
+    if(option!== undefined)
+      setSelectedItem(option)
   }
   return (
     <div>
@@ -38,7 +31,7 @@ export const MetricNameDropdown = (props: Props) => {
           getDistinctMetricNames(props.metricData),
           true
         )}
-        selectedKey={selectedItem ? selectedItem.key : 0}
+        selectedKey={selectedItem ? selectedItem.key : undefined}
         onChange={onChange}
       />
       <MetricDetails

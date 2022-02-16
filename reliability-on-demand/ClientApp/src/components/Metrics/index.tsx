@@ -42,8 +42,7 @@ export const Metrics = (props: Props) => {
         <Loading message="Getting Default Metrics - hang tight" />
       ) : (
         <Stack>
-          <h3>Metrics Section</h3>
-          <p>study id = {props.studyid}</p>
+          <h1>Metrics Section</h1>
           <VerticalDropdown metricData={defaults} studyid={props.studyid} />
         </Stack>
       )}

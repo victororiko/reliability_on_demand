@@ -413,6 +413,36 @@ namespace reliability_on_demand.DataLayer
             string res = GetSQLResultsJSON(query);
             return res;
         }
+        public string AddMetric(MetricConfig userCreatedMetric)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
 
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.AddMetric";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@MetricName", userCreatedMetric.MetricName));
+            cmd.Parameters.Add(new SqlParameter("@Vertical", userCreatedMetric.Vertical));
+            cmd.Parameters.Add(new SqlParameter("@MinUsageInMS", userCreatedMetric.MinUsageInMS));
+            cmd.Parameters.Add(new SqlParameter("@FailureRateInHour", userCreatedMetric.FailureRateInHour));
+            cmd.Parameters.Add(new SqlParameter("@HighUsageMinInMS", userCreatedMetric.HighUsageMinInMS));
+            cmd.Parameters.Add(new SqlParameter("@MetricGoal", userCreatedMetric.MetricGoal));
+            cmd.Parameters.Add(new SqlParameter("@StudyId", userCreatedMetric.StudyId));
+            cmd.Parameters.Add(new SqlParameter("@MetricGoalAspirational", userCreatedMetric.MetricGoalAspirational));
+            cmd.Parameters.Add(new SqlParameter("@IsUsage", userCreatedMetric.IsUsage));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
     }
 }

@@ -83,6 +83,9 @@ namespace reliability_on_demand.DataLayer
             return _context.GetDefaultMetricsConfig();
         }
 
+        string ISQLService.AddMetric(MetricConfig userCreatedMetric){
+            return _context.AddMetric(userCreatedMetric);
+        }
         public string DeleteTeam(TeamConfig team)
         {
             return _context.DeleteTeam(team);

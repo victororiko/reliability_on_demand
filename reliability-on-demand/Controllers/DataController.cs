@@ -211,5 +211,20 @@ namespace reliability_on_demand.Controllers
             _logger.LogInformation("GetDefaultMetricsConfig");
             return Ok(res);
         }
+
+        [Route("api/Data/AddMetric")]
+        [HttpPost("[action]")]
+        public IActionResult AddMetric([FromBody] MetricConfig userCreatedMetric)
+        {
+            try{
+                _logger.LogInformation($"AddMetric was called | MetricConfig = {userCreatedMetric}");
+                return Ok(this._sqlservice.AddMetric(userCreatedMetric));
+            }
+            catch(Exception ex){
+                string message = $"Failed AddMetric.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
     }
 }
