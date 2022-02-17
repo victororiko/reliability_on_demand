@@ -71,6 +71,7 @@
       "git add"
     ]
   },
+  "proxy": "https://localhost:5001",
   "scripts": {
     "start": "npm run prep && rimraf ./build && react-scripts start",
     "prep": "npm run format && npm run lint",
