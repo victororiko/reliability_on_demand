@@ -8,15 +8,14 @@ interface Props {
   userMetric: Metric | {}
 }
 
-export const AddMetricButton = (props: Props) => {
+export const AddMetricConfigButton = (props: Props) => {
   const [metricAdded, setMetricAdded] = useState(false)
-  const alertClicked = () => {
+  const handleClick = () => {
     alert(`new metric to add = ${JSON.stringify(props.userMetric)}`)
 
     axios
-      .post('api/Data/AddMetric', props.userMetric)
+      .post('api/Data/AddMetricConfig', props.userMetric)
       .then((response) => {
-        // TODO show an indication that new metric has been added - maybe refresh list of metrics
         setMetricAdded(true)
       })
       .catch((error) => {
@@ -29,8 +28,8 @@ export const AddMetricButton = (props: Props) => {
         <MessageBox message="User Metric Added" />
       ) : (
         <PrimaryButton
-          text="Add Metric"
-          onClick={alertClicked}
+          text="Add Metric Config"
+          onClick={handleClick}
           allowDisabledFocus
         />
       )}

@@ -19,7 +19,8 @@ namespace reliability_on_demand.DataLayer
         string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid);
         void UpdateFailureSavedConfig(FailureConfig f);
         string GetDefaultMetricsConfig();
-        string AddMetric(MetricConfig userCreatedMetric);
+        string AddMetricConfig(MetricConfig userCreatedMetric);
         string DeleteTeam(TeamConfig team);
+        string GetMetricConfigs(int StudyId);
     }
 }

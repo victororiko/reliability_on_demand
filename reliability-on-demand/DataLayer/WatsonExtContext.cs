@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
 
+// please try to use capitalization style specified in .NET documentation - https://docs.microsoft.com/en-us/previous-versions/dotnet/netframework-1.1/x2dbyw72(v=vs.71)
 namespace reliability_on_demand.DataLayer
 {
     public class WatsonExtContext : DbContext
@@ -412,15 +413,15 @@ namespace reliability_on_demand.DataLayer
             string query = "SELECT * FROM [dbo].[RelMetricConfiguration_Defaults]";
             string res = GetSQLResultsJSON(query);
             return res;
-        }
-        public string AddMetric(MetricConfig userCreatedMetric)
+        }        
+        public string AddMetricConfig(MetricConfig userCreatedMetric)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.AddMetric";
+            cmd.CommandText = "dbo.AddMetricConfig";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@MetricName", userCreatedMetric.MetricName));
@@ -432,6 +433,29 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@StudyId", userCreatedMetric.StudyId));
             cmd.Parameters.Add(new SqlParameter("@MetricGoalAspirational", userCreatedMetric.MetricGoalAspirational));
             cmd.Parameters.Add(new SqlParameter("@IsUsage", userCreatedMetric.IsUsage));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+        public string GetMetricConfigs(int StudyId)
+          {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetMetricConfigs";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyId", StudyId));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();

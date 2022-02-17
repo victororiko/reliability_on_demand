@@ -4,7 +4,7 @@ import { LowUsageMinimum } from './LowUsageMinimum'
 import { HighUsageMinimum } from './HighUsageMinimum'
 import { horizontalStackTokens } from '../helpers/Styles'
 import { FailureRate } from './FailureRate'
-import { AddMetricButton } from './AddMetricButton'
+import { AddMetricConfigButton } from './AddMetricConfigButton'
 import { Metric } from './model'
 import { CreateNewID } from '../helpers/utils'
 
@@ -58,7 +58,7 @@ export const MetricDetails = (props: Props) => {
         metricData={props.metricData}
         callback={updateUserMetricFailureRate}
       />
-      <AddMetricButton userMetric={userMetric} />
+      <AddMetricConfigButton userMetric={userMetric} />
     </div>
   )
 }

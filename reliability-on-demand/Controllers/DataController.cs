@@ -212,16 +212,35 @@ namespace reliability_on_demand.Controllers
             return Ok(res);
         }
 
-        [Route("api/Data/AddMetric")]
+        [Route("api/Data/AddMetricConfig")]
         [HttpPost("[action]")]
-        public IActionResult AddMetric([FromBody] MetricConfig userCreatedMetric)
+        public IActionResult AddMetricConfig([FromBody] MetricConfig userCreatedMetric)
         {
             try{
-                _logger.LogInformation($"AddMetric was called | MetricConfig = {userCreatedMetric}");
-                return Ok(this._sqlservice.AddMetric(userCreatedMetric));
+                _logger.LogInformation($"AddMetricConfig was called | MetricConfig = {userCreatedMetric}");
+                return Ok(this._sqlservice.AddMetricConfig(userCreatedMetric));
             }
             catch(Exception ex){
-                string message = $"Failed AddMetric.\nException = {ex}";
+                string message = $"Failed AddMetricConfig.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [HttpGet("api/Data/GetMetricConfigs/{StudyId}")]
+        public IActionResult GetMetricConfigs(int StudyId)
+        {
+            try
+            {
+                string res = this._sqlservice.GetMetricConfigs(StudyId);
+                _logger.LogInformation($"GetMetricConfigs called with StudyId = {StudyId}");
+                if(String.IsNullOrEmpty(res))
+                    _logger.LogDebug("No Metrics Configured");
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetMetricConfigs.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
             }
