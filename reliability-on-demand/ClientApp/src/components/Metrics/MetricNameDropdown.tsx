@@ -20,8 +20,7 @@ export const MetricNameDropdown = (props: Props) => {
     option?: IDropdownOption<any> | undefined,
     index?: number | undefined
   ) => {
-    if(option!== undefined)
-      setSelectedItem(option)
+    if (option !== undefined) setSelectedItem(option)
   }
   return (
     <div>
