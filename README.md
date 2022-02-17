@@ -114,6 +114,7 @@ Read instructions for [nvm](https://github.com/coreybutler/nvm-windows) to downl
 This project uses airbnb-base and airbnb-typescript rules for linting. Furthermore, [these instructions](https://gist.github.com/EliEladElrom/54c5046cf21877824d1bc38d5dd33d81) were used to configure linting.
 
 ## Deploying
+### Staging slot
 1. Please go to [Staging slot](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/b1ffe277-b0a8-466c-b97c-18bfa349594b/resourceGroups/riod_rg/providers/Microsoft.Web/sites/reliabilityondemand/slots/staging/appServices)
 2. If this is the first time you're deploying - Download publishing profile. 
 3. In Visual Studio right click `relaibility-on-demand`
@@ -121,7 +122,14 @@ This project uses airbnb-base and airbnb-typescript rules for linting. Furthermo
 5. Import the downloaded Publishing profile
 6. Click Publish
 7. On [Azure portal](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/b1ffe277-b0a8-466c-b97c-18bfa349594b/resourceGroups/riod_rg/providers/Microsoft.Web/sites/reliabilityondemand/slots/staging/appServices) 
-Click Swap and ***swap the 2 slots*** to get your new changes into production!!!
+8. Click Swap and ***swap the 2 slots*** to get your new changes into production!!!
+
+### Testing slot
+Same Steps as above except last one. Do not swap with production. 
+Please go to [Testing slot](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/b1ffe277-b0a8-466c-b97c-18bfa349594b/resourceGroups/riod_rg/providers/Microsoft.Web/sites/reliabilityondemand/slots/testing/appServices)
+Note: in Visual Studio you may have various publishing profiles. Make sure you pick the correct (testing) deployment profile. 
+
+To check your deployment settings - visit [RIOD clarifications](https://microsoft.sharepoint.com/:p:/t/FUNREL/EYBcXW1xZPxAqrFw9cM5PzoBfQx6u0ti8KX159gTKFgk6g?e=8AQZn0) deployment slide.  
 
 # Current Branch policies
 1. You cannot make commits to main directly
