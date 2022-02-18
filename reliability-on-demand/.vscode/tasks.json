@@ -37,6 +37,64 @@
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Start Client",
+            "type": "shell",
+            "command": "npm run start",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true,
+                "group": "myTasks"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/ClientApp"
+            },
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "isBackground": false,
+            "problemMatcher": [
+                "$eslint-stylish"
+            ]
+        },
+        {
+            "label": "Start Server",
+            "type": "shell",
+            "command": "dotnet run",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true,
+                "group": "myTasks"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "isBackground": false,
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
+            "label": "Start Full Project",
+            "dependsOn": [
+                "Start Client",
+                "Start Server"
+            ],
+            "problemMatcher": [
+                "$msCompile"
+            ]
         }
     ]
 }

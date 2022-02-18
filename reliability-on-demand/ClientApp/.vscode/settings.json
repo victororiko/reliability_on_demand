@@ -1,0 +1,5 @@
+// configure working directories using https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+{
+  "eslint.workingDirectories": ["./ClientApp"]
+}
+ 

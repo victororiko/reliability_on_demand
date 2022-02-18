@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/b1ffe277-b0a8-466c-b97c-18bfa349594b/resourceGroups/RIOD_RG/providers/Microsoft.Web/sites/reliabilityondemand/slots/testing",
+    "appService.deploySubpath": "reliability-on-demand"
+}
