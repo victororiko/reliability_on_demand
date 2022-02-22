@@ -1,3 +1,4 @@
+----------------- RelMetricConfiguration -----------------
 -- check newly added results
 select *
 from RelMetricConfiguration
@@ -5,6 +6,19 @@ where StudyId = 283
 FOR JSON AUTO, Include_Null_Values
 go
 
+
+-- clear RelMetricConfiguration
+-- Drop the table 'RelMetricConfiguration' in schema 'dbo'
+IF EXISTS (
+    SELECT *
+FROM sys.tables
+    JOIN sys.schemas
+    ON sys.tables.schema_id = sys.schemas.schema_id
+WHERE sys.schemas.name = N'dbo'
+    AND sys.tables.name = N'RelMetricConfiguration'
+)
+    DROP TABLE dbo.RelMetricConfiguration
+GO
 
 -- DISASTER_RECOVERY: recreate table if it doesn't exist
 IF NOT EXISTS (SELECT *
@@ -28,7 +42,11 @@ CREATE TABLE [dbo].[RelMetricConfiguration]
     [MetricGoal] [float] NULL,
     [StudyId] [int] NOT NULL,
     [MetricGoalAspirational] [float] NULL,
-    [IsUsage] [bit] NULL
+
+[IsUsage] [bit]
+NULL,
+    [UniqueKey] [UNIQUEIDENTIFIER] DEFAULT newsequentialid
+() NOT NULL
 ) ON [PRIMARY]
 GO
 
@@ -38,7 +56,11 @@ ALTER TABLE [dbo].[RelMetricConfiguration] ADD  CONSTRAINT [PK__Id] PRIMARY KEY 
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 -- end create table
-GO
+
+-- uncomment to alter existing table that does not have a UniqueIdentifier
+-- ALTER TABLE RelMetricConfiguration
+--     ADD UniqueKey UNIQUEIDENTIFIER DEFAULT newsequentialid() NOT null
+-- GO
 
 
 -- Create a new stored procedure called 'AddMetricConfig' in schema 'dbo'
@@ -149,6 +171,7 @@ GO
 EXECUTE dbo.GetMetricConfigs 283 /*value_for_param1*/
 GO
 
+----------------- RelMetricConfiguration_Defaults -----------------
 
 -- Select rows from a Table or View 'RelMetricConfiguration_Defaults' in schema 'dbo'
 SELECT *
