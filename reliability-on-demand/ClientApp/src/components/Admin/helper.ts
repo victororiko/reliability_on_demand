@@ -1,4 +1,5 @@
 import { TeamConfig } from '../../models/TeamModel'
+import { EmptyFieldErrorMessage } from '../helpers/utils'
 
 export const getTeamFromID = (
   selection: number,
@@ -9,4 +10,32 @@ export const getTeamFromID = (
     return teamID === selection
   })
   return parsedStudy
+}
+
+// returns the appropriate value for the control
+export const getControlValue = (
+  currentTeam: TeamConfig | undefined,
+  controlValue: string,
+  previousID: number,
+  callback: any
+): string | undefined => {
+  // To make the field editable for update as well.
+  if (currentTeam?.teamID !== previousID) {
+    callback(currentTeam?.ownerTriageAlias)
+    return currentTeam?.ownerTriageAlias
+  }
+  return controlValue
+}
+
+// validates the user input
+export const getErrorMessage = (
+  controlValue: string,
+  callback: any
+): string | undefined => {
+  // To make the field editable for update as well.
+  if (controlValue === '') {
+    callback(controlValue)
+    return EmptyFieldErrorMessage
+  }
+  return ''
 }

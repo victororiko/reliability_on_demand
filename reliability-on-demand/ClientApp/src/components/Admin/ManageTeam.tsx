@@ -14,7 +14,6 @@ import { TeamConfig } from '../../models/TeamModel'
 import { getTeamFromID } from './helper'
 import { CreateNewID, SaveMessage } from '../helpers/utils'
 
-
 export interface IManageTeamProps {}
 
 export const ManageTeam = (props: IManageTeamProps) => {
@@ -25,8 +24,8 @@ export const ManageTeam = (props: IManageTeamProps) => {
   const [newOwnerContact, setOwnerContact] = useState<string>()
   const [newOwnerTriageAlias, setOwnerTriageAlias] = useState<string>()
   const [newComputeResourceLocation, setComputeResourceLocation] =
-        useState<string>()
-    const [hasSaveClicked, setHasSaveClicked] = useState<boolean>(false)
+    useState<string>()
+  const [hasSaveClicked, setHasSaveClicked] = useState<boolean>(false)
 
   const loadTeams = () => {
     axios.get('api/Data/GetAllTeamConfigs').then((res) => {
@@ -57,9 +56,9 @@ export const ManageTeam = (props: IManageTeamProps) => {
         computeResourceLocation: '',
       }
       setSelectedTeam(mySelection)
-      }
+    }
 
-      setHasSaveClicked(false)
+    setHasSaveClicked(false)
   }
 
   // Set new team's name based on user's input
@@ -93,7 +92,7 @@ export const ManageTeam = (props: IManageTeamProps) => {
 
     axios.post('api/Data/DeleteTeam', teamToAddOrUpdate).then(() => {
       loadTeams()
-        selectCurrentTeam(-1)
+      selectCurrentTeam(-1)
     })
   }
 
@@ -134,17 +133,17 @@ export const ManageTeam = (props: IManageTeamProps) => {
       computeResourceLocation: tempComputeResourceLocation,
     } as TeamConfig
 
-      axios.post('api/Data/SaveTeam', teamToAddOrUpdate).then(() => {
-        loadTeams()
-          selectCurrentTeam(selectedTeamID)
-          setHasSaveClicked(true)
-      })
+    axios.post('api/Data/SaveTeam', teamToAddOrUpdate).then(() => {
+      loadTeams()
+      selectCurrentTeam(selectedTeamID)
+      setHasSaveClicked(true)
+    })
   }
 
   useEffect(() => {
     setLoading(true)
     selectCurrentTeam(-1)
-      loadTeams()
+    loadTeams()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Deciding the button name - Add or Update Team
@@ -160,14 +159,15 @@ export const ManageTeam = (props: IManageTeamProps) => {
       <DeleteTeamButton callBack={deleteTeamFromBackend} />
     ) : (
       ''
-        )
-    // checking if any one of the required fields is empty, we will disable the save button
-    const disableSaveButton = (newOwnerTriageAlias === ''
-        || newOwnerContact === ''
-        || newTeamFriendlyName === '')
+    )
+  // checking if any one of the required fields is empty, we will disable the save button
+  const disableSaveButton =
+    newOwnerTriageAlias === '' ||
+    newOwnerContact === '' ||
+    newTeamFriendlyName === ''
 
-    // Check if Save label needs to be appeared
-    const saveLabel = (hasSaveClicked === true ? <Label>{SaveMessage}</Label> : '')
+  // Check if Save label needs to be appeared
+  const saveLabel = hasSaveClicked === true ? <Label>{SaveMessage}</Label> : ''
 
   return (
     <div>
@@ -194,12 +194,12 @@ export const ManageTeam = (props: IManageTeamProps) => {
             callback={getComputeResourceLocation}
           />
           <SaveTeamButton
-                          ButtonName={buttonName}
-                          ToDisable={disableSaveButton}
+            ButtonName={buttonName}
+            ToDisable={disableSaveButton}
             callBack={addOrSetTeamToBackend}
           />
-                      {deleteButton}
-                      {saveLabel}
+          {deleteButton}
+          {saveLabel}
         </div>
       )}
     </div>

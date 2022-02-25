@@ -1,7 +1,8 @@
 import { TextField } from '@fluentui/react'
 import * as React from 'react'
 import { TeamConfig } from '../../models/TeamModel'
-import { CreateNewID, DummyID, EmptyFieldErrorMessage } from '../helpers/utils'
+import { CreateNewID, DummyID } from '../helpers/utils'
+import { getControlValue, getErrorMessage } from './helper'
 
 export interface Props {
   currentTeam?: TeamConfig
@@ -25,22 +26,18 @@ export const OwnerTeamFriendlyName = (props: Props) => {
 
   const getSelectedKey = (currenTeam: TeamConfig | undefined) => {
     // To make the field editable for update as well.
-    if (currenTeam?.teamID !== previousTeamID) {
-      props.callback(currenTeam?.ownerTeamFriendlyName)
-      return currenTeam?.ownerTeamFriendlyName
-    }
+    return getControlValue(
+      currenTeam,
+      textFieldValue,
+      previousTeamID,
+      props.callback
+    )
+  }
 
-    return textFieldValue
-    }
-
-    // For client side error - checks if the textfield is empty, displays the error.
-    const onGetErrorMessageHandler = (value: string) => {
-        if (value === '') {
-            props.callback(value)
-            return EmptyFieldErrorMessage
-        }
-        return ''
-    }
+  // For client side error - checks if the textfield is empty, displays the error.
+  const onGetErrorMessageHandler = (value: string) => {
+    return getErrorMessage(value, props.callback)
+  }
 
   React.useEffect(() => {
     setTextFieldValue(props.currentTeam?.ownerTeamFriendlyName || '')
@@ -56,7 +53,9 @@ export const OwnerTeamFriendlyName = (props: Props) => {
       onChange={handleTextInput}
       validateOnFocusOut
       aria-label="Owner contact (alias)"
-      onGetErrorMessage={(value) => { return onGetErrorMessageHandler(value) }}
+      onGetErrorMessage={(value) => {
+        return onGetErrorMessageHandler(value)
+      }}
     />
   )
 }
