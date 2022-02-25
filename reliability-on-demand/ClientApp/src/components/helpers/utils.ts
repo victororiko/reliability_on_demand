@@ -80,3 +80,5 @@ export const onlyUnique = (myArray: any[]) => {
 
 export const CreateNewID = -1
 export const DummyID = -2
+export const EmptyFieldErrorMessage = 'Empty Field'
+export const SaveMessage = 'Saved successfully!'

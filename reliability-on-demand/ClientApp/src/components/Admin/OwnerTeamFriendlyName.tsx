@@ -1,7 +1,7 @@
 import { TextField } from '@fluentui/react'
 import * as React from 'react'
 import { TeamConfig } from '../../models/TeamModel'
-import { CreateNewID, DummyID } from '../helpers/utils'
+import { CreateNewID, DummyID, EmptyFieldErrorMessage } from '../helpers/utils'
 
 export interface Props {
   currentTeam?: TeamConfig
@@ -31,7 +31,16 @@ export const OwnerTeamFriendlyName = (props: Props) => {
     }
 
     return textFieldValue
-  }
+    }
+
+    // For client side error - checks if the textfield is empty, displays the error.
+    const onGetErrorMessageHandler = (value: string) => {
+        if (value === '') {
+            props.callback(value)
+            return EmptyFieldErrorMessage
+        }
+        return ''
+    }
 
   React.useEffect(() => {
     setTextFieldValue(props.currentTeam?.ownerTeamFriendlyName || '')
@@ -47,6 +56,7 @@ export const OwnerTeamFriendlyName = (props: Props) => {
       onChange={handleTextInput}
       validateOnFocusOut
       aria-label="Owner contact (alias)"
+      onGetErrorMessage={(value) => { return onGetErrorMessageHandler(value) }}
     />
   )
 }

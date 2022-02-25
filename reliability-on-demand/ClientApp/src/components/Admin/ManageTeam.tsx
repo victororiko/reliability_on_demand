@@ -1,5 +1,6 @@
 import * as React from 'react'
 import axios from 'axios'
+import { Label } from '@fluentui/react'
 import { useEffect, useState } from 'react'
 import { Loading } from '../helpers/Loading'
 import { OwnerContactAlias } from './OwnerContactAlias'
@@ -11,7 +12,8 @@ import { ComputeResourceLocation } from './ComputeResourceLocation'
 import { DeleteTeamButton } from './DeleteTeamButton'
 import { TeamConfig } from '../../models/TeamModel'
 import { getTeamFromID } from './helper'
-import { CreateNewID } from '../helpers/utils'
+import { CreateNewID, SaveMessage } from '../helpers/utils'
+
 
 export interface IManageTeamProps {}
 
@@ -23,7 +25,8 @@ export const ManageTeam = (props: IManageTeamProps) => {
   const [newOwnerContact, setOwnerContact] = useState<string>()
   const [newOwnerTriageAlias, setOwnerTriageAlias] = useState<string>()
   const [newComputeResourceLocation, setComputeResourceLocation] =
-    useState<string>()
+        useState<string>()
+    const [hasSaveClicked, setHasSaveClicked] = useState<boolean>(false)
 
   const loadTeams = () => {
     axios.get('api/Data/GetAllTeamConfigs').then((res) => {
@@ -54,7 +57,9 @@ export const ManageTeam = (props: IManageTeamProps) => {
         computeResourceLocation: '',
       }
       setSelectedTeam(mySelection)
-    }
+      }
+
+      setHasSaveClicked(false)
   }
 
   // Set new team's name based on user's input
@@ -86,12 +91,9 @@ export const ManageTeam = (props: IManageTeamProps) => {
       computeResourceLocation: selectedTeamObj?.computeResourceLocation,
     } as TeamConfig
 
-    alert(
-      `New Team to be deleted = \n${JSON.stringify(teamToAddOrUpdate, null, 4)}`
-    )
     axios.post('api/Data/DeleteTeam', teamToAddOrUpdate).then(() => {
       loadTeams()
-      selectCurrentTeam(-1)
+        selectCurrentTeam(-1)
     })
   }
 
@@ -132,41 +134,18 @@ export const ManageTeam = (props: IManageTeamProps) => {
       computeResourceLocation: tempComputeResourceLocation,
     } as TeamConfig
 
-    if (
-      tempTeamName === null ||
-      tempTeamName === undefined ||
-      tempTeamName === ''
-    )
-      alert('please specify a Name for the team you are adding')
-    // Owner contact check
-    else if (tempOwnerContact === null || tempOwnerContact === undefined)
-      alert('please specify owner contact for the team you are adding')
-    // Owner Triage Alias check
-    else if (
-      tempOwnerTriageAlias === null ||
-      tempOwnerTriageAlias === undefined
-    )
-      alert('please specify triage alias for the team you are adding')
-    else {
-      alert(
-        `New Team to be added or updated = \n${JSON.stringify(
-          teamToAddOrUpdate,
-          null,
-          4
-        )}`
-      )
       axios.post('api/Data/SaveTeam', teamToAddOrUpdate).then(() => {
         loadTeams()
-        selectCurrentTeam(selectedTeamID)
+          selectCurrentTeam(selectedTeamID)
+          setHasSaveClicked(true)
       })
-    }
   }
 
   useEffect(() => {
     setLoading(true)
     selectCurrentTeam(-1)
-    loadTeams()
-  }, [])
+      loadTeams()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Deciding the button name - Add or Update Team
   const selectedTeamObj = getTeamFromID(
@@ -181,7 +160,14 @@ export const ManageTeam = (props: IManageTeamProps) => {
       <DeleteTeamButton callBack={deleteTeamFromBackend} />
     ) : (
       ''
-    )
+        )
+    // checking if any one of the required fields is empty, we will disable the save button
+    const disableSaveButton = (newOwnerTriageAlias === ''
+        || newOwnerContact === ''
+        || newTeamFriendlyName === '')
+
+    // Check if Save label needs to be appeared
+    const saveLabel = (hasSaveClicked === true ? <Label>{SaveMessage}</Label> : '')
 
   return (
     <div>
@@ -208,10 +194,12 @@ export const ManageTeam = (props: IManageTeamProps) => {
             callback={getComputeResourceLocation}
           />
           <SaveTeamButton
-            ButtonName={buttonName}
+                          ButtonName={buttonName}
+                          ToDisable={disableSaveButton}
             callBack={addOrSetTeamToBackend}
           />
-          {deleteButton}
+                      {deleteButton}
+                      {saveLabel}
         </div>
       )}
     </div>
