@@ -17,8 +17,8 @@ export const getControlValue = (
   currentTeam: TeamConfig | undefined,
   controlValue: string,
   previousID: number,
-    callback: any,
-    attr: string | undefined
+  callback: any,
+  attr: string | undefined
 ): string | undefined => {
   // To make the field editable for update as well.
   if (currentTeam?.teamID !== previousID) {

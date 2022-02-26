@@ -9,17 +9,23 @@ import { Metric } from './model'
 import { CreateNewID } from '../helpers/utils'
 
 interface Props {
-  metricData: Metric[]
+  isUserMetric: boolean
+  metricData: Metric | undefined
   studyid: number
 }
 
 export const MetricDetails = (props: Props) => {
   const userMetric = {} as Metric
-  userMetric.Vertical = props.metricData[0].Vertical ?? ''
-  userMetric.MetricName = props.metricData[0].MetricName ?? ''
-  userMetric.MinUsageInMS = props.metricData[0].MinUsageInMS ?? 0
-  userMetric.HighUsageMinInMS = props.metricData[0].HighUsageMinInMS ?? 0
-  userMetric.FailureRateInHour = props.metricData[0].FailureRateInHour ?? 0
+  userMetric.IsUsage = props.metricData ? props.metricData.IsUsage : true
+  userMetric.Vertical = props.metricData ? props.metricData.Vertical : ''
+  userMetric.MetricName = props.metricData ? props.metricData.MetricName : ''
+  userMetric.MinUsageInMS = props.metricData ? props.metricData.MinUsageInMS : 0
+  userMetric.HighUsageMinInMS = props.metricData
+    ? props.metricData.HighUsageMinInMS
+    : 0
+  userMetric.FailureRateInHour = props.metricData
+    ? props.metricData.FailureRateInHour
+    : 0
   userMetric.StudyId = props.studyid ?? CreateNewID
 
   const updateUserMetricMinUsage = (minUsage: number) => {
@@ -34,7 +40,7 @@ export const MetricDetails = (props: Props) => {
 
   return (
     <div>
-      {props.metricData[0].IsUsage ? (
+      {props.metricData && props.metricData.IsUsage ? (
         <div>
           <Text variant="xLarge">Usage</Text>
           <Stack horizontal tokens={horizontalStackTokens}>
@@ -58,7 +64,10 @@ export const MetricDetails = (props: Props) => {
         metricData={props.metricData}
         callback={updateUserMetricFailureRate}
       />
-      <AddMetricConfigButton userMetric={userMetric} />
+      <AddMetricConfigButton
+        userMetric={userMetric}
+        isUserMetric={props.isUserMetric}
+      />
     </div>
   )
 }

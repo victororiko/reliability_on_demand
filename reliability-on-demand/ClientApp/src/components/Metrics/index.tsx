@@ -4,9 +4,11 @@ import axios from 'axios'
 import { VerticalDropdown } from './VerticalDropdown'
 import { Metric } from './model'
 import { Loading } from '../helpers/Loading'
+import { CreateNewID } from '../helpers/utils'
 
 interface Props {
   studyid: number
+  verticalList: string[]
 }
 
 /**
@@ -17,23 +19,42 @@ interface Props {
 export const Metrics = (props: Props) => {
   const [defaults, setDefaults] = useState<Metric[]>([])
   const [loading, setLoading] = useState(true)
-  // mount component
+  const [userMetrics, setUserMetrics] = useState<Metric[]>([])
+  // reload component whenever study or vertical changes
   useEffect(() => {
-    loadMetrics()
-  }, [])
+    loadMetrics(props.verticalList, props.studyid)
+  }, [props.verticalList, props.studyid])
 
   // loading metrics pieces is here because axios
   // internals require you to setState -- not return a value
-  const loadMetrics = () => {
-    // eslint-disable-next-line prefer-const
-    axios.get(`api/Data/GetDefaultMetricsConfig`).then((res) => {
-      if (res.data) {
-        setDefaults(res.data)
-        setLoading(false)
+  const loadMetrics = async (
+    verticalList: string[],
+    studyid: number = CreateNewID
+  ) => {
+    try {
+      console.debug(
+        `verticals list passed in = ${JSON.stringify(verticalList)}`
+      )
+      const response = await axios.get(`api/Data/GetDefaultMetricsConfig/`)
+      let defaultsFromBackend = response.data as Metric[]
+      const response2 = await axios.get(`api/Data/GetMetricConfigs/${studyid}`)
+      if (response2.data === '') {
+        setUserMetrics([])
       } else {
-        console.debug('No metrics found. Showing Hardcoded values')
+        const userMetricsFromBackend = response2.data as Metric[]
+        setUserMetrics(userMetricsFromBackend)
+        for (const um of userMetricsFromBackend) {
+          // um = user metric
+          defaultsFromBackend = defaultsFromBackend.filter(
+            (item) => {return item.MetricName !== um.MetricName}
+          )
+        }
       }
-    })
+      setDefaults(defaultsFromBackend)
+    } catch (exception) {
+      console.error(exception)
+    }
+    setLoading(false)
   }
 
   return (
@@ -43,7 +64,11 @@ export const Metrics = (props: Props) => {
       ) : (
         <Stack>
           <h1>Metrics Section</h1>
-          <VerticalDropdown metricData={defaults} studyid={props.studyid} />
+          <VerticalDropdown
+            defaultMetrics={defaults}
+            userMetrics={userMetrics}
+            studyid={props.studyid}
+          />
         </Stack>
       )}
     </div>

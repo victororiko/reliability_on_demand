@@ -6,21 +6,27 @@ import { MessageBox } from '../helpers/MessageBox'
 
 interface Props {
   userMetric: Metric | {}
+  isUserMetric: boolean
 }
 
 export const AddMetricConfigButton = (props: Props) => {
   const [metricAdded, setMetricAdded] = useState(false)
   const handleClick = () => {
-    alert(`new metric to add = ${JSON.stringify(props.userMetric)}`)
-
-    axios
-      .post('api/Data/AddMetricConfig', props.userMetric)
-      .then((response) => {
-        setMetricAdded(true)
-      })
-      .catch((error) => {
-        console.error(`failed to add metric with error = ${error}`)
-      })
+    if (props.isUserMetric) {
+      console.debug('Update user metric')
+    } else {
+      alert(
+        `new metric to add = ${JSON.stringify(props.userMetric, null, '  ')}`
+      )
+      axios
+        .post('api/Data/AddMetricConfig', props.userMetric)
+        .then((response) => {
+          setMetricAdded(true)
+        })
+        .catch((error) => {
+          console.error(`failed to add metric with error = ${error}`)
+        })
+    }
   }
   return (
     <div>
@@ -28,7 +34,7 @@ export const AddMetricConfigButton = (props: Props) => {
         <MessageBox message="User Metric Added" />
       ) : (
         <PrimaryButton
-          text="Add Metric Config"
+          text={props.isUserMetric ? 'Update' : 'Add'}
           onClick={handleClick}
           allowDisabledFocus
         />

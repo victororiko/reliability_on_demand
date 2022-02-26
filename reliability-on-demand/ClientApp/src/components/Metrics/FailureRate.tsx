@@ -4,9 +4,10 @@ import { SpinButtonHour } from './SpinButtonHour'
 import { FailureRateCalculated } from './FailureRateCalculated'
 import { containerStackTokens, horizontalStackTokens } from '../helpers/Styles'
 import { Metric } from './model'
+import { myParseInt } from '../helpers/utils'
 
 interface Props {
-  metricData: Metric[]
+  metricData: Metric | undefined
   callback: any
 }
 
@@ -15,8 +16,13 @@ export const FailureRate = (props: Props) => {
   const [failureRate, setFailureRate] = useState<string>('0.125')
 
   useEffect(() => {
-    setFailureRate(props.metricData[0].FailureRateInHour.toString())
-    setMttf(Math.round(1 / props.metricData[0].FailureRateInHour).toString())
+    props.metricData
+      ? setFailureRate(props.metricData.FailureRateInHour.toString())
+      : setFailureRate('0.125')
+
+    props.metricData
+      ? setMttf(Math.round(1 / props.metricData.FailureRateInHour).toString())
+      : setMttf('8')
   }, [props])
 
   const updateMttf = (value: string) => {
@@ -29,7 +35,7 @@ export const FailureRate = (props: Props) => {
   }
 
   const updateFailureRate = (value: string) => {
-    const hours = parseInt(value, 10)
+    const hours = myParseInt(value)
     const rate = 1 / hours
     setFailureRate(rate.toString())
     setMttf(value)

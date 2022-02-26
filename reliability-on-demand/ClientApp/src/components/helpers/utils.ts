@@ -80,5 +80,14 @@ export const onlyUnique = (myArray: any[]) => {
 
 export const CreateNewID = -1
 export const DummyID = -2
+
 export const EmptyFieldErrorMessage = 'Empty Field'
 export const SaveMessage = 'Saved successfully!'
+
+export const myParseInt = (value: string): number => {
+  return parseInt(value, 10)
+}
+
+export const prepUsageInMS = (timeInSec: number, timeInMin: number): number => {
+  return timeInSec * 1000 + timeInMin * 60000
+}

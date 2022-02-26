@@ -1,9 +1,20 @@
 import React from 'react'
 
 interface Props {
-  message: string
+  message: any
+  isJSON?: boolean
 }
 
 export const MessageBox = (props: Props) => {
-  return <div>{props.message ?? 'no message to show'}</div>
+  return (
+    <div>
+      {props.isJSON ? (
+        <pre>
+          <code>{JSON.stringify(props.message, null, '  ')}</code>
+        </pre>
+      ) : (
+        props.message
+      )}
+    </div>
+  )
 }

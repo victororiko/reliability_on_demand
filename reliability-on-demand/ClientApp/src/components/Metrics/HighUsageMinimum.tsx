@@ -4,10 +4,11 @@ import { SpinButtonMins } from './SpinButtonMins'
 import { SpinButtonSec } from './SpinButtonSec'
 import { horizontalStackTokens } from '../helpers/Styles'
 import { Metric } from './model'
+import { myParseInt, prepUsageInMS } from '../helpers/utils'
 
 interface Props {
   title: string
-  metricData: Metric[]
+  metricData: Metric | undefined
   callback: any
 }
 
@@ -18,8 +19,7 @@ export const HighUsageMinimum = (props: Props) => {
   const oneSecInMS = 60
 
   useEffect(() => {
-    const minUsageMS =
-      props.metricData.length > 0 ? props.metricData[0].HighUsageMinInMS : 0
+    const minUsageMS = props.metricData ? props.metricData.HighUsageMinInMS : 0
 
     // CORE LOGIC: parse MS to individual mins and seconds
     if (minUsageMS % oneMinInMS === 0) {
@@ -32,16 +32,17 @@ export const HighUsageMinimum = (props: Props) => {
   }, [props.metricData])
 
   const addSeconds = (value: string) => {
-    const seconds = parseInt(value, 10)
+    const seconds = myParseInt(value)
     setTimeInSec(seconds)
   }
   const addMinutes = (value: string) => {
-    const minutes = parseInt(value, 10)
+    const minutes = myParseInt(value)
     setTimeInMin(minutes)
   }
 
-  const prepUsageInMS = timeInSec * 1000 + timeInMin * 60000
-  props.callback(prepUsageInMS)
+  const totalUsageInMS = prepUsageInMS(timeInSec, timeInMin)
+  props.callback(totalUsageInMS)
+  props.callback(totalUsageInMS)
 
   const scrubbed = (usage: number): string => {
     if (usage >= 9223372036854729000) return 'N/A'
@@ -50,7 +51,7 @@ export const HighUsageMinimum = (props: Props) => {
 
   return (
     <Stack>
-      {props.title} = {scrubbed(prepUsageInMS)}
+      {props.title} = {scrubbed(totalUsageInMS)}
       <Stack horizontal tokens={horizontalStackTokens}>
         <SpinButtonMins
           callback={addMinutes}

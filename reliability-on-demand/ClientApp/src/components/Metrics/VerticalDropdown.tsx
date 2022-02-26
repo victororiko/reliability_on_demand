@@ -5,42 +5,53 @@ import { convertSimpleTypeToOptions } from '../helpers/utils'
 import { MetricNameDropdown } from './MetricNameDropdown'
 
 interface Props {
-  metricData: Metric[]
+  defaultMetrics: Metric[]
+  userMetrics: Metric[]
   studyid: number
 }
 
 export const VerticalDropdown = (props: Props) => {
-  const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>({
-    key: 0,
-    text: props.metricData[0].Vertical,
-  })
+  const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
   const onChange = (
     event: FormEvent<HTMLDivElement>,
     option: IDropdownOption<any> | undefined,
     index?: number | undefined
   ) => {
-    if (option === undefined) {
-      setSelectedItem({ key: -1, text: 'not a valid option' })
-    } else setSelectedItem(option)
+    if (option !== undefined) setSelectedItem(option)
   }
 
   return (
     <div>
       <Text variant="xLarge">Vertical</Text>
       <Dropdown
-        options={convertSimpleTypeToOptions(
-          getDistinctVerticals(props.metricData),
-          true
-        )}
-        selectedKey={selectedItem ? selectedItem.key : 0}
+        // lots going on here:
+        // convertSimpleTypeToOptions - converts metric data to dropdown options
+        // ... is spread operator that enumerates all dropdown options
+        // [...array1, ...array2] ==> [all elements from array1 and array2]
+        options={[
+          ...convertSimpleTypeToOptions(
+            getDistinctVerticals(props.defaultMetrics),
+            true
+          ),
+          ...convertSimpleTypeToOptions(
+            getDistinctVerticals(props.userMetrics),
+            true
+          ),
+        ]}
         onChange={onChange}
+        placeholder="Select a Vertical"
       />
-      <MetricNameDropdown
-        metricData={props.metricData.filter((item) => {
-          return item.Vertical === selectedItem?.text
-        })}
-        studyid={props.studyid}
-      />
+      {selectedItem ? (
+        <MetricNameDropdown
+          defaultMetrics={props.defaultMetrics.filter((item) => {
+            return item.Vertical === selectedItem?.text
+          })}
+          userMetrics={props.userMetrics}
+          studyid={props.studyid}
+        />
+      ) : (
+        ''
+      )}
     </div>
   )
 }

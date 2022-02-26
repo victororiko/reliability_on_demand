@@ -71,6 +71,6 @@
     "react/no-multi-comp": ["warn"],
     "react/prefer-stateless-function": ["warn"],
     "react/require-default-props":["off"],
-    "arrow-body-style": ["error", "always"]
+    "arrow-body-style": ["warn", "always"]
   }
 }
