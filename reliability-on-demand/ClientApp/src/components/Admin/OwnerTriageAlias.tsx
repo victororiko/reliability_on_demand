@@ -30,7 +30,8 @@ export const OwnerTriageAlias = (props: Props) => {
       currenTeam,
       textFieldValue,
       previousTeamID,
-      props.callback
+      props.callback,
+      currenTeam?.ownerTriageAlias
     )
   }
 

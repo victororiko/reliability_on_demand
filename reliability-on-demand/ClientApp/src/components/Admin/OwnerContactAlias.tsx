@@ -31,7 +31,8 @@ export const OwnerContactAlias = (props: Props) => {
       currenTeam,
       textFieldValue,
       previousTeamID,
-      props.callback
+      props.callback,
+      currenTeam?.ownerContact
     )
   }
 
