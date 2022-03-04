@@ -80,12 +80,14 @@ export class FailureSectionDetails extends React.Component<
     }
   }
 
-  renderPivots() {
+    renderPivots() {
+
     return (
       <div>
         <FailurePivotsConfigure
           studyid={this.props.studyid}
           selectedVerticalForStudy={this.state.selectedVertical}
+          selectedVerticalsForStudy={this.props.selectedVerticalsForStudy}
         />
       </div>
     )

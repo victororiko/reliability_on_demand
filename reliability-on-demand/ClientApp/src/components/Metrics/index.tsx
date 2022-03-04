@@ -45,9 +45,9 @@ export const Metrics = (props: Props) => {
         setUserMetrics(userMetricsFromBackend)
         for (const um of userMetricsFromBackend) {
           // um = user metric
-          defaultsFromBackend = defaultsFromBackend.filter(
-            (item) => {return item.MetricName !== um.MetricName}
-          )
+          defaultsFromBackend = defaultsFromBackend.filter((item) => {
+            return item.MetricName !== um.MetricName
+          })
         }
       }
       setDefaults(defaultsFromBackend)

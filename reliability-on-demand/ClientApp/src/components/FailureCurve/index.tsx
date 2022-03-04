@@ -258,13 +258,12 @@ export class FailureCurve extends React.Component<
       this.renderVerticals()
     )
 
-    const failureDetailButton = this.renderFailureDetailsButton()
-
+      const failureDetailButton = this.renderFailureDetailsButton()
     const ConfigureButtonClicked =
       this.state.isButtonClicked === true ? (
         <FailureSectionDetails
           studyid={this.props.studyid}
-          selectedVerticalsForStudy={[...this.selectedKeys]}
+                selectedVerticalsForStudy={this.selectedVerticals}
         />
       ) : (
         ''

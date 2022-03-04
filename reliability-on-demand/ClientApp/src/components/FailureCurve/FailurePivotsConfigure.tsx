@@ -13,10 +13,12 @@ import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown'
 import { FailureCurveFilterExpression } from '../FailureCurve/FailureCurveFilterExpression'
 import axios from 'axios'
 import { WikiLink } from '../helpers/WikiLink'
+import { getVerticalNamesFromPair } from './service'
 
 export interface IFailurePivotsConfigureProps {
   studyid: number
   selectedVerticalForStudy: Pair
+  selectedVerticalsForStudy: Pair[]
 }
 
 export interface IFailurePivotsConfigureState {
@@ -352,6 +354,7 @@ export class FailurePivotsConfigure extends React.Component<
   nextClicked() {
     var failureObjToBePassed: FailureConfig = {
       StudyID: this.props.studyid,
+      Verticals: getVerticalNamesFromPair(this.props.selectedVerticalsForStudy),
       PivotSourceSubType: this.props.selectedVerticalForStudy.key,
       Pivots: this.requiredPivotTableData,
     }
@@ -415,6 +418,7 @@ export class FailurePivotsConfigure extends React.Component<
   async onPivotDropdownLoad() {
     var input: FailureConfig = {
       StudyID: this.props.studyid,
+      Verticals: getVerticalNamesFromPair(this.props.selectedVerticalsForStudy),
       PivotSourceSubType: this.props.selectedVerticalForStudy.key,
       Pivots: [],
     }

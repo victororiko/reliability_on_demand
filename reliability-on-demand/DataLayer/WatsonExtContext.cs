@@ -325,36 +325,53 @@ namespace reliability_on_demand.DataLayer
         {
             this.Database.OpenConnection();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = string.Format("SELECT count(*) AS count FROM RELStudyPivotConfig WHERE StudyID = {0} AND PivotSourceSubType LIKE '{1}'", f.StudyID, f.PivotSourceSubType);
+            cmd.CommandText = "dbo.GetMaximumStudyPivotConfigCount";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyID", f.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", f.PivotSourceSubType));
             Int32 count = (Int32)cmd.ExecuteScalar();
 
+            cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "SELECT max(PivotScopeID) AS max FROM RELPivotScope";
             Int32 maxscopeid = (Int32)cmd.ExecuteScalar();
+            if (count > 0)
+                {
+                    cmd.CommandText = "dbo.DeletePivotScopeEnteries";
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    // add any params here
+                    cmd.Parameters.Add(new SqlParameter("@StudyID", f.StudyID));
+                    cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", f.PivotSourceSubType));
+                    var pivotscopereader = cmd.ExecuteReader();
+                    pivotscopereader.Close();
 
-            cmd.CommandText = "SELECT max(RelationID) AS max FROM RELStudyPivotConfig";
-            Int32 maxRelationId = (Int32)cmd.ExecuteScalar();
+                    //Order matters- first extract the pivot scope ids from the relstudypivotconfig table and delete pivot scope ids first
+                    cmd = this.Database.GetDbConnection().CreateCommand();
+                    cmd.CommandText = "dbo.DeleteStudyIDFromPivotMapping";
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    // add any params here
+                    cmd.Parameters.Add(new SqlParameter("@StudyID", f.StudyID));
+                    cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", f.PivotSourceSubType));
+                    var reader = cmd.ExecuteReader();
+                    reader.Close();
 
-            if (count>0)
-            {
-                cmd.CommandText = string.Format("DELETE FROM RELPivotScope WHERE PivotScopeID IN (SELECT PivotScopeID FROM RELStudyPivotConfig WHERE StudyID={0} AND PivotSourceSubType='{1}')", f.StudyID, f.PivotSourceSubType);
-                var pivotscopereader = cmd.ExecuteReader();
-                pivotscopereader.Close();
+                    cmd = this.Database.GetDbConnection().CreateCommand();
+                    cmd.CommandText = "dbo.DeleteStudyVerticals";
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    // add any params here
+                    cmd.Parameters.Add(new SqlParameter("@StudyID", f.StudyID));
+                    var studyverticalreader = cmd.ExecuteReader();
+                    studyverticalreader.Close();
+                }
 
-                cmd.CommandText = string.Format("DELETE FROM RELStudyPivotConfig WHERE StudyID = {0} AND PivotSourceSubType LIKE '{1}'", f.StudyID, f.PivotSourceSubType);
-                var reader = cmd.ExecuteReader();
-                reader.Close();
-            }
-
-            this.AddFailureConfigToSQL(f,maxscopeid,maxRelationId);
-            
+                this.AddFailureConfigToSQL(f, maxscopeid);
         }
 
 
-        void AddFailureConfigToSQL(FailureConfig f,int maxscopeid,int maxRelationId)
+        void AddFailureConfigToSQL(FailureConfig f,int maxscopeid)
         {
             this.Database.OpenConnection();
             var scopeid = maxscopeid + 1;
-            var RelationId = maxRelationId + 1;
             var cmd = this.Database.GetDbConnection().CreateCommand();
             string query = "";
 
@@ -386,14 +403,14 @@ namespace reliability_on_demand.DataLayer
                 var p = f.Pivots[i];
                 if (p.PivotScopeID == 0 || p.IsScopeFilter == false)
                 {
-                    insertionquery += string.Format("INSERT INTO RELStudyPivotConfig(RelationID,StudyID,PivotID,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES({0},{1},{2},{3},{4},{5},{6},'{7}')", RelationId,f.StudyID, p.PivotID, Convert.ToInt32(p.IsSelectPivot), Convert.ToInt32(p.IsApportionPivot), Convert.ToInt32(p.IsKeyPivot), Convert.ToInt32(p.IsApportionJoinPivot), f.PivotSourceSubType);
+                    insertionquery += string.Format("INSERT INTO RELStudyPivotConfig(StudyID,PivotID,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES({0},{1},{2},{3},{4},{5},'{6}')", f.StudyID, p.PivotID, Convert.ToInt32(p.IsSelectPivot), Convert.ToInt32(p.IsApportionPivot), Convert.ToInt32(p.IsKeyPivot), Convert.ToInt32(p.IsApportionJoinPivot), f.PivotSourceSubType);
                 }
                 else
                 {
-                    insertionquery += string.Format("INSERT INTO RELStudyPivotConfig(RelationID,PivotScopeID,StudyID,PivotID,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES({0},{1},{2},{3},{4},{5},{6},{7},'{8}')", RelationId,p.PivotScopeID, f.StudyID, p.PivotID, Convert.ToInt32(p.IsSelectPivot), Convert.ToInt32(p.IsApportionPivot), Convert.ToInt32(p.IsKeyPivot), Convert.ToInt32(p.IsApportionJoinPivot), f.PivotSourceSubType);
+                    insertionquery += string.Format("INSERT INTO RELStudyPivotConfig(PivotScopeID,StudyID,PivotID,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES({0},{1},{2},{3},{4},{5},{6},'{7}')",p.PivotScopeID, f.StudyID, p.PivotID, Convert.ToInt32(p.IsSelectPivot), Convert.ToInt32(p.IsApportionPivot), Convert.ToInt32(p.IsKeyPivot), Convert.ToInt32(p.IsApportionJoinPivot), f.PivotSourceSubType);
                 }
-                RelationId++;
             }
+
 
             if (insertionquery != null && insertionquery != "")
             {
@@ -401,6 +418,21 @@ namespace reliability_on_demand.DataLayer
 
                 var insertionreader = cmdInsert.ExecuteReader();
 
+                insertionreader.Close();
+            }
+
+
+            // inserting verticals for the study in failureverticalconfig table
+            for (var i = 0; i < f.Verticals.Count; i++)
+            {
+                cmd = this.Database.GetDbConnection().CreateCommand();
+                cmd.CommandText = "dbo.AddVerticalsForStudy";
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                // add any params here
+                cmd.Parameters.Add(new SqlParameter("@StudyID", f.StudyID));
+                cmd.Parameters.Add(new SqlParameter("@Vertical", f.Verticals[i]));
+
+                var insertionreader = cmd.ExecuteReader();
                 insertionreader.Close();
             }
 

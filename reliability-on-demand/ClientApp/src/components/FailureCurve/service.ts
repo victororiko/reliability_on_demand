@@ -1,4 +1,4 @@
-import { Vertical } from './model'
+import { Vertical, Pair } from './model'
 import { sampleVerticals } from './sampleVerticals'
 
 export const verticals = sampleVerticals
@@ -31,4 +31,12 @@ export const getVerticalFromList = (list: string[]): Vertical[] => {
     if (parsedVertical) parsedVerticalList.push(parsedVertical)
   }
   return parsedVerticalList
+}
+
+export const getVerticalNamesFromPair = (list: Pair[]): string[] => {
+  const verticalnames: string[] = []
+  for (let i = 0; i < list.length; i++) {
+    verticalnames.push(list[i].text)
+  }
+  return verticalnames
 }

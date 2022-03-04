@@ -6,6 +6,7 @@
 
 export interface FailureConfig {
   StudyID: number
+  Verticals: string[]
   PivotSourceSubType: string
   Pivots: PivotTable[]
 }
