@@ -14,14 +14,14 @@ using System.Xml.Serialization;
 // please try to use capitalization style specified in .NET documentation - https://docs.microsoft.com/en-us/previous-versions/dotnet/netframework-1.1/x2dbyw72(v=vs.71)
 namespace reliability_on_demand.DataLayer
 {
-    public class WatsonExtContext : DbContext
+    public class RIODSQLDbContext : DbContext
     {
         public DbSet<TeamConfig> TeamConfigs { get; set;}
         private string connectionString = null;
 
         private string validateAzureFunctionKey = null;
 
-        public WatsonExtContext(IOptions<ValueSettings> valueSettings, DbContextOptions options) : base(options)
+        public RIODSQLDbContext(IOptions<ValueSettings> valueSettings, DbContextOptions options) : base(options)
         {
             connectionString = valueSettings.Value.relreportingdbsqlconn;
             validateAzureFunctionKey = valueSettings.Value.FailureValidateAzureFunction;
@@ -206,12 +206,40 @@ namespace reliability_on_demand.DataLayer
                 cmd.Parameters.Add(new SqlParameter("@Expiry", userCreatedStudy.Expiry));
                 cmd.Parameters.Add(new SqlParameter("@TeamId", userCreatedStudy.TeamId));
                 cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userCreatedStudy.ObservationWindowDays));
+                // execute stored procedure and return json
+                StringBuilder sb = new StringBuilder();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        sb.Append(reader.GetString(0));
+                    }
+                }
+                return sb.ToString();
             }
             else
             {
-                cmd.CommandText = string.Format("UPDATE RELStudyConfig SET StudyName = '{0}', LastRefreshDate = '{1}',CacheFrequency = {2},Expiry = '{3}',ObservationWindowDays={4} WHERE StudyID ={5} ", userCreatedStudy.StudyName,userCreatedStudy.LastModifiedDate,userCreatedStudy.CacheFrequency,userCreatedStudy.Expiry,userCreatedStudy.ObservationWindowDays,userCreatedStudy.StudyID);
+                return UpdateStudy(userCreatedStudy);
             }
-            // execute stored procedure and return json
+        }
+
+        public string UpdateStudy(StudyConfig userUpdatedStudy)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+
+            cmd.CommandText = "dbo.UpdateStudy";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyName", userUpdatedStudy.StudyName));
+            cmd.Parameters.Add(new SqlParameter("@LastRefreshDate", userUpdatedStudy.LastModifiedDate));
+            cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userUpdatedStudy.CacheFrequency));
+            cmd.Parameters.Add(new SqlParameter("@Expiry", userUpdatedStudy.Expiry));
+            cmd.Parameters.Add(new SqlParameter("@StudyID", userUpdatedStudy.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userUpdatedStudy.ObservationWindowDays));
+
             StringBuilder sb = new StringBuilder();
             using (var reader = cmd.ExecuteReader())
             {
@@ -221,8 +249,8 @@ namespace reliability_on_demand.DataLayer
                 }
             }
             return sb.ToString();
-        }
 
+        }
         public string GetSQLResults(string SQLquery)
         {
             // ensure that connection is open
@@ -293,150 +321,258 @@ namespace reliability_on_demand.DataLayer
 
         public string GetConfiguredVerticalForAStudy(int studyID)
         {
-            String query = String.Format("SELECT f.VerticalName, PivotSourceSubType FROM RELFailureVertical AS f INNER JOIN RELFailureVerticalConfig AS c ON f.VerticalName = c.VerticalName WHERE c.StudyID = {0}",studyID);
-            return GetSQLResultsJSON(query);
+            //ensure that connection is open
+            this.Database.OpenConnection();
+            StringBuilder sb = new StringBuilder();
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetJSONConfiguredVerticalForAStudy";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyID", studyID));
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
         }
 
         //Get all pivots for that vertical
         public string GetPivots(string sourcesubtype)
         {
-            string query = string.Format("SELECT PivotID,PivotSourceColumnName,UIInputDataType FROM [dbo].[RELPivotInfo] AS info INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource WHERE info.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
-            return GetSQLResultsJSON(query);
+            //ensure that connection is open
+            this.Database.OpenConnection();
+            StringBuilder sb = new StringBuilder();
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetPivots";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@sourcesubtype", sourcesubtype));
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
         }
 
         //Get all defaults for that vertical
         public string GetAllDefaultFailurePivotsForAVertical(string sourcesubtype)
         {
-            string query = string.Format("SELECT info.PivotID,info.PivotSourceColumnName,info.UIInputDataType,smap.IsSelectColumn,smap.IsKeyColumn,smap.IsApportionColumn,smap.IsApportionJoinColumn,smap.PivotScopeID,scope.PivotScopeValue,scope.PivotScopeOperator FROM RELStudyPivotConfigDefault AS smap INNER JOIN RELPivotInfo AS info ON smap.PivotKey = info.PivotKey INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource LEFT OUTER JOIN RELPivotScope AS scope ON smap.PivotScopeID = scope.PivotScopeID WHERE smap.PivotSourceSubType LIKE '{0}' AND map.PivotSourceType LIKE 'Failure%'", sourcesubtype);
-            string res = GetSQLResultsJSON(query);
-            return res;
+            //ensure that connection is open
+            this.Database.OpenConnection();
+            StringBuilder sb = new StringBuilder();
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetAllDefaultFailurePivotsForAVertical";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@sourcesubtype", sourcesubtype));
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
         }
 
         //Get all configured values for that vertical and study id
         public string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid)
         {
-            string query = string.Format("SELECT info.PivotID,info.PivotSourceColumnName,info.UIInputDataType,smap.IsApportionColumn,smap.IsApportionJoinColumn,smap.IsKeyColumn,smap.IsSelectColumn,smap.PivotScopeID,scope.PivotScopeValue,scope.PivotScopeOperator FROM RELPivotInfo AS info INNER JOIN RELStudyPivotConfig AS smap ON info.PivotID = smap.PivotID INNER JOIN RELPivotSourceMap AS map ON map.PivotSource = info.PivotSource LEFT OUTER JOIN RELPivotScope AS scope ON smap.PivotScopeID = scope.PivotScopeID WHERE smap.StudyID = {0} AND map.PivotSourceType LIKE 'Failure%' AND smap.PivotSourceSubType LIKE '{1}'", studyid, sourcesubtype);
-            string res = GetSQLResultsJSON(query);
-            return res;
+            //ensure that connection is open
+            this.Database.OpenConnection();
+            StringBuilder sb = new StringBuilder();
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetAllConfiguredFailurePivotsForAVertical";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@sourcesubtype", sourcesubtype));
+            cmd.Parameters.Add(new SqlParameter("@studyID", studyid));
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
         }
 
         //Update all the watson call configured parameters for a study
-        public void UpdateFailureSavedConfig(FailureConfig f)
+        public void UpdateFailureSavedConfig(FailureConfig failure)
+        {
+            this.Database.OpenConnection();
+            Int32 count = GetMaximumStudyPivotConfigCount(failure);
+
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "SELECT max(PivotScopeID) AS max FROM RELPivotScope";
+            Int32 maxscopeid = (Int32)cmd.ExecuteScalar();
+            if (count > 0)
+                {
+                    DeletePivotScopeEnteries(failure);
+
+                    //Order matters- first extract the pivot scope ids from the relstudypivotconfig table and delete pivot scope ids first
+                    DeleteStudyIDFromPivotMapping(failure);
+
+                    DeleteStudyVerticals(failure);
+                }
+
+                this.AddFailureConfigToSQL(failure, maxscopeid);
+        }
+
+        int GetMaximumStudyPivotConfigCount(FailureConfig failure)
         {
             this.Database.OpenConnection();
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "dbo.GetMaximumStudyPivotConfigCount";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyID", f.StudyID));
-            cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", f.PivotSourceSubType));
+            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
             Int32 count = (Int32)cmd.ExecuteScalar();
-
-            cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "SELECT max(PivotScopeID) AS max FROM RELPivotScope";
-            Int32 maxscopeid = (Int32)cmd.ExecuteScalar();
-            if (count > 0)
-                {
-                    cmd.CommandText = "dbo.DeletePivotScopeEnteries";
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    // add any params here
-                    cmd.Parameters.Add(new SqlParameter("@StudyID", f.StudyID));
-                    cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", f.PivotSourceSubType));
-                    var pivotscopereader = cmd.ExecuteReader();
-                    pivotscopereader.Close();
-
-                    //Order matters- first extract the pivot scope ids from the relstudypivotconfig table and delete pivot scope ids first
-                    cmd = this.Database.GetDbConnection().CreateCommand();
-                    cmd.CommandText = "dbo.DeleteStudyIDFromPivotMapping";
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    // add any params here
-                    cmd.Parameters.Add(new SqlParameter("@StudyID", f.StudyID));
-                    cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", f.PivotSourceSubType));
-                    var reader = cmd.ExecuteReader();
-                    reader.Close();
-
-                    cmd = this.Database.GetDbConnection().CreateCommand();
-                    cmd.CommandText = "dbo.DeleteStudyVerticals";
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    // add any params here
-                    cmd.Parameters.Add(new SqlParameter("@StudyID", f.StudyID));
-                    var studyverticalreader = cmd.ExecuteReader();
-                    studyverticalreader.Close();
-                }
-
-                this.AddFailureConfigToSQL(f, maxscopeid);
+            return count;
         }
 
-
-        void AddFailureConfigToSQL(FailureConfig f,int maxscopeid)
+        void DeletePivotScopeEnteries(FailureConfig failure)
         {
             this.Database.OpenConnection();
-            var scopeid = maxscopeid + 1;
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            string query = "";
+            cmd.CommandText = "dbo.DeletePivotScopeEnteries";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
+            var pivotscopereader = cmd.ExecuteReader();
+            pivotscopereader.Close();
+        }
 
-            for (var i = 0; i < f.Pivots.Count; i++)
-            {
-                var p = f.Pivots[i];
-                if (p.IsScopeFilter == true && p.FilterExpression!=null && p.FilterExpression!="")
+        void DeleteStudyIDFromPivotMapping(FailureConfig failure)
+        {
+            this.Database.OpenConnection();
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.DeleteStudyIDFromPivotMapping";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
+            var reader = cmd.ExecuteReader();
+            reader.Close();
+        }
+
+        void DeleteStudyVerticals(FailureConfig failure)
+        {
+            this.Database.OpenConnection();
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.DeleteStudyVerticals";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            var studyverticalreader = cmd.ExecuteReader();
+            studyverticalreader.Close();
+        }
+
+        void AddFailureConfigToSQL(FailureConfig failure,int maxscopeid)
+        {
+                this.Database.OpenConnection();
+                var scopeid = maxscopeid + 1;
+                var cmd = this.Database.GetDbConnection().CreateCommand();
+
+                for (var i = 0; i < failure.Pivots.Count; i++)
                 {
-                    
-                    query += string.Format("INSERT INTO RELPivotScope(PivotScopeID,PivotScopeValue,PivotScopeOperator) VALUES({0},'{1}','{2}')", scopeid, p.FilterExpression, p.FilterExpressionOperator);
-                    p.PivotScopeID = scopeid;
-                    scopeid++;
+                    var pivot = failure.Pivots[i];
+                    if (pivot.IsScopeFilter == true && pivot.FilterExpression != null && pivot.FilterExpression != "")
+                    {
+                        AddFilterPivotToFailureCurve(failure, scopeid,pivot);
+                        pivot.PivotScopeID = scopeid;
+                        scopeid++;
+                    }
                 }
-            }
 
-            if (query != null && query != "")
-            {
-                cmd.CommandText = query;
-                var reader = cmd.ExecuteReader();
-                reader.Close();
-            }
-            
-
-            var cmdInsert = this.Database.GetDbConnection().CreateCommand();
-            string insertionquery = "";
-
-            for (var i = 0; i < f.Pivots.Count; i++)
-            {
-                var p = f.Pivots[i];
-                if (p.PivotScopeID == 0 || p.IsScopeFilter == false)
+                for (var i = 0; i < failure.Pivots.Count; i++)
                 {
-                    insertionquery += string.Format("INSERT INTO RELStudyPivotConfig(StudyID,PivotID,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES({0},{1},{2},{3},{4},{5},'{6}')", f.StudyID, p.PivotID, Convert.ToInt32(p.IsSelectPivot), Convert.ToInt32(p.IsApportionPivot), Convert.ToInt32(p.IsKeyPivot), Convert.ToInt32(p.IsApportionJoinPivot), f.PivotSourceSubType);
+                    var pivot = failure.Pivots[i];
+                    cmd = this.Database.GetDbConnection().CreateCommand();
+
+                    if (pivot.PivotScopeID == 0 || pivot.IsScopeFilter == false)
+                    {
+                        AddWithoutFilterPivotToFailureCurve(failure, pivot);
+                    }
+                    else
+                    {
+                        AddFilterPivotsAndValuesToFailureCurve(failure, pivot);
+                    }
+
                 }
-                else
+
+                // inserting verticals for the study in failureverticalconfig table
+                for (var i = 0; i < failure.Verticals.Count; i++)
                 {
-                    insertionquery += string.Format("INSERT INTO RELStudyPivotConfig(PivotScopeID,StudyID,PivotID,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES({0},{1},{2},{3},{4},{5},{6},'{7}')",p.PivotScopeID, f.StudyID, p.PivotID, Convert.ToInt32(p.IsSelectPivot), Convert.ToInt32(p.IsApportionPivot), Convert.ToInt32(p.IsKeyPivot), Convert.ToInt32(p.IsApportionJoinPivot), f.PivotSourceSubType);
+                    AddVerticalsForStudy(failure,failure.Verticals[i]);
                 }
-            }
 
+                this.Database.CloseConnection();
+        }
 
-            if (insertionquery != null && insertionquery != "")
-            {
-                cmdInsert.CommandText = insertionquery;
+        void AddFilterPivotToFailureCurve(FailureConfig failure,int scopeid,Pivot pivot)
+        {
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.AddFilterPivotToFailureCurve";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@PivotScopeID", scopeid));
+            cmd.Parameters.Add(new SqlParameter("@PivotScopeValue", pivot.FilterExpression));
+            cmd.Parameters.Add(new SqlParameter("@PivotScopeOperator", pivot.FilterExpressionOperator));
+            var reader = cmd.ExecuteReader();
+            reader.Close();
+        }
 
-                var insertionreader = cmdInsert.ExecuteReader();
+        void AddWithoutFilterPivotToFailureCurve(FailureConfig failure,Pivot pivot)
+        {
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.AddWithoutFilterPivotToFailureCurve";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@PivotID", pivot.PivotID));
+            cmd.Parameters.Add(new SqlParameter("@IsSelectPivot", Convert.ToInt32(pivot.IsSelectPivot)));
+            cmd.Parameters.Add(new SqlParameter("@IsApportionPivot", Convert.ToInt32(pivot.IsApportionPivot)));
+            cmd.Parameters.Add(new SqlParameter("@IsKeyPivot", Convert.ToInt32(pivot.IsKeyPivot)));
+            cmd.Parameters.Add(new SqlParameter("@IsApportionJoinPivot", Convert.ToInt32(pivot.IsApportionJoinPivot)));
+            cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
+        }
 
-                insertionreader.Close();
-            }
+        void AddFilterPivotsAndValuesToFailureCurve(FailureConfig failure,Pivot pivot)
+        {
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.AddFilterPivotsAndValuesToFailureCurve";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@PivotID", pivot.PivotID));
+            cmd.Parameters.Add(new SqlParameter("@IsSelectPivot", Convert.ToInt32(pivot.IsSelectPivot)));
+            cmd.Parameters.Add(new SqlParameter("@IsApportionPivot", Convert.ToInt32(pivot.IsApportionPivot)));
+            cmd.Parameters.Add(new SqlParameter("@IsKeyPivot", Convert.ToInt32(pivot.IsKeyPivot)));
+            cmd.Parameters.Add(new SqlParameter("@IsApportionJoinPivot", Convert.ToInt32(pivot.IsApportionJoinPivot)));
+            cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
+            cmd.Parameters.Add(new SqlParameter("@PivotScopeID", pivot.PivotScopeID));
+        }
 
+        void AddVerticalsForStudy(FailureConfig failure,String vertical)
+        {
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.AddVerticalsForStudy";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@Vertical", vertical));
 
-            // inserting verticals for the study in failureverticalconfig table
-            for (var i = 0; i < f.Verticals.Count; i++)
-            {
-                cmd = this.Database.GetDbConnection().CreateCommand();
-                cmd.CommandText = "dbo.AddVerticalsForStudy";
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                // add any params here
-                cmd.Parameters.Add(new SqlParameter("@StudyID", f.StudyID));
-                cmd.Parameters.Add(new SqlParameter("@Vertical", f.Verticals[i]));
-
-                var insertionreader = cmd.ExecuteReader();
-                insertionreader.Close();
-            }
-
-            this.Database.CloseConnection();
+            var insertionreader = cmd.ExecuteReader();
+            insertionreader.Close();
         }
 
         //Get default metrics

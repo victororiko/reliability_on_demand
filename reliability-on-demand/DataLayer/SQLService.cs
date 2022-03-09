@@ -4,10 +4,10 @@ namespace reliability_on_demand.DataLayer
 {
     public class SQLService : ISQLService
     {
-        private WatsonExtContext _context;
+        private RIODSQLDbContext _context;
 
 
-        public SQLService(WatsonExtContext context)
+        public SQLService(RIODSQLDbContext context)
         {
             _context = context;
         }
