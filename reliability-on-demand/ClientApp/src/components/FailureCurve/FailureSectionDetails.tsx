@@ -80,8 +80,7 @@ export class FailureSectionDetails extends React.Component<
     }
   }
 
-    renderPivots() {
-
+  renderPivots() {
     return (
       <div>
         <FailurePivotsConfigure
