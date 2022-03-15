@@ -24,7 +24,7 @@
     "guid-typescript": "^1.0.9",
     "husky": "^7.0.4",
     "immer": "^9.0.6",
-    "is-svg": "^4.2.2",
+    "is-svg": "^4.3.0",
     "jest-junit-reporter": "^1.1.0",
     "jquery": "^3.4.1",
     "lint-staged": "^11.2.6",
