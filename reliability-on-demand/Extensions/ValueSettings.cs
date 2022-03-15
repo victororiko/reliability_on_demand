@@ -13,5 +13,10 @@ namespace reliability_on_demand.Extensions
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
         public string FailureValidateAzureFunction { get; set; }
+        public string CosmosServerlessSQL { get; set; }
+        public string CosmosServicePrincipalSecret { get; set; }
+        public string CosmosServicePrincipalTenantID { get; set; }
+        public string CosmosServicePrincipalAppID { get; set; }
+
     }
 }

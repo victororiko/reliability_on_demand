@@ -21,7 +21,7 @@ namespace reliability_on_demand.DataLayer
 
         private string validateAzureFunctionKey = null;
 
-        public RIODSQLDbContext(IOptions<ValueSettings> valueSettings, DbContextOptions options) : base(options)
+        public RIODSQLDbContext(IOptions<ValueSettings> valueSettings, DbContextOptions<RIODSQLDbContext> options) : base(options)
         {
             connectionString = valueSettings.Value.relreportingdbsqlconn;
             validateAzureFunctionKey = valueSettings.Value.FailureValidateAzureFunction;
