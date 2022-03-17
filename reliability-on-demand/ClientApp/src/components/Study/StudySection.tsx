@@ -35,7 +35,6 @@ export const StudySection = (props: IStudySectionProps) => {
         console.table(res.data)
         setStudyConfigs(res.data)
       } else {
-        console.log('no studies found')
         setStudyConfigs([])
       }
       setLoading(false)

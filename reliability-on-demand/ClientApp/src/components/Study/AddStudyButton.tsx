@@ -1,6 +1,5 @@
 import React from 'react'
 import { PrimaryButton } from '@fluentui/react'
-import { StudyConfig } from '../../models/config.model'
 
 interface Props {
   ButtonName: string

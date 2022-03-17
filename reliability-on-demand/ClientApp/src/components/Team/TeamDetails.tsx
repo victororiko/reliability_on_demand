@@ -57,7 +57,7 @@ export default class TeamDetails extends React.Component<
 
   handleSubmit(event: any) {
     // takes the current inputed values from user and makes a call to DB with the TeamConfig
-    alert(
+    console.debug(
       `You just added a new team! The values you entered = ${JSON.stringify(
         this.state.newTeam
       )}`

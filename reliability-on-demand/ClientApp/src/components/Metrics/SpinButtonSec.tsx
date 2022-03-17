@@ -17,16 +17,15 @@ export const SpinButtonSec = (props: Props) => {
     return () => {}
   }, [props.defaultSecs])
 
-  const onChange = React.useCallback(
-    (event: React.SyntheticEvent<HTMLElement>, newValue?: string) => {
-      if (newValue !== undefined) {
-        // In reality this might have some additional validation or other special handling
-        setValue(newValue)
-        props.callback(newValue)
-      }
-    },
-    []
-  )
+  const onChange = (
+    event: React.SyntheticEvent<HTMLElement>,
+    newValue?: string
+  ) => {
+    if (newValue !== undefined) {
+      setValue(newValue)
+      props.callback(newValue)
+    }
+  }
 
   return (
     <div>

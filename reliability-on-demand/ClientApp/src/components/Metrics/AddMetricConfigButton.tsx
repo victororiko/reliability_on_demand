@@ -15,7 +15,7 @@ export const AddMetricConfigButton = (props: Props) => {
     if (props.isUserMetric) {
       console.debug('Update user metric')
     } else {
-      alert(
+      console.debug(
         `new metric to add = ${JSON.stringify(props.userMetric, null, '  ')}`
       )
       axios

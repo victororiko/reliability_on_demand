@@ -6,7 +6,6 @@ import {
   Metric,
 } from './model'
 import { MetricDetails } from './MetricDetails'
-import { MessageBox } from '../helpers/MessageBox'
 
 interface Props {
   defaultMetrics: Metric[]
@@ -31,7 +30,8 @@ export const MetricNameDropdown = (props: Props) => {
     setUserMetrics(props.userMetrics)
     const dropdownOptions = generateDropdownOptions(defaultMetrics, userMetrics)
     setOptions(dropdownOptions)
-  }, [props.defaultMetrics, props.userMetrics])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.defaultMetrics, props.userMetrics, defaultMetrics])
 
   const handleChange = (
     event: FormEvent<HTMLDivElement>,
