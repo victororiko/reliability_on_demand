@@ -16,6 +16,7 @@
     },
     "reliability-on-demand": {
       "commandName": "Project",
+      "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
