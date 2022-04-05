@@ -95,5 +95,10 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.GetMetricConfigs(StudyId);
         }
+
+        string ISQLService.UpdateMetricConfig(MetricConfig userConfig)
+        {
+            return _context.UpdateMetricConfig(userConfig);
+        }
     }
 }

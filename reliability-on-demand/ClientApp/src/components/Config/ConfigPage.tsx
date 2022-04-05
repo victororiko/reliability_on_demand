@@ -47,10 +47,7 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
   render() {
     return (
       <Stack tokens={containerStackTokens}>
-        <TeamDetails
-          callBack={this.selectTeam}
-          startingTeamId={this.state.currentTeamId}
-        />
+        <TeamDetails callBack={this.selectTeam} />
         <StudySection
           team_id={this.state.currentTeamId}
           callBack={this.selectStudy}

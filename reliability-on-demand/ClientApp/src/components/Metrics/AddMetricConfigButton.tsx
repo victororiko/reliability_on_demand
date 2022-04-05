@@ -11,13 +11,18 @@ interface Props {
 
 export const AddMetricConfigButton = (props: Props) => {
   const [metricAdded, setMetricAdded] = useState(false)
+  const [metricUpdated, setMetricUpdated] = useState(false)
   const handleClick = () => {
     if (props.isUserMetric) {
-      console.debug('Update user metric')
+      axios
+        .post('api/Data/UpdateMetricConfig', props.userMetric)
+        .then((response) => {
+          setMetricUpdated(true)
+        })
+        .catch((error) => {
+          console.error(`failed to add metric with error = ${error}`)
+        })
     } else {
-      console.debug(
-        `new metric to add = ${JSON.stringify(props.userMetric, null, '  ')}`
-      )
       axios
         .post('api/Data/AddMetricConfig', props.userMetric)
         .then((response) => {
@@ -32,6 +37,8 @@ export const AddMetricConfigButton = (props: Props) => {
     <div>
       {metricAdded ? (
         <MessageBox message="User Metric Added" />
+      ) : metricUpdated ? (
+        <MessageBox message="User Metric Updated" />
       ) : (
         <PrimaryButton
           text={props.isUserMetric ? 'Update' : 'Add'}

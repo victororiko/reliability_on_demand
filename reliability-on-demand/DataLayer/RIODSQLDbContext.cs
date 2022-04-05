@@ -16,7 +16,7 @@ namespace reliability_on_demand.DataLayer
 {
     public class RIODSQLDbContext : DbContext
     {
-        public DbSet<TeamConfig> TeamConfigs { get; set;}
+        public DbSet<TeamConfig> TeamConfigs { get; set; }
         private string connectionString = null;
 
         private string validateAzureFunctionKey = null;
@@ -116,7 +116,7 @@ namespace reliability_on_demand.DataLayer
                 cmd.Parameters.Add(new SqlParameter("@OwnerContact", inquiry.OwnerContact));
                 cmd.Parameters.Add(new SqlParameter("@OwnerTeamFriendlyName", inquiry.OwnerTeamFriendlyName));
                 cmd.Parameters.Add(new SqlParameter("@OwnerTriageAlias", inquiry.OwnerTriageAlias));
-                cmd.Parameters.Add(new SqlParameter("@ComputeResourceLocation",inquiry.ComputeResourceLocation));
+                cmd.Parameters.Add(new SqlParameter("@ComputeResourceLocation", inquiry.ComputeResourceLocation));
             }
             else
             {
@@ -163,8 +163,8 @@ namespace reliability_on_demand.DataLayer
             return sb.ToString();
         }
 
-          public string GetAllStudyConfigsForTeam(int TeamID)
-          {
+        public string GetAllStudyConfigsForTeam(int TeamID)
+        {
             //ensure that connection is open
             this.Database.OpenConnection();
 
@@ -413,16 +413,16 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "SELECT max(PivotScopeID) AS max FROM RELPivotScope";
             Int32 maxscopeid = (Int32)cmd.ExecuteScalar();
             if (count > 0)
-                {
-                    DeletePivotScopeEnteries(failure);
+            {
+                DeletePivotScopeEnteries(failure);
 
-                    //Order matters- first extract the pivot scope ids from the relstudypivotconfig table and delete pivot scope ids first
-                    DeleteStudyIDFromPivotMapping(failure);
+                //Order matters- first extract the pivot scope ids from the relstudypivotconfig table and delete pivot scope ids first
+                DeleteStudyIDFromPivotMapping(failure);
 
-                    DeleteStudyVerticals(failure);
-                }
+                DeleteStudyVerticals(failure);
+            }
 
-                this.AddFailureConfigToSQL(failure, maxscopeid);
+            this.AddFailureConfigToSQL(failure, maxscopeid);
         }
 
         int GetMaximumStudyPivotConfigCount(FailureConfig failure)
@@ -476,49 +476,49 @@ namespace reliability_on_demand.DataLayer
             studyverticalreader.Close();
         }
 
-        void AddFailureConfigToSQL(FailureConfig failure,int maxscopeid)
+        void AddFailureConfigToSQL(FailureConfig failure, int maxscopeid)
         {
-                this.Database.OpenConnection();
-                var scopeid = maxscopeid + 1;
-                var cmd = this.Database.GetDbConnection().CreateCommand();
+            this.Database.OpenConnection();
+            var scopeid = maxscopeid + 1;
+            var cmd = this.Database.GetDbConnection().CreateCommand();
 
-                for (var i = 0; i < failure.Pivots.Count; i++)
+            for (var i = 0; i < failure.Pivots.Count; i++)
+            {
+                var pivot = failure.Pivots[i];
+                if (pivot.IsScopeFilter == true && pivot.FilterExpression != null && pivot.FilterExpression != "")
                 {
-                    var pivot = failure.Pivots[i];
-                    if (pivot.IsScopeFilter == true && pivot.FilterExpression != null && pivot.FilterExpression != "")
-                    {
-                        AddFilterPivotToFailureCurve(failure, scopeid,pivot);
-                        pivot.PivotScopeID = scopeid;
-                        scopeid++;
-                    }
+                    AddFilterPivotToFailureCurve(failure, scopeid, pivot);
+                    pivot.PivotScopeID = scopeid;
+                    scopeid++;
+                }
+            }
+
+            for (var i = 0; i < failure.Pivots.Count; i++)
+            {
+                var pivot = failure.Pivots[i];
+                cmd = this.Database.GetDbConnection().CreateCommand();
+
+                if (pivot.PivotScopeID == 0 || pivot.IsScopeFilter == false)
+                {
+                    AddWithoutFilterPivotToFailureCurve(failure, pivot);
+                }
+                else
+                {
+                    AddFilterPivotsAndValuesToFailureCurve(failure, pivot);
                 }
 
-                for (var i = 0; i < failure.Pivots.Count; i++)
-                {
-                    var pivot = failure.Pivots[i];
-                    cmd = this.Database.GetDbConnection().CreateCommand();
+            }
 
-                    if (pivot.PivotScopeID == 0 || pivot.IsScopeFilter == false)
-                    {
-                        AddWithoutFilterPivotToFailureCurve(failure, pivot);
-                    }
-                    else
-                    {
-                        AddFilterPivotsAndValuesToFailureCurve(failure, pivot);
-                    }
+            // inserting verticals for the study in failureverticalconfig table
+            for (var i = 0; i < failure.Verticals.Count; i++)
+            {
+                AddVerticalsForStudy(failure, failure.Verticals[i]);
+            }
 
-                }
-
-                // inserting verticals for the study in failureverticalconfig table
-                for (var i = 0; i < failure.Verticals.Count; i++)
-                {
-                    AddVerticalsForStudy(failure,failure.Verticals[i]);
-                }
-
-                this.Database.CloseConnection();
+            this.Database.CloseConnection();
         }
 
-        void AddFilterPivotToFailureCurve(FailureConfig failure,int scopeid,Pivot pivot)
+        void AddFilterPivotToFailureCurve(FailureConfig failure, int scopeid, Pivot pivot)
         {
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "dbo.AddFilterPivotToFailureCurve";
@@ -531,7 +531,7 @@ namespace reliability_on_demand.DataLayer
             reader.Close();
         }
 
-        void AddWithoutFilterPivotToFailureCurve(FailureConfig failure,Pivot pivot)
+        void AddWithoutFilterPivotToFailureCurve(FailureConfig failure, Pivot pivot)
         {
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "dbo.AddWithoutFilterPivotToFailureCurve";
@@ -546,7 +546,7 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
         }
 
-        void AddFilterPivotsAndValuesToFailureCurve(FailureConfig failure,Pivot pivot)
+        void AddFilterPivotsAndValuesToFailureCurve(FailureConfig failure, Pivot pivot)
         {
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "dbo.AddFilterPivotsAndValuesToFailureCurve";
@@ -562,7 +562,7 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@PivotScopeID", pivot.PivotScopeID));
         }
 
-        void AddVerticalsForStudy(FailureConfig failure,String vertical)
+        void AddVerticalsForStudy(FailureConfig failure, String vertical)
         {
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "dbo.AddVerticalsForStudy";
@@ -581,7 +581,7 @@ namespace reliability_on_demand.DataLayer
             string query = "SELECT * FROM [dbo].[RelMetricConfiguration_Defaults]";
             string res = GetSQLResultsJSON(query);
             return res;
-        }        
+        }
         public string AddMetricConfig(MetricConfig userCreatedMetric)
         {
             //ensure that connection is open
@@ -614,7 +614,7 @@ namespace reliability_on_demand.DataLayer
             return sb.ToString();
         }
         public string GetMetricConfigs(int StudyId)
-          {
+        {
             //ensure that connection is open
             this.Database.OpenConnection();
 
@@ -636,5 +636,39 @@ namespace reliability_on_demand.DataLayer
             }
             return sb.ToString();
         }
+
+        public string UpdateMetricConfig(MetricConfig userConfig)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.UpdateMetricConfig";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@UniqueKey", userConfig.UniqueKey));
+            cmd.Parameters.Add(new SqlParameter("@MetricName", userConfig.MetricName));
+            cmd.Parameters.Add(new SqlParameter("@Vertical", userConfig.Vertical));
+            cmd.Parameters.Add(new SqlParameter("@MinUsageInMS", userConfig.MinUsageInMS));
+            cmd.Parameters.Add(new SqlParameter("@FailureRateInHour", userConfig.FailureRateInHour));
+            cmd.Parameters.Add(new SqlParameter("@HighUsageMinInMS", userConfig.HighUsageMinInMS));
+            cmd.Parameters.Add(new SqlParameter("@MetricGoal", userConfig.MetricGoal));
+            cmd.Parameters.Add(new SqlParameter("@StudyId", userConfig.StudyId));
+            cmd.Parameters.Add(new SqlParameter("@MetricGoalAspirational", userConfig.MetricGoalAspirational));
+            cmd.Parameters.Add(new SqlParameter("@IsUsage", userConfig.IsUsage));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
     }
 }
+

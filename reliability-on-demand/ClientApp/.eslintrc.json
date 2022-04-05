@@ -21,6 +21,7 @@
     }
   },
   "rules": {
+    "no-nested-ternary":"off",
     "object-curly-spacing": [
       "warn",
       "always"

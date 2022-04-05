@@ -9,7 +9,6 @@ import OwnerTraigeAlias from './OwnerTriageAlias'
 import { TeamComboBox } from './TeamComboBox'
 
 export interface ITeamDetailsProps {
-  startingTeamId: number
   callBack: any
 }
 

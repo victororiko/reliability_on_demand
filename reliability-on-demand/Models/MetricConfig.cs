@@ -15,6 +15,7 @@ namespace reliability_on_demand.DataLayer
         public float MetricGoalAspirational { get; set; }
         public int StudyId { get; set; }
         public bool IsUsage { get; set; }
+        public string UniqueKey { get; set; }
 
 
         public override string ToString()

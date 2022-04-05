@@ -6,12 +6,9 @@
  
  * To set up return types properly - refer to: https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/formatting?view=aspnetcore-5.0
  */
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using reliability_on_demand.DataLayer;
 using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
 namespace reliability_on_demand.Controllers
@@ -45,12 +42,14 @@ namespace reliability_on_demand.Controllers
         [HttpGet]
         public IActionResult GetAllReleases()
         {
-            try{
+            try
+            {
                 _logger.LogInformation("GetAllReleases was called");
                 string str = this._kustoservice.GetAllReleases();
-                return Ok(str);    
+                return Ok(str);
             }
-            catch(Exception ex){
+            catch (Exception ex)
+            {
                 string message = $"Failed to get all releases from Kusto.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
@@ -61,7 +60,8 @@ namespace reliability_on_demand.Controllers
         [HttpGet]
         public IActionResult GetAllTeamConfigs()
         {
-            try{
+            try
+            {
                 _logger.LogInformation("GetAllTeamConfigs was called");
                 var result = this._sqlservice.GetAllTeamConfigs();
                 if (result == null)
@@ -70,7 +70,8 @@ namespace reliability_on_demand.Controllers
                 }
                 return Ok(result);
             }
-            catch(Exception ex){
+            catch (Exception ex)
+            {
                 string message = $"Failed GetAllTeamConfigs.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
@@ -81,14 +82,16 @@ namespace reliability_on_demand.Controllers
         [HttpGet]
         public IActionResult GetAllStudyConfigsForTeam(int teamId)
         {
-            try{
+            try
+            {
                 _logger.LogInformation($"GetAllStudyConfigsForTeam was called | teamId = {teamId}");
                 // TODO remove ConfigInquiry
                 ConfigInquiry inquiry = new ConfigInquiry();
                 inquiry.TeamID = teamId;
                 return Ok(this._sqlservice.GetAllStudyConfigsForTeam(inquiry.TeamID));
             }
-            catch(Exception ex){
+            catch (Exception ex)
+            {
                 string message = $"Failed GetAllStudyConfigsForTeam.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
@@ -99,11 +102,13 @@ namespace reliability_on_demand.Controllers
         [HttpPost("[action]")]
         public IActionResult AddStudy([FromBody] StudyConfig userCreatedStudy)
         {
-            try{
+            try
+            {
                 _logger.LogInformation($"AddStudy was called | StudyConfig = {userCreatedStudy}");
                 return Ok(this._sqlservice.AddStudy(userCreatedStudy));
             }
-            catch(Exception ex){
+            catch (Exception ex)
+            {
                 string message = $"Failed AddStudy.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
@@ -174,7 +179,7 @@ namespace reliability_on_demand.Controllers
         public IActionResult GetAllailurePivotNamesForAVertical(string sourcetype)
         {
             _logger.LogInformation($"sourcetype = {sourcetype}");
-            if(String.IsNullOrEmpty(sourcetype))
+            if (String.IsNullOrEmpty(sourcetype))
                 return BadRequest("Bad request. Please specify a sourcetype like KernelMode or UserMode");
             string res = this._sqlservice.GetPivots(sourcetype);
             return Ok(res);
@@ -216,11 +221,13 @@ namespace reliability_on_demand.Controllers
         [HttpPost("[action]")]
         public IActionResult AddMetricConfig([FromBody] MetricConfig userCreatedMetric)
         {
-            try{
+            try
+            {
                 _logger.LogInformation($"AddMetricConfig was called | MetricConfig = {userCreatedMetric}");
                 return Ok(this._sqlservice.AddMetricConfig(userCreatedMetric));
             }
-            catch(Exception ex){
+            catch (Exception ex)
+            {
                 string message = $"Failed AddMetricConfig.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
@@ -234,13 +241,32 @@ namespace reliability_on_demand.Controllers
             {
                 string res = this._sqlservice.GetMetricConfigs(StudyId);
                 _logger.LogInformation($"GetMetricConfigs called with StudyId = {StudyId}");
-                if(String.IsNullOrEmpty(res))
+                if (String.IsNullOrEmpty(res))
                     _logger.LogDebug("No Metrics Configured");
                 return Ok(res);
             }
             catch (Exception ex)
             {
                 string message = $"Failed GetMetricConfigs.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [HttpPost("api/Data/UpdateMetricConfig/")]
+        public IActionResult UpdateMetricConfig(MetricConfig userConfig)
+        {
+            try
+            {
+                string res = this._sqlservice.UpdateMetricConfig(userConfig);
+                _logger.LogInformation($"UpdateMetricConfig called with userConfig = {userConfig}");
+                if (String.IsNullOrEmpty(res))
+                    _logger.LogDebug("No Metrics Configured");
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed UpdateMetricConfig.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
             }

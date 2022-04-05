@@ -28,6 +28,8 @@ export const MetricDetails = (props: Props) => {
     : 0
   userMetric.StudyId = props.studyid ?? CreateNewID
 
+  userMetric.UniqueKey = props.metricData ? props.metricData.UniqueKey : ''
+
   const updateUserMetricMinUsage = (minUsage: number) => {
     userMetric.MinUsageInMS = minUsage
   }
