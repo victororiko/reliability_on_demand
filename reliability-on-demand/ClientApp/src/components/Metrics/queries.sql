@@ -289,3 +289,15 @@ GO
 
 select * from dbo.RelMetricConfiguration
 where UniqueKey = '8186198E-ABA6-EC11-A22A-2818787E4D7F'
+
+
+-- Limit Default Verticals based on Study
+SELECT *
+FROM dbo.RelMetricConfiguration_Defaults
+WHERE Vertical IN (SELECT [VerticalName]
+FROM [dbo].[RELFailureVerticalConfig]
+WHERE StudyID = 283);
+
+SELECT *
+FROM dbo.RelMetricConfiguration
+WHERE StudyID = 283

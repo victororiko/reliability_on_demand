@@ -53,10 +53,11 @@ export class ConfigPage extends React.Component<IConfigProps, IConfigState> {
           callBack={this.selectStudy}
         />
         <FailureCurve studyid={this.state.currentStudyId} />
-        <Metrics
-          studyid={this.state.currentStudyId}
-          verticalList={['oscrash', 'appcrash', 'apphang', 'dirtyshutdown']}
-        />
+        {this.state.currentStudyId === -1 ? (
+          ''
+        ) : (
+          <Metrics studyid={this.state.currentStudyId} />
+        )}
       </Stack>
     )
   }

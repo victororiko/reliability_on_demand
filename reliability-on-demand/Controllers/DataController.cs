@@ -209,11 +209,11 @@ namespace reliability_on_demand.Controllers
             this._sqlservice.UpdateFailureSavedConfig(fg);
         }
 
-        [HttpGet("api/Data/GetDefaultMetricsConfig")]
-        public IActionResult GetDefaultMetricsConfig()
+        [HttpGet("api/Data/GetDefaultMetricsConfig/{StudyId}")]
+        public IActionResult GetDefaultMetricsConfig(int StudyId)
         {
-            string res = this._sqlservice.GetDefaultMetricsConfig();
-            _logger.LogInformation("GetDefaultMetricsConfig");
+            string res = this._sqlservice.GetDefaultMetricsConfig(StudyId);
+            _logger.LogInformation($"GetDefaultMetricsConfig for StudyId = {StudyId}");
             return Ok(res);
         }
 

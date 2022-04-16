@@ -8,7 +8,6 @@ import { CreateNewID } from '../helpers/utils'
 
 interface Props {
   studyid: number
-  verticalList: string[]
 }
 
 /**
@@ -20,35 +19,28 @@ export const Metrics = (props: Props) => {
   const [defaults, setDefaults] = useState<Metric[]>([])
   const [loading, setLoading] = useState(true)
   const [userMetrics, setUserMetrics] = useState<Metric[]>([])
-  // reload component whenever study or vertical changes
+  // reload component whenever study
   useEffect(() => {
-    loadMetrics(props.verticalList, props.studyid)
-  }, [props.verticalList, props.studyid])
+    loadMetrics(props.studyid)
+  }, [props.studyid])
 
-  // loading metrics pieces is here because axios
+  // loading metrics piece is here because axios
   // internals require you to setState -- not return a value
-  const loadMetrics = async (
-    verticalList: string[],
-    studyid: number = CreateNewID
-  ) => {
+  const loadMetrics = async (studyid: number = CreateNewID) => {
     try {
-      console.debug(
-        `verticals list passed in = ${JSON.stringify(verticalList)}`
+      // get defaults from backend
+      const response = await axios.get(
+        `api/Data/GetDefaultMetricsConfig/${studyid}`
       )
-      const response = await axios.get(`api/Data/GetDefaultMetricsConfig/`)
-      let defaultsFromBackend = response.data as Metric[]
+      const defaultsFromBackend = response.data as Metric[]
+      // get user metrics from backend
       const response2 = await axios.get(`api/Data/GetMetricConfigs/${studyid}`)
-      if (response2.data === '') {
-        setUserMetrics([])
-      } else {
+
+      // check if any user metrics exist in default - remove those from defaults
+      if (response2.data === '') setUserMetrics([])
+      else {
         const userMetricsFromBackend = response2.data as Metric[]
         setUserMetrics(userMetricsFromBackend)
-        for (const um of userMetricsFromBackend) {
-          // um = user metric
-          defaultsFromBackend = defaultsFromBackend.filter((item) => {
-            return item.MetricName !== um.MetricName
-          })
-        }
       }
       setDefaults(defaultsFromBackend)
     } catch (exception) {

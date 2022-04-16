@@ -109,8 +109,8 @@ namespace reliability_on_demand
                 {
                     // Start a separate front end by calling "npm run start" on the ClientApp folder
                     // more info at: https://docs.microsoft.com/en-us/aspnet/core/client-side/spa/react?view=aspnetcore-5.0&tabs=netcore-cli#run-the-cra-server-independently
-                    // spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
-                    spa.UseReactDevelopmentServer(npmScript: "start");
+                    spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                    //spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
         }

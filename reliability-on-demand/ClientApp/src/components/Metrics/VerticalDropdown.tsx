@@ -24,20 +24,10 @@ export const VerticalDropdown = (props: Props) => {
     <div>
       <Text variant="xLarge">Vertical</Text>
       <Dropdown
-        // lots going on here:
-        // convertSimpleTypeToOptions - converts metric data to dropdown options
-        // ... is spread operator that enumerates all dropdown options
-        // [...array1, ...array2] ==> [all elements from array1 and array2]
-        options={[
-          ...convertSimpleTypeToOptions(
-            getDistinctVerticals(props.defaultMetrics),
-            true
-          ),
-          ...convertSimpleTypeToOptions(
-            getDistinctVerticals(props.userMetrics),
-            true
-          ),
-        ]}
+        options={convertSimpleTypeToOptions(
+          getDistinctVerticals(props.defaultMetrics),
+          true
+        )}
         onChange={onChange}
         placeholder="Select a Vertical"
       />

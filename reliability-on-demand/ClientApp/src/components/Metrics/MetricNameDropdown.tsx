@@ -26,12 +26,19 @@ export const MetricNameDropdown = (props: Props) => {
   const [metricData, setMetricData] = useState<Metric>()
 
   useEffect(() => {
-    setDefaultMetrics(props.defaultMetrics)
+    // remove any user metrics from default metrics
+    let cleanedDefaults = props.defaultMetrics
+    for (const um of props.userMetrics) {
+      cleanedDefaults = cleanedDefaults.filter((item) => {
+        return item.MetricName !== um.MetricName
+      })
+    }
+    setDefaultMetrics(cleanedDefaults)
     setUserMetrics(props.userMetrics)
-    const dropdownOptions = generateDropdownOptions(defaultMetrics, userMetrics)
+    const dropdownOptions = generateDropdownOptions(cleanedDefaults, userMetrics)
     setOptions(dropdownOptions)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.defaultMetrics, props.userMetrics, defaultMetrics])
+  }, [props.defaultMetrics, props.userMetrics])
 
   const handleChange = (
     event: FormEvent<HTMLDivElement>,

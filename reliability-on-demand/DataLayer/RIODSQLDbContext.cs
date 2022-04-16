@@ -576,9 +576,11 @@ namespace reliability_on_demand.DataLayer
         }
 
         //Get default metrics
-        public string GetDefaultMetricsConfig()
+        public string GetDefaultMetricsConfig(int StudyId)
         {
-            string query = "SELECT * FROM [dbo].[RelMetricConfiguration_Defaults]";
+            // TODO first get verticals list from RELFailureVerticalConfig
+            // TODO Then select defaults where vertical exists in vertical list
+            string query = $"SELECT * FROM dbo.RelMetricConfiguration_Defaults WHERE Vertical IN(SELECT[VerticalName] FROM [dbo].[RELFailureVerticalConfig] WHERE StudyID = {StudyId})";
             string res = GetSQLResultsJSON(query);
             return res;
         }
