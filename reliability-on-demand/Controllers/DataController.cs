@@ -13,9 +13,6 @@ using Microsoft.Extensions.Logging;
 
 namespace reliability_on_demand.Controllers
 {
-    //  [Authorize(Roles = @"redmond\osgdataextended, ntdev\osgdataextendedntdev, wingroup\osgdataextendedwingroup")]
-    //  [Authorize(Roles = @"redmond\osgdataextended, wingroup\osgdataextendedwingroup")]
-    //[Authorize]
     [ApiController]
     public class DataController : Controller
     {
@@ -29,15 +26,7 @@ namespace reliability_on_demand.Controllers
             this._sqlservice = sqlservice;
             this._logger = logger;
         }
-        /// <summary>
-        /// Reliability Metrics Monitor GetAllReleases
-        /// </summary>
-        /// <group>Reliability Metrics Monitor GetAllReleases</group>
-        /// <verb>GET</verb>
-        /// <url>https://reliabilityondemand.azurewebsites.net/api/Data/GetAllReleases</url>
-        /// <security type="oauth2" name="oauth">
-        /// </security>
-        //[Authorize]
+
         [Route("api/Data/GetAllReleases")]
         [HttpGet]
         public IActionResult GetAllReleases()
