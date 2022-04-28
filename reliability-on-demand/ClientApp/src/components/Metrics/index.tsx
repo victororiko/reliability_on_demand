@@ -32,7 +32,9 @@ export const Metrics = (props: Props) => {
       const response = await axios.get(
         `api/Data/GetDefaultMetricsConfig/${studyid}`
       )
-      const defaultsFromBackend = response.data as Metric[]
+      let defaultsFromBackend: Metric[] = []
+      if (response && response.data !== '')
+        defaultsFromBackend = response.data as Metric[]
       // get user metrics from backend
       const response2 = await axios.get(`api/Data/GetMetricConfigs/${studyid}`)
 

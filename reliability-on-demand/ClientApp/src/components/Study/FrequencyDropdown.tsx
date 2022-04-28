@@ -1,53 +1,42 @@
-import { Dropdown, IDropdownOption } from '@fluentui/react'
-import React from 'react'
+import { IDropdownOption } from '@fluentui/react'
+import React, { useEffect, useState } from 'react'
 import { StudyConfig } from '../../models/config.model'
+import { MyDropdown } from '../helpers/MyDropdown'
+import { hardCodedFrequencies } from '../helpers/utils'
+import { getFrequencySelectionFromStudy } from './model'
 
 interface Props {
+  // eslint-disable-next-line react/no-unused-prop-types
   currentStudy?: StudyConfig
   callBack: any
 }
 
 export const FrequencyDropdown = (props: Props) => {
-  const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
-  // -2 is just an initialization of the previous study id.
-  const [previouStudyID, setPreviouStudyID] = React.useState('-2')
-  const onChange = (
-    event: React.FormEvent<HTMLDivElement>,
-    item: any
-  ): void => {
-    setPreviouStudyID(props.currentStudy?.StudyID ?? '')
-    setSelectedItem(item)
-    // send back the selection made by user or set it to default =
-    props.callBack(item ? item.key : 24)
-  }
+  const [selection, setSelection] = useState<IDropdownOption | undefined>(
+    getFrequencySelectionFromStudy(hardCodedFrequencies, props?.currentStudy)
+  )
+  useEffect(() => {
+    const ans = getFrequencySelectionFromStudy(
+      hardCodedFrequencies,
+      props?.currentStudy
+    )
+    setSelection(ans)
+  }, [props.currentStudy])
 
-  const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
-    if (
-      (currentStudy && currentStudy?.StudyID != previouStudyID) ||
-      (previouStudyID !== '-2' && currentStudy === undefined)
-    ) {
-      return currentStudy?.CacheFrequency
-    }
-    return selectedItem ? selectedItem.key : 24
+  const handleFrequencyChange = (value: IDropdownOption) => {
+    props.callBack(value.key)
+    setSelection(value)
   }
 
   return (
-    <Dropdown
-      placeholder="Select a frequency"
-      label="Frequency"
-      selectedKey={getSelectedKey(props.currentStudy)}
-      onChange={onChange}
-      options={hardCodedFrequencies}
+    <MyDropdown
+      data={hardCodedFrequencies}
+      enabled
+      handleOptionChange={handleFrequencyChange}
+      label="Cache Frequency"
+      placeholder="Please select a frequency for your study"
       required
+      selectedOption={selection}
     />
   )
 }
-
-const hardCodedFrequencies: IDropdownOption[] = [
-  { key: 0, text: 'none' },
-  { key: 1, text: 'hourly' },
-  { key: 168, text: 'weekly' },
-  { key: 12, text: 'every 12 hours' },
-  { key: 24, text: 'every 24 hours' },
-  { key: 72, text: 'every 3 days' },
-]

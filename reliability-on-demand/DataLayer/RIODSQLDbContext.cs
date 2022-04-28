@@ -194,33 +194,27 @@ namespace reliability_on_demand.DataLayer
 
             var cmd = this.Database.GetDbConnection().CreateCommand();
 
-            if (userCreatedStudy.StudyID.Equals("-1"))
+            // prepare store procedure with necessary parameters
+            cmd.CommandText = "dbo.AddStudy";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyName", userCreatedStudy.StudyName));
+            cmd.Parameters.Add(new SqlParameter("@LastModifiedDate", userCreatedStudy.LastModifiedDate));
+            cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userCreatedStudy.CacheFrequency));
+            cmd.Parameters.Add(new SqlParameter("@Expiry", userCreatedStudy.Expiry));
+            cmd.Parameters.Add(new SqlParameter("@TeamId", userCreatedStudy.TeamID));
+            cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userCreatedStudy.ObservationWindowDays));
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
             {
-                // prepare store procedure with necessary parameters
-                cmd.CommandText = "dbo.AddStudy";
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                // add any params here
-                cmd.Parameters.Add(new SqlParameter("@StudyName", userCreatedStudy.StudyName));
-                cmd.Parameters.Add(new SqlParameter("@LastModifiedDate", userCreatedStudy.LastModifiedDate));
-                cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userCreatedStudy.CacheFrequency));
-                cmd.Parameters.Add(new SqlParameter("@Expiry", userCreatedStudy.Expiry));
-                cmd.Parameters.Add(new SqlParameter("@TeamId", userCreatedStudy.TeamId));
-                cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userCreatedStudy.ObservationWindowDays));
-                // execute stored procedure and return json
-                StringBuilder sb = new StringBuilder();
-                using (var reader = cmd.ExecuteReader())
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        sb.Append(reader.GetString(0));
-                    }
+                    sb.Append(reader.GetString(0));
                 }
-                return sb.ToString();
             }
-            else
-            {
-                return UpdateStudy(userCreatedStudy);
-            }
+            return sb.ToString();
+
         }
 
         public string UpdateStudy(StudyConfig userUpdatedStudy)

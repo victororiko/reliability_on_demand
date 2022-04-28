@@ -200,7 +200,7 @@ export class FailureCurve extends React.Component<
       await axios
         .get(`api/Data/GetConfiguredVerticalForAStudy/${this.props.studyid}`)
         .then((res) => {
-          console.log(res.data)
+          console.debug(res.data)
           this.byDefaultVerticals = res.data
           if (
             !this.isSame(this.byDefaultVerticals, this.state.byDefaultVerticals)
@@ -208,7 +208,7 @@ export class FailureCurve extends React.Component<
             this.setState({ byDefaultVerticals: res.data })
         })
         .catch((err) => {
-          console.log('Axios Error:', err.message)
+          console.error('Axios Error:', err.message)
         })
     }
   }

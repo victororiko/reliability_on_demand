@@ -30,7 +30,6 @@ export interface TeamConfig {
 export interface StudyConfig {
   StudyID: string
   StudyName: string
-  LastRefreshDate: Date
   LastModifiedDate: Date
   CacheFrequency: number
   Expiry: Date

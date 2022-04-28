@@ -10,7 +10,7 @@ namespace reliability_on_demand.DataLayer
         public DateTime LastModifiedDate { get; set; }
         public int CacheFrequency { get; set; }
         public DateTime Expiry { get; set; }
-        public int TeamId { get; set; }
+        public int TeamID { get; set; }
         public int ObservationWindowDays { get; set; }
     }
 }

@@ -1,3 +1,5 @@
+import { IDropdownOption } from "@fluentui/react"
+
 /**
  * Used in Comboboxes or Dropdowns
  */
@@ -69,7 +71,7 @@ export const convertSimpleTypeToOptions = (
 // usage example:
 // var a = ['a', 1, 'a', 2, '1'];
 // var unique = a.filter(onlyUnique);
-// console.log(unique); // ['a', 1, 2, '1']
+// console.debug(unique); // ['a', 1, 2, '1']
 export const onlyUnique = (myArray: any[]) => {
   return [...new Set(myArray)]
 }
@@ -91,3 +93,19 @@ export const myParseInt = (value: string): number => {
 export const prepUsageInMS = (timeInSec: number, timeInMin: number): number => {
   return timeInSec * 1000 + timeInMin * 60000
 }
+
+// Study Section hardcoded values
+export const hardCodedFrequencies: IDropdownOption[] = [
+  { key: 0, text: 'none' },
+  { key: 1, text: 'hourly' },
+  { key: 168, text: 'weekly' },
+  { key: 12, text: 'every 12 hours' },
+  { key: 24, text: 'every 24 hours' },
+  { key: 72, text: 'every 3 days' },
+]
+
+// generate data for Dropdown
+export const hardCodedObservationWindows: IDropdownOption[] = [
+  { key: 0, text: 'none' },
+  { key: 14, text: '14 days' },
+]

@@ -6,19 +6,6 @@ export const loadVerticals = (): Vertical[] => {
   return verticals
 }
 
-// TODO uncomment this to make backend call
-// const loadVerticals = () => {
-//     axios.get(`api/Data/GetVerticals/`)
-//         .then((response) => {
-//             if (response.data) {
-//                 setVerticals(response.data)
-//             } else {
-//                 setVerticals([])
-//             }
-//         })
-//         .catch(err => console.error(err))
-// }
-
 export const getVerticalFromList = (list: string[]): Vertical[] => {
   const parsedVerticalList: Vertical[] = []
   for (let i = 0; i < list.length; i++) {

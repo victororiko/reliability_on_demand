@@ -74,10 +74,7 @@ namespace reliability_on_demand.Controllers
             try
             {
                 _logger.LogInformation($"GetAllStudyConfigsForTeam was called | teamId = {teamId}");
-                // TODO remove ConfigInquiry
-                ConfigInquiry inquiry = new ConfigInquiry();
-                inquiry.TeamID = teamId;
-                return Ok(this._sqlservice.GetAllStudyConfigsForTeam(inquiry.TeamID));
+                return Ok(this._sqlservice.GetAllStudyConfigsForTeam(teamId));
             }
             catch (Exception ex)
             {
@@ -104,6 +101,21 @@ namespace reliability_on_demand.Controllers
             }
         }
 
+        [HttpPost("api/Data/UpdateStudy")]
+        public IActionResult UpdateStudy([FromBody] StudyConfig userCreatedStudy)
+        {
+            try
+            {
+                _logger.LogInformation($"UpdateStudy was called | StudyConfig = {userCreatedStudy}");
+                return Ok(this._sqlservice.UpdateStudy(userCreatedStudy));
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed UpdateStudy.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
 
         [Route("api/Data/SaveTeam")]
         [HttpPost("[action]")]

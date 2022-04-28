@@ -2,16 +2,15 @@ import React from 'react'
 import { PrimaryButton } from '@fluentui/react'
 
 interface Props {
-  ButtonName: string
-  callBack: any
+  disabled: boolean
+  callback: any
 }
 
 export const AddStudyButton = (props: Props) => {
+  const handleClick = () => {
+    props.callback()
+  }
   return (
-    <PrimaryButton
-      text={props.ButtonName}
-      onClick={props.callBack}
-      allowDisabledFocus
-    />
+    <PrimaryButton text="Add" onClick={handleClick} disabled={props.disabled} />
   )
 }

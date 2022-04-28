@@ -35,7 +35,10 @@ export const MetricNameDropdown = (props: Props) => {
     }
     setDefaultMetrics(cleanedDefaults)
     setUserMetrics(props.userMetrics)
-    const dropdownOptions = generateDropdownOptions(cleanedDefaults, userMetrics)
+    const dropdownOptions = generateDropdownOptions(
+      cleanedDefaults,
+      userMetrics
+    )
     setOptions(dropdownOptions)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.defaultMetrics, props.userMetrics])

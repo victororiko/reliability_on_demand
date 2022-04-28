@@ -41,6 +41,11 @@ namespace reliability_on_demand.DataLayer
             return _context.AddStudy(userCreatedStudy);
         }
 
+        string ISQLService.UpdateStudy(StudyConfig userCreatedStudy)
+        {
+            return _context.UpdateStudy(userCreatedStudy);
+        }
+
         string ISQLService.GetVerticals()
         {
             string str = _context.GetVerticals();

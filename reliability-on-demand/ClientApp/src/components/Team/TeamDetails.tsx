@@ -87,9 +87,6 @@ export default class TeamDetails extends React.Component<
   }
 
   selectCurrentTeam = (team_id_selection: number) => {
-    console.debug(
-      `teamID selection from team combobox =>  ${team_id_selection}`
-    )
     this.setState({
       currentTeam: this.getTeamFromNumber(team_id_selection),
     })

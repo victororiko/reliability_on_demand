@@ -3,7 +3,7 @@ import { Route, Switch } from 'react-router'
 // icons doc: https://developer.microsoft.com/en-us/fluentui#/controls/web/icon
 import { initializeIcons } from '@fluentui/react/lib/Icons'
 import { Layout } from './components/Layout'
-import { ConfigPage } from './components/Config/ConfigPage'
+import { Config } from './components/Config'
 import { KustoData } from './components/Other/KustoData'
 import { ParamsTest } from './components/Other/ParamsTest'
 import { AdminPage } from './components/Admin/index'
@@ -28,7 +28,7 @@ export const App = () => {
             Important: A route with path="/" will *always* match
             the URL because all URLs begin with a /. So that's
             why we put this one last of all */}
-        <Route exact path="/" component={ConfigPage} />
+        <Route exact path="/" component={Config} />
       </Switch>
     </Layout>
   )

@@ -3,7 +3,7 @@ import {
   IComboBoxOption,
   VirtualizedComboBox,
 } from '@fluentui/react'
-import React, { FormEvent, useEffect } from 'react'
+import React, { FormEvent } from 'react'
 import { TeamConfig } from '../../models/config.model'
 
 interface Props {
@@ -12,14 +12,6 @@ interface Props {
 }
 
 export const TeamComboBox = (props: Props) => {
-  // onMount
-  useEffect(() => {
-    console.debug('Mounted TeamComboBox')
-    return () => {
-      console.debug('UnMounted TeamComboBox')
-    }
-  }, [])
-
   // state
   const [selectedItem, setSelectedItem] = React.useState<IComboBoxOption>()
   // core interation methods

@@ -1,6 +1,9 @@
-import React from 'react'
-import { Dropdown, IDropdownOption } from '@fluentui/react'
+import React, { useEffect, useState } from 'react'
+import { IDropdownOption } from '@fluentui/react'
 import { StudyConfig } from '../../models/config.model'
+import { getObservationWindowSelectionFromStudy } from './model'
+import { MyDropdown } from '../helpers/MyDropdown'
+import { hardCodedObservationWindows } from '../helpers/utils'
 
 interface Props {
   currentStudy?: StudyConfig
@@ -8,41 +11,35 @@ interface Props {
 }
 
 export const ObservationWindowDropdown = (props: Props) => {
-  const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
-  const [previouStudyID, setPreviouStudyID] = React.useState('-2')
-  // when user selects a new dropdown value - replace current DropdownOption with that value
-  const onChange = (
-    event: React.FormEvent<HTMLDivElement>,
-    item: any
-  ): void => {
-    setPreviouStudyID(props.currentStudy?.StudyID ?? '')
-    setSelectedItem(item)
-    props.callBack(item ? item.key : 14)
-  }
+  const [selection, setSelection] = useState<IDropdownOption | undefined>(
+    getObservationWindowSelectionFromStudy(
+      hardCodedObservationWindows,
+      props?.currentStudy
+    )
+  )
 
-  const getSelectedKey = (currentStudy: StudyConfig | undefined) => {
-    if (
-      (currentStudy && currentStudy?.StudyID != previouStudyID) ||
-      (previouStudyID !== '-2' && currentStudy === undefined)
-    ) {
-      return currentStudy?.ObservationWindowDays
-    }
-    return selectedItem ? selectedItem.key : 14
+  useEffect(() => {
+    const ans = getObservationWindowSelectionFromStudy(
+      hardCodedObservationWindows,
+      props?.currentStudy
+    )
+    setSelection(ans)
+  }, [props.currentStudy])
+
+  const handleObservationWindowChange = (value: IDropdownOption) => {
+    props.callBack(value.key)
+    setSelection(value)
   }
 
   return (
-    <Dropdown
-      placeholder="Select an observation window"
-      label="Observation window"
-      options={hardCodedObservationWindows}
-      selectedKey={getSelectedKey(props.currentStudy)}
-      onChange={onChange}
+    <MyDropdown
+      data={hardCodedObservationWindows}
+      enabled
+      handleOptionChange={handleObservationWindowChange}
+      label="Observation Window"
+      placeholder="Please select an observation window for your study"
+      required
+      selectedOption={selection}
     />
   )
 }
-
-// generate data for Dropdown
-const hardCodedObservationWindows: IDropdownOption[] = [
-  { key: 0, text: 'none' },
-  { key: 14, text: '14 days' },
-]
