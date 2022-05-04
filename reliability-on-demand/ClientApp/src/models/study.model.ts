@@ -1,5 +1,14 @@
 import { IComboBoxOption, IDropdownOption } from '@fluentui/react'
-import { StudyConfig } from '../../models/config.model'
+
+export interface StudyConfig {
+  StudyID: string
+  StudyName: string
+  LastModifiedDate: Date
+  CacheFrequency: number
+  Expiry: Date
+  TeamID: number
+  ObservationWindowDays: number
+}
 
 export const convertToOptions = (inputData: StudyConfig[]) => {
   let parsedList: IComboBoxOption[] = []
@@ -31,8 +40,6 @@ export const getStudyConfig = (
   return undefined
 }
 
-
-
 export const getFrequencySelectionFromStudy = (
   data: IDropdownOption[],
   selectedStudy: StudyConfig | undefined
@@ -48,8 +55,6 @@ export const getDefaultExpiryDate = () => {
   const current = new Date(now.getFullYear(), now.getMonth() + 3, now.getDay())
   return current
 }
-
-
 
 export const getObservationWindowSelectionFromStudy = (
   data: IDropdownOption[],

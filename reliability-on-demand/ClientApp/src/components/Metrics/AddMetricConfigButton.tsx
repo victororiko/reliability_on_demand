@@ -1,7 +1,7 @@
 import { PrimaryButton } from '@fluentui/react'
 import axios from 'axios'
 import React, { useState } from 'react'
-import { Metric } from './model'
+import { Metric } from '../../models/metric.model'
 import { MessageBox } from '../helpers/MessageBox'
 
 interface Props {

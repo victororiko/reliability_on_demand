@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { SpinButtonMins } from './SpinButtonMins'
 import { SpinButtonSec } from './SpinButtonSec'
 import { horizontalStackTokens } from '../helpers/Styles'
-import { Metric } from './model'
+import { Metric } from '../../models/metric.model'
 import { myParseInt, prepUsageInMS } from '../helpers/utils'
 
 interface Props {

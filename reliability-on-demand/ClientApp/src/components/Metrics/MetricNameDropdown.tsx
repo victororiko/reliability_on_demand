@@ -4,7 +4,7 @@ import {
   findMetrics as findMetric,
   generateDropdownOptions,
   Metric,
-} from './model'
+} from '../../models/metric.model'
 import { MetricDetails } from './MetricDetails'
 
 interface Props {

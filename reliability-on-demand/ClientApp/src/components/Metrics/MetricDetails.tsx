@@ -5,7 +5,7 @@ import { HighUsageMinimum } from './HighUsageMinimum'
 import { horizontalStackTokens } from '../helpers/Styles'
 import { FailureRate } from './FailureRate'
 import { AddMetricConfigButton } from './AddMetricConfigButton'
-import { Metric } from './model'
+import { Metric } from '../../models/metric.model'
 import { CreateNewID } from '../helpers/utils'
 
 interface Props {

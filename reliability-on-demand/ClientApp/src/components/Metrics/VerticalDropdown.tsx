@@ -1,6 +1,6 @@
 import React, { FormEvent } from 'react'
 import { Dropdown, IDropdownOption, Text } from '@fluentui/react'
-import { getDistinctVerticals, Metric } from './model'
+import { getDistinctVerticals, Metric } from '../../models/metric.model'
 import { convertSimpleTypeToOptions } from '../helpers/utils'
 import { MetricNameDropdown } from './MetricNameDropdown'
 

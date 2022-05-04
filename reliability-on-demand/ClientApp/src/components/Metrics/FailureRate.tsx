@@ -3,7 +3,7 @@ import { Stack, Text } from '@fluentui/react'
 import { SpinButtonHour } from './SpinButtonHour'
 import { FailureRateCalculated } from './FailureRateCalculated'
 import { containerStackTokens, horizontalStackTokens } from '../helpers/Styles'
-import { Metric } from './model'
+import { Metric } from '../../models/metric.model'
 import { myParseInt } from '../helpers/utils'
 
 interface Props {

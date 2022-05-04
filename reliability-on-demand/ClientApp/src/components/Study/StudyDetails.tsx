@@ -1,7 +1,7 @@
 import { Stack } from '@fluentui/react'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { StudyConfig } from '../../models/config.model'
+import { StudyConfig } from '../../models/study.model'
 import { horizontalStackTokens } from '../helpers/Styles'
 import { AddStudyButton } from './AddStudyButton'
 import { ExpiryDatePicker } from './ExpiryDatePicker'

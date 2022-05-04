@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { IDropdownOption } from '@fluentui/react'
-import { StudyConfig } from '../../models/config.model'
-import { getObservationWindowSelectionFromStudy } from './model'
+import {
+  StudyConfig,
+  getObservationWindowSelectionFromStudy,
+} from '../../models/study.model'
+
 import { MyDropdown } from '../helpers/MyDropdown'
 import { hardCodedObservationWindows } from '../helpers/utils'
 

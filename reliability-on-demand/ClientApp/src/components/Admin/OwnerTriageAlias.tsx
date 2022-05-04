@@ -1,6 +1,6 @@
 import { TextField } from '@fluentui/react'
 import * as React from 'react'
-import { TeamConfig } from '../../models/TeamModel'
+import { TeamConfig } from '../../models/team.model'
 import { CreateNewID, DummyID } from '../helpers/utils'
 import { getControlValue, getErrorMessage } from './helper'
 

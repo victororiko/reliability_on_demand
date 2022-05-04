@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { TextField } from '@fluentui/react'
-import { StudyConfig } from '../../models/config.model'
+import { StudyConfig } from '../../models/study.model'
 
 interface Props {
   currentStudy?: StudyConfig

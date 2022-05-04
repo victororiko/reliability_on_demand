@@ -4,8 +4,12 @@ import {
   VirtualizedComboBox,
 } from '@fluentui/react'
 import React, { FormEvent, useEffect, useState } from 'react'
-import { StudyConfig } from '../../models/config.model'
-import { convertToOptions, getStudyConfig } from './model'
+import {
+  StudyConfig,
+  convertToOptions,
+  getStudyConfig,
+} from '../../models/study.model'
+
 import { StudyDetails } from './StudyDetails'
 
 interface Props {

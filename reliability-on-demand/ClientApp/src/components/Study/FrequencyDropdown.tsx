@@ -1,9 +1,11 @@
 import { IDropdownOption } from '@fluentui/react'
 import React, { useEffect, useState } from 'react'
-import { StudyConfig } from '../../models/config.model'
+import {
+  StudyConfig,
+  getFrequencySelectionFromStudy,
+} from '../../models/study.model'
 import { MyDropdown } from '../helpers/MyDropdown'
 import { hardCodedFrequencies } from '../helpers/utils'
-import { getFrequencySelectionFromStudy } from './model'
 
 interface Props {
   // eslint-disable-next-line react/no-unused-prop-types

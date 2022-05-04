@@ -4,7 +4,7 @@ import {
   VirtualizedComboBox,
 } from '@fluentui/react'
 import React, { FormEvent } from 'react'
-import { TeamConfig } from '../../models/config.model'
+import { TeamConfig } from '../../models/team.model'
 
 interface Props {
   data: TeamConfig[]

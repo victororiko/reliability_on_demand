@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { StudyConfig } from '../../models/config.model'
+import { StudyConfig } from '../../models/study.model'
 import { Loading } from '../helpers/Loading'
 import { CreateNewID } from '../helpers/utils'
 import { StudyComboBox } from './StudyComboBox'

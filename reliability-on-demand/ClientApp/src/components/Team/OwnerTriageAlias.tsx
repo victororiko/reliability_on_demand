@@ -1,6 +1,6 @@
 import { TextField } from '@fluentui/react'
 import * as React from 'react'
-import { TeamConfig } from '../../models/config.model'
+import { TeamConfig } from '../../models/team.model'
 
 export interface IOwnerTriageAliasProps {
   currentTeam?: TeamConfig

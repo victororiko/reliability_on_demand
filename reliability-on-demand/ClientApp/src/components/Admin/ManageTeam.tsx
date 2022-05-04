@@ -10,7 +10,7 @@ import { SaveTeamButton } from './SaveTeamButton'
 import { TeamComboBox } from './TeamComboBox'
 import { ComputeResourceLocation } from './ComputeResourceLocation'
 import { DeleteTeamButton } from './DeleteTeamButton'
-import { TeamConfig } from '../../models/TeamModel'
+import { TeamConfig } from '../../models/team.model'
 import { getTeamFromID } from './helper'
 import { CreateNewID, SaveMessage } from '../helpers/utils'
 

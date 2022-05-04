@@ -4,7 +4,7 @@ import {
   VirtualizedComboBox,
 } from '@fluentui/react'
 import React, { FormEvent, useEffect } from 'react'
-import { TeamConfig } from '../../models/TeamModel'
+import { TeamConfig } from '../../models/team.model'
 import { CreateNewID } from '../helpers/utils'
 
 interface Props {

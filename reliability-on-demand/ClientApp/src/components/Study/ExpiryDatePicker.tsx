@@ -5,8 +5,7 @@ import {
   mergeStyleSets,
 } from '@fluentui/react'
 import { useConst } from '@fluentui/react-hooks'
-import { StudyConfig } from '../../models/config.model'
-import { getDefaultExpiryDate } from './model'
+import { StudyConfig, getDefaultExpiryDate } from '../../models/study.model'
 
 interface Props {
   currentStudy?: StudyConfig

@@ -1,4 +1,4 @@
-import { TeamConfig } from '../../models/TeamModel'
+import { TeamConfig } from '../../models/team.model'
 import { EmptyFieldErrorMessage } from '../helpers/utils'
 
 export const getTeamFromID = (
