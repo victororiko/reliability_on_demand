@@ -4,7 +4,7 @@ import { containerStackTokens } from '../helpers/Styles'
 import { CreateNewID } from '../helpers/utils'
 import { Metrics } from '../Metrics'
 import { Study } from '../Study'
-import Team from '../Team'
+import { Team } from '../Team'
 import { FailureCurve } from '../FailureCurveSection'
 
 type Props = {}
@@ -27,7 +27,7 @@ export const Config = (props: Props) => {
   // render
   return (
     <Stack tokens={containerStackTokens}>
-      <Team callBack={selectTeam} />
+      <Team callback={selectTeam} />
       {currentTeamId === CreateNewID ? (
         ''
       ) : (
