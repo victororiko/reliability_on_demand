@@ -272,5 +272,25 @@ namespace reliability_on_demand.Controllers
                 return BadRequest(message);
             }
         }
+
+
+        [HttpPost("api/Data/DeleteMetricConfig/")]
+        public IActionResult DeleteMetricConfig(MetricConfig userConfig)
+        {
+            try
+            {
+                string res = this._sqlservice.DeleteMetricConfig(userConfig);
+                _logger.LogInformation($"DeleteMetricConfig called with userConfig = {userConfig}");
+                if (String.IsNullOrEmpty(res))
+                    _logger.LogDebug("No Metrics Configured");
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed DeleteMetricConfig.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
     }
 }

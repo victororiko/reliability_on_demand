@@ -105,5 +105,10 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.UpdateMetricConfig(userConfig);
         }
+
+        string ISQLService.DeleteMetricConfig(MetricConfig userConfig)
+        {
+            return _context.DeleteMetricConfig(userConfig);
+        }
     }
 }

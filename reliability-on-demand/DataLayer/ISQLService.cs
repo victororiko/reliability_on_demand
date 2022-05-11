@@ -24,5 +24,6 @@ namespace reliability_on_demand.DataLayer
         string DeleteTeam(TeamConfig team);
         string GetMetricConfigs(int StudyId);
         string UpdateMetricConfig(MetricConfig userConfig);
+        string DeleteMetricConfig(MetricConfig userConfig);
     }
 }

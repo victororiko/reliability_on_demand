@@ -572,8 +572,9 @@ namespace reliability_on_demand.DataLayer
         //Get default metrics
         public string GetDefaultMetricsConfig(int StudyId)
         {
-            // TODO first get verticals list from RELFailureVerticalConfig
-            // TODO Then select defaults where vertical exists in vertical list
+            // First get verticals list from RELFailureVerticalConfig
+            // Then select defaults where vertical exists in vertical list
+            // TODO convert this into Stored Procedure
             string query = $"SELECT * FROM dbo.RelMetricConfiguration_Defaults WHERE Vertical IN(SELECT[VerticalName] FROM [dbo].[RELFailureVerticalConfig] WHERE StudyID = {StudyId})";
             string res = GetSQLResultsJSON(query);
             return res;
@@ -641,6 +642,39 @@ namespace reliability_on_demand.DataLayer
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "dbo.UpdateMetricConfig";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@UniqueKey", userConfig.UniqueKey));
+            cmd.Parameters.Add(new SqlParameter("@MetricName", userConfig.MetricName));
+            cmd.Parameters.Add(new SqlParameter("@Vertical", userConfig.Vertical));
+            cmd.Parameters.Add(new SqlParameter("@MinUsageInMS", userConfig.MinUsageInMS));
+            cmd.Parameters.Add(new SqlParameter("@FailureRateInHour", userConfig.FailureRateInHour));
+            cmd.Parameters.Add(new SqlParameter("@HighUsageMinInMS", userConfig.HighUsageMinInMS));
+            cmd.Parameters.Add(new SqlParameter("@MetricGoal", userConfig.MetricGoal));
+            cmd.Parameters.Add(new SqlParameter("@StudyId", userConfig.StudyId));
+            cmd.Parameters.Add(new SqlParameter("@MetricGoalAspirational", userConfig.MetricGoalAspirational));
+            cmd.Parameters.Add(new SqlParameter("@IsUsage", userConfig.IsUsage));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+
+        public string DeleteMetricConfig(MetricConfig userConfig)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.DeleteMetricConfig";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@UniqueKey", userConfig.UniqueKey));

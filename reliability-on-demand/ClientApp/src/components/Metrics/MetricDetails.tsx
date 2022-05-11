@@ -7,6 +7,7 @@ import { FailureRate } from './FailureRate'
 import { AddMetricConfigButton } from './AddMetricConfigButton'
 import { Metric } from '../../models/metric.model'
 import { CreateNewID } from '../helpers/utils'
+import { DeleteMetricConfigButton } from './DeleteMetricConfigButton'
 
 interface Props {
   isUserMetric: boolean
@@ -66,10 +67,20 @@ export const MetricDetails = (props: Props) => {
         metricData={props.metricData}
         callback={updateUserMetricFailureRate}
       />
-      <AddMetricConfigButton
-        userMetric={userMetric}
-        isUserMetric={props.isUserMetric}
-      />
+      <Stack horizontal tokens={horizontalStackTokens}>
+        <AddMetricConfigButton
+          userMetric={userMetric}
+          isUserMetric={props.isUserMetric}
+        />
+        {props.isUserMetric ? (
+          <DeleteMetricConfigButton
+            userMetric={userMetric}
+            isUserMetric={props.isUserMetric}
+          />
+        ) : (
+          ''
+        )}
+      </Stack>
     </div>
   )
 }
