@@ -1,0 +1,4 @@
+TeamID,OwnerContact,OwnerTeamFriendlyName,OwnerTriageAlias,ComputeResourceLocation                                ,HashString
+1     ,'OSGRELDEV' ,'CLIENT FUN Team'      ,'OSGRELDEV'       ,'https://cosmos15.osdinfra.net/cosmos/asimov.partner.osg','CLIENT FUN Team'
+4     ,'xboxtriage','XBOX TEAM'            ,'xboxtriagedev'   ,'https://cosmos11.osdinfra.net/cosmos/asimov.partner.osg','XBOX TEAM'
+5     ,'osgfun'    ,'WDG FUN Team'         ,'osgfun'          ,'https://cosmos15.osdinfra.net/cosmos/asimov.partner.osg','WDG FUN Team'

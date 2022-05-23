@@ -51,7 +51,7 @@ export default class OwnerTeamFriendlyNameAlias extends React.Component<
           required
           value={
             this.props.currentTeam
-              ? this.props.currentTeam.ownerTeamFriendlyName
+              ? this.props.currentTeam.OwnerTeamFriendlyName
               : this.state.value
           }
         />

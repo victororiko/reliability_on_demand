@@ -5,6 +5,10 @@ import {
 } from '@fluentui/react'
 import React, { FormEvent } from 'react'
 import { TeamConfig } from '../../models/team.model'
+import {
+  convertComplexTypeToOptions,
+  convertSimpleTypeToOptions,
+} from '../helpers/utils'
 
 interface Props {
   data: TeamConfig[]
@@ -27,8 +31,8 @@ export const TeamComboBox = (props: Props) => {
     let parsedList: IComboBoxOption[] = []
     parsedList = inputData.map((item: TeamConfig) => {
       const rObj = {
-        key: item.teamID,
-        text: item.ownerTeamFriendlyName,
+        key: item.TeamID,
+        text: item.OwnerTeamFriendlyName,
       }
       return rObj
     })
@@ -42,7 +46,10 @@ export const TeamComboBox = (props: Props) => {
         label="Team"
         allowFreeform
         autoComplete="on"
-        options={convertToOptions(props.data)}
+        options={props.data.map((item) => {return {
+          key: item.TeamID,
+          text: item.OwnerTeamFriendlyName,
+        }})}
         useComboBoxAsMenuWidth
         onChange={onChange}
         placeholder="Select a Team"

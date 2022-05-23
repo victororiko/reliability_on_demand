@@ -52,7 +52,7 @@ export default class OwnerContactAlias extends React.Component<
           required
           value={
             this.props.currentTeam
-              ? this.props.currentTeam.ownerContact
+              ? this.props.currentTeam.OwnerContact
               : this.state.value
           }
         />

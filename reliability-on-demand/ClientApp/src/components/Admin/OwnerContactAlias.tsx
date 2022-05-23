@@ -18,7 +18,7 @@ export const OwnerContactAlias = (props: Props) => {
       event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
       newValue?: string
     ) => {
-      setPreviousTeamID(props.currentTeam?.teamID ?? CreateNewID)
+      setPreviousTeamID(props.currentTeam?.TeamID ?? CreateNewID)
       setTextFieldValue(newValue || '')
       props.callback(newValue)
     },
@@ -32,7 +32,7 @@ export const OwnerContactAlias = (props: Props) => {
       textFieldValue,
       previousTeamID,
       props.callback,
-      currenTeam?.ownerContact
+      currenTeam?.OwnerContact
     )
   }
 
@@ -42,7 +42,7 @@ export const OwnerContactAlias = (props: Props) => {
   }
 
   React.useEffect(() => {
-    setTextFieldValue(props.currentTeam?.ownerContact || '')
+    setTextFieldValue(props.currentTeam?.OwnerContact || '')
   }, [props.currentTeam])
 
   return (

@@ -6,7 +6,7 @@ namespace reliability_on_demand.DataLayer
     public interface ISQLService
     {
         string GetAllUnifiedConfigs();
-        List<TeamConfig> GetAllTeamConfigs();
+        string GetAllTeamConfigs();
         string SaveTeam(TeamConfig inquiry);
         string AddStudy(StudyConfig userCreatedStudy);
         string UpdateStudy(StudyConfig userCreatedStudy);

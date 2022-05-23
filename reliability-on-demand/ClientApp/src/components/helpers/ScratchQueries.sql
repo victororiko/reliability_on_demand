@@ -1,32 +1,12 @@
 ﻿--Stuff
 USE ReliabilityReporting
 
+--- scratch area
 select *
-from INFORMATION_SCHEMA.COLUMNS
-where TABLE_NAME='RELTeamConfig'
+from dbo.RELTeamConfig
+GO
 
-select *
-from [dbo].[RELTeamConfig]
-
--- Altering Columns
--- ALTER TABLE RELUnifiedStudy
--- ALTER COLUMN [CacheFrequency] int NOT NULL
-
--- Setting Primary Key
-ALTER TABLE RELUnifiedStudy
-ADD FOREIGN KEY (ConfigID) REFERENCES RELUnifiedConfig(ConfigID)
-
-
--- JSON
-SELECT * 
-FROM RELUnifiedConfig
-FOR JSON AUTO, Root('JValue'), Include_Null_Values
-
-
-SELECT * 
-FROM RELUnifiedConfig
-
-
+--- end scratch area
 
 DROP TABLE [dbo].[RELStudyConfig]
 
@@ -58,33 +38,12 @@ VALUES
 -- add more rows here
 GO
 
-DROP TABLE [dbo].[RELTeamConfig]
-
-CREATE TABLE [dbo].[RELTeamConfig] (
-    [TeamID]          INT IDENTITY(1,1),
-    [OwnerContact]        NVARCHAR (255)   NOT NULL,
-    [OwnerTeamFriendlyName]        NVARCHAR (255)   NOT NULL,
-    [OwnerTriageAlias]        NVARCHAR (255)   NOT NULL,
-    PRIMARY KEY CLUSTERED ([TeamID] ASC)
-);
-
--- INSERT INTO [dbo].[RELTeamConfig]
--- VALUES ('KARANDA','CLIENT FUN TEAM 2', 'COSRELDATA') 
-
-INSERT INTO [dbo].[RELTeamConfig]
-VALUES ('rajroy','CLIENT FUN TEAM 3', 'OSGRELDATA')
-
-
 ALTER TABLE [dbo].[RELStudyConfig]
 ADD ObservationWindowDays int NOT NULL DEFAULT(14)
 GO
 
 SELECT * from dbo.RELStudyConfig
 
--- Select rows from a Table or View 'RELTeamConfig' in schema 'dbo'
-SELECT * FROM dbo.RELTeamConfig
-FOR JSON AUTO, Include_Null_Values
-GO
 
 
 --- lengthy stored procs
@@ -114,17 +73,6 @@ EXECUTE dbo.GetAllStudyConfigsForTeam 0 /*value_for_TeamID*/
 GO
 
 -- Examples for adding a new team
--- Create the stored procedure in the specified schema
-CREATE PROCEDURE dbo.AddTeam
-    @OwnerContact /*parameter name*/ nvarchar(255) /*datatype*/ = 'no OwnerContact provided' /*default value*/,
-	@OwnerTeamFriendlyName /*parameter name*/ nvarchar(255) /*datatype*/ = 'no OwnerTeamFriendlyName provided' /*default value*/, 
-	@OwnerTriageAlias /*parameter name*/ nvarchar(255) /*datatype*/ = 'no OwnerTriageAlias provided' /*default value*/
-	
--- add more stored procedure parameters here
-AS
-    -- body of the stored procedure
-    INSERT INTO [dbo].[RELTeamConfig]
-	VALUES (@OwnerContact, @OwnerTeamFriendlyName, @OwnerTriageAlias)
 
 
 EXECUTE dbo.AddTeam 'hello', 'world', 'hello@world.com'

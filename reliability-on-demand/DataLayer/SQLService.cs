@@ -78,7 +78,7 @@ namespace reliability_on_demand.DataLayer
             _context.UpdateFailureSavedConfig(f);
         }
 
-        public List<TeamConfig> GetAllTeamConfigs()
+        public string GetAllTeamConfigs()
         {
             return _context.GetAllTeamConfigs();
         }

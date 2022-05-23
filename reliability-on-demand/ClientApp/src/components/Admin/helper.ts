@@ -6,7 +6,7 @@ export const getTeamFromID = (
   teamConfigs: TeamConfig[]
 ): TeamConfig | undefined => {
   // extracting TeamID property out of each element and comparing it.
-  const parsedStudy = teamConfigs.find(({ teamID }) => {
+  const parsedStudy = teamConfigs.find(({ TeamID: teamID }) => {
     return teamID === selection
   })
   return parsedStudy
@@ -21,8 +21,8 @@ export const getControlValue = (
   attr: string | undefined
 ): string | undefined => {
   // To make the field editable for update as well.
-  if (currentTeam?.teamID !== previousID) {
-    callback(currentTeam?.ownerTriageAlias)
+  if (currentTeam?.TeamID !== previousID) {
+    callback(currentTeam?.OwnerTriageAlias)
     return attr
   }
   return controlValue

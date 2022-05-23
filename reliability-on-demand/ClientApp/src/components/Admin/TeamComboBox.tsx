@@ -38,8 +38,8 @@ export const TeamComboBox = (props: Props) => {
     let parsedList: IComboBoxOption[] = []
     parsedList = inputData.map((item: TeamConfig) => {
       const rObj = {
-        key: item.teamID,
-        text: item.ownerTeamFriendlyName,
+        key: item.TeamID,
+        text: item.OwnerTeamFriendlyName,
       }
       return rObj
     })

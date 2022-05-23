@@ -52,7 +52,7 @@ export default class OwnerTriageAlias extends React.Component<
           required
           value={
             this.props.currentTeam
-              ? this.props.currentTeam.ownerTriageAlias
+              ? this.props.currentTeam.OwnerTriageAlias
               : this.state.value
           }
         />

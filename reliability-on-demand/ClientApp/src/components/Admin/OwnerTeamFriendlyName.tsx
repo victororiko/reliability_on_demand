@@ -17,7 +17,7 @@ export const OwnerTeamFriendlyName = (props: Props) => {
       event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
       newValue?: string
     ) => {
-      setPreviousTeamID(props.currentTeam?.teamID ?? CreateNewID)
+      setPreviousTeamID(props.currentTeam?.TeamID ?? CreateNewID)
       setTextFieldValue(newValue || '')
       props.callback(newValue)
     },
@@ -31,7 +31,7 @@ export const OwnerTeamFriendlyName = (props: Props) => {
       textFieldValue,
       previousTeamID,
       props.callback,
-      currenTeam?.ownerTeamFriendlyName
+      currenTeam?.OwnerTeamFriendlyName
     )
   }
 
@@ -41,7 +41,7 @@ export const OwnerTeamFriendlyName = (props: Props) => {
   }
 
   React.useEffect(() => {
-    setTextFieldValue(props.currentTeam?.ownerTeamFriendlyName || '')
+    setTextFieldValue(props.currentTeam?.OwnerTeamFriendlyName || '')
   }, [props.currentTeam])
 
   return (

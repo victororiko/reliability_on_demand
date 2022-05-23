@@ -16,7 +16,7 @@ export const ComputeResourceLocation = (props: Props) => {
       event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
       newValue?: string
     ) => {
-      setPreviousTeamID(props.currentTeam?.teamID ?? CreateNewID)
+      setPreviousTeamID(props.currentTeam?.TeamID ?? CreateNewID)
       setTextFieldValue(newValue || '')
       props.callback(newValue)
     },
@@ -25,15 +25,15 @@ export const ComputeResourceLocation = (props: Props) => {
 
   const getSelectedKey = (currenTeam: TeamConfig | undefined) => {
     // To make the field editable for update as well.
-    if (currenTeam?.teamID !== previousTeamID) {
-      props.callback(currenTeam?.computeResourceLocation)
-      return currenTeam?.computeResourceLocation
+    if (currenTeam?.TeamID !== previousTeamID) {
+      props.callback(currenTeam?.ComputeResourceLocation)
+      return currenTeam?.ComputeResourceLocation
     }
     return textFieldValue
   }
 
   React.useEffect(() => {
-    setTextFieldValue(props.currentTeam?.computeResourceLocation || '')
+    setTextFieldValue(props.currentTeam?.ComputeResourceLocation || '')
   }, [props.currentTeam])
 
   return (

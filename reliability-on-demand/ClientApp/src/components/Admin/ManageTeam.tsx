@@ -49,11 +49,11 @@ export const ManageTeam = (props: IManageTeamProps) => {
       setSelectedTeam(mySelection)
     } else {
       const mySelection: TeamConfig = {
-        teamID: CreateNewID,
-        ownerTeamFriendlyName: '',
-        ownerContact: '',
-        ownerTriageAlias: '',
-        computeResourceLocation: '',
+        TeamID: CreateNewID,
+        OwnerTeamFriendlyName: '',
+        OwnerContact: '',
+        OwnerTriageAlias: '',
+        ComputeResourceLocation: '',
       }
       setSelectedTeam(mySelection)
     }
@@ -83,11 +83,11 @@ export const ManageTeam = (props: IManageTeamProps) => {
 
   const deleteTeamFromBackend = () => {
     const teamToAddOrUpdate = {
-      ownerTeamFriendlyName: selectedTeamObj?.ownerTeamFriendlyName,
-      ownerContact: selectedTeamObj?.ownerContact,
-      ownerTriageAlias: selectedTeamObj?.ownerTriageAlias,
-      teamID: selectedTeamID,
-      computeResourceLocation: selectedTeamObj?.computeResourceLocation,
+      OwnerTeamFriendlyName: selectedTeamObj?.OwnerTeamFriendlyName,
+      OwnerContact: selectedTeamObj?.OwnerContact,
+      OwnerTriageAlias: selectedTeamObj?.OwnerTriageAlias,
+      TeamID: selectedTeamID,
+      ComputeResourceLocation: selectedTeamObj?.ComputeResourceLocation,
     } as TeamConfig
 
     axios.post('api/Data/DeleteTeam', teamToAddOrUpdate).then(() => {
@@ -99,38 +99,38 @@ export const ManageTeam = (props: IManageTeamProps) => {
   const addOrSetTeamToBackend = () => {
     // Deciding if the final value should be the current selected study values or the respective edited value
     const selectedTeamObj = getTeamFromID(
-      selectedTeam?.teamID ?? CreateNewID,
+      selectedTeam?.TeamID ?? CreateNewID,
       teamConfigs
     )
     const selectedTeamID =
-      selectedTeamObj == null ? CreateNewID : selectedTeamObj.teamID
+      selectedTeamObj == null ? CreateNewID : selectedTeamObj.TeamID
     const tempTeamName =
       newTeamFriendlyName === undefined &&
-      selectedTeamObj?.teamID !== CreateNewID
-        ? selectedTeamObj?.ownerTeamFriendlyName
+      selectedTeamObj?.TeamID !== CreateNewID
+        ? selectedTeamObj?.OwnerTeamFriendlyName
         : newTeamFriendlyName
     const tempOwnerContact =
-      newOwnerContact === undefined && selectedTeamObj?.teamID !== CreateNewID
-        ? selectedTeamObj?.ownerContact
+      newOwnerContact === undefined && selectedTeamObj?.TeamID !== CreateNewID
+        ? selectedTeamObj?.OwnerContact
         : newOwnerContact
     const tempOwnerTriageAlias =
       newOwnerTriageAlias === undefined &&
-      selectedTeamObj?.teamID !== CreateNewID
-        ? selectedTeamObj?.ownerTriageAlias
+      selectedTeamObj?.TeamID !== CreateNewID
+        ? selectedTeamObj?.OwnerTriageAlias
         : newOwnerTriageAlias
 
     const tempComputeResourceLocation =
       newComputeResourceLocation === undefined &&
-      selectedTeamObj?.teamID !== CreateNewID
-        ? selectedTeamObj?.computeResourceLocation
+      selectedTeamObj?.TeamID !== CreateNewID
+        ? selectedTeamObj?.ComputeResourceLocation
         : newComputeResourceLocation
 
     const teamToAddOrUpdate = {
-      ownerTeamFriendlyName: tempTeamName,
-      ownerContact: tempOwnerContact,
-      ownerTriageAlias: tempOwnerTriageAlias,
-      teamID: selectedTeamID,
-      computeResourceLocation: tempComputeResourceLocation,
+      OwnerTeamFriendlyName: tempTeamName,
+      OwnerContact: tempOwnerContact,
+      OwnerTriageAlias: tempOwnerTriageAlias,
+      TeamID: selectedTeamID,
+      ComputeResourceLocation: tempComputeResourceLocation,
     } as TeamConfig
 
     axios.post('api/Data/SaveTeam', teamToAddOrUpdate).then(() => {
@@ -148,11 +148,11 @@ export const ManageTeam = (props: IManageTeamProps) => {
 
   // Deciding the button name - Add or Update Team
   const selectedTeamObj = getTeamFromID(
-    selectedTeam?.teamID ?? CreateNewID,
+    selectedTeam?.TeamID ?? CreateNewID,
     teamConfigs
   )
   const selectedTeamID =
-    selectedTeamObj == null ? CreateNewID : selectedTeamObj?.teamID
+    selectedTeamObj == null ? CreateNewID : selectedTeamObj?.TeamID
   const buttonName = selectedTeamID !== CreateNewID ? 'Update Team' : 'Add Team'
   const deleteButton =
     selectedTeamID !== CreateNewID ? (

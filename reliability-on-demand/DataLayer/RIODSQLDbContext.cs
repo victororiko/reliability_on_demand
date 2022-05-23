@@ -16,7 +16,6 @@ namespace reliability_on_demand.DataLayer
 {
     public class RIODSQLDbContext : DbContext
     {
-        public DbSet<TeamConfig> TeamConfigs { get; set; }
         private string connectionString = null;
 
         private string validateAzureFunctionKey = null;
@@ -86,18 +85,27 @@ namespace reliability_on_demand.DataLayer
             return GetSQLResultsJSON("SELECT * FROM [dbo].[RELUnifiedConfig]");
         }
 
-        public List<TeamConfig> GetAllTeamConfigs()
+        public string GetAllTeamConfigs()
         {
             //ensure that connection is open
             this.Database.OpenConnection();
 
+            // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "SELECT * FROM [dbo].[RELTeamConfig]";
+            cmd.CommandText = "dbo.GetTeamConfigs";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
 
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
             using (var reader = cmd.ExecuteReader())
             {
-                return DataReaderMapToList<TeamConfig>(reader);
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
             }
+            return sb.ToString();
         }
 
         public string SaveTeam(TeamConfig inquiry)

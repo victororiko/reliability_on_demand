@@ -17,7 +17,7 @@ export const OwnerTriageAlias = (props: Props) => {
       event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
       newValue?: string
     ) => {
-      setPreviousTeamID(props.currentTeam?.teamID ?? CreateNewID)
+      setPreviousTeamID(props.currentTeam?.TeamID ?? CreateNewID)
       setTextFieldValue(newValue || '')
       props.callback(newValue)
     },
@@ -31,7 +31,7 @@ export const OwnerTriageAlias = (props: Props) => {
       textFieldValue,
       previousTeamID,
       props.callback,
-      currenTeam?.ownerTriageAlias
+      currenTeam?.OwnerTriageAlias
     )
   }
 
@@ -41,7 +41,7 @@ export const OwnerTriageAlias = (props: Props) => {
   }
 
   React.useEffect(() => {
-    setTextFieldValue(props.currentTeam?.ownerTriageAlias || '')
+    setTextFieldValue(props.currentTeam?.OwnerTriageAlias || '')
   }, [props.currentTeam])
 
   return (
