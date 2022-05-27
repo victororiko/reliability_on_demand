@@ -11,6 +11,9 @@ interface Props {
   defaultMetrics: Metric[]
   userMetrics: Metric[]
   studyid: number
+  vertical: string
+  callbackDeleteMetric: any
+  callbackAddMetric: any
 }
 
 export const MetricNameDropdown = (props: Props) => {
@@ -24,6 +27,11 @@ export const MetricNameDropdown = (props: Props) => {
   )
   const [userMetrics, setUserMetrics] = useState<Metric[]>(props.userMetrics)
   const [metricData, setMetricData] = useState<Metric>()
+  const [vertical, setVertical] = useState<string>()
+
+  useEffect(() => {
+    setVertical(props.vertical)
+  }, [props]) // make sure you re-render component when usermetrics or defaults also change
 
   useEffect(() => {
     // remove any user metrics from default metrics
@@ -74,6 +82,8 @@ export const MetricNameDropdown = (props: Props) => {
             metricData={metricData}
             studyid={props.studyid}
             isUserMetric={isUserMetric}
+            callbackDeleteMetric={props.callbackDeleteMetric}
+            callbackAddMetric={props.callbackAddMetric}
           />
         </div>
       ) : (

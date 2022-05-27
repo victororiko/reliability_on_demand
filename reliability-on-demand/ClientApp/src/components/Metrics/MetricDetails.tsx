@@ -13,6 +13,8 @@ interface Props {
   isUserMetric: boolean
   metricData: Metric | undefined
   studyid: number
+  callbackDeleteMetric: any
+  callbackAddMetric: any
 }
 
 export const MetricDetails = (props: Props) => {
@@ -71,11 +73,13 @@ export const MetricDetails = (props: Props) => {
         <AddMetricConfigButton
           userMetric={userMetric}
           isUserMetric={props.isUserMetric}
+          callbackAddMetric={props.callbackAddMetric}
         />
         {props.isUserMetric ? (
           <DeleteMetricConfigButton
             userMetric={userMetric}
             isUserMetric={props.isUserMetric}
+            callbackDeleteMetric={props.callbackDeleteMetric}
           />
         ) : (
           ''

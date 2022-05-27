@@ -276,7 +276,6 @@ namespace reliability_on_demand.Controllers
         }
         */
 
-
         [HttpPost("api/Data/DeleteMetricConfig/")]
         public IActionResult DeleteMetricConfig(MetricConfig userConfig)
         {

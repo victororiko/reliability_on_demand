@@ -10,7 +10,9 @@ export interface Props {
 }
 
 export const OwnerTeamFriendlyName = (props: Props) => {
-    const [textFieldValue, setTextFieldValue] = React.useState(props.currentTeam?.OwnerTeamFriendlyName)
+  const [textFieldValue, setTextFieldValue] = React.useState(
+    props.currentTeam?.OwnerTeamFriendlyName
+  )
   const handleTextInput = React.useCallback(
     (
       event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -37,7 +39,7 @@ export const OwnerTeamFriendlyName = (props: Props) => {
       required
       placeholder="e.g. Client FUN Engineering Team"
       validateOnLoad={false}
-          value={textFieldValue}
+      value={textFieldValue}
       onChange={handleTextInput}
       validateOnFocusOut
       aria-label="Owner contact (alias)"

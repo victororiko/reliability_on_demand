@@ -7,6 +7,7 @@ import { MessageBox } from '../helpers/MessageBox'
 interface Props {
   userMetric: Metric | {}
   isUserMetric: boolean
+  callbackAddMetric: any
 }
 
 export const AddMetricConfigButton = (props: Props) => {
@@ -32,6 +33,7 @@ export const AddMetricConfigButton = (props: Props) => {
           console.error(`failed to add metric with error = ${error}`)
         })
     }
+    props.callbackAddMetric()
   }
   return (
     <div>

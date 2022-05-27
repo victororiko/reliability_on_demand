@@ -51,6 +51,10 @@ export const Metrics = (props: Props) => {
     setLoading(false)
   }
 
+  const handleCallbackDeleteMetric = () => {
+    loadMetrics(props.studyid)
+  }
+
   return (
     <div>
       {loading ? (
@@ -62,6 +66,8 @@ export const Metrics = (props: Props) => {
             defaultMetrics={defaults}
             userMetrics={userMetrics}
             studyid={props.studyid}
+            callbackDeleteMetric={handleCallbackDeleteMetric}
+            callbackAddMetric={handleCallbackDeleteMetric}
           />
         </Stack>
       )}

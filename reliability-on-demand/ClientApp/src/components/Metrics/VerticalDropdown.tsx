@@ -1,4 +1,4 @@
-import React, { FormEvent } from 'react'
+import React, { FormEvent, useEffect } from 'react'
 import { Dropdown, IDropdownOption, Text } from '@fluentui/react'
 import { getDistinctVerticals, Metric } from '../../models/metric.model'
 import { convertSimpleTypeToOptions } from '../helpers/utils'
@@ -8,10 +8,20 @@ interface Props {
   defaultMetrics: Metric[]
   userMetrics: Metric[]
   studyid: number
+  callbackDeleteMetric: any
+  callbackAddMetric: any
 }
 
 export const VerticalDropdown = (props: Props) => {
-  const [selectedItem, setSelectedItem] = React.useState<IDropdownOption>()
+  const [selectedItem, setSelectedItem] = React.useState<
+    IDropdownOption | undefined
+  >(undefined)
+
+  // force blank for rest of the UI
+  useEffect(() => {
+    setSelectedItem(undefined)
+  }, [props])
+
   const onChange = (
     event: FormEvent<HTMLDivElement>,
     option: IDropdownOption<any> | undefined,
@@ -38,6 +48,9 @@ export const VerticalDropdown = (props: Props) => {
           })}
           userMetrics={props.userMetrics}
           studyid={props.studyid}
+          vertical={selectedItem.text}
+          callbackDeleteMetric={props.callbackDeleteMetric}
+          callbackAddMetric={props.callbackAddMetric}
         />
       ) : (
         ''

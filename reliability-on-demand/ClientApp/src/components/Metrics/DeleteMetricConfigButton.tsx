@@ -6,13 +6,13 @@ import { Metric } from '../../models/metric.model'
 type Props = {
   userMetric: Metric | {}
   isUserMetric: boolean
+  callbackDeleteMetric: any
 }
 
 export const DeleteMetricConfigButton = (props: Props) => {
   const [metricDeleted, setMetricDeleted] = useState<boolean>(false)
 
   const handleClick = () => {
-    console.log('Metric to be deleted', JSON.stringify(props.userMetric))
     if (props.isUserMetric) {
       axios
         .post('api/Data/DeleteMetricConfig', props.userMetric)
@@ -22,6 +22,7 @@ export const DeleteMetricConfigButton = (props: Props) => {
         .catch((error) => {
           console.error(`failed to add metric with error = ${error}`)
         })
+      props.callbackDeleteMetric()
     }
   }
 

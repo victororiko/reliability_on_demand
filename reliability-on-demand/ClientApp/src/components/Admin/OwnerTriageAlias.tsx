@@ -10,7 +10,9 @@ export interface Props {
 }
 
 export const OwnerTriageAlias = (props: Props) => {
-    const [textFieldValue, setTextFieldValue] = React.useState(props.currentTeam?.OwnerTriageAlias)
+  const [textFieldValue, setTextFieldValue] = React.useState(
+    props.currentTeam?.OwnerTriageAlias
+  )
   const handleTextInput = React.useCallback(
     (
       event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -21,7 +23,6 @@ export const OwnerTriageAlias = (props: Props) => {
     },
     [props]
   )
-
 
   // For client side error - checks if the textfield is empty, displays the error.
   const onGetErrorMessageHandler = (value: string) => {
@@ -38,8 +39,8 @@ export const OwnerTriageAlias = (props: Props) => {
       suffix="@microsoft.com"
       required
       placeholder="e.g. cosreldata"
-          validateOnLoad={false}
-          value={textFieldValue}
+      validateOnLoad={false}
+      value={textFieldValue}
       onChange={handleTextInput}
       validateOnFocusOut
       aria-label="Owner contact (alias)"

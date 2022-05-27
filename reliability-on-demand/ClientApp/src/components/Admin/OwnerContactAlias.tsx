@@ -11,7 +11,9 @@ export interface Props {
 
 export const OwnerContactAlias = (props: Props) => {
   // -2 is just an initialization for the previous study.
-    const [textFieldValue, setTextFieldValue] = React.useState(props.currentTeam?.OwnerContact)
+  const [textFieldValue, setTextFieldValue] = React.useState(
+    props.currentTeam?.OwnerContact
+  )
   const handleTextInput = React.useCallback(
     (
       event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -37,8 +39,8 @@ export const OwnerContactAlias = (props: Props) => {
       label="Owner Contact (Alias)"
       suffix="@microsoft.com"
       required
-          placeholder="e.g. johndoe"
-          value={textFieldValue}
+      placeholder="e.g. johndoe"
+      value={textFieldValue}
       onChange={handleTextInput}
       validateOnLoad={false}
       validateOnFocusOut
