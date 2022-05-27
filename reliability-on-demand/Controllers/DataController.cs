@@ -10,6 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 using reliability_on_demand.DataLayer;
 using System;
 using Microsoft.Extensions.Logging;
+using reliability_on_demand.Helpers;
+using reliability_on_demand.Extensions;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace reliability_on_demand.Controllers
 {
@@ -19,12 +24,16 @@ namespace reliability_on_demand.Controllers
         private IKustoService _kustoservice;
         private ISQLService _sqlservice;
         private ILogger<DataController> _logger;
+        private readonly IMicrosoftGraphAdapter graphAdapter;
+        IOptions<ValueSettings> valueSettings;
 
-        public DataController(IKustoService kustoservice, ISQLService sqlservice, ILogger<DataController> logger)
+        public DataController(IKustoService kustoservice, ISQLService sqlservice, ILogger<DataController> logger, IOptions<ValueSettings> valueSettings, IMicrosoftGraphAdapter graphAdapter)
         {
             this._kustoservice = kustoservice;
             this._sqlservice = sqlservice;
             this._logger = logger;
+            this.graphAdapter = graphAdapter;
+            this.valueSettings = valueSettings;
         }
 
         [Route("api/Data/GetAllReleases")]
@@ -254,24 +263,18 @@ namespace reliability_on_demand.Controllers
             }
         }
 
-        [HttpPost("api/Data/UpdateMetricConfig/")]
-        public IActionResult UpdateMetricConfig(MetricConfig userConfig)
+        /*
+        [HttpGet("api/Data/IsValidUserForAdmin")]
+        public bool IsValidUserForAdmin()
         {
-            try
-            {
-                string res = this._sqlservice.UpdateMetricConfig(userConfig);
-                _logger.LogInformation($"UpdateMetricConfig called with userConfig = {userConfig}");
-                if (String.IsNullOrEmpty(res))
-                    _logger.LogDebug("No Metrics Configured");
-                return Ok(res);
-            }
-            catch (Exception ex)
-            {
-                string message = $"Failed UpdateMetricConfig.\nException = {ex}";
-                _logger.LogError(message);
-                return BadRequest(message);
-            }
+            ICollection<string> names = new List<string>();
+            //Guid ID for cosreldata
+            names.Add("f4f89fb5-761e-492a-80f3-bc0044932491");
+            _logger.LogError(this.HttpContext.GetUserName());
+            var isValidUser = this.graphAdapter.IsMemberAsync(this.HttpContext.GetUserName(), names).Result;
+            return isValidUser;
         }
+        */
 
 
         [HttpPost("api/Data/DeleteMetricConfig/")]

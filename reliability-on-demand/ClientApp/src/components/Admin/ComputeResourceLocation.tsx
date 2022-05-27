@@ -9,28 +9,19 @@ export interface Props {
 }
 
 export const ComputeResourceLocation = (props: Props) => {
-  const [textFieldValue, setTextFieldValue] = React.useState('')
-  const [previousTeamID, setPreviousTeamID] = React.useState(DummyID)
+  const [textFieldValue, setTextFieldValue] = React.useState(
+    props.currentTeam?.ComputeResourceLocation
+  )
   const handleTextInput = React.useCallback(
     (
       event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
       newValue?: string
     ) => {
-      setPreviousTeamID(props.currentTeam?.TeamID ?? CreateNewID)
       setTextFieldValue(newValue || '')
       props.callback(newValue)
     },
     [props]
   )
-
-  const getSelectedKey = (currenTeam: TeamConfig | undefined) => {
-    // To make the field editable for update as well.
-    if (currenTeam?.TeamID !== previousTeamID) {
-      props.callback(currenTeam?.ComputeResourceLocation)
-      return currenTeam?.ComputeResourceLocation
-    }
-    return textFieldValue
-  }
 
   React.useEffect(() => {
     setTextFieldValue(props.currentTeam?.ComputeResourceLocation || '')
@@ -41,7 +32,7 @@ export const ComputeResourceLocation = (props: Props) => {
       label="Compute Resource Location"
       placeholder="e.g. https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat/"
       validateOnLoad={false}
-      value={getSelectedKey(props.currentTeam)}
+      value={textFieldValue}
       onChange={handleTextInput}
       validateOnFocusOut
       aria-label="Compute Resource Location"

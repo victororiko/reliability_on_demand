@@ -10,30 +10,17 @@ export interface Props {
 }
 
 export const OwnerTeamFriendlyName = (props: Props) => {
-  const [textFieldValue, setTextFieldValue] = React.useState('')
-  const [previousTeamID, setPreviousTeamID] = React.useState(DummyID)
+    const [textFieldValue, setTextFieldValue] = React.useState(props.currentTeam?.OwnerTeamFriendlyName)
   const handleTextInput = React.useCallback(
     (
       event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
       newValue?: string
     ) => {
-      setPreviousTeamID(props.currentTeam?.TeamID ?? CreateNewID)
       setTextFieldValue(newValue || '')
       props.callback(newValue)
     },
     [props]
   )
-
-  const getSelectedKey = (currenTeam: TeamConfig | undefined) => {
-    // To make the field editable for update as well.
-    return getControlValue(
-      currenTeam,
-      textFieldValue,
-      previousTeamID,
-      props.callback,
-      currenTeam?.OwnerTeamFriendlyName
-    )
-  }
 
   // For client side error - checks if the textfield is empty, displays the error.
   const onGetErrorMessageHandler = (value: string) => {
@@ -50,7 +37,7 @@ export const OwnerTeamFriendlyName = (props: Props) => {
       required
       placeholder="e.g. Client FUN Engineering Team"
       validateOnLoad={false}
-      value={getSelectedKey(props.currentTeam)}
+          value={textFieldValue}
       onChange={handleTextInput}
       validateOnFocusOut
       aria-label="Owner contact (alias)"

@@ -30,11 +30,11 @@ export const DeleteMetricConfigButton = (props: Props) => {
       {metricDeleted ? (
         'Deleted Metric'
       ) : (
-          <PrimaryButton
-            text="Delete"
-            onClick={handleClick}
-            disabled={!props.isUserMetric}
-          />
+        <PrimaryButton
+          text="Delete"
+          onClick={handleClick}
+          disabled={!props.isUserMetric}
+        />
       )}
     </div>
   )

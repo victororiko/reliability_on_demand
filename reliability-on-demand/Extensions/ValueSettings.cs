@@ -17,6 +17,7 @@ namespace reliability_on_demand.Extensions
         public string CosmosServicePrincipalSecret { get; set; }
         public string CosmosServicePrincipalTenantID { get; set; }
         public string CosmosServicePrincipalAppID { get; set; }
+        public string TenantID { get; set; }
 
     }
 }

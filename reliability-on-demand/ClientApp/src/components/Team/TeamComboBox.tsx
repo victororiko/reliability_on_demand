@@ -46,10 +46,12 @@ export const TeamComboBox = (props: Props) => {
         label="Team"
         allowFreeform
         autoComplete="on"
-        options={props.data.map((item) => {return {
-          key: item.TeamID,
-          text: item.OwnerTeamFriendlyName,
-        }})}
+        options={props.data.map((item) => {
+          return {
+            key: item.TeamID,
+            text: item.OwnerTeamFriendlyName,
+          }
+        })}
         useComboBoxAsMenuWidth
         onChange={onChange}
         placeholder="Select a Team"
