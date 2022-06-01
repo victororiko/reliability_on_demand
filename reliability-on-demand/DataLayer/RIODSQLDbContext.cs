@@ -207,7 +207,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyName", userCreatedStudy.StudyName));
-            cmd.Parameters.Add(new SqlParameter("@LastModifiedDate", userCreatedStudy.LastModifiedDate));
+            cmd.Parameters.Add(new SqlParameter("@LastRefreshDate", userCreatedStudy.LastRefreshDate));
             cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userCreatedStudy.CacheFrequency));
             cmd.Parameters.Add(new SqlParameter("@Expiry", userCreatedStudy.Expiry));
             cmd.Parameters.Add(new SqlParameter("@TeamId", userCreatedStudy.TeamID));
@@ -236,7 +236,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyName", userUpdatedStudy.StudyName));
-            cmd.Parameters.Add(new SqlParameter("@LastRefreshDate", userUpdatedStudy.LastModifiedDate));
+            cmd.Parameters.Add(new SqlParameter("@LastRefreshDate", userUpdatedStudy.LastRefreshDate));
             cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userUpdatedStudy.CacheFrequency));
             cmd.Parameters.Add(new SqlParameter("@Expiry", userUpdatedStudy.Expiry));
             cmd.Parameters.Add(new SqlParameter("@StudyID", userUpdatedStudy.StudyID));

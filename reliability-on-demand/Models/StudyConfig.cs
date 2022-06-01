@@ -7,7 +7,7 @@ namespace reliability_on_demand.DataLayer
     {
         public string StudyID { get; set; }
         public string StudyName { get; set; }
-        public DateTime LastModifiedDate { get; set; }
+        public DateTime LastRefreshDate { get; set; }
         public int CacheFrequency { get; set; }
         public DateTime Expiry { get; set; }
         public int TeamID { get; set; }

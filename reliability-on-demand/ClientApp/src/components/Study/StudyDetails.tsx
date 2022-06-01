@@ -68,7 +68,7 @@ export const StudyDetails = (props: Props) => {
       ObservationWindowDays: userObservationWindow,
       // additional properties that to generate a valid study config object
       TeamID: props.teamid,
-      LastModifiedDate: new Date(),
+      LastRefreshDate: new Date(),
     } as StudyConfig
     axios
       .post(`api/Data/AddStudy`, newUserCreatedStudy)
@@ -93,7 +93,7 @@ export const StudyDetails = (props: Props) => {
       if (userObservationWindow !== undefined) {
         updatedUserStudy.ObservationWindowDays = userObservationWindow
       }
-      updatedUserStudy.LastModifiedDate = new Date()
+      updatedUserStudy.LastRefreshDate = new Date()
       updatedUserStudy.StudyID = props.selectedStudy.StudyID.toString()
       axios
         .post('api/Data/UpdateStudy', updatedUserStudy)

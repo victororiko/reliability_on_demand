@@ -11,7 +11,7 @@ GO
 -- Create the stored procedure in the specified schema
 CREATE PROCEDURE dbo.AddStudy
     @StudyName /*parameter name*/ nvarchar(255) /*datatype*/ = 'no StudyName provided' /*default value*/,
-    @LastModifiedDate /*parameter name*/ datetime /*datatype*/,
+    @LastRefreshDate /*parameter name*/ datetime /*datatype*/,
     @CacheFrequency /*parameter name*/ int /*datatype*/ = 0 /*default value*/,
     @Expiry /*parameter name*/ datetime /*datatype*/,
     @TeamId /*parameter name*/ int /*datatype*/,
@@ -19,21 +19,40 @@ CREATE PROCEDURE dbo.AddStudy
 /*default value*/
 -- add more stored procedure parameters here
 AS
--- body of the stored procedure
+-- get team hash string
+DECLARE @TeamHashString VARCHAR(255);
+SELECT @TeamHashString = HashString FROM RELTeamConfig
+WHERE TeamID = @TeamId;
+-- add to StudyConfig
 INSERT INTO [dbo].[RELStudyConfig]
+    (
+    StudyName,
+    LastRefreshDate,
+    CacheFrequency,
+    Expiry,
+    TeamID,
+    ObservationWindowDays,
+    HashString
+    )
 VALUES
-    (@StudyName, @LastModifiedDate, @CacheFrequency, @Expiry, @TeamId, @ObservationWindowDays)
+    (
+        @StudyName,
+        @LastRefreshDate,
+        @CacheFrequency,
+        @Expiry,
+        @TeamId,
+        @ObservationWindowDays, 
+        CONCAT(@TeamHashString,'_',@StudyName)
+    )
 GO
 
 -- example to execute the stored procedure we just created
-EXEC dbo.AddStudy 
+EXECUTE dbo.AddStudy 
     @StudyName = 'Added by calling Stored Proc New',
-    @LastModifiedDate = '10/10/2021 10:34 AM',
+    @LastRefreshDate = '10/10/2021 10:34 AM',
     @CacheFrequency = 12,
 	@Expiry = '01/02/2025 10:34 AM',
-    @TeamId = 3,
-    @ObservationWindowDays = 14 
+    @TeamId = 1,
+    @ObservationWindowDays = 14
 GO
-
-
 

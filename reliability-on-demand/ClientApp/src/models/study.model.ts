@@ -3,7 +3,7 @@ import { IComboBoxOption, IDropdownOption } from '@fluentui/react'
 export interface StudyConfig {
   StudyID: string
   StudyName: string
-  LastModifiedDate: Date
+  LastRefreshDate: Date
   CacheFrequency: number
   Expiry: Date
   TeamID: number

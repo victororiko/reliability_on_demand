@@ -8,23 +8,6 @@ GO
 
 --- end scratch area
 
-DROP TABLE [dbo].[RELStudyConfig]
-
-CREATE TABLE [dbo].[RELStudyConfig] (
-    [StudyID]          INT IDENTITY(1,1),
-    [StudyName]        NVARCHAR (128)   NOT NULL,
-    [LastRefreshDate]  DATETIME         NOT NULL,
-    [LastModifiedDate] DATETIME         NOT NULL,
-    [CacheFrequency]   INT              NOT NULL,
-    [Expiry]           DATETIME         NOT NULL,
-    [TeamID]           INT              NOT NULL,
-    PRIMARY KEY CLUSTERED ([StudyID] ASC),
-    FOREIGN KEY ([TeamID]) REFERENCES [dbo].[RELTeamConfig] ([TeamID])
-);
-
-ALTER TABLE [dbo].[RELStudyConfig]
-DROP COLUMN LastModifiedDate
-
 -- adding studies
 -- Insert rows into table 'RELStudyConfig'
 INSERT INTO RELStudyConfig
