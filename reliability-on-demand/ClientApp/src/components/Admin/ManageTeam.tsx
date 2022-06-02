@@ -133,11 +133,18 @@ export const ManageTeam = (props: IManageTeamProps) => {
       ComputeResourceLocation: tempComputeResourceLocation,
     } as TeamConfig
 
-    axios.post('api/Data/SaveTeam', teamToAddOrUpdate).then(() => {
-      loadTeams()
-      selectCurrentTeam(selectedTeamID)
-      setHasSaveClicked(true)
-    })
+    axios
+      .post('api/Data/SaveTeam', teamToAddOrUpdate)
+      .then(() => {
+        loadTeams()
+        selectCurrentTeam(selectedTeamID)
+        setHasSaveClicked(true)
+      })
+      .catch((err) =>
+        alert(
+          `${teamToAddOrUpdate.OwnerTeamFriendlyName} already exists. Please provide a different value for Owner Team Friendly Name`
+        )
+      )
   }
 
   useEffect(() => {
