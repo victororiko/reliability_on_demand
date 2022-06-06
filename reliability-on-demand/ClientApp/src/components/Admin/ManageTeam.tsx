@@ -141,9 +141,9 @@ export const ManageTeam = (props: IManageTeamProps) => {
         setHasSaveClicked(true)
       })
       .catch((err) =>
-        alert(
+        {return alert(
           `${teamToAddOrUpdate.OwnerTeamFriendlyName} already exists. Please provide a different value for Owner Team Friendly Name`
-        )
+        )}
       )
   }
 

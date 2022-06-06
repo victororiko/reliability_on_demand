@@ -1,7 +1,6 @@
 import { TextField } from '@fluentui/react'
 import * as React from 'react'
 import { TeamConfig } from '../../models/team.model'
-import { CreateNewID, DummyID } from '../helpers/utils'
 
 export interface Props {
   currentTeam?: TeamConfig
