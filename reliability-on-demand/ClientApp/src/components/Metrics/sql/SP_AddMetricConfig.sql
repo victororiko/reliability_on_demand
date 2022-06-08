@@ -31,7 +31,12 @@ CREATE PROCEDURE dbo.AddMetricConfig
     @IsUsage /*parameter name*/ bit /*datatype*/ = 1
 /*default_value*/
 AS
--- body of the stored procedure
+-- get Study hash string
+DECLARE @FailureVerticalHashString VARCHAR(255);
+    SELECT @FailureVerticalHashString = HashString 
+    FROM RELFailureVerticalConfig
+    WHERE StudyID = @StudyId AND VerticalName = @Vertical;
+
 -- Insert rows into table 'dbo.RELMetricConfiguration'
 INSERT INTO dbo.RELMetricConfiguration
     ( -- columns to insert data into
@@ -43,7 +48,8 @@ INSERT INTO dbo.RELMetricConfiguration
     MetricGoal,
     StudyId,
     MetricGoalAspirational,
-    IsUsage
+    IsUsage,
+    HashString
     )
 VALUES
     ( -- first row: values for the columns in the list above
@@ -55,7 +61,8 @@ VALUES
         @MetricGoal,
         @StudyId,
         @MetricGoalAspirational,
-        @IsUsage
+        @IsUsage,
+        CONCAT(@FailureVerticalHashString,'_',@MetricName)
     )
     GO
 GO

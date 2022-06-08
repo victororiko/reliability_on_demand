@@ -27,6 +27,7 @@ export const Metrics = (props: Props) => {
   // loading metrics piece is here because axios
   // internals require you to setState -- not return a value
   const loadMetrics = async (studyid: number = CreateNewID) => {
+    setLoading(true)
     try {
       // get defaults from backend
       const response = await axios.get(
@@ -45,10 +46,11 @@ export const Metrics = (props: Props) => {
         setUserMetrics(userMetricsFromBackend)
       }
       setDefaults(defaultsFromBackend)
+      setLoading(false)
     } catch (exception) {
       console.error(exception)
     }
-    setLoading(false)
+    
   }
 
   const handleCallbackDeleteMetric = () => {

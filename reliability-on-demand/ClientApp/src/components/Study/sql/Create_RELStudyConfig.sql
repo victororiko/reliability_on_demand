@@ -1,6 +1,5 @@
 
 USE ReliabilityReporting
--- clear defaults table
 -- Drop the table 'RELStudyConfig' in schema 'dbo'
 IF EXISTS (
     SELECT *

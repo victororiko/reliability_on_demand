@@ -29,12 +29,6 @@ CREATE PROCEDURE dbo.DeleteMetricConfig
 AS
 -- body of the stored procedure
 DELETE FROM RelMetricConfiguration
-    WHERE UniqueKey = @UniqueKey
+    WHERE Vertical = @Vertical AND MetricName = @MetricName	/* add search conditions here */
     GO
 GO
-
-
--- Delete rows from table 'RelMetricConfiguration'
--- DELETE FROM RelMetricConfiguration
--- WHERE UniqueKey = 'da65b09f-cbbf-ec11-997e-2818787e4d7f'	/* add search conditions here */
--- GO

@@ -13,6 +13,7 @@ export interface Metric {
   Key: string
   MetricType: string
   UniqueKey: string
+  HashString: string
 }
 
 export const getDistinctVerticals = (arr: Metric[]): string[] => {

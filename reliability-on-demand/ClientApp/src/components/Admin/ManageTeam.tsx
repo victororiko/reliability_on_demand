@@ -140,11 +140,11 @@ export const ManageTeam = (props: IManageTeamProps) => {
         selectCurrentTeam(selectedTeamID)
         setHasSaveClicked(true)
       })
-      .catch((err) =>
-        {return alert(
+      .catch((err) => {
+        return alert(
           `${teamToAddOrUpdate.OwnerTeamFriendlyName} already exists. Please provide a different value for Owner Team Friendly Name`
-        )}
-      )
+        )
+      })
   }
 
   useEffect(() => {

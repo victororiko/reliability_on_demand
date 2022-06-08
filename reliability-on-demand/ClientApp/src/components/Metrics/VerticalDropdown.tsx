@@ -43,9 +43,7 @@ export const VerticalDropdown = (props: Props) => {
       />
       {selectedItem ? (
         <MetricNameDropdown
-          defaultMetrics={props.defaultMetrics.filter((item) => {
-            return item.Vertical === selectedItem?.text
-          })}
+          defaultMetrics={props.defaultMetrics}
           userMetrics={props.userMetrics}
           studyid={props.studyid}
           vertical={selectedItem.text}

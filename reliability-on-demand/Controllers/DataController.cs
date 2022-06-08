@@ -244,6 +244,23 @@ namespace reliability_on_demand.Controllers
             }
         }
 
+        [Route("api/Data/UpdateMetricConfig")]
+        [HttpPost("[action]")]
+        public IActionResult UpdateMetricConfig([FromBody] MetricConfig userCreatedMetric)
+        {
+            try
+            {
+                _logger.LogInformation($"UpdateMetricConfig was called | MetricConfig = {userCreatedMetric}");
+                return Ok(this._sqlservice.UpdateMetricConfig(userCreatedMetric));
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed UpdateMetricConfig.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
         [HttpGet("api/Data/GetMetricConfigs/{StudyId}")]
         public IActionResult GetMetricConfigs(int StudyId)
         {

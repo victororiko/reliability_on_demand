@@ -16,7 +16,7 @@ namespace reliability_on_demand.DataLayer
         public int StudyId { get; set; }
         public bool IsUsage { get; set; }
         public string UniqueKey { get; set; }
-
+        public string HashString {get; set;}
 
         public override string ToString()
         {

@@ -17,7 +17,7 @@ interface Props {
 }
 
 export const MetricNameDropdown = (props: Props) => {
-  const [selectedItem, setSelectedItem] = useState<IDropdownOption>()
+  const [selectedItem, setSelectedItem] = useState<IDropdownOption | null>()
   const [isUserMetric, setIsUserMetric] = useState<boolean>(false)
   const [options, setOptions] = useState<IDropdownOption[]>(
     generateDropdownOptions(props.defaultMetrics, props.userMetrics)
@@ -27,29 +27,33 @@ export const MetricNameDropdown = (props: Props) => {
   )
   const [userMetrics, setUserMetrics] = useState<Metric[]>(props.userMetrics)
   const [metricData, setMetricData] = useState<Metric>()
-  const [vertical, setVertical] = useState<string>()
 
   useEffect(() => {
-    setVertical(props.vertical)
-  }, [props]) // make sure you re-render component when usermetrics or defaults also change
+    // reduce defautMetrics and userMetrics by vertical selected
+    const reducedDefultMetrics = props.defaultMetrics.filter(item => item.Vertical === props.vertical)
+    const reducedUserMetrics = props.userMetrics.filter(item => item.Vertical === props.vertical)
 
-  useEffect(() => {
     // remove any user metrics from default metrics
-    let cleanedDefaults = props.defaultMetrics
-    for (const um of props.userMetrics) {
+    let cleanedDefaults = reducedDefultMetrics
+    for (const um of reducedUserMetrics) {
       cleanedDefaults = cleanedDefaults.filter((item) => {
         return item.MetricName !== um.MetricName
       })
     }
+    const cleanedUserMetrics = reducedUserMetrics // only for consistency
+    
+    // set state
     setDefaultMetrics(cleanedDefaults)
     setUserMetrics(props.userMetrics)
+
+    // generate dropdown options
     const dropdownOptions = generateDropdownOptions(
       cleanedDefaults,
-      userMetrics
+      cleanedUserMetrics
     )
     setOptions(dropdownOptions)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.defaultMetrics, props.userMetrics])
+    setSelectedItem(null) // force reset on Metric Name dropdown
+  }, [props])
 
   const handleChange = (
     event: FormEvent<HTMLDivElement>,

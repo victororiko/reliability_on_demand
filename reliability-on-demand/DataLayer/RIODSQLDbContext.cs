@@ -580,12 +580,26 @@ namespace reliability_on_demand.DataLayer
         //Get default metrics
         public string GetDefaultMetricsConfig(int StudyId)
         {
-            // First get verticals list from RELFailureVerticalConfig
-            // Then select defaults where vertical exists in vertical list
-            // TODO convert this into Stored Procedure
-            string query = $"SELECT * FROM dbo.RelMetricConfiguration_Defaults WHERE Vertical IN(SELECT[VerticalName] FROM [dbo].[RELFailureVerticalConfig] WHERE StudyID = {StudyId})";
-            string res = GetSQLResultsJSON(query);
-            return res;
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetDefaultMetricConfigs";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyId", StudyId));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
         }
         public string AddMetricConfig(MetricConfig userCreatedMetric)
         {
