@@ -110,5 +110,13 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.DeleteMetricConfig(userConfig);
         }
+        string ISQLService.GetPopulationPivotSources()
+        {
+            return _context.GetPopulationPivotSources();
+        }
+        string ISQLService.GetPopulationPivots(string PivotSource)
+        {
+            return _context.GetPopulationPivots(PivotSource);
+        }
     }
 }

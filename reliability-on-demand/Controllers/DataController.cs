@@ -311,5 +311,46 @@ namespace reliability_on_demand.Controllers
                 return BadRequest(message);
             }
         }
+
+        [Route("api/Data/GetPopulationPivotSources")]
+        [HttpGet]
+        public IActionResult GetPopulationPivotSources()
+        {
+            try
+            {
+                _logger.LogInformation("GetPopulationPivotSources was called");
+                var result = this._sqlservice.GetPopulationPivotSources();
+                if (result == null)
+                {
+                    return BadRequest("Something wrong with the SQL Service. Could not get Teams. Please try again in a few mins.");
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetPopulationPivotSources.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [HttpGet("api/Data/GetPopulationPivots/{PivotSource}")]
+        public IActionResult GetPopulationPivots(string PivotSource)
+        {
+            try
+            {
+                string res = this._sqlservice.GetPopulationPivots(PivotSource);
+                _logger.LogInformation($"GetPopulationPivots called with PivotSource = {PivotSource}");
+                if (String.IsNullOrEmpty(res))
+                    _logger.LogDebug("No Metrics Configured");
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetPopulationPivots.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
     }
 }

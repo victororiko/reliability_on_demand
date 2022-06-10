@@ -25,5 +25,7 @@ namespace reliability_on_demand.DataLayer
         string GetMetricConfigs(int StudyId);
         string UpdateMetricConfig(MetricConfig userConfig);
         string DeleteMetricConfig(MetricConfig userConfig);
+        string GetPopulationPivotSources();
+        string GetPopulationPivots(string PivotSource);
     }
 }

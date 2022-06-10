@@ -87,6 +87,8 @@ export const EmptyFieldErrorMessage = 'Empty Field'
 export const SaveMessage = 'Saved successfully!'
 export const UnAuthorizedMessage = 'You are unauthorized to view the page'
 
+export const MAXNUMPIVOTSINCOMBOBOX = 4
+
 export const myParseInt = (value: string): number => {
   return parseInt(value, 10)
 }

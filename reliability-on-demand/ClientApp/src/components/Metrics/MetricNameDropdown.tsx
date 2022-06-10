@@ -30,8 +30,12 @@ export const MetricNameDropdown = (props: Props) => {
 
   useEffect(() => {
     // reduce defautMetrics and userMetrics by vertical selected
-    const reducedDefultMetrics = props.defaultMetrics.filter(item => item.Vertical === props.vertical)
-    const reducedUserMetrics = props.userMetrics.filter(item => item.Vertical === props.vertical)
+    const reducedDefultMetrics = props.defaultMetrics.filter(
+      (item) => {return item.Vertical === props.vertical}
+    )
+    const reducedUserMetrics = props.userMetrics.filter(
+      (item) => {return item.Vertical === props.vertical}
+    )
 
     // remove any user metrics from default metrics
     let cleanedDefaults = reducedDefultMetrics
@@ -41,7 +45,7 @@ export const MetricNameDropdown = (props: Props) => {
       })
     }
     const cleanedUserMetrics = reducedUserMetrics // only for consistency
-    
+
     // set state
     setDefaultMetrics(cleanedDefaults)
     setUserMetrics(props.userMetrics)

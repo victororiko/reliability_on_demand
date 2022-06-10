@@ -50,7 +50,6 @@ export const Metrics = (props: Props) => {
     } catch (exception) {
       console.error(exception)
     }
-    
   }
 
   const handleCallbackDeleteMetric = () => {

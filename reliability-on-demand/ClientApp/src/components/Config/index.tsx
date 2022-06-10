@@ -6,6 +6,7 @@ import { Metrics } from '../Metrics'
 import { Study } from '../Study'
 import { Team } from '../Team'
 import { FailureCurve } from '../FailureCurveSection'
+import { Pivots } from '../Pivots'
 
 type Props = {}
 
@@ -37,6 +38,7 @@ export const Config = (props: Props) => {
             ''
           ) : (
             <div>
+              <Pivots studyid={currentStudyId} />
               <FailureCurve studyid={currentStudyId} />
               <Metrics studyid={currentStudyId} />
             </div>
