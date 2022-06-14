@@ -185,8 +185,8 @@ namespace reliability_on_demand.Controllers
         }
 
         // learn more about optional params here - https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-5.0#conventional-routing-1
-        [HttpGet("api/Data/GetAllailurePivotNamesForAVertical/{sourcetype?}")]
-        public IActionResult GetAllailurePivotNamesForAVertical(string sourcetype)
+        [HttpGet("api/Data/GetAllFailurePivotNamesForAVertical/{sourcetype?}")]
+        public IActionResult GetAllFailurePivotNamesForAVertical(string sourcetype)
         {
             _logger.LogInformation($"sourcetype = {sourcetype}");
             if (String.IsNullOrEmpty(sourcetype))
@@ -197,9 +197,9 @@ namespace reliability_on_demand.Controllers
 
         [Route("api/Data/GetAllDefaultFailurePivotsForAVertical")]
         [HttpPost("[action]")]
-        public string GetAllDefaultFailurePivotsForAVertical([FromBody] FailureConfig f)
+        public string GetAllDefaultFailurePivotsForAVertical([FromBody] string sourcesubtype)
         {
-            var result = this._sqlservice.GetAllDefaultFailurePivotsForAVertical(f.PivotSourceSubType);
+            var result = this._sqlservice.GetAllDefaultFailurePivotsForAVertical(sourcesubtype);
             _logger.LogInformation("GetAllDefaultFailurePivotsForAVertical");
             _logger.LogInformation($"result = {result}");
             return result;

@@ -63,7 +63,7 @@ export const MultiSelectVerticalList = (props: Props) => {
           })
 
       setselectedItems(updated)
-      props.callBack(selectedItems)
+      props.callBack(updated)
     }
   }
 
