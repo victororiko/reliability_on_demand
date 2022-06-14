@@ -3,11 +3,13 @@ import React from 'react'
 
 type Props = {
   studyid: number
+  selectedPivots: any
 }
 
-const SavePivotConfigButton = (props: Props) => {
+export const SavePivotConfigButton = (props: Props) => {
   const handleClick = () => {
     console.log(`Saved pivot config with study id = ${props.studyid}`)
+    console.log(props.selectedPivots)
   }
   return (
     <div>
@@ -15,5 +17,3 @@ const SavePivotConfigButton = (props: Props) => {
     </div>
   )
 }
-
-export default SavePivotConfigButton

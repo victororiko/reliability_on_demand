@@ -6,8 +6,9 @@ import {
 } from '@fluentui/react'
 import axios from 'axios'
 import React, { FormEvent, useEffect, useState } from 'react'
+import { UserPivotConfig } from '../../models/pivot.model'
 import { MAXNUMPIVOTSINCOMBOBOX } from '../helpers/utils'
-import SavePivotConfigButton from './SavePivotConfigButton'
+import { SavePivotConfigButton } from './SavePivotConfigButton'
 import { convertPivotInfoToOptions } from './service'
 
 type Props = {
@@ -20,12 +21,34 @@ const PivotCombobox = (props: Props) => {
   const [populationPivots, setPopulationPivots] = useState([])
 
   useEffect(() => {
-    setSelectedItems([]) // force combobox to show placeholder text by default
+    // get all pivots
     axios
       .get(`api/Data/GetPopulationPivots/${props.pivotSource}`)
       .then((response) => {
         if (response.data) setPopulationPivots(response.data)
         else setPopulationPivots([])
+      })
+      .catch((exception) => {
+        return console.error(exception)
+      })
+
+    // set user selections
+    axios
+      .get(
+        `api/Data/GetUserPivotConfigs/PivotSource/${props.pivotSource}/StudyId/${props.studyid}`
+      )
+      .then((response) => {
+        if (response.data) {
+          const arr = response.data as UserPivotConfig[]
+          const ans = arr.map((item) => {
+            const rObj = {
+              key: item['dbo.RELPivotInfo'][0].PivotName, // using [0] because the array will only have 1 object - SQL weirdness
+              text: item['dbo.RELPivotInfo'][0].PivotName,
+            }
+            return rObj
+          })
+          setSelectedItems(ans) // force combobox to show placeholder text by default
+        } else setSelectedItems([])
       })
       .catch((exception) => {
         return console.error(exception)
@@ -58,6 +81,7 @@ const PivotCombobox = (props: Props) => {
   return (
     <div>
       <VirtualizedComboBox
+        calloutProps={{ doNotLayer: true }}
         label="Pivots"
         options={convertPivotInfoToOptions(populationPivots, props.pivotSource)}
         onChange={handleChange}
@@ -76,7 +100,10 @@ const PivotCombobox = (props: Props) => {
       {selectedItems.length > 0 ? (
         <Stack>
           {/* TODO add pivots list and pivots scope here */}
-          <SavePivotConfigButton studyid={props.studyid} />
+          <SavePivotConfigButton
+            studyid={props.studyid}
+            selectedPivots={selectedItems}
+          />
         </Stack>
       ) : (
         ''

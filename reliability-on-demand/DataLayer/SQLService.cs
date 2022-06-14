@@ -118,5 +118,9 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.GetPopulationPivots(PivotSource);
         }
+        string ISQLService.GetUserPivotConfigs(string PivotSource, int StudyId)
+        {
+            return _context.GetUserPivotConfigs(PivotSource,StudyId);
+        }
     }
 }
