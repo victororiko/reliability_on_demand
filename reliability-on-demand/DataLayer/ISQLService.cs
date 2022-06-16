@@ -28,5 +28,6 @@ namespace reliability_on_demand.DataLayer
         string GetPopulationPivotSources();
         string GetPopulationPivots(string PivotSource);
         string GetUserPivotConfigs(string PivotSource, int StudyId);
+        string AddOrUpdatePivotConfig(PopulationPivotConfig userConfig);
     }
 }

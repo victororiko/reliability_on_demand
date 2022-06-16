@@ -85,15 +85,18 @@ export const buildColumnArray = (data: PivotTable[]): IColumn[] => {
         maxWidth: 200,
         isResizable: true,
       })
-    } else if (ele.fieldName?.includes('Apportion') && ele.fieldName?.includes('Join')) {
-        cols.push({
-            key: ele.fieldName ?? '',
-            name: ele.fieldName ?? '',
-            fieldName: ele.fieldName ?? '',
-            minWidth: 50,
-            maxWidth: 150,
-            isResizable: true,
-        })
+    } else if (
+      ele.fieldName?.includes('Apportion') &&
+      ele.fieldName?.includes('Join')
+    ) {
+      cols.push({
+        key: ele.fieldName ?? '',
+        name: ele.fieldName ?? '',
+        fieldName: ele.fieldName ?? '',
+        minWidth: 50,
+        maxWidth: 150,
+        isResizable: true,
+      })
     } else if (ele.fieldName?.includes('Apportion')) {
       cols.push({
         key: ele.fieldName ?? '',

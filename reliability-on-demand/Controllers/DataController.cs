@@ -342,7 +342,7 @@ namespace reliability_on_demand.Controllers
                 string res = this._sqlservice.GetPopulationPivots(PivotSource);
                 _logger.LogInformation($"GetPopulationPivots called with PivotSource = {PivotSource}");
                 if (String.IsNullOrEmpty(res))
-                    _logger.LogDebug("No Metrics Configured");
+                    _logger.LogDebug("No PopulationPivots Configured");
                 return Ok(res);
             }
             catch (Exception ex)
@@ -360,12 +360,31 @@ namespace reliability_on_demand.Controllers
                 string res = this._sqlservice.GetUserPivotConfigs(PivotSource,StudyId);
                 _logger.LogInformation($"GetUserPivotConfigs called with PivotSource = {PivotSource}");
                 if (String.IsNullOrEmpty(res))
-                    _logger.LogDebug("No Metrics Configured");
+                    _logger.LogDebug("No Pivots Configured");
                 return Ok(res);
             }
             catch (Exception ex)
             {
                 string message = $"Failed GetUserPivotConfigs.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [HttpPost("api/Data/AddOrUpdatePivotConfig/")]
+        public IActionResult AddOrUpdatePivotConfig(PopulationPivotConfig userConfig)
+        {
+            try
+            {
+                string res = this._sqlservice.AddOrUpdatePivotConfig(userConfig);
+                _logger.LogInformation($"AddOrUpdatePivotConfig called with userConfig = {userConfig}");
+                if (String.IsNullOrEmpty(res))
+                    _logger.LogDebug("No Pivots Configured");
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed AddOrUpdatePivotConfig.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
             }

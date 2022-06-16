@@ -122,5 +122,10 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.GetUserPivotConfigs(PivotSource,StudyId);
         }
+
+        string ISQLService.AddOrUpdatePivotConfig(reliability_on_demand.DataLayer.PopulationPivotConfig userConfig)
+        {
+            return _context.AddOrUpdatePivotConfig(userConfig);   
+        }
     }
 }

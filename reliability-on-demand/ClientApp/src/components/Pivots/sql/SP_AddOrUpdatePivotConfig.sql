@@ -13,16 +13,17 @@ CREATE PROCEDURE dbo.AddOrUpdatePivotConfig
     @StudyID /*parameter name*/ int /*datatype*/,
     @PivotID /*parameter name*/ int /*datatype*/,
     @AggregateBy /*parameter name*/ bit /*datatype*/,
-    @PivotSourceSubType /*parameter name*/ nvarchar(255) /*datatype*/ = 'no PivotSourceSubType provided'/*default value*/
+    @PivotSourceSubType /*parameter name*/ nvarchar(255) /*datatype*/ = 'AllMode'/*default value*/
 -- Update more stored procedure parameters here
 AS
--- Get AggregateBy value first
-DECLARE @PrevAggregateBy BIT;
-SELECT @PrevAggregateBy = AggregateBy FROM RELStudyPivotConfig
-WHERE PivotId = @PivotID;
--- If AggregateBy has been set update the existing pivot config
-IF @PrevAggregateBy = 1
-    EXECUTE dbo.UpdatePivotConfig 
+IF EXISTS(
+    -- Select rows from a Table or View 'RELStudyPivotConfig' in schema 'dbo'
+    SELECT *
+FROM dbo.RELStudyPivotConfig
+WHERE PivotId = @PivotID	/* add search conditions here */
+)
+-- Update existing pivot config
+EXECUTE dbo.UpdatePivotConfig 
         @StudyID,
         @PivotID,
         @AggregateBy,
@@ -34,22 +35,27 @@ ELSE EXECUTE dbo.AddPivotConfig
         @AggregateBy,
         @PivotSourceSubType
 GO
--- example to execute the stored procedure we just created
+
+-- example to execute the stored procedure with cleanup 
+-- (comment out if necessary)
+DECLARE @TestStudyID AS INT = 16 ;
+DECLARE @TestPivotID AS INT = 148;
 EXECUTE dbo.AddOrUpdatePivotConfig 
-    @StudyID = 1,
-    @PivotID = 150,
+    @StudyID = @TestStudyID,
+    @PivotID = @TestPivotID,
     @AggregateBy = 1 ,
     @PivotSourceSubType = 'AllMode'
-GO
+;
 -- check if the pivot is Updated 
 SELECT *
 FROM RELStudyPivotConfig
-WHERE PivotID = 150
-GO
--- get pivot info
+WHERE PivotID = @TestPivotID
+-- clean up: delete newly added test pivot
+-- Delete rows from table 'RELStudyPivotConfig'
+DELETE FROM RELStudyPivotConfig
+WHERE PivotID = @TestPivotID	
+-- check if the pivot is Deleted
 SELECT *
-FROM RELPivotInfo
-WHERE PivotID = 150
+FROM RELStudyPivotConfig
+WHERE PivotID = @TestPivotID
 GO
-
---delete from RELStudyPivotConfig where PivotID = 150

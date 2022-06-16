@@ -42,8 +42,8 @@ const PivotCombobox = (props: Props) => {
           const arr = response.data as UserPivotConfig[]
           const ans = arr.map((item) => {
             const rObj = {
-              key: item['dbo.RELPivotInfo'][0].PivotName, // using [0] because the array will only have 1 object - SQL weirdness
-              text: item['dbo.RELPivotInfo'][0].PivotName,
+              key: item.PivotID,
+              text: item['dbo.RELPivotInfo'][0].PivotName, // using [0] because the array will only have 1 object - SQL weirdness
             }
             return rObj
           })

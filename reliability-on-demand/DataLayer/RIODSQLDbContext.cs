@@ -793,6 +793,33 @@ namespace reliability_on_demand.DataLayer
             }
             return sb.ToString();
         }
+
+          public string AddOrUpdatePivotConfig(PopulationPivotConfig userConfig)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.AddOrUpdatePivotConfig";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyID", userConfig.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@PivotID", userConfig.PivotID));
+            cmd.Parameters.Add(new SqlParameter("@AggregateBy", userConfig.AggregateBy));
+            cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", userConfig.PivotSourceSubType));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
     }
 }
 
