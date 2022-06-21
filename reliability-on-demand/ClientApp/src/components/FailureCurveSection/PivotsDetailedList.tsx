@@ -5,8 +5,9 @@ import {
   SelectionMode,
   IColumn,
   Checkbox,
+  IDropdownOption,
 } from '@fluentui/react'
-import { Pair, PivotTable } from '../../models/failurecurve.model'
+import { PivotTable } from '../../models/failurecurve.model'
 import { buildColumnArray, mapPivotTableColumnValue } from './service'
 
 interface Props {
@@ -15,8 +16,14 @@ interface Props {
 }
 
 export const PivotsDetailedList = (props: Props) => {
-  const renderItemColumn = (item: Pair, index?: number, column?: IColumn) => {
-    const fieldContent = item[column?.fieldName as keyof Pair] as string
+  const renderItemColumn = (
+    item: IDropdownOption,
+    index?: number,
+    column?: IColumn
+  ) => {
+    const fieldContent = item[
+      column?.fieldName as keyof IDropdownOption
+    ] as string
 
     if (column?.key === 'PivotID') return <span />
     if (column?.key !== 'PivotName') {

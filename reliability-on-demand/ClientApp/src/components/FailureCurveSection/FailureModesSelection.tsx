@@ -1,16 +1,13 @@
 import React from 'react'
 import { Dropdown, IDropdownOption, TooltipHost } from '@fluentui/react'
-import { Pair } from '../../models/failurecurve.model'
 
 interface Props {
-  modes: Pair[]
+  modes: IDropdownOption[]
+  select: string
   callBack: any
 }
 
 export const FailureModesSelection = (props: Props) => {
-  // state
-  const [selectedItem, setselectedItem] = React.useState<Pair>()
-
   const onChange = (
     event: React.FormEvent<HTMLDivElement>,
     item?: IDropdownOption,
@@ -18,9 +15,8 @@ export const FailureModesSelection = (props: Props) => {
   ): void => {
     if (item) {
       if (item.key === 'Select Mode') return
-      const p: Pair = { key: item.key.toString(), text: item.text }
-      setselectedItem(p)
-      props.callBack(p.key)
+      const p: IDropdownOption = { key: item.key.toString(), text: item.text }
+      props.callBack(p.key, true)
     }
   }
 
@@ -30,7 +26,7 @@ export const FailureModesSelection = (props: Props) => {
         <Dropdown
           label="Select Failure Mode"
           placeholder="Select Mode"
-          selectedKey={selectedItem?.key}
+          selectedKey={props.select}
           // eslint-disable-next-line react/jsx-no-bind
           onChange={onChange}
           options={props.modes}

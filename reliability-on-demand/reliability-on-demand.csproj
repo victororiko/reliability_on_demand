@@ -62,9 +62,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\AddOrUpdateButton.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\ConfigureFilterExpressionButton.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\FailureModesSelection.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\FilterExpressionDetailedList.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\MultiSelectPivots.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\PivotsDetailedList.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\ValidateFilterExpression.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

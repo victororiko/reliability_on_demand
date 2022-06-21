@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Dropdown, IDropdownOption, TooltipHost } from '@fluentui/react'
-import { Vertical, Pair } from '../../models/failurecurve.model'
+import { Vertical } from '../../models/failurecurve.model'
 import { getVerticalNames } from './service'
 
 interface Props {
@@ -11,16 +11,18 @@ interface Props {
 
 export const MultiSelectVerticalList = (props: Props) => {
   // state
-  const [selectedItems, setselectedItems] = React.useState<Pair[]>([])
+  const [selectedItems, setselectedItems] = React.useState<IDropdownOption[]>(
+    []
+  )
 
   // populates the selecteditems object with the
   // configured verticals for the study for the first time
   const selectedKeyLogic = (configuredverticals: Vertical[]) => {
     const seletedUniqueKeys = new Set()
     const selectedKeys: string[] = []
-    const selectedPairs: Pair[] = []
+    const selectedPairs: IDropdownOption[] = []
     let k: string = ''
-    let pair: Pair
+    let pair: IDropdownOption
 
     if (configuredverticals && configuredverticals.length > 0) {
       for (const vertical of configuredverticals) {
@@ -44,7 +46,7 @@ export const MultiSelectVerticalList = (props: Props) => {
     const selectedKeys: string[] = []
 
     for (const p of selectedItems) {
-      selectedKeys.push(p.key)
+      selectedKeys.push(p.key.toString())
     }
 
     return selectedKeys
@@ -57,7 +59,7 @@ export const MultiSelectVerticalList = (props: Props) => {
   ): void => {
     if (option) {
       const updated = option.selected
-        ? [...(selectedItems ?? []), option as Pair]
+        ? [...(selectedItems ?? []), option as IDropdownOption]
         : selectedItems.filter((val) => {
             return val.key !== option.key
           })

@@ -28,11 +28,6 @@ export interface Pivot {
   UIInputDataType: string
 }
 
-export interface Pair {
-  key: string
-  text: string
-}
-
 export interface PivotTable {
   PivotID: number
   PivotName: string

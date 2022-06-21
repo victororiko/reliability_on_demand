@@ -414,14 +414,15 @@ namespace reliability_on_demand.DataLayer
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "SELECT max(PivotScopeID) AS max FROM RELPivotScope";
             Int32 maxscopeid = (Int32)cmd.ExecuteScalar();
+
+            DeleteStudyVerticals(failure);
+
             if (count > 0)
             {
                 DeletePivotScopeEnteries(failure);
 
                 //Order matters- first extract the pivot scope ids from the relstudypivotconfig table and delete pivot scope ids first
                 DeleteStudyIDFromPivotMapping(failure);
-
-                DeleteStudyVerticals(failure);
             }
 
             this.AddFailureConfigToSQL(failure, maxscopeid);
@@ -546,6 +547,9 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@IsKeyPivot", Convert.ToInt32(pivot.IsKeyPivot)));
             cmd.Parameters.Add(new SqlParameter("@IsApportionJoinPivot", Convert.ToInt32(pivot.IsApportionJoinPivot)));
             cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
+
+            var reader = cmd.ExecuteReader();
+            reader.Close();
         }
 
         void AddFilterPivotsAndValuesToFailureCurve(FailureConfig failure, Pivot pivot)
@@ -562,6 +566,9 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@IsApportionJoinPivot", Convert.ToInt32(pivot.IsApportionJoinPivot)));
             cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
             cmd.Parameters.Add(new SqlParameter("@PivotScopeID", pivot.PivotScopeID));
+
+            var reader = cmd.ExecuteReader();
+            reader.Close();
         }
 
         void AddVerticalsForStudy(FailureConfig failure, String vertical)
