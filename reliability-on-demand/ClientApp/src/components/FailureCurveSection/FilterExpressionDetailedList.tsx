@@ -35,7 +35,6 @@ export const FilterExpressionDetailedList = (props: Props) => {
   const [cols, setCols] = React.useState<IColumn[]>(
     FilterExpressionbuildColumnArray(props.filterExpTable)
   )
-  const [isInitialRender, setIsInitialRender] = React.useState(true)
 
   const addClicked = (id: any) => {
     const item: FilterExpTable = {
@@ -171,18 +170,9 @@ export const FilterExpressionDetailedList = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (isInitialRender) {
-      setIsInitialRender(false)
-      setCols([])
-      setCols(FilterExpressionbuildColumnArray(changedFilterExp))
-    }
-  }, [
-    props.filterExpPivots,
-    props.filterExpTable,
-    cols,
-    changedFilterExp,
-    isInitialRender,
-  ])
+    setCols([])
+    setCols(FilterExpressionbuildColumnArray(changedFilterExp))
+  }, [props.filterExpPivots, props.filterExpTable, changedFilterExp])
 
   const renderItemColumn = (
     item: IDropdownOption,

@@ -49,9 +49,6 @@ export const FailureCurve = (props: Props) => {
   const [modes, setModes] = React.useState<IDropdownOption[]>([])
   const [pivots, setPivots] = React.useState<Pivot[]>([])
   const [modeSelected, setModeSelected] = React.useState<Boolean>(false)
-  const [selectedPivots, setSelectedPivots] = React.useState<PivotSQLResult[]>(
-    []
-  )
   const [pivotDetailedList, setPivotDetailedList] = React.useState<
     PivotTable[]
   >([])
@@ -125,14 +122,12 @@ export const FailureCurve = (props: Props) => {
   }
 
   const loadSelectedPivots = (sourcesubtype: string) => {
-    setSelectedPivots([])
     axios
       .get(
         `api/Data/GetAllConfiguredFailurePivotsForAVertical/sourcesubtype/${sourcesubtype}/studyid/${props.studyid}`
       )
       .then((res) => {
         if (res.data) {
-          setSelectedPivots(res.data)
           setSelectedPivotsIDs(getPivotIDs(res.data))
           loadDetailedListRows(res.data)
           setButtonName('Update Failure Curve')
@@ -154,7 +149,6 @@ export const FailureCurve = (props: Props) => {
       })
       .then((res) => {
         if (res.data !== null) {
-          setSelectedPivots(res.data)
           setSelectedPivotsIDs(getPivotIDs(res.data))
           loadDetailedListRows(res.data)
           setButtonName('Add Failure Curve')
