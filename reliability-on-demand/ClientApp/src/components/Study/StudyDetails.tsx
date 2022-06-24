@@ -77,7 +77,10 @@ export const StudyDetails = (props: Props) => {
         return console.debug(result)
       })
       .catch((err) => {
-        return console.error(err)
+        console.error(err)
+        return alert(
+          `${newUserCreatedStudy.StudyName} already exists. Please provide a different value for Study Name`
+        )
       })
   }
 
