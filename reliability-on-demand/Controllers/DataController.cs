@@ -379,7 +379,7 @@ namespace reliability_on_demand.Controllers
                 string res = this._sqlservice.AddOrUpdatePivotConfig(userConfig);
                 _logger.LogInformation($"AddOrUpdatePivotConfig called with userConfig = {userConfig}");
                 if (String.IsNullOrEmpty(res))
-                    _logger.LogDebug("No Pivots Configured");
+                    _logger.LogDebug("No Metrics Configured");
                 return Ok(res);
             }
             catch (Exception ex)

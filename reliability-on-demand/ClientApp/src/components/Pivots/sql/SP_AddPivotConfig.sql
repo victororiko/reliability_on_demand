@@ -43,9 +43,13 @@ EXECUTE dbo.AddPivotConfig
 GO
 -- check if the pivot is added 
 SELECT * FROM RELStudyPivotConfig
-WHERE PivotID = 150
+WHERE PivotID = 150 AND StudyID = 1	 
 GO 
--- get pivot info
-SELECT * FROM RELPivotInfo
-WHERE PivotID = 150
+-- Cleanup: delete recently added pivot
+DELETE FROM RELStudyPivotConfig
+WHERE PivotID = 150 AND StudyID = 1	
 GO
+-- check if the pivot is deleted
+SELECT * FROM RELStudyPivotConfig
+WHERE PivotID = 150 AND StudyID = 1	 
+GO 

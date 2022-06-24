@@ -7,7 +7,8 @@ import {
 import axios from 'axios'
 import React, { FormEvent, useEffect, useState } from 'react'
 import { UserPivotConfig } from '../../models/pivot.model'
-import { MAXNUMPIVOTSINCOMBOBOX } from '../helpers/utils'
+import { containerStackTokens } from '../helpers/Styles'
+import { PivotList } from './PivotList'
 import { SavePivotConfigButton } from './SavePivotConfigButton'
 import { convertPivotInfoToOptions } from './service'
 
@@ -42,6 +43,7 @@ const PivotCombobox = (props: Props) => {
           const arr = response.data as UserPivotConfig[]
           const ans = arr.map((item) => {
             const rObj = {
+              ...item,
               key: item.PivotID,
               text: item['dbo.RELPivotInfo'][0].PivotName, // using [0] because the array will only have 1 object - SQL weirdness
             }
@@ -91,15 +93,14 @@ const PivotCombobox = (props: Props) => {
         selectedKey={selectedItems.map((item) => {
           return item.key as string
         })}
-        text={
-          selectedItems && selectedItems.length > MAXNUMPIVOTSINCOMBOBOX
-            ? `${selectedItems.length} pivots selected`
-            : undefined
-        }
+        text={`${selectedItems.length} pivots selected`}
       />
       {selectedItems.length > 0 ? (
-        <Stack>
-          {/* TODO add pivots list and pivots scope here */}
+        <Stack tokens={containerStackTokens}>
+          <PivotList
+            selectedItems={selectedItems}
+            pivotSource={props.pivotSource}
+          />
           <SavePivotConfigButton
             studyid={props.studyid}
             selectedPivots={selectedItems}
