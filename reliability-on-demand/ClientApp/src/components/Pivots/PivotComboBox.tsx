@@ -7,7 +7,9 @@ import {
 import axios from 'axios'
 import React, { FormEvent, useEffect, useState } from 'react'
 import { UserPivotConfig } from '../../models/pivot.model'
-import { containerStackTokens } from '../helpers/Styles'
+import { MessageBox } from '../helpers/MessageBox'
+import { containerStackTokens, horizontalStackTokens } from '../helpers/Styles'
+import { ClearPivotConfigButton } from './ClearPivotConfigButton'
 import { PivotList } from './PivotList'
 import { SavePivotConfigButton } from './SavePivotConfigButton'
 import { convertPivotInfoToOptions } from './service'
@@ -20,8 +22,11 @@ type Props = {
 const PivotCombobox = (props: Props) => {
   const [selectedItems, setSelectedItems] = useState<IComboBoxOption[]>([])
   const [populationPivots, setPopulationPivots] = useState([])
+  const [status, setStatus] = useState<string>('')
 
   useEffect(() => {
+    // clear any previous add/clear statuses from UI
+    setStatus('')
     // get all pivots
     axios
       .get(`api/Data/GetPopulationPivots/${props.pivotSource}`)
@@ -80,6 +85,10 @@ const PivotCombobox = (props: Props) => {
     }
   }
 
+  const handleStatus = (statusFromBackend: string) => {
+    setStatus(statusFromBackend)
+  }
+
   return (
     <div>
       <VirtualizedComboBox
@@ -101,10 +110,19 @@ const PivotCombobox = (props: Props) => {
             selectedItems={selectedItems}
             pivotSource={props.pivotSource}
           />
-          <SavePivotConfigButton
-            studyid={props.studyid}
-            selectedPivots={selectedItems}
-          />
+          <Stack horizontal tokens={horizontalStackTokens}>
+            <SavePivotConfigButton
+              studyid={props.studyid}
+              selectedPivots={selectedItems}
+              callbackStatus={handleStatus}
+            />
+            <ClearPivotConfigButton
+              studyid={props.studyid}
+              selectedPivots={selectedItems}
+              callbackStatus={handleStatus}
+            />
+            <MessageBox message={status} />
+          </Stack>
         </Stack>
       ) : (
         ''

@@ -321,9 +321,7 @@ namespace reliability_on_demand.Controllers
                 _logger.LogInformation("GetPopulationPivotSources was called");
                 var result = this._sqlservice.GetPopulationPivotSources();
                 if (result == null)
-                {
-                    return BadRequest("Something wrong with the SQL Service. Could not get Teams. Please try again in a few mins.");
-                }
+                    return BadRequest("Something wrong with the SQL Service. Could not get GetPopulationPivotSources. Please try again in a few mins.");
                 return Ok(result);
             }
             catch (Exception ex)
@@ -338,11 +336,9 @@ namespace reliability_on_demand.Controllers
         public IActionResult GetPopulationPivots(string PivotSource)
         {
             try
-            {
+            { 
                 string res = this._sqlservice.GetPopulationPivots(PivotSource);
                 _logger.LogInformation($"GetPopulationPivots called with PivotSource = {PivotSource}");
-                if (String.IsNullOrEmpty(res))
-                    _logger.LogDebug("No PopulationPivots Configured");
                 return Ok(res);
             }
             catch (Exception ex)
@@ -357,10 +353,8 @@ namespace reliability_on_demand.Controllers
         {
             try
             {
-                string res = this._sqlservice.GetUserPivotConfigs(PivotSource,StudyId);
+                string res = this._sqlservice.GetUserPivotConfigs(PivotSource, StudyId);
                 _logger.LogInformation($"GetUserPivotConfigs called with PivotSource = {PivotSource}");
-                if (String.IsNullOrEmpty(res))
-                    _logger.LogDebug("No Pivots Configured");
                 return Ok(res);
             }
             catch (Exception ex)
@@ -378,13 +372,28 @@ namespace reliability_on_demand.Controllers
             {
                 string res = this._sqlservice.AddOrUpdatePivotConfig(userConfig);
                 _logger.LogInformation($"AddOrUpdatePivotConfig called with userConfig = {userConfig}");
-                if (String.IsNullOrEmpty(res))
-                    _logger.LogDebug("No Metrics Configured");
                 return Ok(res);
             }
             catch (Exception ex)
             {
                 string message = $"Failed AddOrUpdatePivotConfig.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [HttpPost("api/Data/ClearPivotConfig/")]
+        public IActionResult ClearPivotConfig(PopulationPivotConfig userConfig)
+        {
+            try
+            {
+                string res = this._sqlservice.ClearPivotConfig(userConfig);
+                _logger.LogInformation($"ClearPivotConfig called with userConfig = {userConfig}");
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed ClearPivotConfig.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
             }

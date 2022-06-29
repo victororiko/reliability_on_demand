@@ -40,13 +40,29 @@ GO
 -- (comment out if necessary)
 DECLARE @TestStudyID AS INT = 16 ;
 DECLARE @TestPivotID AS INT = 148;
+-- make sure pivot does not exist 
+SELECT *
+FROM RELStudyPivotConfig
+WHERE PivotID = @TestPivotID
+-- first time we call this SP it adds the pivot
 EXECUTE dbo.AddOrUpdatePivotConfig 
     @StudyID = @TestStudyID,
     @PivotID = @TestPivotID,
     @AggregateBy = 1 ,
     @PivotSourceSubType = 'AllMode'
 ;
--- check if the pivot is Updated 
+-- check if the pivot is Added
+SELECT *
+FROM RELStudyPivotConfig
+WHERE PivotID = @TestPivotID
+-- Then we updated it
+EXECUTE dbo.AddOrUpdatePivotConfig 
+    @StudyID = @TestStudyID,
+    @PivotID = @TestPivotID,
+    @AggregateBy = 0 ,
+    @PivotSourceSubType = 'AllMode'
+;
+-- make sure pivot gets updated 
 SELECT *
 FROM RELStudyPivotConfig
 WHERE PivotID = @TestPivotID

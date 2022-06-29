@@ -6,13 +6,12 @@ import { MessageBox } from '../helpers/MessageBox'
 type Props = {
   studyid: number
   selectedPivots: any
+  callbackStatus:any
 }
 
 export const SavePivotConfigButton = (props: Props) => {
-  const [status, setStatus] = useState<string>('')
   // reset status whenever this component is mounted
   useEffect(() => {
-    setStatus('')
   }, [props.selectedPivots])
 
   const handleClick = () => {
@@ -32,10 +31,10 @@ export const SavePivotConfigButton = (props: Props) => {
       axios
         .post('api/Data/AddOrUpdatePivotConfig/', pivotConfig)
         .then((response) => {
-          setStatus('Pivot Configs saved Successfully')
+          props.callbackStatus('Pivot Configs saved Successfully')
         })
         .catch((exception) => {
-          setStatus('Error: Failed to save Pivot Configs')
+          props.callbackStatus('Error: Failed to save Pivot Configs')
           return console.error(exception)
         })
     }
@@ -44,8 +43,7 @@ export const SavePivotConfigButton = (props: Props) => {
   }
   return (
     <div>
-      <PrimaryButton text="Add Pivot Config" onClick={handleClick} />
-      {status === '' ? '' : <MessageBox message={status} />}
+      <PrimaryButton text="Add Pivot Configs" onClick={handleClick} />
     </div>
   )
 }

@@ -127,5 +127,9 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.AddOrUpdatePivotConfig(userConfig);   
         }
+        string ISQLService.ClearPivotConfig(reliability_on_demand.DataLayer.PopulationPivotConfig userConfig)
+        {
+            return _context.ClearPivotConfig(userConfig);   
+        }
     }
 }
