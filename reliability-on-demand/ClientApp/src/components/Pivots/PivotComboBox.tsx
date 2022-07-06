@@ -6,7 +6,6 @@ import {
 } from '@fluentui/react'
 import axios from 'axios'
 import React, { FormEvent, useEffect, useState } from 'react'
-import { UserPivotConfig } from '../../models/pivot.model'
 import { MessageBox } from '../helpers/MessageBox'
 import { containerStackTokens, horizontalStackTokens } from '../helpers/Styles'
 import { ClearPivotConfigButton } from './ClearPivotConfigButton'
@@ -45,11 +44,11 @@ const PivotCombobox = (props: Props) => {
       )
       .then((response) => {
         if (response.data) {
-          const arr = response.data as UserPivotConfig[]
-          const ans = arr.map((item) => {
+          const arr = response.data
+          const ans = arr.map((item: any) => {
             const rObj = {
               ...item,
-              key: item.PivotID,
+              key: item.PivotKey,
               text: item['dbo.RELPivotInfo'][0].PivotName, // using [0] because the array will only have 1 object - SQL weirdness
             }
             return rObj
@@ -105,25 +104,7 @@ const PivotCombobox = (props: Props) => {
         text={`${selectedItems.length} pivots selected`}
       />
       {selectedItems.length > 0 ? (
-        <Stack tokens={containerStackTokens}>
-          <PivotList
-            selectedItems={selectedItems}
-            pivotSource={props.pivotSource}
-          />
-          <Stack horizontal tokens={horizontalStackTokens}>
-            <SavePivotConfigButton
-              studyid={props.studyid}
-              selectedPivots={selectedItems}
-              callbackStatus={handleStatus}
-            />
-            <ClearPivotConfigButton
-              studyid={props.studyid}
-              selectedPivots={selectedItems}
-              callbackStatus={handleStatus}
-            />
-            <MessageBox message={status} />
-          </Stack>
-        </Stack>
+        <MessageBox message="Show new Pivot List Component with Filter Expression implemented in Task 40284124" />
       ) : (
         ''
       )}
