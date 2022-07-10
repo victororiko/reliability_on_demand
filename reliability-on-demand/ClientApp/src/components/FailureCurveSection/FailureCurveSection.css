@@ -1,8 +1,6 @@
-.Button{
-    max-width: 5px; 
-    min-width: 5px; 
-    max-height: 50px; 
-    min-height: 30px;
-
+.Button {
+  max-width: 5px;
+  min-width: 5px;
+  max-height: 50px;
+  min-height: 30px;
 }
-

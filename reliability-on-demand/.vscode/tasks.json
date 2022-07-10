@@ -41,7 +41,7 @@
         {
             "label": "Start Client",
             "type": "shell",
-            "command": "npm run start",
+            "command": "npm run start-lite",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
