@@ -6,12 +6,13 @@ import { MessageBox } from '../helpers/MessageBox'
 type Props = {
   studyid: number
   selectedPivots: any
-  callbackStatus: any
+  callbackStatus:any
 }
 
 export const ClearPivotConfigButton = (props: Props) => {
   // reset status whenever this component is mounted
-  useEffect(() => {}, [props.selectedPivots])
+  useEffect(() => {
+  }, [props.selectedPivots])
 
   const handleClick = () => {
     // loop through selectedPivots generating pivot config

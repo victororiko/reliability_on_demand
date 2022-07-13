@@ -41,7 +41,7 @@ export const Team = (props: Props) => {
   }
 
   const dummyCallback = (value: any) => {
-    return console.debug(`value - ${value}`)
+    return console.debug(value)
   }
 
   return (

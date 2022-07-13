@@ -23,12 +23,15 @@
     "follow-redirects": "^1.14.7",
     "glob-parent": "^5.1.2",
     "guid-typescript": "^1.0.9",
+    "husky": "^7.0.4",
     "immer": "^9.0.6",
     "is-svg": "^4.3.0",
     "jest-junit-reporter": "^1.1.0",
     "jquery": "^3.4.1",
+    "lint-staged": "^11.2.6",
     "merge": "^1.2.1",
     "oidc-client": "^1.9.0",
+    "prettier": "^2.4.1",
     "query-string": "^6.14.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
@@ -59,10 +62,7 @@
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-webpack-plugin": "^3.1.0",
-    "husky": "^8.0.1",
-    "lint-staged": "^13.0.3",
     "nan": "^2.14.1",
-    "prettier": "2.7.1",
     "prettier-eslint": "^13.0.0",
     "prettier-eslint-cli": "^5.0.1",
     "react-scripts": "4.0.3",
@@ -78,21 +78,19 @@
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
-      "npx prettier --write",
-      "git add ."
+      "prettier --write",
+      "git add"
     ]
   },
   "proxy": "https://localhost:5001",
   "scripts": {
-    "start-lite": "rimraf ./build && react-scripts start",
-    "start": "npm run lint && rimraf ./build && react-scripts start",
+    "start": "npm run prep && rimraf ./build && react-scripts start",
     "prep": "npm run format && npm run lint",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src --color --fix",
-    "format": "prettier --write .",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "build": "react-scripts build",
     "test": "cross-env CI=true react-scripts test --env=jsdom --testResultsProcessor ./node_modules/jest-junit-reporter",
-    "eject": "react-scripts eject",
-    "prepare": "cd ../.. && husky install"
+    "eject": "react-scripts eject"
   },
   "browserslist": {
     "production": [
