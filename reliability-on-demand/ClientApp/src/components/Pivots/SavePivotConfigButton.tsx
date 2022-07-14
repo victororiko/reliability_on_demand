@@ -1,18 +1,16 @@
 import { PrimaryButton } from '@fluentui/react'
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
-import { MessageBox } from '../helpers/MessageBox'
+import React, { useEffect } from 'react'
 
 type Props = {
   studyid: number
   selectedPivots: any
-  callbackStatus:any
+  callbackStatus: any
 }
 
 export const SavePivotConfigButton = (props: Props) => {
   // reset status whenever this component is mounted
-  useEffect(() => {
-  }, [props.selectedPivots])
+  useEffect(() => {}, [props.selectedPivots])
 
   const handleClick = () => {
     // loop through selectedPivots generating pivot config
