@@ -5,6 +5,8 @@
     + [Backend - Run](#backend---run)
     + [Frontent - Debug](#frontent---debug)
     + [Frontent - Run](#frontent---run)
+    + [Running Code in Visual Studio](#running-code-in-visual-studio)
+    + [Running Code in VSCode](#running-code-in-vs-code)
   * [Remote Development](#remote-development)
   * [Design guidance](#design-guidance)
     + [Adding new Pages](#adding-new-pages)
@@ -63,6 +65,29 @@ Follow these steps if you need to make a lot of API changes.
 ### Frontent - Run
 1. Open terminal at folder `ClientApp`
 2. `npm run start`
+
+### Running Code in Visual Studio
+Make sure you your Debug Configuration is set to the following: 
+1. Configuration = Debug
+2. Platform = Any CPU
+3. Hit `F5` or Click the Green Run button
+4. Set a breakpoint on any `.cs` or `.tsx` file and break on it
+
+### Running Code in VSCode
+1. Navigate to folder: reliability-on-demand
+2. `Ctrl + Shift + P` and type `Tasks: Run Task`
+3. Select `Start Full Project`
+4. Open your browser and navigate to `http://localhost:3000/`
+5. Start the application
+6. Open Sources tab 
+7. Navigate to desired file
+8. Set a breakpoint and hit in the browser
+
+#### Helpful links
+1. [How to put an if-debug condition in C#](https://stackoverflow.com/questions/3056516/how-do-you-put-an-if-debug-condition-in-a-c-sharp-program)
+2. [Set Debug and Release configurations in VS 2022](https://docs.microsoft.com/en-us/visualstudio/debugger/how-to-set-debug-and-release-configurations?view=vs-2022)
+3. [Use Multiple Environments in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-6.0)
+4. [dotnet run CLI arguments](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-run)
 
 ## Remote Development
 A convenient way to develop is to set up SSH from your local machine --> remote machine (where you run the app).

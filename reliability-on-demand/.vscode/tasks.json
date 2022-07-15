@@ -65,7 +65,7 @@
         {
             "label": "Start Server",
             "type": "shell",
-            "command": "dotnet run",
+            "command": "dotnet run --configuration Release",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -76,7 +76,7 @@
                 "group": "myTasks"
             },
             "options": {
-                "cwd": "${workspaceFolder}"
+                "cwd": "${workspaceFolder}",
             },
             "runOptions": {
                 "instanceLimit": 1
