@@ -45,6 +45,7 @@ export const FilterExpressionDetailedList = (props: Props) => {
       Operator: '',
       RelationalOperator: '',
       UIInputDataType: '',
+      PivotKey: '',
     }
 
     const updated = [

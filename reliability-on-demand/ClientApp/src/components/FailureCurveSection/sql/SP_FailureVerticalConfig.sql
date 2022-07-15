@@ -13,9 +13,9 @@ GO
 
 CREATE TABLE [dbo].[RELFailureVerticalConfig](
 	[StudyID] BIGINT FOREIGN KEY REFERENCES RELStudyConfig(StudyID) ON DELETE CASCADE,
-	[VerticalName] [nvarchar](255) NOT NULL,
-	[StudyType] [nvarchar](255) NULL,
-	[HashString] NVARCHAR(255)  NOT NULL UNIQUE,
+	[VerticalName] [varchar](255) NOT NULL,
+	[StudyType] [varchar](255) NULL,
+	[HashString] VARCHAR(255)  NOT NULL UNIQUE,
 	CONSTRAINT PK_StudyVertical PRIMARY KEY (StudyID,VerticalName)
 ) ON [PRIMARY]
 GO

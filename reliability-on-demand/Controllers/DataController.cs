@@ -160,13 +160,13 @@ namespace reliability_on_demand.Controllers
             }
         }
 
-        [Route("api/Data/GetAllMainVertical")]
+        [Route("api/Data/GetAllVerticals")]
         [HttpGet("[action]")]
-        public IActionResult GetAllMainVertical()
+        public IActionResult GetAllVerticals()
         {
             try
             {
-                return Ok(this._sqlservice.GetVerticals());
+                return Ok(this._sqlservice.GetAllVerticals());
             }
             catch (Exception ex)
             {
@@ -191,7 +191,7 @@ namespace reliability_on_demand.Controllers
             _logger.LogInformation($"sourcetype = {sourcetype}");
             if (String.IsNullOrEmpty(sourcetype))
                 return BadRequest("Bad request. Please specify a sourcetype like KernelMode or UserMode");
-            string res = this._sqlservice.GetPivots(sourcetype);
+            string res = this._sqlservice.GetFailurePivots(sourcetype);
             return Ok(res);
         }
 

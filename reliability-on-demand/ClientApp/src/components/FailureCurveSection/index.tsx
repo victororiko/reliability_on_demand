@@ -18,6 +18,7 @@ import {
   PivotSQLResult,
   FailureConfig,
   FilterExpTable,
+  PivotTable,
 } from '../../models/failurecurve.model'
 import {
   extractModesFromVerticalPair,
@@ -29,7 +30,6 @@ import {
   getVerticalNamesFromPair,
   getVerticalNames,
 } from './service'
-import { PivotTable } from '../FailureCurve/model'
 
 export interface Props {
   studyid: number
@@ -65,7 +65,7 @@ export const FailureCurve = (props: Props) => {
   const [dataSaved, setDataSaved] = React.useState<boolean>(false)
 
   const loadVerticals = () => {
-    axios.get('api/Data/GetAllMainVertical').then((res) => {
+    axios.get('api/Data/GetAllVerticals').then((res) => {
       if (res.data) {
         setVerticals(res.data)
       } else {

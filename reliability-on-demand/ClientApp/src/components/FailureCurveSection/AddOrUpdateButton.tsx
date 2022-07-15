@@ -1,7 +1,11 @@
 import React from 'react'
 import { DefaultButton, TooltipHost, Label } from '@fluentui/react'
-import { FilterExpTable } from '../FailureCurve/model'
-import { FailureConfig, PivotTable } from '../../models/failurecurve.model'
+import {
+  FilterExpTable,
+  FailureConfig,
+  PivotTable,
+} from '../../models/failurecurve.model'
+
 import { getFailureCurvePivotsToSave } from './service'
 
 type Props = {

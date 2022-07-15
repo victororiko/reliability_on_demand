@@ -4,8 +4,9 @@ import {
   Pivot,
   PivotSQLResult,
   PivotTable,
+  FilterExpTable,
+  PivotScopeFilter,
 } from '../../models/failurecurve.model'
-import { FilterExpTable, PivotScopeFilter } from '../FailureCurve/model'
 
 // converting verticals to Idropdown Pair
 export const getVerticalNames = (verticals: Vertical[]): IDropdownOption[] => {
@@ -110,7 +111,8 @@ export const buildColumnArray = (data: PivotTable[]): IColumn[] => {
       ele.fieldName !== 'PivotScopeID' &&
       ele.fieldName !== 'FilterExpressionOperator' &&
       ele.fieldName !== 'FilterExpression' &&
-      ele.fieldName !== 'UIInputDataType'
+      ele.fieldName !== 'UIInputDataType' &&
+      ele.fieldName !== 'PivotKey'
     )
       cols.push({
         key: ele.fieldName ?? '',
@@ -190,6 +192,7 @@ export const getPivotTableFromPivotSQL = (
       FilterExpression: ele.smap[0].scope[0].PivotScopeValue,
       FilterExpressionOperator: ele.smap[0].scope[0].PivotScopeOperator,
       UIInputDataType: ele.UIInputDataType,
+      PivotKey: ele.PivotKey,
     }
     temp.push(item)
   }
@@ -217,10 +220,12 @@ export const AddNewSelectedPivots = (
     if (flag === false) {
       let tobeAddedePivotDataType = ''
       let name = ''
+      let pivotkey = ''
       for (const element of input) {
         if (element.PivotID === ele) {
           name = element.PivotSourceColumnName
           tobeAddedePivotDataType = element.UIInputDataType
+          pivotkey = element.PivotKey
           break
         }
       }
@@ -237,6 +242,7 @@ export const AddNewSelectedPivots = (
         FilterExpressionOperator: '',
         PivotScopeID: 0,
         UIInputDataType: tobeAddedePivotDataType,
+        PivotKey: pivotkey,
       }
       temp.push(item)
     }
@@ -293,7 +299,8 @@ export const FilterExpressionbuildColumnArray = (input: any): IColumn[] => {
       ele.fieldName !== 'PivotName' &&
       ele.fieldName !== 'Operator' &&
       ele.fieldName !== 'PivotValue' &&
-      ele.fieldName !== 'UIInputDataType'
+      ele.fieldName !== 'UIInputDataType' &&
+      ele.fieldName !== 'PivotKey'
     )
       cols.push({
         key: ele.fieldName ?? '',
@@ -388,6 +395,7 @@ export const loadFilterExpressionTable = (
                     Operator: op ?? '',
                     RelationalOperator: ele.FilterExpressionOperator,
                     UIInputDataType: ele.UIInputDataType,
+                    PivotKey: ele.PivotKey,
                   })
                 else
                   res.push({
@@ -398,6 +406,7 @@ export const loadFilterExpressionTable = (
                     Operator: op ?? '',
                     RelationalOperator: rop ?? '',
                     UIInputDataType: ele.UIInputDataType,
+                    PivotKey: ele.PivotKey,
                   })
               }
 
@@ -418,6 +427,7 @@ export const loadFilterExpressionTable = (
       Operator: '',
       RelationalOperator: '',
       UIInputDataType: '',
+      PivotKey: '',
     })
 
   return res
@@ -619,6 +629,7 @@ export const getWrappedPivotScopeFilterByExpTable = (
         PivotID: Number(d.PivotID),
         FilterExpression: filterexp,
         RelationalOperator: d.RelationalOperator,
+        PivotKey: d.PivotKey,
       })
     }
 

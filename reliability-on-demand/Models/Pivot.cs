@@ -18,5 +18,6 @@ namespace reliability_on_demand.DataLayer
         public int PivotScopeID { get; set; }
         public string FilterExpression { get; set; }
         public string FilterExpressionOperator { get; set; }
+        public string PivotKey { get; set; }
     }
 }
