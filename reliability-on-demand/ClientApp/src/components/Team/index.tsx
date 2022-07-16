@@ -4,9 +4,9 @@ import { TeamConfig } from '../../models/team.model'
 import { Loading } from '../helpers/Loading'
 import { CreateNewID } from '../helpers/utils'
 import { getTeamFromId } from './helper'
-import OwnerContactAlias from './OwnerContactAlias'
-import OwnerTeamFriendlyNameAlias from './OwnerTeamFriendlyName'
-import OwnerTriageAlias from './OwnerTriageAlias'
+import { OwnerContactAlias } from './OwnerContactAlias'
+import { OwnerTeamFriendlyName } from './OwnerTeamFriendlyName'
+import { OwnerTriageAlias } from './OwnerTriageAlias'
 import { TeamComboBox } from './TeamComboBox'
 
 type Props = {
@@ -40,10 +40,6 @@ export const Team = (props: Props) => {
     props.callback(value)
   }
 
-  const dummyCallback = (value: any) => {
-    return console.debug(value)
-  }
-
   return (
     <div>
       {loading ? (
@@ -56,18 +52,9 @@ export const Team = (props: Props) => {
             ''
           ) : (
             <div>
-              <OwnerContactAlias
-                currentTeam={selectedTeam}
-                callback_function={dummyCallback}
-              />
-              <OwnerTeamFriendlyNameAlias
-                currentTeam={selectedTeam}
-                callback_function={dummyCallback}
-              />
-              <OwnerTriageAlias
-                currentTeam={selectedTeam}
-                callback_function={dummyCallback}
-              />
+              <OwnerContactAlias currentTeam={selectedTeam} />
+              <OwnerTeamFriendlyName currentTeam={selectedTeam} />
+              <OwnerTriageAlias currentTeam={selectedTeam} />
             </div>
           )}
         </>
