@@ -3,46 +3,44 @@ import {
   IComboBoxOption,
   VirtualizedComboBox,
 } from '@fluentui/react'
-import React, { FormEvent } from 'react'
+import React, { FormEvent, useEffect } from 'react'
 import { TeamConfig } from '../../models/team.model'
-import {
-  convertComplexTypeToOptions,
-  convertSimpleTypeToOptions,
-} from '../helpers/utils'
+import { CreateNewID } from '../helpers/utils'
 
 interface Props {
   data: TeamConfig[]
   callBack: any
+  currentTeam?: TeamConfig
 }
 
 export const TeamComboBox = (props: Props) => {
   // state
   const [selectedItem, setSelectedItem] = React.useState<IComboBoxOption>()
+
+  // lifecycle methods
+  useEffect(() => {
+    if (props.currentTeam)
+      setSelectedItem({
+        key: props.currentTeam.TeamID,
+        text: props.currentTeam.OwnerTeamFriendlyName,
+      })
+  }, [props])
+
   // core interation methods
   const onChange = (
     event: FormEvent<IComboBox>,
     option?: IComboBoxOption | undefined
   ): void => {
-    setSelectedItem(option)
-    props.callBack(option ? option.key : -1)
-  }
-
-  const convertToOptions = (inputData: any) => {
-    let parsedList: IComboBoxOption[] = []
-    parsedList = inputData.map((item: TeamConfig) => {
-      const rObj = {
-        key: item.TeamID,
-        text: item.OwnerTeamFriendlyName,
-      }
-      return rObj
-    })
-    return parsedList
+    if (option !== undefined) {
+      setSelectedItem(option)
+      props.callBack(option ? option.key : CreateNewID)
+    }
   }
 
   return (
     <div>
       <VirtualizedComboBox
-        selectedKey={selectedItem ? selectedItem.key : -1}
+        selectedKey={selectedItem?.key || null}
         label="Team"
         allowFreeform
         autoComplete="on"

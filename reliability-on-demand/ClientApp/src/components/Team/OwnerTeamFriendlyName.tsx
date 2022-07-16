@@ -14,7 +14,9 @@ export const OwnerTeamFriendlyName = (props: IOwnerTeamFriendlyNameProps) => {
         placeholder="e.g. Client FUN Engineering Team"
         aria-label="Owner contact (alias)"
         disabled={props.currentTeam !== undefined}
-        value={props.currentTeam ? props.currentTeam.OwnerTeamFriendlyName : 'empty'}
+        value={
+          props.currentTeam ? props.currentTeam.OwnerTeamFriendlyName : 'empty'
+        }
       />
     </div>
   )

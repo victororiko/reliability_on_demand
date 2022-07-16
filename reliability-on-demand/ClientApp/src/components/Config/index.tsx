@@ -1,5 +1,6 @@
 import { Stack } from '@fluentui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import * as QueryString from 'query-string'
 import { containerStackTokens } from '../helpers/Styles'
 import { CreateNewID } from '../helpers/utils'
 import { Metrics } from '../Metrics'
@@ -8,9 +9,10 @@ import { Team } from '../Team'
 import { FailureCurve } from '../FailureCurveSection'
 import { Pivots } from '../Pivots'
 
-type Props = {}
+export const Config = (props: any) => {
+  // query string parsing
+  const params = QueryString.parse(props.location.search)
 
-export const Config = (props: Props) => {
   // state
   const [currentTeamId, setCurrentTeamId] = useState(CreateNewID)
   const [currentStudyId, setCurrentStudyId] = useState(CreateNewID)
@@ -28,7 +30,7 @@ export const Config = (props: Props) => {
   // render
   return (
     <Stack tokens={containerStackTokens}>
-      <Team callback={selectTeam} />
+      <Team callback={selectTeam} queryStringParams={params} />
       {currentTeamId === CreateNewID ? (
         ''
       ) : (

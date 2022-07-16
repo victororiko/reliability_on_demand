@@ -11,6 +11,7 @@ import { TeamComboBox } from './TeamComboBox'
 
 type Props = {
   callback: any
+  queryStringParams: any
 }
 
 export const Team = (props: Props) => {
@@ -24,8 +25,21 @@ export const Team = (props: Props) => {
     axios
       .get('api/Data/GetAllTeamConfigs')
       .then((response) => {
-        if (response.data) setTeamConfigs(response.data as TeamConfig[])
-        else setTeamConfigs([])
+        if (response.data) {
+          setTeamConfigs(response.data as TeamConfig[])
+        } else setTeamConfigs([])
+
+        const foundTeam = response.data.find((item: TeamConfig) => {
+          return (
+            item.OwnerTeamFriendlyName ===
+            props.queryStringParams.OwnerTeamFriendlyName
+          )
+        })
+        if (foundTeam) {
+          setSelectedTeam(foundTeam)
+          props.callback(foundTeam.TeamID)
+        }
+
         setLoading(false)
       })
       .catch((exception) => {
@@ -47,15 +61,19 @@ export const Team = (props: Props) => {
       ) : (
         <>
           <h1>Team Section</h1>
-          <TeamComboBox data={teamConfigs} callBack={handleCallback} />
-          {currentTeamId === CreateNewID ? (
-            ''
-          ) : (
+          <TeamComboBox
+            data={teamConfigs}
+            callBack={handleCallback}
+            currentTeam={selectedTeam}
+          />
+          {selectedTeam ? (
             <div>
               <OwnerContactAlias currentTeam={selectedTeam} />
               <OwnerTeamFriendlyName currentTeam={selectedTeam} />
               <OwnerTriageAlias currentTeam={selectedTeam} />
             </div>
+          ) : (
+            ''
           )}
         </>
       )}
