@@ -13,14 +13,14 @@ namespace reliability_on_demand.DataLayer
         public Int64 HighUsageMinInMS { get; set; }
         public float MetricGoal { get; set; }
         public float MetricGoalAspirational { get; set; }
-        public int StudyId { get; set; }
+        public int StudyConfigID { get; set; }
         public bool IsUsage { get; set; }
         public string UniqueKey { get; set; }
         public string HashString {get; set;}
 
         public override string ToString()
         {
-            return $"MetricName = {MetricName} | StudyId = {StudyId}";
+            return $"MetricName = {MetricName} | StudyConfigID = {StudyConfigID}";
         }
     }
 }

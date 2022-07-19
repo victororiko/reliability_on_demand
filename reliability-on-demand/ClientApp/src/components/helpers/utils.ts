@@ -17,7 +17,7 @@ export interface KeyTextPair {
 /**
  *
  * @param inputData any JSON that you get from backend
- * @param useKey 1 key that you want to extract e.g. "VerticalName" or "StudyId"
+ * @param useKey 1 key that you want to extract e.g. "VerticalName" or "StudyConfigID"
  * @param numericKey true: return object contains index as the key; false: return object contains string as the key
  * @returns an array of <Key,Text> Pairs that can be used as Options for Dropdowns or ComboBoxes
  */

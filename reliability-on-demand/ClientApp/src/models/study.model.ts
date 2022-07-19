@@ -1,7 +1,7 @@
 import { IComboBoxOption, IDropdownOption } from '@fluentui/react'
 
 export interface StudyConfig {
-  StudyID: string
+  StudyConfigID: string
   StudyName: string
   LastRefreshDate: Date
   CacheFrequency: number
@@ -15,7 +15,7 @@ export const convertToOptions = (inputData: StudyConfig[]) => {
   if (inputData) {
     parsedList = inputData.map((item) => {
       const rObj = {
-        key: item.StudyID.toString(),
+        key: item.StudyConfigID.toString(),
         text: item.StudyName,
       }
       return rObj
@@ -34,7 +34,7 @@ export const getStudyConfig = (
   key: string | number
 ): StudyConfig | undefined => {
   const ans = studies.find((item) => {
-    return item.StudyID.toString() === key
+    return item.StudyConfigID.toString() === key
   })
   if (ans) return ans
   return undefined

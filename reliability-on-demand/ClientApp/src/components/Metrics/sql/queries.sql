@@ -6,7 +6,7 @@ SELECT * FROM dbo.RelMetricConfiguration_Defaults
 WHERE Vertical IN(
     SELECT[VerticalName] 
     FROM [dbo].[RELFailureVerticalConfig] 
-    WHERE StudyID = 8
+    WHERE StudyConfigID = 8
     )
 
     SELECT * 

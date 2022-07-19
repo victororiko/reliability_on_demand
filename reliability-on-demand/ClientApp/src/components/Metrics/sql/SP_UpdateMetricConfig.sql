@@ -1,18 +1,3 @@
--- UPDATE Metric Configs ---
-
--- Create a new stored procedure called 'UpdateMetricConfig' in schema 'dbo'
--- Drop the stored procedure if it already exists
-IF EXISTS (
-SELECT *
-
-FROM INFORMATION_SCHEMA
-.ROUTINES
-WHERE SPECIFIC_SCHEMA = N'dbo'
-    AND SPECIFIC_NAME = N'UpdateMetricConfig'
-)
-DROP PROCEDURE dbo.UpdateMetricConfig
-GO
-
 -- Create the stored procedure in the specified schema
 CREATE PROCEDURE dbo.UpdateMetricConfig
     @UniqueKey               varchar(255),
@@ -22,7 +7,7 @@ CREATE PROCEDURE dbo.UpdateMetricConfig
     @FailureRateInHour       float,
     @HighUsageMinInMS        bigint,
     @MetricGoal              float,
-    @StudyId                 int,
+    @StudyConfigID                 int,
     @MetricGoalAspirational  float,
     @IsUsage                 bit
 
@@ -36,7 +21,7 @@ UPDATE dbo.RELMetricConfiguration
         FailureRateInHour = @FailureRateInHour,
         HighUsageMinInMS = @HighUsageMinInMS,
         MetricGoal = @MetricGoal,
-        StudyId = @StudyId,
+        StudyConfigID = @StudyConfigID,
         MetricGoalAspirational = @MetricGoalAspirational,
         IsUsage = @IsUsage
     WHERE UniqueKey = @UniqueKey

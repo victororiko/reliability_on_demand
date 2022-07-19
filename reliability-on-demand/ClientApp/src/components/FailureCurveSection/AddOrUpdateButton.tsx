@@ -14,7 +14,7 @@ type Props = {
   dataSaved: boolean
   filterExpTable: FilterExpTable[]
   pivots: PivotTable[]
-  studyid: number
+  StudyConfigID: number
   verticals: string[]
   pivotSourceSubType: string
 }
@@ -22,7 +22,7 @@ type Props = {
 export const AddOrUpdateButton = (props: Props) => {
   const handleClick = () => {
     const failureConfig: FailureConfig = {
-      StudyID: props.studyid,
+      StudyConfigID: props.StudyConfigID,
       PivotSourceSubType: props.pivotSourceSubType,
       Verticals: props.verticals,
       Pivots: getFailureCurvePivotsToSave(props.filterExpTable, props.pivots),

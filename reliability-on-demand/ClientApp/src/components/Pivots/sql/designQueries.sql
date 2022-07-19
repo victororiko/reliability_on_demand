@@ -16,7 +16,7 @@ select * from [dbo].[RELStudyPivotConfig]
 where PivotID = 149
 
 insert into RELStudyPivotConfig
-(StudyID, PivotID, AggregateBy,PivotSourceSubType)
+(StudyConfigID, PivotID, AggregateBy,PivotSourceSubType)
 VALUES
 (1,149,1,'AllMode')
 

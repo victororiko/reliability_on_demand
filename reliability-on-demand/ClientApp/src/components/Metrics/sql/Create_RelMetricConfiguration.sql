@@ -1,20 +1,3 @@
-USE ReliabilityReporting
--- Drop the table 'RelMetricConfiguration' in schema 'dbo'
-IF EXISTS (
-    SELECT *
-FROM sys.tables
-    JOIN sys.schemas
-    ON sys.tables.schema_id = sys.schemas.schema_id
-WHERE sys.schemas.name = N'dbo'
-    AND sys.tables.name = N'RelMetricConfiguration'
-)
-    DROP TABLE dbo.RelMetricConfiguration
-GO
-
--- DISASTER_RECOVERY: recreate table if it doesn't exist
-IF NOT EXISTS (SELECT *
-FROM sysobjects
-WHERE name='RelMetricConfiguration' and xtype='U')
 -- Create table
 SET ANSI_NULLS ON
 GO
@@ -31,12 +14,12 @@ CREATE TABLE [dbo].[RelMetricConfiguration]
     [FailureRateInHour] [float] NULL,
     [HighUsageMinInMS] [bigint] NULL,
     [MetricGoal] [float] NULL,
-    [StudyId] BIGINT NOT NULL,
+    [StudyConfigID] BIGINT NOT NULL,
     [MetricGoalAspirational] [float] NULL,
     [IsUsage] [bit] NULL,
     [UniqueKey] [UNIQUEIDENTIFIER] DEFAULT newsequentialid() NOT NULL,
     [HashString] VARCHAR(255)  NOT NULL UNIQUE,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    FOREIGN KEY ([StudyId]) REFERENCES [dbo].[RELStudyConfig] ([StudyId]) ON DELETE CASCADE
+    FOREIGN KEY ([StudyConfigID]) REFERENCES [dbo].[RELStudyConfig] ([StudyConfigID]) ON DELETE CASCADE
 );
 -- end create table

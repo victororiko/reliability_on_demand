@@ -11,7 +11,7 @@ GO
 -- Create the stored procedure in the specified schema
 CREATE PROCEDURE [dbo].[AddFilterPivotsAndValuesToFailureCurve]
 	@PivotScopeID /*parameter name*/ int /*datatype*/ = -1 /*default value*/,
-	@StudyID /*parameter name*/ int /*datatype*/ = -1 /*default value*/,
+	@StudyConfigID /*parameter name*/ int /*datatype*/ = -1 /*default value*/,
 	@PivotKey /*parameter name*/ nvarchar(255) /*datatype*/ = '' /*default value*/,
 	@IsSelectPivot /*parameter name*/ bit /*datatype*/ = null /*default value*/,
 	@IsApportionPivot /*parameter name*/ bit /*datatype*/ = null /*default value*/,
@@ -22,7 +22,7 @@ CREATE PROCEDURE [dbo].[AddFilterPivotsAndValuesToFailureCurve]
 -- add more stored procedure parameters here
 AS
     -- body of the stored procedure
-    INSERT INTO RELStudyPivotConfig(PivotScopeID,StudyID,PivotKey,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES(@PivotScopeID,@StudyID,@PivotKey,@IsSelectPivot,@IsApportionPivot,@IsKeyPivot,@IsApportionJoinPivot,@PivotSourceSubType)
+    INSERT INTO RELStudyPivotConfig(PivotScopeID,StudyConfigID,PivotKey,IsSelectColumn,IsApportionColumn,IsKeyColumn,IsApportionJoinColumn,PivotSourceSubType) VALUES(@PivotScopeID,@StudyConfigID,@PivotKey,@IsSelectPivot,@IsApportionPivot,@IsKeyPivot,@IsApportionJoinPivot,@PivotSourceSubType)
 GO
 
 

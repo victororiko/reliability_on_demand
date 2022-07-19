@@ -1,16 +1,3 @@
--- Create a new stored procedure called 'AddMetricConfig' in schema 'dbo'
--- Drop the stored procedure if it already exists
-IF EXISTS (
-SELECT *
-FROM INFORMATION_SCHEMA
-.ROUTINES
-WHERE SPECIFIC_SCHEMA = N'dbo'
-    AND SPECIFIC_NAME = N'AddMetricConfig'
-)
-DROP PROCEDURE dbo.AddMetricConfig
-GO
-
--- Create the stored procedure in the specified schema
 CREATE PROCEDURE dbo.AddMetricConfig
     @MetricName /*parameter name*/ varchar(255) /*datatype*/ = 'no metric name provided',
     /*default_value*/
@@ -24,7 +11,7 @@ CREATE PROCEDURE dbo.AddMetricConfig
     /*default_value*/
     @MetricGoal /*parameter name*/ float /*datatype*/ = null,
     /*default_value*/
-    @StudyId /*parameter name*/ int /*datatype*/ = -1,
+    @StudyConfigID /*parameter name*/ int /*datatype*/ = -1,
     /*default_value*/
     @MetricGoalAspirational /*parameter name*/ float /*datatype*/ = null,
     /*default_value*/
@@ -35,7 +22,7 @@ AS
 DECLARE @FailureVerticalHashString VARCHAR(255);
     SELECT @FailureVerticalHashString = HashString 
     FROM RELFailureVerticalConfig
-    WHERE StudyID = @StudyId AND VerticalName = @Vertical;
+    WHERE StudyConfigID = @StudyConfigID AND VerticalName = @Vertical;
 
 -- Insert rows into table 'dbo.RELMetricConfiguration'
 INSERT INTO dbo.RELMetricConfiguration
@@ -46,7 +33,7 @@ INSERT INTO dbo.RELMetricConfiguration
     FailureRateInHour,
     HighUsageMinInMS,
     MetricGoal,
-    StudyId,
+    StudyConfigID,
     MetricGoalAspirational,
     IsUsage,
     HashString
@@ -59,7 +46,7 @@ VALUES
         @FailureRateInHour,
         @HighUsageMinInMS,
         @MetricGoal,
-        @StudyId,
+        @StudyConfigID,
         @MetricGoalAspirational,
         @IsUsage,
         CONCAT(@FailureVerticalHashString,'_',@MetricName)

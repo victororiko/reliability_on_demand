@@ -47,7 +47,7 @@ export const Study = (props: Props) => {
             teamid={props.teamid}
             data={studyConfigs}
             callBack={callbackLoadStudies}
-            callBacksetStudyId={props.callback}
+            callBacksetStudyConfigID={props.callback}
           />
         </>
       )}

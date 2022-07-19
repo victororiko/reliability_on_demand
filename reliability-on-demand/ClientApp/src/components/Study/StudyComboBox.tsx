@@ -1,13 +1,12 @@
 import {
   IComboBox,
   IComboBoxOption,
-  VirtualizedComboBox,
+  VirtualizedComboBox
 } from '@fluentui/react'
 import React, { FormEvent, useEffect, useState } from 'react'
 import {
-  StudyConfig,
   convertToOptions,
-  getStudyConfig,
+  getStudyConfig, StudyConfig
 } from '../../models/study.model'
 
 import { StudyDetails } from './StudyDetails'
@@ -16,7 +15,7 @@ interface Props {
   teamid: number
   data: StudyConfig[]
   callBack: any
-  callBacksetStudyId: any
+  callBacksetStudyConfigID: any
 }
 
 export const StudyComboBox = (props: Props) => {
@@ -33,7 +32,7 @@ export const StudyComboBox = (props: Props) => {
   ) => {
     if (option !== undefined) {
       setSelectedItem(option)
-      props.callBacksetStudyId(option.key)
+      props.callBacksetStudyConfigID(option.key)
     }
   }
 

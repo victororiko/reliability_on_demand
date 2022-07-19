@@ -174,13 +174,13 @@ namespace reliability_on_demand.Controllers
             }
         }
 
-        [HttpGet("api/Data/GetConfiguredVerticalForAStudy/{studyID?}")]
-        public IActionResult GetConfiguredVerticalForAStudy(int studyID)
+        [HttpGet("api/Data/GetConfiguredVerticalForAStudy/{StudyConfigID?}")]
+        public IActionResult GetConfiguredVerticalForAStudy(int StudyConfigID)
         {
-            _logger.LogInformation($"studyID = {studyID}");
-            if (studyID <= 0)
+            _logger.LogInformation($"StudyConfigID = {StudyConfigID}");
+            if (StudyConfigID <= 0)
                 return BadRequest("Bad request. Please specify a sourcetype like KernelMode or UserMode");
-            string res = this._sqlservice.GetConfiguredVerticalForAStudy(studyID);
+            string res = this._sqlservice.GetConfiguredVerticalForAStudy(StudyConfigID);
             return Ok(res);
         }
 
@@ -205,11 +205,11 @@ namespace reliability_on_demand.Controllers
             return result;
         }
 
-        [HttpGet("api/Data/GetAllConfiguredFailurePivotsForAVertical/sourcesubtype/{sourcesubtype}/studyid/{studyid}")]
-        public string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid)
+        [HttpGet("api/Data/GetAllConfiguredFailurePivotsForAVertical/sourcesubtype/{sourcesubtype}/StudyConfigID/{StudyConfigID}")]
+        public string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int StudyConfigID)
         {
-            Console.WriteLine($"Inputs: sourcesubtype = {sourcesubtype} \t studyid = {studyid}");
-            return this._sqlservice.GetAllConfiguredFailurePivotsForAVertical(sourcesubtype, studyid);
+            Console.WriteLine($"Inputs: sourcesubtype = {sourcesubtype} \t StudyConfigID = {StudyConfigID}");
+            return this._sqlservice.GetAllConfiguredFailurePivotsForAVertical(sourcesubtype, StudyConfigID);
         }
 
         [Route("api/Data/SavedFailureConfig")]
@@ -219,11 +219,11 @@ namespace reliability_on_demand.Controllers
             this._sqlservice.UpdateFailureSavedConfig(fg);
         }
 
-        [HttpGet("api/Data/GetDefaultMetricsConfig/{StudyId}")]
-        public IActionResult GetDefaultMetricsConfig(int StudyId)
+        [HttpGet("api/Data/GetDefaultMetricsConfig/{StudyConfigID}")]
+        public IActionResult GetDefaultMetricsConfig(int StudyConfigID)
         {
-            string res = this._sqlservice.GetDefaultMetricsConfig(StudyId);
-            _logger.LogInformation($"GetDefaultMetricsConfig for StudyId = {StudyId}");
+            string res = this._sqlservice.GetDefaultMetricsConfig(StudyConfigID);
+            _logger.LogInformation($"GetDefaultMetricsConfig for StudyConfigID = {StudyConfigID}");
             return Ok(res);
         }
 
@@ -261,13 +261,13 @@ namespace reliability_on_demand.Controllers
             }
         }
 
-        [HttpGet("api/Data/GetMetricConfigs/{StudyId}")]
-        public IActionResult GetMetricConfigs(int StudyId)
+        [HttpGet("api/Data/GetMetricConfigs/{StudyConfigID}")]
+        public IActionResult GetMetricConfigs(int StudyConfigID)
         {
             try
             {
-                string res = this._sqlservice.GetMetricConfigs(StudyId);
-                _logger.LogInformation($"GetMetricConfigs called with StudyId = {StudyId}");
+                string res = this._sqlservice.GetMetricConfigs(StudyConfigID);
+                _logger.LogInformation($"GetMetricConfigs called with StudyConfigID = {StudyConfigID}");
                 if (String.IsNullOrEmpty(res))
                     _logger.LogDebug("No Metrics Configured");
                 return Ok(res);
@@ -348,12 +348,12 @@ namespace reliability_on_demand.Controllers
                 return BadRequest(message);
             }
         }
-        [HttpGet("api/Data/GetUserPivotConfigs/PivotSource/{PivotSource}/StudyId/{StudyId}")]
-        public IActionResult GetUserPivotConfigs(string PivotSource, int StudyId)
+        [HttpGet("api/Data/GetUserPivotConfigs/PivotSource/{PivotSource}/StudyConfigID/{StudyConfigID}")]
+        public IActionResult GetUserPivotConfigs(string PivotSource, int StudyConfigID)
         {
             try
             {
-                string res = this._sqlservice.GetUserPivotConfigs(PivotSource, StudyId);
+                string res = this._sqlservice.GetUserPivotConfigs(PivotSource, StudyConfigID);
                 _logger.LogInformation($"GetUserPivotConfigs called with PivotSource = {PivotSource}");
                 return Ok(res);
             }

@@ -52,9 +52,9 @@ namespace reliability_on_demand.DataLayer
             return str;
         }
 
-        string ISQLService.GetConfiguredVerticalForAStudy(int studyID)
+        string ISQLService.GetConfiguredVerticalForAStudy(int StudyConfigID)
         {
-            string str = _context.GetConfiguredVerticalForAStudy(studyID);
+            string str = _context.GetConfiguredVerticalForAStudy(StudyConfigID);
             return str;
         }
 
@@ -68,9 +68,9 @@ namespace reliability_on_demand.DataLayer
             return _context.GetAllDefaultFailurePivotsForAVertical(sourcesubtype);
         }
 
-        string ISQLService.GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid)
+        string ISQLService.GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int StudyConfigID)
         {
-            return _context.GetAllConfiguredFailurePivotsForAVertical(sourcesubtype, studyid);
+            return _context.GetAllConfiguredFailurePivotsForAVertical(sourcesubtype, StudyConfigID);
         }
 
         void ISQLService.UpdateFailureSavedConfig(FailureConfig f)
@@ -83,9 +83,9 @@ namespace reliability_on_demand.DataLayer
             return _context.GetAllTeamConfigs();
         }
         
-        string ISQLService.GetDefaultMetricsConfig(int StudyId)
+        string ISQLService.GetDefaultMetricsConfig(int StudyConfigID)
         {
-            return _context.GetDefaultMetricsConfig(StudyId);
+            return _context.GetDefaultMetricsConfig(StudyConfigID);
         }
 
         string ISQLService.AddMetricConfig(MetricConfig userCreatedMetric){
@@ -96,9 +96,9 @@ namespace reliability_on_demand.DataLayer
             return _context.DeleteTeam(team);
         }
 
-        string ISQLService.GetMetricConfigs(int StudyId)
+        string ISQLService.GetMetricConfigs(int StudyConfigID)
         {
-            return _context.GetMetricConfigs(StudyId);
+            return _context.GetMetricConfigs(StudyConfigID);
         }
 
         string ISQLService.UpdateMetricConfig(MetricConfig userConfig)
@@ -118,9 +118,9 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.GetPopulationPivots(PivotSource);
         }
-        string ISQLService.GetUserPivotConfigs(string PivotSource, int StudyId)
+        string ISQLService.GetUserPivotConfigs(string PivotSource, int StudyConfigID)
         {
-            return _context.GetUserPivotConfigs(PivotSource,StudyId);
+            return _context.GetUserPivotConfigs(PivotSource,StudyConfigID);
         }
 
         string ISQLService.AddOrUpdatePivotConfig(reliability_on_demand.DataLayer.PopulationPivotConfig userConfig)

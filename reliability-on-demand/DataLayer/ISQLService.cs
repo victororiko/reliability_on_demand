@@ -14,20 +14,20 @@ namespace reliability_on_demand.DataLayer
         int LogRelOnDemandQuery<T>(string username, string url, string access, T payload);
         void UpdateRelOnDemandQuery(int id, bool status, string exception);
         string GetAllVerticals();
-        string GetConfiguredVerticalForAStudy(int studyID);
+        string GetConfiguredVerticalForAStudy(int StudyConfigID);
         string GetFailurePivots(string sourcesubtype);
         string GetAllDefaultFailurePivotsForAVertical(string sourcesubtype);
-        string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid);
+        string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int StudyConfigID);
         void UpdateFailureSavedConfig(FailureConfig f);
-        string GetDefaultMetricsConfig(int StudyId);
+        string GetDefaultMetricsConfig(int StudyConfigID);
         string AddMetricConfig(MetricConfig userCreatedMetric);
         string DeleteTeam(TeamConfig team);
-        string GetMetricConfigs(int StudyId);
+        string GetMetricConfigs(int StudyConfigID);
         string UpdateMetricConfig(MetricConfig userConfig);
         string DeleteMetricConfig(MetricConfig userConfig);
         string GetPopulationPivotSources();
         string GetPopulationPivots(string PivotSource);
-        string GetUserPivotConfigs(string PivotSource, int StudyId);
+        string GetUserPivotConfigs(string PivotSource, int StudyConfigID);
         string AddOrUpdatePivotConfig(PopulationPivotConfig userConfig);
         string ClearPivotConfig(PopulationPivotConfig userConfig);
     }

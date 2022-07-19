@@ -23,7 +23,7 @@ GO
 CREATE TABLE [dbo].[RELStudyPivotConfig] (
 	[PivotKey]				NVARCHAR(255)  NOT NULL,
     [PivotScopeID]          INT            NULL,
-    [StudyID]               INT        NOT NULL,
+    [StudyConfigID]         INT        NOT NULL,
     [AggregateBy]           BIT        NOT NULL DEFAULT 0,
     [IsSelectColumn]        BIT        NOT NULL DEFAULT 0,
     [IsApportionColumn]     BIT        NOT NULL DEFAULT 0,
@@ -34,7 +34,7 @@ CREATE TABLE [dbo].[RELStudyPivotConfig] (
     [IsPrimaryPivot]        BIT            NULL,
     [PivotSourceSubType]    VARCHAR (128)  NULL,
     [PivotExpression]       NVARCHAR (500) NULL,
-	PRIMARY KEY([PivotKey],[StudyID]),
+	PRIMARY KEY([PivotKey],[StudyConfigID]),
 	FOREIGN KEY([PivotKey]) REFERENCES [dbo].[RELPivotInfo]([PivotKey]) ON DELETE CASCADE
 );
 

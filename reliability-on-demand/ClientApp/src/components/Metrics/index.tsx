@@ -7,7 +7,7 @@ import { Loading } from '../helpers/Loading'
 import { CreateNewID } from '../helpers/utils'
 
 interface Props {
-  studyid: number
+  StudyConfigID: number
 }
 
 /**
@@ -21,23 +21,25 @@ export const Metrics = (props: Props) => {
   const [userMetrics, setUserMetrics] = useState<Metric[]>([])
   // reload component whenever study
   useEffect(() => {
-    loadMetrics(props.studyid)
-  }, [props.studyid])
+    loadMetrics(props.StudyConfigID)
+  }, [props.StudyConfigID])
 
   // loading metrics piece is here because axios
   // internals require you to setState -- not return a value
-  const loadMetrics = async (studyid: number = CreateNewID) => {
+  const loadMetrics = async (StudyConfigID: number = CreateNewID) => {
     setLoading(true)
     try {
       // get defaults from backend
       const response = await axios.get(
-        `api/Data/GetDefaultMetricsConfig/${studyid}`
+        `api/Data/GetDefaultMetricsConfig/${StudyConfigID}`
       )
       let defaultsFromBackend: Metric[] = []
       if (response && response.data !== '')
         defaultsFromBackend = response.data as Metric[]
       // get user metrics from backend
-      const response2 = await axios.get(`api/Data/GetMetricConfigs/${studyid}`)
+      const response2 = await axios.get(
+        `api/Data/GetMetricConfigs/${StudyConfigID}`
+      )
 
       // check if any user metrics exist in default - remove those from defaults
       if (response2.data === '') setUserMetrics([])
@@ -53,7 +55,7 @@ export const Metrics = (props: Props) => {
   }
 
   const handleCallbackDeleteMetric = () => {
-    loadMetrics(props.studyid)
+    loadMetrics(props.StudyConfigID)
   }
 
   return (
@@ -66,7 +68,7 @@ export const Metrics = (props: Props) => {
           <VerticalDropdown
             defaultMetrics={defaults}
             userMetrics={userMetrics}
-            studyid={props.studyid}
+            StudyConfigID={props.StudyConfigID}
             callbackDeleteMetric={handleCallbackDeleteMetric}
             callbackAddMetric={handleCallbackDeleteMetric}
           />

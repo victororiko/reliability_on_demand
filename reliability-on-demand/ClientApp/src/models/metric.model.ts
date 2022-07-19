@@ -9,7 +9,7 @@ export interface Metric {
   FailureRateInHour: number
   MetricGoal: number
   IsUsage: boolean
-  StudyId?: number
+  StudyConfigID?: number
   Key: string
   MetricType: string
   UniqueKey: string

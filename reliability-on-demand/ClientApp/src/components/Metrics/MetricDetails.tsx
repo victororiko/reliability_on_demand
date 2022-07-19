@@ -12,7 +12,7 @@ import { DeleteMetricConfigButton } from './DeleteMetricConfigButton'
 interface Props {
   isUserMetric: boolean
   metricData: Metric | undefined
-  studyid: number
+  StudyConfigID: number
   callbackDeleteMetric: any
   callbackAddMetric: any
 }
@@ -29,7 +29,7 @@ export const MetricDetails = (props: Props) => {
   userMetric.FailureRateInHour = props.metricData
     ? props.metricData.FailureRateInHour
     : 0
-  userMetric.StudyId = props.studyid ?? CreateNewID
+  userMetric.StudyConfigID = props.StudyConfigID ?? CreateNewID
 
   userMetric.UniqueKey = props.metricData ? props.metricData.UniqueKey : ''
 

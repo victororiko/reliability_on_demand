@@ -10,8 +10,8 @@ DROP PROCEDURE dbo.UpdatePivotConfig
 GO
 -- Create the stored procedure in the specified schema
 CREATE PROCEDURE dbo.UpdatePivotConfig
-    @StudyID /*parameter name*/ int /*datatype*/,
-    @PivotID /*parameter name*/ int /*datatype*/,
+    @StudyConfigID /*parameter name*/ int /*datatype*/,
+    @PivotKey /*parameter name*/ varchar(255) /*datatype*/,
     @AggregateBy /*parameter name*/ bit /*datatype*/,
     @PivotSourceSubType /*parameter name*/ nvarchar(255) /*datatype*/ = 'no PivotSourceSubType provided'/*default value*/
 -- Update more stored procedure parameters here
@@ -20,24 +20,24 @@ AS
 UPDATE RELStudyPivotConfig 
 SET 
     AggregateBy = @AggregateBy
-    WHERE StudyID = @StudyID AND PivotID = @PivotID AND PivotSourceSubType = @PivotSourceSubType 
+    WHERE StudyConfigID = @StudyConfigID AND PivotKey = @PivotKey AND PivotSourceSubType = @PivotSourceSubType 
 GO
 GO
 
 -- example to execute the stored procedure we just created
 EXECUTE dbo.UpdatePivotConfig 
-    @StudyID = 1,
-    @PivotID = 150,
+    @StudyConfigID = 1,
+    @PivotKey = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId',
     @AggregateBy = NULL ,
     @PivotSourceSubType = 'AllMode'
 GO
 -- check if the pivot is Updated 
 SELECT *
 FROM RELStudyPivotConfig
-WHERE PivotID = 150
+WHERE PivotKey = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId'
 GO
 -- get pivot info
 SELECT *
 FROM RELPivotInfo
-WHERE PivotID = 150
+WHERE PivotKey = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId'
 GO

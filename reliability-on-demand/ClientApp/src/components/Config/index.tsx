@@ -15,16 +15,16 @@ export const Config = (props: any) => {
 
   // state
   const [currentTeamId, setCurrentTeamId] = useState(CreateNewID)
-  const [currentStudyId, setCurrentStudyId] = useState(CreateNewID)
+  const [currentStudyConfigID, setCurrentStudyConfigID] = useState(CreateNewID)
 
   // functionality methods
   const selectTeam = (selection: number) => {
     setCurrentTeamId(selection)
-    setCurrentStudyId(CreateNewID) // to reset rest of the UI
+    setCurrentStudyConfigID(CreateNewID) // to reset rest of the UI
   }
 
   const selectStudy = (selection: number) => {
-    setCurrentStudyId(selection)
+    setCurrentStudyConfigID(selection)
   }
 
   // render
@@ -36,13 +36,13 @@ export const Config = (props: any) => {
       ) : (
         <div>
           <Study teamid={currentTeamId} callback={selectStudy} />
-          {currentStudyId === CreateNewID ? (
+          {currentStudyConfigID === CreateNewID ? (
             ''
           ) : (
             <div>
-              <Pivots studyid={currentStudyId} />
-              <FailureCurve studyid={currentStudyId} />
-              <Metrics studyid={currentStudyId} />
+              <Pivots StudyConfigID={currentStudyConfigID} />
+              <FailureCurve StudyConfigID={currentStudyConfigID} />
+              <Metrics StudyConfigID={currentStudyConfigID} />
             </div>
           )}
         </div>

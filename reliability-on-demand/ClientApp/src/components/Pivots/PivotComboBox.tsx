@@ -15,7 +15,7 @@ import { convertPivotInfoToOptions } from './service'
 
 type Props = {
   pivotSource: string
-  studyid: number
+  StudyConfigID: number
 }
 
 const PivotCombobox = (props: Props) => {
@@ -40,7 +40,7 @@ const PivotCombobox = (props: Props) => {
     // set user selections
     axios
       .get(
-        `api/Data/GetUserPivotConfigs/PivotSource/${props.pivotSource}/StudyId/${props.studyid}`
+        `api/Data/GetUserPivotConfigs/PivotSource/${props.pivotSource}/StudyConfigID/${props.StudyConfigID}`
       )
       .then((response) => {
         if (response.data) {

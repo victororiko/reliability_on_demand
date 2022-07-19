@@ -14,7 +14,7 @@ GO
 -- Create the stored procedure in the specified schema
 CREATE PROCEDURE dbo.GetUserPivotConfigs
     @PivotSource /*parameter name*/ varchar(255) /*datatype_for_param1*/,
-    @StudyID int
+    @StudyConfigID int
 -- add more stored procedure parameters here
 AS
 -- body of the stored procedure
@@ -26,7 +26,7 @@ select
 from [dbo].[RELStudyPivotConfig]
     inner join [dbo].[RELPivotInfo]
     on [dbo].[RELStudyPivotConfig].PivotKey = [dbo].[RELPivotInfo].PivotKey
-where PivotSource = @PivotSource and StudyID = @StudyID
+where PivotSource = @PivotSource and StudyConfigID = @StudyConfigID
 FOR JSON AUTO, Include_Null_Values
     go
 GO

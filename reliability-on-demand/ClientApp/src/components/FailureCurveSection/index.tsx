@@ -32,7 +32,7 @@ import {
 } from './service'
 
 export interface Props {
-  studyid: number
+  StudyConfigID: number
 }
 
 export const FailureCurve = (props: Props) => {
@@ -76,9 +76,9 @@ export const FailureCurve = (props: Props) => {
   }
 
   const loadConfiguredVerticals = React.useCallback(() => {
-    if (props.studyid > 0) {
+    if (props.StudyConfigID > 0) {
       axios
-        .get(`api/Data/GetConfiguredVerticalForAStudy/${props.studyid}`)
+        .get(`api/Data/GetConfiguredVerticalForAStudy/${props.StudyConfigID}`)
         .then((res) => {
           setConfiguredVerticals(res.data)
           setSelectedVerticals(getVerticalNames(res.data))
@@ -87,7 +87,7 @@ export const FailureCurve = (props: Props) => {
           console.error('Axios Error:', err.message)
         })
     } else setConfiguredVerticals([])
-  }, [props.studyid])
+  }, [props.StudyConfigID])
 
   const selectedVerticals = (selection: IDropdownOption[]) => {
     setSelectedVerticals(selection)
@@ -124,7 +124,7 @@ export const FailureCurve = (props: Props) => {
   const loadSelectedPivots = (sourcesubtype: string) => {
     axios
       .get(
-        `api/Data/GetAllConfiguredFailurePivotsForAVertical/sourcesubtype/${sourcesubtype}/studyid/${props.studyid}`
+        `api/Data/GetAllConfiguredFailurePivotsForAVertical/sourcesubtype/${sourcesubtype}/StudyConfigID/${props.StudyConfigID}`
       )
       .then((res) => {
         if (res.data) {
@@ -291,7 +291,7 @@ export const FailureCurve = (props: Props) => {
       dataSaved={dataSaved}
       filterExpTable={filterExpTable}
       pivots={pivotDetailedList}
-      studyid={props.studyid}
+      StudyConfigID={props.StudyConfigID}
       verticals={getVerticalNamesFromPair(selectedverticals)}
       pivotSourceSubType={selectedMode}
     />

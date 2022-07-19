@@ -1,6 +1,6 @@
 [
   {
-    "StudyID": 1,
+    "StudyConfigID": 1,
     "StudyName": "WVD Studies",
     "LastRefreshDate": "2021-02-18T10:34:09",
     "LastModifiedDate": "2021-02-18T10:34:09",
@@ -10,7 +10,7 @@
     "ObservationWindowDays": 14
   },
   {
-    "StudyID": 2,
+    "StudyConfigID": 2,
     "StudyName": "Retail Studies",
     "LastRefreshDate": "2021-02-18T10:34:09",
     "LastModifiedDate": "2021-02-18T10:34:09",
@@ -20,7 +20,7 @@
     "ObservationWindowDays": 14
   },
   {
-    "StudyID": 3,
+    "StudyConfigID": 3,
     "StudyName": "Retail Studies - hourly",
     "LastRefreshDate": "2021-02-18T10:34:09",
     "LastModifiedDate": "2021-02-18T10:34:09",
@@ -30,7 +30,7 @@
     "ObservationWindowDays": 14
   },
   {
-    "StudyID": 4,
+    "StudyConfigID": 4,
     "StudyName": "WVD Studies - weekly",
     "LastRefreshDate": "2021-02-18T10:34:09",
     "LastModifiedDate": "2021-02-18T10:34:09",
@@ -40,7 +40,7 @@
     "ObservationWindowDays": 14
   },
   {
-    "StudyID": 5,
+    "StudyConfigID": 5,
     "StudyName": "WVD Studies - every 12 hours",
     "LastRefreshDate": "2021-02-18T10:34:09",
     "LastModifiedDate": "2021-02-18T10:34:09",
@@ -50,7 +50,7 @@
     "ObservationWindowDays": 14
   },
   {
-    "StudyID": 6,
+    "StudyConfigID": 6,
     "StudyName": "Retail Studies - every 24 hours",
     "LastRefreshDate": "2021-02-18T10:34:09",
     "LastModifiedDate": "2021-02-18T10:34:09",
@@ -60,7 +60,7 @@
     "ObservationWindowDays": 14
   },
   {
-    "StudyID": 7,
+    "StudyConfigID": 7,
     "StudyName": "Retail Studies - every 24 hours",
     "LastRefreshDate": "2021-02-18T10:34:09",
     "LastModifiedDate": "2021-02-18T10:34:09",
@@ -70,7 +70,7 @@
     "ObservationWindowDays": 14
   },
   {
-    "StudyID": 8,
+    "StudyConfigID": 8,
     "StudyName": "Retail Studies - every 3 days",
     "LastRefreshDate": "2021-02-18T10:34:09",
     "LastModifiedDate": "2021-02-18T10:34:09",

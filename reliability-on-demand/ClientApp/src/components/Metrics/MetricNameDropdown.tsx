@@ -10,7 +10,7 @@ import { MetricDetails } from './MetricDetails'
 interface Props {
   defaultMetrics: Metric[]
   userMetrics: Metric[]
-  studyid: number
+  StudyConfigID: number
   vertical: string
   callbackDeleteMetric: any
   callbackAddMetric: any
@@ -88,7 +88,7 @@ export const MetricNameDropdown = (props: Props) => {
         <div>
           <MetricDetails
             metricData={metricData}
-            studyid={props.studyid}
+            StudyConfigID={props.StudyConfigID}
             isUserMetric={isUserMetric}
             callbackDeleteMetric={props.callbackDeleteMetric}
             callbackAddMetric={props.callbackAddMetric}

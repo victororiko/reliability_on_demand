@@ -5,7 +5,7 @@ import { Loading } from '../helpers/Loading'
 import PivotSourceDropdown from './PivotSourceDropdown'
 
 type Props = {
-  studyid: number
+  StudyConfigID: number
 }
 
 export const Pivots = (props: Props) => {
@@ -33,7 +33,7 @@ export const Pivots = (props: Props) => {
       ) : (
         <PivotSourceDropdown
           pivotSources={pivotSources}
-          studyid={props.studyid}
+          StudyConfigID={props.StudyConfigID}
         />
       )}
     </div>

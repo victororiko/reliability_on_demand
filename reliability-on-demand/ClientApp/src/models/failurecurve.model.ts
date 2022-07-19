@@ -5,7 +5,7 @@
 //   "Set quicktype target language"
 
 export interface FailureConfig {
-  StudyID: number
+  StudyConfigID: number
   Verticals: string[]
   PivotSourceSubType: string
   Pivots: PivotTable[]

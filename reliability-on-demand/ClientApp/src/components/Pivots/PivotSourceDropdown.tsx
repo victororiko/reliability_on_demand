@@ -10,7 +10,7 @@ import { convertPivotSourceToOptions } from './service'
 
 type Props = {
   pivotSources: PivotSource[]
-  studyid: number
+  StudyConfigID: number
 }
 
 const PivotSourceDropdown = (props: Props) => {
@@ -46,7 +46,7 @@ const PivotSourceDropdown = (props: Props) => {
       ) : (
         <PivotCombobox
           pivotSource={selectedItem.text}
-          studyid={props.studyid}
+          StudyConfigID={props.StudyConfigID}
         />
       )}
     </div>

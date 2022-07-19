@@ -239,7 +239,7 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@LastRefreshDate", userUpdatedStudy.LastRefreshDate));
             cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userUpdatedStudy.CacheFrequency));
             cmd.Parameters.Add(new SqlParameter("@Expiry", userUpdatedStudy.Expiry));
-            cmd.Parameters.Add(new SqlParameter("@StudyID", userUpdatedStudy.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userUpdatedStudy.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userUpdatedStudy.ObservationWindowDays));
 
             StringBuilder sb = new StringBuilder();
@@ -337,7 +337,7 @@ namespace reliability_on_demand.DataLayer
             return sb.ToString();
         }
 
-        public string GetConfiguredVerticalForAStudy(int studyID)
+        public string GetConfiguredVerticalForAStudy(int StudyConfigID)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
@@ -346,7 +346,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.GetJSONConfiguredVerticalForAStudy";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyID", studyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
             using (var reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
@@ -400,7 +400,7 @@ namespace reliability_on_demand.DataLayer
         }
 
         //Get all configured values for that vertical and study id
-        public string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int studyid)
+        public string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int StudyConfigID)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
@@ -410,7 +410,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@sourcesubtype", sourcesubtype));
-            cmd.Parameters.Add(new SqlParameter("@studyID", studyid));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
             using (var reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
@@ -437,7 +437,7 @@ namespace reliability_on_demand.DataLayer
             {
                 List<int> list = GetScopeIdsForFailureConfig(failure);
                 //Order matters- first extract the pivot scope ids from the relstudypivotconfig table and delete pivot scope ids first
-                DeleteStudyIDFromPivotMapping(failure);
+                DeleteStudyConfigIDFromPivotMapping(failure);
                 var joined = string.Join<int>(",", list);
                 DeletePivotScopeEnteries(joined);
             }
@@ -455,7 +455,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
-            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", failure.StudyConfigID));
             using (var reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
@@ -473,7 +473,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.GetMaximumStudyPivotConfigCount";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", failure.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
             var maxScopeObj = cmd.ExecuteScalar();
             Int32 count = (Convert.IsDBNull(maxScopeObj) ? 0 : (Int32)maxScopeObj);
@@ -492,14 +492,14 @@ namespace reliability_on_demand.DataLayer
             pivotscopereader.Close();
         }
 
-        void DeleteStudyIDFromPivotMapping(FailureConfig failure)
+        void DeleteStudyConfigIDFromPivotMapping(FailureConfig failure)
         {
             this.Database.OpenConnection();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.DeleteStudyIDFromPivotMapping";
+            cmd.CommandText = "dbo.DeleteStudyConfigIDFromPivotMapping";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", failure.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
             var reader = cmd.ExecuteReader();
             reader.Close();
@@ -512,7 +512,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.DeleteStudyVerticals";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", failure.StudyConfigID));
             var studyverticalreader = cmd.ExecuteReader();
             studyverticalreader.Close();
         }
@@ -579,7 +579,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.AddWithoutFilterPivotToFailureCurve";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", failure.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@IsSelectPivot", Convert.ToInt32(pivot.IsSelectPivot)));
             cmd.Parameters.Add(new SqlParameter("@IsApportionPivot", Convert.ToInt32(pivot.IsApportionPivot)));
             cmd.Parameters.Add(new SqlParameter("@IsKeyPivot", Convert.ToInt32(pivot.IsKeyPivot)));
@@ -597,7 +597,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.AddFilterPivotsAndValuesToFailureCurve";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", failure.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@IsSelectPivot", Convert.ToInt32(pivot.IsSelectPivot)));
             cmd.Parameters.Add(new SqlParameter("@IsApportionPivot", Convert.ToInt32(pivot.IsApportionPivot)));
             cmd.Parameters.Add(new SqlParameter("@IsKeyPivot", Convert.ToInt32(pivot.IsKeyPivot)));
@@ -616,7 +616,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.AddVerticalsForStudy";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyID", failure.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", failure.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@Vertical", vertical));
 
             var insertionreader = cmd.ExecuteReader();
@@ -624,7 +624,7 @@ namespace reliability_on_demand.DataLayer
         }
 
         //Get default metrics
-        public string GetDefaultMetricsConfig(int StudyId)
+        public string GetDefaultMetricsConfig(int StudyConfigID)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
@@ -634,7 +634,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.GetDefaultMetricConfigs";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyId", StudyId));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
@@ -663,7 +663,7 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@FailureRateInHour", userCreatedMetric.FailureRateInHour));
             cmd.Parameters.Add(new SqlParameter("@HighUsageMinInMS", userCreatedMetric.HighUsageMinInMS));
             cmd.Parameters.Add(new SqlParameter("@MetricGoal", userCreatedMetric.MetricGoal));
-            cmd.Parameters.Add(new SqlParameter("@StudyId", userCreatedMetric.StudyId));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userCreatedMetric.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@MetricGoalAspirational", userCreatedMetric.MetricGoalAspirational));
             cmd.Parameters.Add(new SqlParameter("@IsUsage", userCreatedMetric.IsUsage));
 
@@ -678,7 +678,7 @@ namespace reliability_on_demand.DataLayer
             }
             return sb.ToString();
         }
-        public string GetMetricConfigs(int StudyId)
+        public string GetMetricConfigs(int StudyConfigID)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
@@ -688,7 +688,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.GetMetricConfigs";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyId", StudyId));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
@@ -719,7 +719,7 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@FailureRateInHour", userConfig.FailureRateInHour));
             cmd.Parameters.Add(new SqlParameter("@HighUsageMinInMS", userConfig.HighUsageMinInMS));
             cmd.Parameters.Add(new SqlParameter("@MetricGoal", userConfig.MetricGoal));
-            cmd.Parameters.Add(new SqlParameter("@StudyId", userConfig.StudyId));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@MetricGoalAspirational", userConfig.MetricGoalAspirational));
             cmd.Parameters.Add(new SqlParameter("@IsUsage", userConfig.IsUsage));
 
@@ -752,7 +752,7 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@FailureRateInHour", userConfig.FailureRateInHour));
             cmd.Parameters.Add(new SqlParameter("@HighUsageMinInMS", userConfig.HighUsageMinInMS));
             cmd.Parameters.Add(new SqlParameter("@MetricGoal", userConfig.MetricGoal));
-            cmd.Parameters.Add(new SqlParameter("@StudyId", userConfig.StudyId));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@MetricGoalAspirational", userConfig.MetricGoalAspirational));
             cmd.Parameters.Add(new SqlParameter("@IsUsage", userConfig.IsUsage));
 
@@ -815,7 +815,7 @@ namespace reliability_on_demand.DataLayer
             return sb.ToString();
         }
 
-        public string GetUserPivotConfigs(string PivotSource, int StudyId)
+        public string GetUserPivotConfigs(string PivotSource, int StudyConfigID)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
@@ -826,7 +826,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@PivotSource", PivotSource));
-            cmd.Parameters.Add(new SqlParameter("@StudyID", StudyId));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
@@ -850,7 +850,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.AddOrUpdatePivotConfig";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyID", userConfig.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@PivotID", userConfig.PivotID));
             cmd.Parameters.Add(new SqlParameter("@AggregateBy", userConfig.AggregateBy));
             cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", userConfig.PivotSourceSubType));
@@ -877,7 +877,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.ClearPivotConfig";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyID", userConfig.StudyID));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@PivotID", userConfig.PivotID));
 
             // execute stored procedure and return json

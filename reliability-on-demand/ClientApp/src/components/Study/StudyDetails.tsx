@@ -97,7 +97,8 @@ export const StudyDetails = (props: Props) => {
         updatedUserStudy.ObservationWindowDays = userObservationWindow
       }
       updatedUserStudy.LastRefreshDate = new Date()
-      updatedUserStudy.StudyID = props.selectedStudy.StudyID.toString()
+      updatedUserStudy.StudyConfigID =
+        props.selectedStudy.StudyConfigID.toString()
       axios
         .post('api/Data/UpdateStudy', updatedUserStudy)
         .then((res) => {

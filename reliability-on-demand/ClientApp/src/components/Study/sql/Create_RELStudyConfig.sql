@@ -20,16 +20,17 @@ GO
 
 CREATE TABLE [dbo].[RELStudyConfig]
 (
-
-    [StudyID] BIGINT IDENTITY NOT NULL,
+    [StudyConfigID] BIGINT IDENTITY NOT NULL,
     [StudyName] NVARCHAR (128) NOT NULL,
     [LastRefreshDate] DATETIME NOT NULL,
     [CacheFrequency] INT NOT NULL,
     [Expiry] DATETIME NOT NULL,
     [TeamID] BIGINT NOT NULL,
     [ObservationWindowDays] INT NOT NULL DEFAULT(14),
-    [HashString] VARCHAR(255)  NOT NULL UNIQUE,
-    PRIMARY KEY CLUSTERED ([StudyID] ASC),
+
+[HashString] VARCHAR
+(255) NOT NULL UNIQUE,
+    PRIMARY KEY CLUSTERED ([StudyConfigID] ASC),
     FOREIGN KEY ([TeamID]) REFERENCES [dbo].[RELTeamConfig] ([TeamID]) ON DELETE CASCADE
 );
 

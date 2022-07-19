@@ -3,7 +3,7 @@ import axios from 'axios'
 import React, { useEffect } from 'react'
 
 type Props = {
-  studyid: number
+  StudyConfigID: number
   selectedPivots: any
   callbackStatus: any
 }
@@ -16,7 +16,7 @@ export const ClearPivotConfigButton = (props: Props) => {
     // loop through selectedPivots generating pivot config
     const ans = props.selectedPivots.map((item: any) => {
       const rObj = {
-        StudyID: props.studyid,
+        StudyConfigID: props.StudyConfigID,
         PivotID: item.key,
         AggregateBy: true,
         PivotSourceSubType: 'AllMode',
@@ -36,7 +36,9 @@ export const ClearPivotConfigButton = (props: Props) => {
           return console.error(exception)
         })
     }
-    console.debug(`Cleared pivot config(s) with study id = ${props.studyid}`)
+    console.debug(
+      `Cleared pivot config(s) with study id = ${props.StudyConfigID}`
+    )
     console.debug(`Cleared list of pivots = ${JSON.stringify(ans, null, 2)}`)
   }
   return (
