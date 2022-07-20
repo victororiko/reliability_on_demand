@@ -1,13 +1,13 @@
-import React from 'react'
 import { Stack, Text } from '@fluentui/react'
-import { LowUsageMinimum } from './LowUsageMinimum'
-import { HighUsageMinimum } from './HighUsageMinimum'
-import { horizontalStackTokens } from '../helpers/Styles'
-import { FailureRate } from './FailureRate'
-import { AddMetricConfigButton } from './AddMetricConfigButton'
+import React from 'react'
 import { Metric } from '../../models/metric.model'
+import { horizontalStackTokens } from '../helpers/Styles'
 import { CreateNewID } from '../helpers/utils'
+import { AddMetricConfigButton } from './AddMetricConfigButton'
 import { DeleteMetricConfigButton } from './DeleteMetricConfigButton'
+import { FailureRate } from './FailureRate'
+import { HighUsageMinimum } from './HighUsageMinimum'
+import { LowUsageMinimum } from './LowUsageMinimum'
 
 interface Props {
   isUserMetric: boolean

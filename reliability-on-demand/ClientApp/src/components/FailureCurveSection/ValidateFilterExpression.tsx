@@ -1,5 +1,5 @@
-import React from 'react'
 import { DefaultButton, Label, TooltipHost } from '@fluentui/react'
+import React from 'react'
 import { FilterExpTable } from '../../models/failurecurve.model'
 import { getRelationalOperatorCount, showFilterExpression } from './service'
 

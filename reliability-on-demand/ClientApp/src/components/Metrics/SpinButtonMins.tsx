@@ -1,5 +1,5 @@
+import { ISpinButtonStyles, Position, SpinButton } from '@fluentui/react'
 import React, { useEffect } from 'react'
-import { ISpinButtonStyles, SpinButton, Position } from '@fluentui/react'
 
 interface Props {
   defaultMins: string

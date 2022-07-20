@@ -1,5 +1,5 @@
+import { ISpinButtonStyles, Position, SpinButton } from '@fluentui/react'
 import React from 'react'
-import { ISpinButtonStyles, SpinButton, Position } from '@fluentui/react'
 
 interface Props {
   callback: any

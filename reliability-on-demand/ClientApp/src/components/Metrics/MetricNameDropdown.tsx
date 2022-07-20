@@ -1,5 +1,5 @@
-import React, { FormEvent, useEffect, useState } from 'react'
 import { Dropdown, IDropdownOption, Text } from '@fluentui/react'
+import React, { FormEvent, useEffect, useState } from 'react'
 import {
   findMetrics as findMetric,
   generateDropdownOptions,

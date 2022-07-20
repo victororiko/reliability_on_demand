@@ -1,4 +1,4 @@
-import { SpinButton, Position } from '@fluentui/react'
+import { Position, SpinButton } from '@fluentui/react'
 import React from 'react'
 
 interface Props {

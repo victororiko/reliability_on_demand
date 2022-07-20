@@ -1,5 +1,5 @@
-import React from 'react'
 import { Dropdown, IDropdownOption, TooltipHost } from '@fluentui/react'
+import React from 'react'
 
 interface Props {
   modes: IDropdownOption[]

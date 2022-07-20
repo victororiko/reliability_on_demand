@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
 import { Stack } from '@fluentui/react'
 import axios from 'axios'
-import { VerticalDropdown } from './VerticalDropdown'
+import React, { useEffect, useState } from 'react'
 import { Metric } from '../../models/metric.model'
 import { Loading } from '../helpers/Loading'
 import { CreateNewID } from '../helpers/utils'
+import { VerticalDropdown } from './VerticalDropdown'
 
 interface Props {
   StudyConfigID: number

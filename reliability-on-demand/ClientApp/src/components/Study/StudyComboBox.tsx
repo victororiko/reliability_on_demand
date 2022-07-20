@@ -1,12 +1,13 @@
 import {
   IComboBox,
   IComboBoxOption,
-  VirtualizedComboBox
+  VirtualizedComboBox,
 } from '@fluentui/react'
 import React, { FormEvent, useEffect, useState } from 'react'
 import {
   convertToOptions,
-  getStudyConfig, StudyConfig
+  getStudyConfig,
+  StudyConfig,
 } from '../../models/study.model'
 
 import { StudyDetails } from './StudyDetails'

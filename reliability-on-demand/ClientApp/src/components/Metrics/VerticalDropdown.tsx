@@ -1,5 +1,5 @@
-import React, { FormEvent, useEffect } from 'react'
 import { Dropdown, IDropdownOption, Text } from '@fluentui/react'
+import React, { FormEvent, useEffect } from 'react'
 import { getDistinctVerticals, Metric } from '../../models/metric.model'
 import { convertSimpleTypeToOptions } from '../helpers/utils'
 import { MetricNameDropdown } from './MetricNameDropdown'

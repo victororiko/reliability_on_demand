@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
 import { Stack, Text } from '@fluentui/react'
-import { SpinButtonHour } from './SpinButtonHour'
-import { FailureRateCalculated } from './FailureRateCalculated'
-import { containerStackTokens, horizontalStackTokens } from '../helpers/Styles'
+import React, { useEffect, useState } from 'react'
 import { Metric } from '../../models/metric.model'
+import { containerStackTokens, horizontalStackTokens } from '../helpers/Styles'
 import { myParseInt } from '../helpers/utils'
+import { FailureRateCalculated } from './FailureRateCalculated'
+import { SpinButtonHour } from './SpinButtonHour'
 
 interface Props {
   metricData: Metric | undefined

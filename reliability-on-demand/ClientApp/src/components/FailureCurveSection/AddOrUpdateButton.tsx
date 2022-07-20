@@ -1,8 +1,8 @@
+import { DefaultButton, Label, TooltipHost } from '@fluentui/react'
 import React from 'react'
-import { DefaultButton, TooltipHost, Label } from '@fluentui/react'
 import {
-  FilterExpTable,
   FailureConfig,
+  FilterExpTable,
   PivotTable,
 } from '../../models/failurecurve.model'
 

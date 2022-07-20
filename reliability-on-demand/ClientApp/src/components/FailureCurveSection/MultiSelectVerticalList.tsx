@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
 import { Dropdown, IDropdownOption, TooltipHost } from '@fluentui/react'
+import React, { useEffect } from 'react'
 import { Vertical } from '../../models/failurecurve.model'
 import { getVerticalNames } from './service'
 

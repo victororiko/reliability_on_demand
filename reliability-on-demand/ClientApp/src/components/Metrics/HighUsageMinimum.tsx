@@ -1,10 +1,10 @@
 import { Stack } from '@fluentui/react'
 import React, { useEffect, useState } from 'react'
+import { Metric } from '../../models/metric.model'
+import { horizontalStackTokens } from '../helpers/Styles'
+import { myParseInt, prepUsageInMS } from '../helpers/utils'
 import { SpinButtonMins } from './SpinButtonMins'
 import { SpinButtonSec } from './SpinButtonSec'
-import { horizontalStackTokens } from '../helpers/Styles'
-import { Metric } from '../../models/metric.model'
-import { myParseInt, prepUsageInMS } from '../helpers/utils'
 
 interface Props {
   title: string

@@ -1,5 +1,5 @@
-import * as React from 'react'
 import { Pivot, PivotItem } from '@fluentui/react'
+import * as React from 'react'
 import { ManagePivots } from './ManagePivots'
 import { ManagePivotValues } from './ManagePivotValues'
 import { ManageTeam } from './ManageTeam'

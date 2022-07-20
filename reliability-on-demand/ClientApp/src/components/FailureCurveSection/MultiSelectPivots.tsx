@@ -1,5 +1,5 @@
+import { Dropdown, IDropdownOption, TooltipHost } from '@fluentui/react'
 import React from 'react'
-import { TooltipHost, IDropdownOption, Dropdown } from '@fluentui/react'
 import { Pivot } from '../../models/failurecurve.model'
 import { getPivotNames } from './service'
 

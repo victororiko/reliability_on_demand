@@ -1,12 +1,12 @@
-import React from 'react'
 import {
-  DetailsList,
-  TooltipHost,
-  SelectionMode,
-  IColumn,
   Checkbox,
+  DetailsList,
+  IColumn,
   IDropdownOption,
+  SelectionMode,
+  TooltipHost,
 } from '@fluentui/react'
+import React from 'react'
 import { PivotTable } from '../../models/failurecurve.model'
 import { buildColumnArray, mapPivotTableColumnValue } from './service'
 

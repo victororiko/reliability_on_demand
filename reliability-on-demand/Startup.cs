@@ -21,6 +21,7 @@ using Microsoft.Identity.Web;
 namespace reliability_on_demand
 {
     /*
+    @anjali to address these comments in Task 38094699
     public class Startup
     {
         public Startup(IConfiguration configuration)

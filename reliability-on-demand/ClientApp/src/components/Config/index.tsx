@@ -1,13 +1,13 @@
 import { Stack } from '@fluentui/react'
-import React, { useEffect, useState } from 'react'
 import * as QueryString from 'query-string'
+import React, { useState } from 'react'
+import { FailureCurve } from '../FailureCurveSection'
 import { containerStackTokens } from '../helpers/Styles'
 import { CreateNewID } from '../helpers/utils'
 import { Metrics } from '../Metrics'
+import { Pivots } from '../Pivots'
 import { Study } from '../Study'
 import { Team } from '../Team'
-import { FailureCurve } from '../FailureCurveSection'
-import { Pivots } from '../Pivots'
 
 export const Config = (props: any) => {
   // query string parsing

@@ -1,11 +1,11 @@
-import { IColumn, IDropdownOption, buildColumns } from '@fluentui/react'
+import { buildColumns, IColumn, IDropdownOption } from '@fluentui/react'
 import {
-  Vertical,
+  FilterExpTable,
   Pivot,
+  PivotScopeFilter,
   PivotSQLResult,
   PivotTable,
-  FilterExpTable,
-  PivotScopeFilter,
+  Vertical,
 } from '../../models/failurecurve.model'
 
 // converting verticals to Idropdown Pair

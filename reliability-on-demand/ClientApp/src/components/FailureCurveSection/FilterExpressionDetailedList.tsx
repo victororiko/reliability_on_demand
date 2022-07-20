@@ -1,15 +1,16 @@
-import React from 'react'
 import {
-  DetailsList,
-  TooltipHost,
-  SelectionMode,
-  IColumn,
   DefaultButton,
+  DetailsList,
   Dropdown,
+  IColumn,
   IDropdownOption,
+  SelectionMode,
   TextField,
+  TooltipHost,
 } from '@fluentui/react'
+import React from 'react'
 import { FilterExpTable } from '../../models/failurecurve.model'
+import './FailureCurveSection.css'
 import {
   FilterExpressionbuildColumnArray,
   getPivotID,
@@ -17,7 +18,6 @@ import {
   loadRelationalOperators,
   mapFilterExpTableColumnValue,
 } from './service'
-import './FailureCurveSection.css'
 
 interface Props {
   filterExpTable: FilterExpTable[]

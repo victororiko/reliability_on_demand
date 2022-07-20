@@ -1,14 +1,15 @@
-import * as React from 'react'
 import axios from 'axios'
 import { Label } from '@fluentui/react'
 import { MenuPivots } from './MenuPivots'
 import { Loading } from '../helpers/Loading'
 import { UnAuthorizedMessage } from '../helpers/utils'
+import React from 'react'
 
 export interface Props {}
 
 export const AdminPage = (props: Props) => {
   /*
+  @anjali to address these comments in Task 38094699
   const [isValidUser, setValidUser] = React.useState<boolean>(true)
   const [loading, setLoading] = React.useState<boolean>(false)
 
