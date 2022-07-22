@@ -1,12 +1,13 @@
-/****** Object:  StoredProcedure [dbo].[GetAllConfiguredFailurePivotsForAVertical]    Script Date: 7/13/2022 2:16:54 PM ******/
+/****** Object:  StoredProcedure [dbo].[GetAllConfiguredFailurePivotsForAVertical]    Script Date: 7/20/2022 11:19:01 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
 
+
 -- Create the stored procedure in the specified schema
-CREATE PROCEDURE [dbo].[GetAllConfiguredFailurePivotsForAVertical]
+ALTER PROCEDURE [dbo].[GetAllConfiguredFailurePivotsForAVertical]
     @sourcesubtype /*parameter name*/ nvarchar(150) /*datatype*/ = '' /*default value*/,
     @StudyConfigID /*parameter name*/ int /*datatype*/ = -1/*default value*/
 
@@ -22,9 +23,10 @@ SELECT
     smap.IsApportionJoinColumn, 
     smap.IsKeyColumn, 
     smap.IsSelectColumn, 
-    smap.PivotScopeID, 
-    scope.PivotScopeValue, 
-    scope.PivotOperator
+    smap.PivotScopeID,
+	smap.PivotScopeOperator,
+    scope.PivotOperator, 
+    scope.PivotScopeValue
 FROM RELPivotInfo AS info 
     INNER JOIN RELStudyPivotConfig AS smap ON info.PivotKey = smap.PivotKey 
     INNER JOIN RELPivotSourceMap AS map ON map.PivotSource = info.PivotSource 

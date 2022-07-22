@@ -1,9 +1,9 @@
-import { DefaultButton, Label, TooltipHost } from '@fluentui/react'
 import React from 'react'
+import { DefaultButton, TooltipHost, Label } from '@fluentui/react'
 import {
-  FailureConfig,
   FilterExpTable,
-  PivotTable,
+  FailureConfig,
+  Pivot,
 } from '../../models/failurecurve.model'
 
 import { getFailureCurvePivotsToSave } from './service'
@@ -13,7 +13,7 @@ type Props = {
   callBack: any
   dataSaved: boolean
   filterExpTable: FilterExpTable[]
-  pivots: PivotTable[]
+  pivots: Pivot[]
   StudyConfigID: number
   verticals: string[]
   pivotSourceSubType: string

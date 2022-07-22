@@ -5,7 +5,7 @@ import { getPivotNames } from './service'
 
 interface Props {
   pivots: Pivot[]
-  selectedOptions: number[]
+  selectedOptions: string[]
   callBack: any
 }
 
@@ -16,7 +16,7 @@ export const MultiSelectPivots = (props: Props) => {
   ): void => {
     if (item) {
       const updated = item.selected
-        ? [...(props.selectedOptions ?? []), item.key as number]
+        ? [...(props.selectedOptions ?? []), item.key as string]
         : props.selectedOptions?.filter((val) => {
             return val !== item.key
           })

@@ -8,7 +8,7 @@ export interface FailureConfig {
   StudyConfigID: number
   Verticals: string[]
   PivotSourceSubType: string
-  Pivots: PivotTable[]
+  Pivots: Pivot[]
 }
 
 export interface Vertical {
@@ -16,26 +16,16 @@ export interface Vertical {
   PivotSourceSubType: string
 }
 
-export interface PivotType {
-  PivotID: number
+export interface Pivot {
+  UIInputDataType: string
+  PivotSourceColumnName: string
   IsSelectPivot: boolean
   IsKeyPivot: boolean
   IsApportionPivot: boolean
   IsApportionJoinPivot: boolean
-  PivotScopeID: number
-  FilterExpression: string
-  UIInputDataType: string
-  PivotKey: string
-}
-
-export interface Pivot extends PivotType {
-  PivotSourceColumnName: string
-}
-
-export interface PivotTable extends PivotType {
-  FilterExpressionOperator: string
   IsScopeFilter: boolean
-  PivotName: string
+  PivotKey: string
+  FilterExpressions: FilterExpTable[]
 }
 
 export interface SmapSQL {
@@ -45,12 +35,12 @@ export interface SmapSQL {
   IsApportionJoinColumn: boolean
   PivotScopeID: number
   PivotKey: string
+  PivotScopeOperator: string
   scope: Filter[]
 }
 
 export interface PivotSQLResult {
   PivotSourceColumnName: string
-  PivotID: number
   UIInputDataType: string
   PivotKey: string
   smap: SmapSQL[]
@@ -58,7 +48,7 @@ export interface PivotSQLResult {
 
 export interface Filter {
   PivotScopeValue: string
-  PivotScopeOperator: string
+  PivotOperator: string
 }
 
 export interface FilterExpTable {
@@ -66,15 +56,7 @@ export interface FilterExpTable {
   PivotName: string
   Operator: string
   PivotValue: string
-  PivotID: number
   PivotScopeID: number
   UIInputDataType: string
-  PivotKey: string
-}
-
-export interface PivotScopeFilter {
-  PivotID: number
-  FilterExpression: string
-  RelationalOperator: string
   PivotKey: string
 }

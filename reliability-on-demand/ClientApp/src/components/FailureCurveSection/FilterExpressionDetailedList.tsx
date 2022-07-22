@@ -38,7 +38,6 @@ export const FilterExpressionDetailedList = (props: Props) => {
 
   const addClicked = (id: any) => {
     const item: FilterExpTable = {
-      PivotID: 0,
       PivotName: '',
       PivotValue: '',
       PivotScopeID: 0,
@@ -80,10 +79,13 @@ export const FilterExpressionDetailedList = (props: Props) => {
     item?: IDropdownOption
   ): void => {
     if (item) {
-      const target = event?.target as HTMLInputElement
-      const arr = target.id.toString().split('_')
+        const target = event?.target as HTMLInputElement
+        const arr = target.id.toString().split('_')
       const row = Number(arr[0])
-      const col = arr[1]
+        const col = arr[1]
+        alert(row)
+        alert(col)
+        alert(item.text)
       let updated = mapFilterExpTableColumnValue(
         changedFilterExp,
         row,
@@ -91,10 +93,10 @@ export const FilterExpressionDetailedList = (props: Props) => {
         item.text
       )
 
-      updated = mapFilterExpTableColumnValue(updated, row, 'PivotID', item.key)
+      updated = mapFilterExpTableColumnValue(updated, row, 'PivotKey', item.key)
 
       for (const ele of changedFilterExp) {
-        if (ele.PivotID === item.key && ele.UIInputDataType !== '') {
+        if (ele.PivotKey === item.key && ele.UIInputDataType !== '') {
           setPivotValuePlaceholder(ele.UIInputDataType)
           break
         }

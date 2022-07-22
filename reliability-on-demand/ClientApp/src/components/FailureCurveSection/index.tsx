@@ -18,7 +18,6 @@ import {
   PivotSQLResult,
   FailureConfig,
   FilterExpTable,
-  PivotTable,
 } from '../../models/failurecurve.model'
 import {
   extractModesFromVerticalPair,
@@ -49,15 +48,15 @@ export const FailureCurve = (props: Props) => {
   const [modes, setModes] = React.useState<IDropdownOption[]>([])
   const [pivots, setPivots] = React.useState<Pivot[]>([])
   const [modeSelected, setModeSelected] = React.useState<Boolean>(false)
-  const [pivotDetailedList, setPivotDetailedList] = React.useState<
-    PivotTable[]
-  >([])
-  const [selectedPivotsIDs, setSelectedPivotsIDs] = React.useState<number[]>([])
+  const [selectedPivotsKeys, setSelectedPivotsKeys] = React.useState<string[]>(
+    []
+  )
   const [configureFilterExpClicked, setConfigureFilterExpClicked] =
     React.useState<Boolean>(false)
   const [filterExpTable, setFilterExpTable] = React.useState<FilterExpTable[]>(
     []
   )
+  const [pivotDetailedList, setPivotDetailedList] = React.useState<Pivot[]>([])
   const [selectedMode, setSelectedMode] = React.useState<string>('')
   const [filterPivots, setFilterPivots] = React.useState<IDropdownOption[]>([])
   const [isValidFilterExp, setIsValidFilterExp] = React.useState<boolean>(false)
@@ -128,7 +127,7 @@ export const FailureCurve = (props: Props) => {
       )
       .then((res) => {
         if (res.data) {
-          setSelectedPivotsIDs(getPivotIDs(res.data))
+          setSelectedPivotsKeys(getPivotIDs(res.data))
           loadDetailedListRows(res.data)
           setButtonName('Update Failure Curve')
         } else {
@@ -149,7 +148,7 @@ export const FailureCurve = (props: Props) => {
       })
       .then((res) => {
         if (res.data !== null) {
-          setSelectedPivotsIDs(getPivotIDs(res.data))
+          setSelectedPivotsKeys(getPivotIDs(res.data))
           loadDetailedListRows(res.data)
           setButtonName('Add Failure Curve')
         }
@@ -178,17 +177,17 @@ export const FailureCurve = (props: Props) => {
   }
 
   const loadDetailedListRows = (data: PivotSQLResult[]) => {
-    const temp: PivotTable[] = getPivotTableFromPivotSQL(data)
+    const temp: Pivot[] = getPivotTableFromPivotSQL(data)
     setPivotDetailedList(temp)
   }
 
-  const updateDetailedListRows = (data: number[], input: Pivot[]) => {
-    const temp: PivotTable[] = []
+  const updateDetailedListRows = (data: string[], input: Pivot[]) => {
+    const temp: Pivot[] = []
     // Adding the rows that from detailed list input that are still selected
     // Also filter the deselected pivots
     for (const ele of pivotDetailedList) {
       for (const e of data) {
-        if (ele.PivotID === e) {
+        if (ele.PivotKey === e) {
           temp.push(ele)
           break
         }
@@ -198,7 +197,7 @@ export const FailureCurve = (props: Props) => {
     // Add new selected checkbox
     const updatedPivotTable = AddNewSelectedPivots(data, input, temp)
 
-    setSelectedPivotsIDs(data)
+    setSelectedPivotsKeys(data)
     setPivotDetailedList(updatedPivotTable)
   }
 
@@ -220,7 +219,7 @@ export const FailureCurve = (props: Props) => {
     </div>
   )
 
-  const changeDetailedListInput = (input: PivotTable[]) => {
+  const changeDetailedListInput = (input: Pivot[]) => {
     setPivotDetailedList(input)
   }
 
@@ -237,7 +236,7 @@ export const FailureCurve = (props: Props) => {
       <MultiSelectPivots
         pivots={pivots}
         callBack={updateDetailedListRows}
-        selectedOptions={selectedPivotsIDs}
+        selectedOptions={selectedPivotsKeys}
       />
       <PivotsDetailedList
         data={pivotDetailedList}

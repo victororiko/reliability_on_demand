@@ -1,17 +1,17 @@
-import {
-  Checkbox,
-  DetailsList,
-  IColumn,
-  IDropdownOption,
-  SelectionMode,
-  TooltipHost,
-} from '@fluentui/react'
 import React from 'react'
-import { PivotTable } from '../../models/failurecurve.model'
+import {
+  DetailsList,
+  TooltipHost,
+  SelectionMode,
+  IColumn,
+  Checkbox,
+  IDropdownOption,
+} from '@fluentui/react'
+import { Pivot } from '../../models/failurecurve.model'
 import { buildColumnArray, mapPivotTableColumnValue } from './service'
 
 interface Props {
-  data: PivotTable[]
+  data: Pivot[]
   callBack: any
 }
 
@@ -25,8 +25,13 @@ export const PivotsDetailedList = (props: Props) => {
       column?.fieldName as keyof IDropdownOption
     ] as string
 
-    if (column?.key === 'PivotID') return <span />
-    if (column?.key !== 'PivotName') {
+    if (
+      column?.key === 'IsSelectPivot' ||
+      column?.key === 'IsKeyPivot' ||
+      column?.key === 'IsApportionPivot' ||
+      column?.key === 'IsApportionJoinPivot' ||
+      column?.key === 'IsScopeFilter'
+    ) {
       return (
         <span>
           <Checkbox
@@ -37,7 +42,11 @@ export const PivotsDetailedList = (props: Props) => {
         </span>
       )
     }
-    return <span>{fieldContent}</span>
+
+    if (column?.key === 'PivotSourceColumnName') {
+      return <span>{fieldContent}</span>
+    }
+    return <span />
   }
 
   const onCheckboxChange = (
