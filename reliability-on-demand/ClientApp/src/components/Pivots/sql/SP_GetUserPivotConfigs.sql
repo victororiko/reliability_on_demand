@@ -17,20 +17,28 @@ CREATE PROCEDURE dbo.GetUserPivotConfigs
     @StudyConfigID int
 -- add more stored procedure parameters here
 AS
--- body of the stored procedure
-select
-    [dbo].[RELStudyPivotConfig].*,
-    [dbo].[RELPivotInfo].PivotName,
-    [dbo].[RELPivotInfo].PivotSource,
-    [dbo].[RELPivotInfo].PivotKey
-from [dbo].[RELStudyPivotConfig]
-    inner join [dbo].[RELPivotInfo]
-    on [dbo].[RELStudyPivotConfig].PivotKey = [dbo].[RELPivotInfo].PivotKey
-where PivotSource = @PivotSource and StudyConfigID = @StudyConfigID
-FOR JSON AUTO, Include_Null_Values
-    go
+DECLARE @StudyConfigIDtoUse INT;
+-- get previously configured user configs if they exixts
+IF EXISTS(
+    SELECT *
+FROM RELStudyPivotConfig
+WHERE PivotKey LIKE @PivotSource + '%' and StudyConfigID = @StudyConfigID
+)
+SET @StudyConfigIDtoUse = @StudyConfigID
+ELSE SET @StudyConfigIDtoUse = -1
+    SELECT
+        [dbo].[RELStudyPivotConfig].*,
+        [dbo].[RELPivotInfo].PivotName,
+        [dbo].[RELPivotInfo].PivotSource,
+        [dbo].[RELPivotInfo].PivotKey
+    FROM [dbo].[RELStudyPivotConfig]
+        INNER JOIN [dbo].[RELPivotInfo]
+        ON [dbo].[RELStudyPivotConfig].PivotKey = [dbo].[RELPivotInfo].PivotKey
+    WHERE PivotSource = @PivotSource and StudyConfigID = @StudyConfigIDtoUse
+    FOR JSON AUTO, Include_Null_Values
+    GO
 GO
 
-    -- Example
-    EXECUTE GetUserPivotConfigs 'DeviceCensusConsolidated.ss',1
+-- Example
+EXECUTE GetUserPivotConfigs 'DeviceCensusConsolidated.ss',1
 GO
