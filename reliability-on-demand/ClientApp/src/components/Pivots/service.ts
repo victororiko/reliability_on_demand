@@ -26,7 +26,7 @@ export const convertPivotInfoToOptions = (
       })
       .map((item: any) => {
         const rObj = {
-          key: item.PivotID,
+          key: item.PivotKey,
           text: item.PivotName,
         }
         return rObj

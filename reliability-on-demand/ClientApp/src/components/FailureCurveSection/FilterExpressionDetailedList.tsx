@@ -79,13 +79,13 @@ export const FilterExpressionDetailedList = (props: Props) => {
     item?: IDropdownOption
   ): void => {
     if (item) {
-        const target = event?.target as HTMLInputElement
-        const arr = target.id.toString().split('_')
+      const target = event?.target as HTMLInputElement
+      const arr = target.id.toString().split('_')
       const row = Number(arr[0])
-        const col = arr[1]
-        alert(row)
-        alert(col)
-        alert(item.text)
+      const col = arr[1]
+      alert(row)
+      alert(col)
+      alert(item.text)
       let updated = mapFilterExpTableColumnValue(
         changedFilterExp,
         row,

@@ -10,46 +10,52 @@ DROP PROCEDURE dbo.AddPivotConfig
 GO
 -- Create the stored procedure in the specified schema
 CREATE PROCEDURE dbo.AddPivotConfig
-    @StudyConfigID /*parameter name*/ int /*datatype*/,
-    @PivotKey /*parameter name*/ varchar(255) /*datatype*/,
-    @AggregateBy /*parameter name*/ bit /*datatype*/, 
-    @PivotSourceSubType /*parameter name*/ nvarchar(255) /*datatype*/ = 'no PivotSourceSubType provided' /*default value*/
-/*default value*/
--- add more stored procedure parameters here
+    @StudyConfigID int,
+    @PivotKey varchar(255),
+    @AggregateBy bit,
+    @PivotSourceSubType nvarchar(255)  = 'no PivotSourceSubType provided',
+    @PivotScopeOperator varchar(5) = '',
+    @PivotScopeID int = -1
 AS
--- add to StudyPivotConfig
+-- add to RELStudyPivotConfig table
 INSERT INTO [dbo].[RELStudyPivotConfig]
     (
-        StudyConfigID, 
-        PivotKey, 
-        AggregateBy,
-        PivotSourceSubType
+    StudyConfigID,
+    PivotKey,
+    AggregateBy,
+    PivotSourceSubType,
+    PivotScopeOperator,
+    PivotScopeID
     )
 VALUES
     (
         @StudyConfigID,
         @PivotKey,
         @AggregateBy,
-        @PivotSourceSubType
+        @PivotSourceSubType,
+        @PivotScopeOperator,
+        @PivotScopeID
     )
 GO
 
 -- example to execute the stored procedure we just created
 EXECUTE dbo.AddPivotConfig 
     @StudyConfigID = 1,
-    @PivotKey = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId',
+    @PivotKey = 'DeviceCensusConsolidated.ss_CleanupRule',
     @AggregateBy = 1 ,
     @PivotSourceSubType = 'AllMode'
 GO
 -- check if the pivot is added 
-SELECT * FROM RELStudyPivotConfig
-WHERE PivotKey = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId' AND StudyConfigID = 1	 
-GO 
+SELECT *
+FROM RELStudyPivotConfig
+WHERE PivotKey = 'DeviceCensusConsolidated.ss_CleanupRule' AND StudyConfigID = 1	 
+GO
 -- Cleanup: delete recently added pivot
 DELETE FROM RELStudyPivotConfig
-WHERE PivotKey = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId' AND StudyConfigID = 1	
+WHERE PivotKey = 'DeviceCensusConsolidated.ss_CleanupRule' AND StudyConfigID = 1	
 GO
 -- check if the pivot is deleted
-SELECT * FROM RELStudyPivotConfig
-WHERE PivotKey = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId' AND StudyConfigID = 1	 
+SELECT *
+FROM RELStudyPivotConfig
+WHERE PivotKey = 'DeviceCensusConsolidated.ss_CleanupRule' AND StudyConfigID = 1	 
 GO 

@@ -1,6 +1,12 @@
 export interface PivotSource {
   PivotSource: string
-  PivotSourcePath: string
-  PivotSourceType: string
-  PivotSourceViewPath: string
+}
+
+export interface PivotConfig {
+  StudyConfigID: number
+  PivotKey: string
+  AggregateBy: boolean
+  PivotSourceSubType: string
+  PivotScopeOperator: string
+  PivotScopeID: number
 }

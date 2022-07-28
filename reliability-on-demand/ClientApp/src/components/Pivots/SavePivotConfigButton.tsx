@@ -1,6 +1,7 @@
 import { PrimaryButton } from '@fluentui/react'
 import axios from 'axios'
 import React, { useEffect } from 'react'
+import { PivotConfig } from '../../models/pivot.model'
 
 type Props = {
   StudyConfigID: number
@@ -15,11 +16,13 @@ export const SavePivotConfigButton = (props: Props) => {
   const handleClick = () => {
     // loop through selectedPivots generating pivot config
     const ans = props.selectedPivots.map((item: any) => {
-      const rObj = {
+      const rObj: PivotConfig = {
         StudyConfigID: props.StudyConfigID,
-        PivotID: item.key,
+        PivotKey: item.key,
         AggregateBy: true,
         PivotSourceSubType: 'AllMode',
+        PivotScopeOperator: '',
+        PivotScopeID: -1,
       }
       return rObj
     })

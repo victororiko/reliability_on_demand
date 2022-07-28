@@ -7,7 +7,7 @@ export interface KeyTextPair {
   /**
    * Arbitrary string associated with this option.
    */
-  key: string | number
+  key: string
   /**
    * Text to render for this option
    */
@@ -24,22 +24,34 @@ export interface KeyTextPair {
 export const convertComplexTypeToOptions = (
   inputData: any[],
   useKey: string,
-  numericKey: boolean
+  useValue: string
 ): KeyTextPair[] => {
   let parsedList: KeyTextPair[] = []
-  parsedList = inputData.map((item: any, index: number) => {
-    if (numericKey) {
-      return {
-        key: index,
-        text: item[useKey],
-      }
-    }
+  parsedList = inputData.map((item: any) => {
     return {
       key: item[useKey],
-      text: item[useKey],
+      text: item[useValue],
     }
   })
   return parsedList
+}
+
+/**
+ *
+ * @param inputData 1 object
+ * @param useKey name of key to extract - you need to have this handy
+ * @param useValue name of value to extract - you need to have this handy
+ * @returns 1 Key/Text pair object that can be used in Comboboxes or Dropdowns
+ */
+export const convertObjectToOption = (
+  inputData: any,
+  useKey: string,
+  useValue: string
+): KeyTextPair => {
+  return {
+    key: inputData[useKey],
+    text: inputData[useValue],
+  }
 }
 
 /**

@@ -10,36 +10,43 @@ DROP PROCEDURE dbo.AddOrUpdatePivotConfig
 GO
 -- Create the stored procedure in the specified schema
 CREATE PROCEDURE dbo.AddOrUpdatePivotConfig
-    @StudyConfigID /*parameter name*/ int /*datatype*/,
-    @PivotKey /*parameter name*/ varchar(255) /*datatype*/,
-    @AggregateBy /*parameter name*/ bit /*datatype*/,
-    @PivotSourceSubType /*parameter name*/ nvarchar(255) /*datatype*/ = 'AllMode'/*default value*/
--- Update more stored procedure parameters here
+    @StudyConfigID int,
+    @PivotKey varchar(255),
+    @AggregateBy bit,
+    @PivotSourceSubType nvarchar(255) = 'AllMode',
+    @PivotScopeOperator varchar(5) = '',
+    @PivotScopeID int = -1
 AS
 IF EXISTS(
     -- Select rows from a Table or View 'RELStudyPivotConfig' in schema 'dbo'
     SELECT *
 FROM dbo.RELStudyPivotConfig
-WHERE PivotKey = @PivotKey	/* add search conditions here */
+WHERE PivotKey = @PivotKey 
+AND StudyConfigID = @StudyConfigID
+AND PivotScopeID = @PivotScopeID
 )
 -- Update existing pivot config
 EXECUTE dbo.UpdatePivotConfig 
         @StudyConfigID,
         @PivotKey,
         @AggregateBy,
-        @PivotSourceSubType
+        @PivotSourceSubType,
+        @PivotScopeOperator,
+        @PivotScopeID
 -- Else Add the new pivot config
 ELSE EXECUTE dbo.AddPivotConfig 
         @StudyConfigID,
         @PivotKey,
         @AggregateBy,
-        @PivotSourceSubType
+        @PivotSourceSubType,
+        @PivotScopeOperator,
+        @PivotScopeID
 GO
 
 -- example to execute the stored procedure with cleanup 
 -- (comment out if necessary)
 DECLARE @TestStudyConfigID AS INT = 16 ;
-DECLARE @TestPivotKey AS varchar(255) = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId';
+DECLARE @TestPivotKey AS varchar(255) = 'DeviceCensusConsolidated.ss_CleanupRule';
 -- make sure pivot does not exist 
 SELECT *
 FROM RELStudyPivotConfig

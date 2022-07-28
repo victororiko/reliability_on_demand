@@ -10,34 +10,45 @@ DROP PROCEDURE dbo.UpdatePivotConfig
 GO
 -- Create the stored procedure in the specified schema
 CREATE PROCEDURE dbo.UpdatePivotConfig
-    @StudyConfigID /*parameter name*/ int /*datatype*/,
-    @PivotKey /*parameter name*/ varchar(255) /*datatype*/,
-    @AggregateBy /*parameter name*/ bit /*datatype*/,
-    @PivotSourceSubType /*parameter name*/ nvarchar(255) /*datatype*/ = 'no PivotSourceSubType provided'/*default value*/
--- Update more stored procedure parameters here
+    @StudyConfigID int,
+    @PivotKey varchar(255),
+    @AggregateBy bit,
+    @PivotSourceSubType nvarchar(255) = 'no PivotSourceSubType provided',
+    @PivotScopeOperator varchar(5) = '',
+    @PivotScopeID int = -1
 AS
--- Update to StudyPivotConfig
+-- Update to RELStudyPivotConfig
 UPDATE RELStudyPivotConfig 
 SET 
-    AggregateBy = @AggregateBy
-    WHERE StudyConfigID = @StudyConfigID AND PivotKey = @PivotKey AND PivotSourceSubType = @PivotSourceSubType 
+    AggregateBy = @AggregateBy,
+    PivotScopeID = @PivotScopeID,
+    PivotScopeOperator = @PivotScopeOperator
+    WHERE StudyConfigID = @StudyConfigID
+    AND PivotKey = @PivotKey
+    AND PivotSourceSubType = @PivotSourceSubType
 GO
 GO
 
 -- example to execute the stored procedure we just created
-EXECUTE dbo.UpdatePivotConfig 
-    @StudyConfigID = 1,
-    @PivotKey = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId',
-    @AggregateBy = NULL ,
-    @PivotSourceSubType = 'AllMode'
-GO
--- check if the pivot is Updated 
+-- BEFORE
 SELECT *
 FROM RELStudyPivotConfig
-WHERE PivotKey = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId'
+WHERE PivotKey = 'DeviceCensusConsolidated.ss_CleanupRule'
 GO
--- get pivot info
+-- update
+EXECUTE dbo.UpdatePivotConfig 
+    @StudyConfigID = -1,
+    @PivotKey = 'DeviceCensusConsolidated.ss_CleanupRule',
+    @AggregateBy = 0,
+    @PivotSourceSubType = 'AllMode',
+    @PivotScopeOperator = 'AND'
+GO
+-- AFTER
 SELECT *
-FROM RELPivotInfo
-WHERE PivotKey = 'WatsonSnapshotAggViewUserMode.ss_globalDeviceId'
+FROM RELStudyPivotConfig
+WHERE PivotKey = 'DeviceCensusConsolidated.ss_CleanupRule'
+GO
+-- Cleanup
+DELETE FROM RELStudyPivotConfig
+WHERE StudyConfigID = -1 AND PivotKey = 'DeviceCensusConsolidated.ss_CleanupRule'
 GO

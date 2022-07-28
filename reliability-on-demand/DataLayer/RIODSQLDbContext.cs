@@ -854,9 +854,11 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
-            cmd.Parameters.Add(new SqlParameter("@PivotID", userConfig.PivotID));
+            cmd.Parameters.Add(new SqlParameter("@PivotKey", userConfig.PivotKey));
             cmd.Parameters.Add(new SqlParameter("@AggregateBy", userConfig.AggregateBy));
             cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", userConfig.PivotSourceSubType));
+            cmd.Parameters.Add(new SqlParameter("@PivotScopeOperator", userConfig.PivotScopeOperator));
+            cmd.Parameters.Add(new SqlParameter("@PivotScopeID", userConfig.PivotScopeID));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
@@ -881,7 +883,7 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
-            cmd.Parameters.Add(new SqlParameter("@PivotID", userConfig.PivotID));
+            cmd.Parameters.Add(new SqlParameter("@PivotKey", userConfig.PivotKey));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
