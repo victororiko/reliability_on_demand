@@ -160,13 +160,36 @@ namespace reliability_on_demand.Controllers
             }
         }
 
+        [Route("api/Data/GetAllScopeForPivotKeys")]
+        [HttpPost("[action]")]
+        public IActionResult GetAllScopeForPivotKeys([FromBody] string pivotkeys)
+        {
+            _logger.LogInformation($"Pivot Keys = {pivotkeys}");
+            if (pivotkeys == null)
+                return BadRequest("Bad request. Please provide pivot keys");
+            string res = this._sqlservice.GetAllScopeForPivotKeys(pivotkeys);
+            return Ok(res);
+        }
+
+        [Route("api/Data/GetFilterExpressionForPivotScopeIds")]
+        [HttpPost("[action]")]
+        public IActionResult GetFilterExpressionForPivotScopeIds([FromBody] StudyConfigIDWithScopesInquiry inquiry)
+        {
+            _logger.LogInformation($"Pivot Scope IDs = {inquiry}");
+            if (inquiry == null)
+                return BadRequest("Bad request. Please provide pivotscope ids");
+            string res = this._sqlservice.GetFilterExpressionForPivotScopeIds(inquiry);
+            return Ok(res);
+        }
+
         [Route("api/Data/GetAllVerticals")]
-        [HttpGet("[action]")]
+        [HttpGet("api/Data/GetAllVerticals")]
         public IActionResult GetAllVerticals()
         {
             try
             {
-                return Ok(this._sqlservice.GetAllVerticals());
+                string res = this._sqlservice.GetAllVerticals();
+                return Ok(res);
             }
             catch (Exception ex)
             {

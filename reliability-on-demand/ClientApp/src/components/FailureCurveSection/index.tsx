@@ -6,7 +6,7 @@ import { FailureModesSelection } from './FailureModesSelection'
 import { ConfigureVerticalButton } from './ConfigureVerticalButton'
 import { MultiSelectPivots } from './MultiSelectPivots'
 import { PivotsDetailedList } from './PivotsDetailedList'
-import { FilterExpressionDetailedList } from './FilterExpressionDetailedList'
+import { FilterExpressionDetailedList } from '../helpers/FilterExpression/FilterExpressionDetailedList'
 import { ConfigureFilterExpressionButton } from './ConfigureFilterExpressionButton'
 import { ValidateFilterExpression } from './ValidateFilterExpression'
 import { AddOrUpdateButton } from './AddOrUpdateButton'
@@ -19,15 +19,17 @@ import {
   FailureConfig,
   FilterExpTable,
 } from '../../models/failurecurve.model'
+import { StudyPivotConfig } from '../../models/filterexpression.model'
 import {
   extractModesFromVerticalPair,
   getPivotIDs,
   getPivotTableFromPivotSQL,
   AddNewSelectedPivots,
   loadFilterExpressionTable,
-  getAllFilteredPivots,
   getVerticalNamesFromPair,
   getVerticalNames,
+  getStudyPivotConfig,
+  getFilterExpTable,
 } from './service'
 
 export interface Props {
@@ -56,12 +58,14 @@ export const FailureCurve = (props: Props) => {
   const [filterExpTable, setFilterExpTable] = React.useState<FilterExpTable[]>(
     []
   )
+  const [studyConfigs, setStudyConfigs] = React.useState<StudyPivotConfig[]>([])
   const [pivotDetailedList, setPivotDetailedList] = React.useState<Pivot[]>([])
   const [selectedMode, setSelectedMode] = React.useState<string>('')
-  const [filterPivots, setFilterPivots] = React.useState<IDropdownOption[]>([])
   const [isValidFilterExp, setIsValidFilterExp] = React.useState<boolean>(false)
   const [buttonName, setButtonName] = React.useState<string>('')
   const [dataSaved, setDataSaved] = React.useState<boolean>(false)
+  const [callFilterExpBackend, setCallFilterExpBackend] =
+    React.useState<boolean>(true)
 
   const loadVerticals = () => {
     axios.get('api/Data/GetAllVerticals').then((res) => {
@@ -226,7 +230,8 @@ export const FailureCurve = (props: Props) => {
   const loadFilterExpression = () => {
     setConfigureFilterExpClicked(true)
     setFilterExpTable(loadFilterExpressionTable(pivotDetailedList))
-    setFilterPivots(getAllFilteredPivots(pivotDetailedList))
+    setStudyConfigs(getStudyPivotConfig(pivotDetailedList, props.StudyConfigID))
+    setCallFilterExpBackend(true)
   }
 
   const pivotSection = !modeSelected ? (
@@ -250,8 +255,10 @@ export const FailureCurve = (props: Props) => {
     setIsValidFilterExp(input)
   }
 
-  const updateFilterExpTable = (input: FilterExpTable[]) => {
-    setFilterExpTable(input)
+  const updateFilterExpTable = (input: StudyPivotConfig[], flag: boolean) => {
+    setFilterExpTable(getFilterExpTable(input))
+    setStudyConfigs(input)
+    setCallFilterExpBackend(flag)
   }
 
   const addOrUpdateStudy = (input: FailureConfig) => {
@@ -270,9 +277,9 @@ export const FailureCurve = (props: Props) => {
   ) : (
     <div>
       <FilterExpressionDetailedList
-        filterExpTable={filterExpTable}
-        filterExpPivots={filterPivots}
+        studyPivotConfigs={studyConfigs}
         callBack={updateFilterExpTable}
+        callBackend={callFilterExpBackend}
       />
       <ValidateFilterExpression
         FilterExpArr={filterExpTable}

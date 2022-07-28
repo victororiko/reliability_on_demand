@@ -5,6 +5,8 @@ import {
   PivotSQLResult,
   FilterExpTable,
 } from '../../models/failurecurve.model'
+import { StudyPivotConfig } from '../../models/filterexpression.model'
+import { CreateNewID } from '../helpers/utils'
 
 // converting verticals to Idropdown Pair
 export const getVerticalNames = (verticals: Vertical[]): IDropdownOption[] => {
@@ -202,7 +204,7 @@ export const getPivotTableFromPivotSQL = (data: PivotSQLResult[]): Pivot[] => {
         data[pivotptr].smap[0].IsSelectColumn === null
           ? false
           : data[pivotptr].smap[0].IsSelectColumn,
-      IsScopeFilter: data[pivotptr].smap[0].PivotScopeID !== -1,
+      IsScopeFilter: data[pivotptr].smap[0].PivotScopeID !== CreateNewID,
       UIInputDataType: data[pivotptr].UIInputDataType,
       PivotKey: data[pivotptr].PivotKey,
       FilterExpressions: filterexps,
@@ -398,7 +400,7 @@ export const getContainingElementFromArr = (
 ): string => {
   let res: string = ''
   for (const op of arr) {
-    if (input?.indexOf(op.key.toString()) !== -1 && op.key !== '') {
+    if (input?.indexOf(op.key.toString()) !== CreateNewID && op.key !== '') {
       res = op.key.toString()
       break
     }
@@ -530,4 +532,83 @@ export const getFailureCurvePivotsToSave = (
   }
 
   return pivots
+}
+
+// convert Pivot to StudyPivotConfig
+export const getStudyPivotConfig = (
+  input: Pivot[],
+  studyConfigID: number
+): StudyPivotConfig[] => {
+  const res: StudyPivotConfig[] = []
+
+  for (const ele of input) {
+    if (ele.IsScopeFilter === true) {
+      if (
+        ele.FilterExpressions === null ||
+        ele.FilterExpressions.length === 0
+      ) {
+        const studyconfig: StudyPivotConfig = {
+          PivotKey: ele.PivotKey,
+          PivotScopeID: CreateNewID,
+          PivotOperator: '',
+          PivotScopeValue: '',
+          StudyConfigID: studyConfigID,
+          RelationalOperator: '',
+          UIDataType: ele.UIInputDataType,
+        }
+
+        res.push(studyconfig)
+      }
+
+      for (const row of ele.FilterExpressions) {
+        const studyconfig: StudyPivotConfig = {
+          PivotKey: row.PivotKey,
+          PivotScopeID: row.PivotScopeID,
+          PivotOperator: row.Operator,
+          PivotScopeValue: row.PivotValue,
+          StudyConfigID: studyConfigID,
+          RelationalOperator: row.RelationalOperator,
+          UIDataType: row.UIInputDataType,
+        }
+
+        res.push(studyconfig)
+      }
+    }
+  }
+
+  if (res === null || res.length === 0)
+    res.push({
+      PivotKey: '',
+      PivotScopeID: 0,
+      PivotOperator: '',
+      PivotScopeValue: '',
+      StudyConfigID: studyConfigID,
+      RelationalOperator: '',
+      UIDataType: '',
+    })
+
+  return res
+}
+
+// convert StudyPivotConfig to FilterExpTable
+export const getFilterExpTable = (
+  input: StudyPivotConfig[]
+): FilterExpTable[] => {
+  const res: FilterExpTable[] = []
+
+  for (const ele of input) {
+    const row: FilterExpTable = {
+      PivotKey: ele.PivotKey,
+      PivotName: ele.PivotKey.split('_')[1],
+      PivotScopeID: ele.PivotScopeID,
+      PivotValue: ele.PivotScopeValue ?? '',
+      Operator: ele.PivotOperator ?? '',
+      RelationalOperator: ele.RelationalOperator ?? '',
+      UIInputDataType: ele.UIDataType ?? '',
+    }
+
+    res.push(row)
+  }
+
+  return res
 }

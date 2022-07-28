@@ -131,5 +131,15 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.ClearPivotConfig(userConfig);   
         }
+
+        string ISQLService.GetAllScopeForPivotKeys(string pivotkeys)
+        {
+            return _context.GetAllScopeForPivotKeys(pivotkeys);
+        }
+
+        string ISQLService.GetFilterExpressionForPivotScopeIds(StudyConfigIDWithScopesInquiry inquiry)
+        {
+            return _context.GetFilterExpressionForPivotScopeIds(inquiry);
+        }
     }
 }

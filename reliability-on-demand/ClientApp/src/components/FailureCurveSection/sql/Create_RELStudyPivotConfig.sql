@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[RELStudyPivotConfig]    Script Date: 7/22/2022 2:27:34 PM ******/
+/****** Object:  Table [dbo].[RELStudyPivotConfig]    Script Date: 7/27/2022 2:18:01 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -46,5 +46,8 @@ GO
 
 ALTER TABLE [dbo].[RELStudyPivotConfig]  WITH CHECK ADD FOREIGN KEY([PivotKey])
 REFERENCES [dbo].[RELPivotInfo] ([PivotKey])
-ON DELETE CASCADE ON UPDATE CASCADE
+ON UPDATE CASCADE
+ON DELETE CASCADE
 GO
+
+

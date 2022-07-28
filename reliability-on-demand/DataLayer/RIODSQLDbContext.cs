@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using reliability_on_demand.Extensions;
 using System;
 using System.Collections.Generic;
@@ -313,6 +314,66 @@ namespace reliability_on_demand.DataLayer
                 list.Add(obj);
             }
             return list;
+        }
+
+        // Get all pivotscope data for given pivot keys
+        public string GetAllScopeForPivotKeys(string pivotkeys)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+            StringBuilder sb = new StringBuilder();
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetJSONAllScopeForPivotKeys";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@PivotKeys", pivotkeys));
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+
+
+        // Get all filter expression data for given pivot socpe ids
+        public string GetFilterExpressionForPivotScopeIds(StudyConfigIDWithScopesInquiry inquiry)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            for (int pivotscopeidPtr = 0; pivotscopeidPtr < inquiry.PivotScopeIDs.Length; pivotscopeidPtr++)
+            {
+                //ensure that connection is open
+                this.Database.OpenConnection();
+                var cmd = this.Database.GetDbConnection().CreateCommand();
+                cmd.CommandText = "dbo.GetFilterExpressionForPivotScopeIds";
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                // add any params here
+                cmd.Parameters.Add(new SqlParameter("@PivotScopeId", inquiry.PivotScopeIDs[pivotscopeidPtr]));
+                cmd.Parameters.Add(new SqlParameter("@StudyConfigID", inquiry.StudyConfigID));
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.GetString(0) != null && reader.GetString(0).Length > 0)
+                        {
+                            sb.Append(reader.GetString(0)).Replace("[", "").Replace("]", ",");
+                        }
+                    }
+                }
+            }
+
+            string res = null;
+            if (sb != null && sb.Length > 0)
+            {
+                res = "";
+                sb.Insert(0, "[").Append("]");
+                var lastcomma = sb.ToString().LastIndexOf(',');
+                res = sb.ToString().Substring(0, lastcomma) + sb.ToString().Substring(lastcomma + 1);
+            }
+            return res;
         }
 
         //Get all verticals from the Failure vertical SQL table
