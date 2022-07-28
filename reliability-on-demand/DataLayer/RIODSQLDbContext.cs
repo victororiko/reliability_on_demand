@@ -496,37 +496,10 @@ namespace reliability_on_demand.DataLayer
 
             if (count > 0)
             {
-                List<int> list = GetScopeIdsForFailureConfig(failure);
-                for (int i = 0; i < list.Count; i++)
-                {
-                    //Order matters- first extract the pivot scope ids from the relstudypivotconfig table and delete pivot scope ids first
-                    DeleteStudyConfigIDFromPivotMapping(failure);
-                    DeletePivotScopeEnteries(list[i]);
-                }
+                DeleteStudyConfigIDFromPivotMapping(failure);
             }
 
             this.AddFailureConfigToSQL(failure, maxscopeid);
-        }
-
-        List<int> GetScopeIdsForFailureConfig(FailureConfig failure)
-        {
-            //ensure that connection is open
-            this.Database.OpenConnection();
-            List<int> lists = new List<int>();
-            var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetPivotScopeEnteries";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-            // add any params here
-            cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", failure.PivotSourceSubType));
-            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", failure.StudyConfigID));
-            using (var reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    lists.Add(reader.GetInt32(0));
-                }
-            }
-            return lists;
         }
 
         int GetMaximumStudyPivotConfigCount(FailureConfig failure)
@@ -541,18 +514,6 @@ namespace reliability_on_demand.DataLayer
             var maxScopeObj = cmd.ExecuteScalar();
             Int32 count = (Convert.IsDBNull(maxScopeObj) ? 0 : (Int32)maxScopeObj);
             return count;
-        }
-
-        void DeletePivotScopeEnteries(int pivotid)
-        {
-            this.Database.OpenConnection();
-            var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.DeletePivotScopeEnteries";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-            // add any params here
-            cmd.Parameters.Add(new SqlParameter("@PivotScopeID", pivotid));
-            var pivotscopereader = cmd.ExecuteReader();
-            pivotscopereader.Close();
         }
 
         void DeleteStudyConfigIDFromPivotMapping(FailureConfig failure)
@@ -591,9 +552,10 @@ namespace reliability_on_demand.DataLayer
                 var pivot = failure.Pivots[i];
                 for (int j = 0; j < pivot.FilterExpressions.Length; j++)
                 {
-                        AddFilterPivotToFailureCurve(failure, scopeid, pivot,pivot.FilterExpressions[j]);
-                        pivot.FilterExpressions[j].PivotScopeID = scopeid;
-                        scopeid++;
+                        int pivotscopeid = AddFilterPivotToFailureCurve(failure, scopeid, pivot,pivot.FilterExpressions[j]);
+                        pivot.FilterExpressions[j].PivotScopeID = pivotscopeid;
+                        if(pivotscopeid == scopeid)
+                            scopeid++;
                 }
             }
 
@@ -622,18 +584,42 @@ namespace reliability_on_demand.DataLayer
             this.Database.CloseConnection();
         }
 
-        void AddFilterPivotToFailureCurve(FailureConfig failure, int scopeid, Pivot pivot,FilterExpression filterexp)
+        int AddFilterPivotToFailureCurve(FailureConfig failure, int scopeid, Pivot pivot,FilterExpression filterexp)
         {
+            Int32 pivotscopeid = GetPivotScopeIDForFilterExp(filterexp);
+            if (pivotscopeid != 0)
+            {
+                return pivotscopeid;
+            }
+            else
+            {
+                var cmd = this.Database.GetDbConnection().CreateCommand();
+                cmd.CommandText = "dbo.AddFilterPivotToFailureCurve";
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                // add any params here
+                cmd.Parameters.Add(new SqlParameter("@PivotScopeID", scopeid));
+                cmd.Parameters.Add(new SqlParameter("@PivotScopeValue", filterexp.PivotValue));
+                cmd.Parameters.Add(new SqlParameter("@PivotOperator", filterexp.Operator));
+                cmd.Parameters.Add(new SqlParameter("@PivotKey", pivot.PivotKey));
+                var reader = cmd.ExecuteReader();
+                reader.Close();
+                return scopeid;
+            }
+        }
+
+        int GetPivotScopeIDForFilterExp(FilterExpression filterexp)
+        {
+            this.Database.OpenConnection();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.AddFilterPivotToFailureCurve";
+            cmd.CommandText = "dbo.GetPivotScopeIDForFilterExp";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@PivotScopeID", scopeid));
-            cmd.Parameters.Add(new SqlParameter("@PivotScopeValue", filterexp.PivotValue));
+            cmd.Parameters.Add(new SqlParameter("@PivotValue", filterexp.PivotValue));
+            cmd.Parameters.Add(new SqlParameter("@PivotKey", filterexp.PivotKey));
             cmd.Parameters.Add(new SqlParameter("@PivotOperator", filterexp.Operator));
-            cmd.Parameters.Add(new SqlParameter("@PivotKey", pivot.PivotKey));
-            var reader = cmd.ExecuteReader();
-            reader.Close();
+            var PivotScopeID = cmd.ExecuteScalar();
+            Int32 scopeid = (PivotScopeID == null ? 0 : (Int32)PivotScopeID);
+            return scopeid;
         }
 
         void AddWithoutFilterPivotToFailureCurve(FailureConfig failure, Pivot pivot)

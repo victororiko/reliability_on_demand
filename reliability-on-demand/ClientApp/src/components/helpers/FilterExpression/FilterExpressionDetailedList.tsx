@@ -27,12 +27,12 @@ import {
  * Returns an array of StudyPivotConfig
  * Param : StudyPivotConfigs-> array of StudyPivotConfig that are currently configured pivot scope ids or null in case the user wants to configure a new pivot as filter expression
  * Param : callBack -> Return array of StudyPivotConfig that takes 2 arguments -> array of StudyPivotConfig and boolean argument to tell if need to call backend or not
- * Param: callBackend -> decide to call the backend or not. It should be true for the first time to load the already configured or default filter expression. 
+ * Param: callBackend -> decide to call the backend or not. It should be true for the first time to load the already configured or default filter expression.
  * After that, it will be false if it is not explicitly set by the callee.
  * */
 interface Props {
   studyPivotConfigs: StudyPivotConfig[] // Currently configured pivotscope ids or null in case user wants to configure a new pivot as filter expression
-    callBack: any // Return array of StudyPivotConfig that takes 2 arguments -> array of StudyPivotConfig and boolean argument to tell if need to call backend or not
+  callBack: any // Return array of StudyPivotConfig that takes 2 arguments -> array of StudyPivotConfig and boolean argument to tell if need to call backend or not
   callBackend: boolean // Should be false in all the cases where you don't want to reset the filter expression component by reloading the configured filter expression again.
 }
 

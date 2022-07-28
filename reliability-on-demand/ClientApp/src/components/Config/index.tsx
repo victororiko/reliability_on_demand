@@ -41,8 +41,8 @@ export const Config = (props: any) => {
           ) : (
             <div>
               <Pivots StudyConfigID={currentStudyConfigID} />
-              {/* <FailureCurve StudyConfigID={currentStudyConfigID} />
-              <Metrics StudyConfigID={currentStudyConfigID} /> */}
+              <FailureCurve StudyConfigID={currentStudyConfigID} />
+              <Metrics StudyConfigID={currentStudyConfigID} />
             </div>
           )}
         </div>
