@@ -552,10 +552,10 @@ namespace reliability_on_demand.DataLayer
                 var pivot = failure.Pivots[i];
                 for (int j = 0; j < pivot.FilterExpressions.Length; j++)
                 {
-                        int pivotscopeid = AddFilterPivotToFailureCurve(failure, scopeid, pivot,pivot.FilterExpressions[j]);
-                        pivot.FilterExpressions[j].PivotScopeID = pivotscopeid;
-                        if(pivotscopeid == scopeid)
-                            scopeid++;
+                    int pivotscopeid = AddFilterPivotToFailureCurve(failure, scopeid, pivot, pivot.FilterExpressions[j]);
+                    pivot.FilterExpressions[j].PivotScopeID = pivotscopeid;
+                    if (pivotscopeid == scopeid)
+                        scopeid++;
                 }
             }
 
@@ -565,7 +565,7 @@ namespace reliability_on_demand.DataLayer
                 cmd = this.Database.GetDbConnection().CreateCommand();
                 for (int j = 0; j < pivot.FilterExpressions.Length; j++)
                 {
-                    AddFilterPivotsAndValuesToFailureCurve(failure, pivot,pivot.FilterExpressions[j]);
+                    AddFilterPivotsAndValuesToFailureCurve(failure, pivot, pivot.FilterExpressions[j]);
                 }
 
                 if ((pivot.FilterExpressions == null || pivot.FilterExpressions.Length == 0) || pivot.IsScopeFilter == false)
@@ -584,7 +584,7 @@ namespace reliability_on_demand.DataLayer
             this.Database.CloseConnection();
         }
 
-        int AddFilterPivotToFailureCurve(FailureConfig failure, int scopeid, Pivot pivot,FilterExpression filterexp)
+        int AddFilterPivotToFailureCurve(FailureConfig failure, int scopeid, Pivot pivot, FilterExpression filterexp)
         {
             Int32 pivotscopeid = GetPivotScopeIDForFilterExp(filterexp);
             if (pivotscopeid != 0)
@@ -640,7 +640,7 @@ namespace reliability_on_demand.DataLayer
             reader.Close();
         }
 
-        void AddFilterPivotsAndValuesToFailureCurve(FailureConfig failure, Pivot pivot,FilterExpression filterexp)
+        void AddFilterPivotsAndValuesToFailureCurve(FailureConfig failure, Pivot pivot, FilterExpression filterexp)
         {
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "dbo.AddFilterPivotsAndValuesToFailureCurve";
@@ -890,12 +890,45 @@ namespace reliability_on_demand.DataLayer
             return sb.ToString();
         }
 
+        private bool EmptyScope(PopulationPivotConfig userConfig)
+        {
+            return userConfig.PivotScopeValue == "";
+        }
+
+        private int GetMaxScopeID()
+        {
+            this.Database.OpenConnection();
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetMaximumPivotScopeID";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            var maxScopeObj = cmd.ExecuteScalar();
+            Int32 maxscopeid = (Convert.IsDBNull(maxScopeObj) ? 0 : (Int32)maxScopeObj);
+            return maxscopeid;
+        }
+
         public string AddOrUpdatePivotConfig(PopulationPivotConfig userConfig)
         {
             //ensure that connection is open
             this.Database.OpenConnection();
 
-            // prepare store procedure with necessary parameters
+            int nextScopeID = userConfig.PivotScopeID;
+            if (!EmptyScope(userConfig))
+            {
+                // get max scopeid
+                nextScopeID = GetMaxScopeID() + 1;
+                // add scope to RELPivotScope table
+                var cmd2 = this.Database.GetDbConnection().CreateCommand();
+                cmd2.CommandText = "dbo.AddFilterPivotToFailureCurve";
+                cmd2.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd2.Parameters.Add(new SqlParameter("@PivotScopeID", nextScopeID));
+                cmd2.Parameters.Add(new SqlParameter("@PivotScopeValue", userConfig.PivotScopeValue));
+                cmd2.Parameters.Add(new SqlParameter("@PivotOperator", userConfig.RelationalOperator));
+                cmd2.Parameters.Add(new SqlParameter("@PivotKey", userConfig.PivotKey));
+                var reader = cmd2.ExecuteReader();
+                reader.Close();
+
+            }
+
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "dbo.AddOrUpdatePivotConfig";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
@@ -904,8 +937,8 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@PivotKey", userConfig.PivotKey));
             cmd.Parameters.Add(new SqlParameter("@AggregateBy", userConfig.AggregateBy));
             cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", userConfig.PivotSourceSubType));
-            cmd.Parameters.Add(new SqlParameter("@PivotScopeOperator", userConfig.PivotScopeOperator));
-            cmd.Parameters.Add(new SqlParameter("@PivotScopeID", userConfig.PivotScopeID));
+            cmd.Parameters.Add(new SqlParameter("@PivotScopeOperator", userConfig.RelationalOperator));
+            cmd.Parameters.Add(new SqlParameter("@PivotScopeID", nextScopeID));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();

@@ -53,7 +53,14 @@ export const FilterExpressionDetailedList = (props: Props) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getPivotScopeInfo = (input: StudyPivotConfig[]) => {
     //
-    if (props.callBackend === false) {
+
+    if (
+      props.studyPivotConfigs === null ||
+      props.studyPivotConfigs.length === 0
+    ) {
+      setSelectedPivotKeys([])
+      setChangedFilterExp([])
+    } else if (props.callBackend === false) {
       setChangedFilterExp(input)
     } else {
       setSelectedPivotKeys(getAllFilteredPivots(props.studyPivotConfigs))

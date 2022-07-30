@@ -26,11 +26,12 @@ export const Pivots = (props: Props) => {
         if (response.data) setPivotSources(response.data as PivotSource[])
         else setPivotSources([])
         setLoading(false)
+        setSelectedPivotSource(undefined) // let the user select a pivot source at each render
       })
       .catch((exception) => {
         return console.error(exception)
       })
-  }, [])
+  }, [props.StudyConfigID])
 
   // callback
   const print = (selection: IComboBoxOption) => {

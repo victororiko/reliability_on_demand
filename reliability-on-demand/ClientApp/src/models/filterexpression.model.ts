@@ -9,6 +9,12 @@ export interface StudyPivotConfig {
   PivotName?: string
 }
 
+export interface PopulationPivotConfig extends StudyPivotConfig {
+  AggregateBy: boolean
+  PivotSourceSubType: string
+  PivotScopeOperator: string
+}
+
 export interface FilterExpTable {
   RelationalOperator: string
   PivotName: string

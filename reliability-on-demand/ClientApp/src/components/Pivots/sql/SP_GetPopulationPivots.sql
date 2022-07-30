@@ -23,3 +23,7 @@ WHERE PivotSource = @PivotSource
 FOR JSON AUTO, Include_Null_Values
     go
 GO
+
+-- Example
+EXECUTE GetPopulationPivots 'DeviceCensusConsolidated.ss'
+GO
