@@ -4,7 +4,10 @@ import React, { useEffect, useState } from 'react'
 import { PivotSource } from '../../models/pivot.model'
 import { Loading } from '../helpers/Loading'
 import { MySingleSelectComboBox } from '../helpers/MySingleSelectComboBox'
-import { convertComplexTypeToOptions } from '../helpers/utils'
+import {
+  convertComplexTypeToOptions,
+  PopulationSourceType,
+} from '../helpers/utils'
 import { PivotConfigDetails } from './PivotConfigDetails'
 
 type Props = {
@@ -21,7 +24,7 @@ export const Pivots = (props: Props) => {
   useEffect(() => {
     setLoading(true)
     axios
-      .get('api/Data/GetPopulationPivotSources')
+      .get(`api/Data/GetAllSourcesForGivenSourceType/${PopulationSourceType}`)
       .then((response) => {
         if (response.data) setPivotSources(response.data as PivotSource[])
         else setPivotSources([])

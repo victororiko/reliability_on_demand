@@ -110,9 +110,9 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.DeleteMetricConfig(userConfig);
         }
-        string ISQLService.GetPopulationPivotSources()
+        string ISQLService.GetAllSourcesForGivenSourceType(string sourcetype)
         {
-            return _context.GetPopulationPivotSources();
+            return _context.GetAllSourcesForGivenSourceType(sourcetype);
         }
         string ISQLService.GetPopulationPivots(string PivotSource)
         {

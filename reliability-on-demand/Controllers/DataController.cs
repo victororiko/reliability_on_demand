@@ -335,14 +335,14 @@ namespace reliability_on_demand.Controllers
             }
         }
 
-        [Route("api/Data/GetPopulationPivotSources")]
+        [Route("api/Data/GetAllSourcesForGivenSourceType/{sourcetype}")]
         [HttpGet]
-        public IActionResult GetPopulationPivotSources()
+        public IActionResult GetAllSourcesForGivenSourceType(string sourcetype)
         {
             try
             {
                 _logger.LogInformation("GetPopulationPivotSources was called");
-                var result = this._sqlservice.GetPopulationPivotSources();
+                var result = this._sqlservice.GetAllSourcesForGivenSourceType(sourcetype);
                 if (result == null)
                     return BadRequest("Something wrong with the SQL Service. Could not get GetPopulationPivotSources. Please try again in a few mins.");
                 return Ok(result);

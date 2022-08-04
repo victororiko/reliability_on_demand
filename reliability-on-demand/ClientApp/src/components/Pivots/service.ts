@@ -1,7 +1,5 @@
 import { IComboBoxOption } from '@fluentui/react/lib/components/ComboBox'
-import {
-  PopulationPivotConfig
-} from '../../models/filterexpression.model'
+import { PopulationPivotConfig } from '../../models/filterexpression.model'
 import { CreateNewID } from '../helpers/utils'
 
 export const convertPivotSourceToOptions = (inputData: any) => {

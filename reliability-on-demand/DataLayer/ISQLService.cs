@@ -25,7 +25,7 @@ namespace reliability_on_demand.DataLayer
         string GetMetricConfigs(int StudyConfigID);
         string UpdateMetricConfig(MetricConfig userConfig);
         string DeleteMetricConfig(MetricConfig userConfig);
-        string GetPopulationPivotSources();
+        string GetAllSourcesForGivenSourceType(string sourcetype);
         string GetPopulationPivots(string PivotSource);
         string GetUserPivotConfigs(string PivotSource, int StudyConfigID);
         string AddOrUpdatePivotConfig(PopulationPivotConfig userConfig);

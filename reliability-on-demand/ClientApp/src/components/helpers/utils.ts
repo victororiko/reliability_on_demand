@@ -101,6 +101,9 @@ export const UnAuthorizedMessage = 'You are unauthorized to view the page'
 
 export const MAXNUMPIVOTSINCOMBOBOX = 4
 
+export const PopulationSourceType = 'PopulationSourceType'
+export const AllSourceType = 'All'
+
 export const myParseInt = (value: string): number => {
   return parseInt(value, 10)
 }

@@ -2,16 +2,16 @@ import { IComboBoxOption } from '@fluentui/react'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import {
-    PopulationPivotConfig,
-    StudyPivotConfig
+  PopulationPivotConfig,
+  StudyPivotConfig,
 } from '../../models/filterexpression.model'
 import { FilterExpressionDetailedList } from '../helpers/FilterExpression/FilterExpressionDetailedList'
 import { MessageBox } from '../helpers/MessageBox'
 import { MyMultiSelectComboBox } from '../helpers/MyMultiSelectComboBox'
 import { SavePivotConfigButton } from './SavePivotConfigButton'
 import {
-    convertPivotInfoToOptions,
-    generateCorrespondingStudyConfig
+  convertPivotInfoToOptions,
+  generateCorrespondingStudyConfig,
 } from './service'
 
 interface IPivotConfigDetailsProps {
