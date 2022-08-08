@@ -359,7 +359,7 @@ namespace reliability_on_demand.Controllers
         public IActionResult GetPopulationPivots(string PivotSource)
         {
             try
-            { 
+            {
                 string res = this._sqlservice.GetPopulationPivots(PivotSource);
                 _logger.LogInformation($"GetPopulationPivots called with PivotSource = {PivotSource}");
                 return Ok(res);
@@ -389,20 +389,26 @@ namespace reliability_on_demand.Controllers
         }
 
         [HttpPost("api/Data/AddOrUpdatePivotConfig/")]
-        public IActionResult AddOrUpdatePivotConfig(PopulationPivotConfig userConfig)
+        public IActionResult AddOrUpdatePivotConfig([FromBody] PopulationPivotConfig[] allUserConfigs)
         {
-            try
+            this._sqlservice.AddOrUpdatePivotConfig(allUserConfigs);
+            foreach (PopulationPivotConfig userConfig in allUserConfigs)
             {
-                string res = this._sqlservice.AddOrUpdatePivotConfig(userConfig);
-                _logger.LogInformation($"AddOrUpdatePivotConfig called with userConfig = {userConfig}");
-                return Ok(res);
+                _logger.LogDebug(userConfig.ToString());
             }
-            catch (Exception ex)
-            {
-                string message = $"Failed AddOrUpdatePivotConfig.\nException = {ex}";
-                _logger.LogError(message);
-                return BadRequest(message);
-            }
+            return Ok();
+            //try
+            //{
+            //    string res = this._sqlservice.AddOrUpdatePivotConfig(userConfig);
+            //    _logger.LogInformation($"AddOrUpdatePivotConfig called with userConfig = {userConfig}");
+            //    return Ok(res);
+            //}
+            //catch (Exception ex)
+            //{
+            //    string message = $"Failed AddOrUpdatePivotConfig.\nException = {ex}";
+            //    _logger.LogError(message);
+            //    return BadRequest(message);
+            //}
         }
 
         [HttpPost("api/Data/ClearPivotConfig/")]

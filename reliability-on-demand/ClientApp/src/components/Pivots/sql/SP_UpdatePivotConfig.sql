@@ -17,18 +17,21 @@ CREATE PROCEDURE dbo.UpdatePivotConfig
     @PivotScopeOperator varchar(5) = '',
     @PivotScopeID int = -1
 AS
--- Update to RELStudyPivotConfig
-UPDATE RELStudyPivotConfig 
-SET 
-    AggregateBy = @AggregateBy,
-    PivotScopeID = @PivotScopeID,
-    PivotScopeOperator = @PivotScopeOperator
-    WHERE StudyConfigID = @StudyConfigID
+-- Delete rows from table 'RELStudyPivotCofig'
+DELETE FROM RELStudyPivotConfig
+WHERE StudyConfigID = @StudyConfigID
     AND PivotKey = @PivotKey
-    AND PivotSourceSubType = @PivotSourceSubType
+    AND PivotScopeID = @PivotScopeID
+-- Add a new row with new PivotScopeID
+EXECUTE AddPivotConfig
+        @StudyConfigID,
+        @PivotKey,
+        @AggregateBy,
+        @PivotSourceSubType,
+        @PivotScopeOperator,
+        @PivotScopeID
 GO
 GO
-
 -- example to execute the stored procedure we just created
 -- BEFORE
 SELECT *

@@ -15,28 +15,38 @@ export const SavePivotConfigButton = (props: Props) => {
 
   const handleClick = () => {
     // loop through selectedPivots generating pivot config
-    const ans = props.selectedPivots
+    const pivotsWithStudyConfigID = props.selectedPivots.map((item) => {
+      return {
+        ...item,
+        StudyConfigID: props.StudyConfigID,
+      }
+    })
 
     // save all generated PivotConfigs - one by one
-    for (const pivotConfig of ans) {
-      axios
-        .post('api/Data/AddOrUpdatePivotConfig/', pivotConfig)
-        .then((response) => {
-          props.callbackStatus('Pivot Configs saved Successfully')
-        })
-        .catch((exception) => {
-          props.callbackStatus('Error: Failed to save Pivot Configs')
-          return console.error(exception)
-        })
-    }
+    axios
+      .post('api/Data/AddOrUpdatePivotConfig/', pivotsWithStudyConfigID)
+      .then((response) => {
+        props.callbackStatus('Pivot Configs saved Successfully')
+      })
+      .catch((exception) => {
+        props.callbackStatus('Error: Failed to save Pivot Configs')
+        return console.error(exception)
+      })
+
     console.debug(
       `Saved pivot config(s) with study id = ${props.StudyConfigID}`
     )
-    console.debug(`Saved list of pivots = ${JSON.stringify(ans, null, 2)}`)
+    console.debug(
+      `Saved list of pivots = ${JSON.stringify(
+        pivotsWithStudyConfigID,
+        null,
+        2
+      )}`
+    )
   }
   return (
     <div>
-      <PrimaryButton text="Add Pivot Configs" onClick={handleClick} />
+      <PrimaryButton text="Save" onClick={handleClick} />
     </div>
   )
 }
