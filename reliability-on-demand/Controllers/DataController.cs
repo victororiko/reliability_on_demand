@@ -391,24 +391,20 @@ namespace reliability_on_demand.Controllers
         [HttpPost("api/Data/AddOrUpdatePivotConfig/")]
         public IActionResult AddOrUpdatePivotConfig([FromBody] PopulationPivotConfig[] allUserConfigs)
         {
-            this._sqlservice.AddOrUpdatePivotConfig(allUserConfigs);
-            foreach (PopulationPivotConfig userConfig in allUserConfigs)
+            try
             {
-                _logger.LogDebug(userConfig.ToString());
+                string res = this._sqlservice.AddOrUpdatePivotConfig(allUserConfigs);
+                _logger.LogInformation("AddOrUpdatePivotConfig called with following userConfigs:\n");
+                foreach(var userConfig in allUserConfigs)
+                    _logger.LogInformation($"{userConfig}");
+                return Ok(res);
             }
-            return Ok();
-            //try
-            //{
-            //    string res = this._sqlservice.AddOrUpdatePivotConfig(userConfig);
-            //    _logger.LogInformation($"AddOrUpdatePivotConfig called with userConfig = {userConfig}");
-            //    return Ok(res);
-            //}
-            //catch (Exception ex)
-            //{
-            //    string message = $"Failed AddOrUpdatePivotConfig.\nException = {ex}";
-            //    _logger.LogError(message);
-            //    return BadRequest(message);
-            //}
+            catch (Exception ex)
+            {
+                string message = $"Failed AddOrUpdatePivotConfig.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
         }
 
         [HttpPost("api/Data/ClearPivotConfig/")]

@@ -35,7 +35,11 @@ export const Config = (props: any) => {
         ''
       ) : (
         <div>
-          <Study teamid={currentTeamId} callback={selectStudy} />
+          <Study
+            teamid={currentTeamId}
+            callback={selectStudy}
+            queryStringParams={params}
+          />
           {currentStudyConfigID === CreateNewID ? (
             ''
           ) : (

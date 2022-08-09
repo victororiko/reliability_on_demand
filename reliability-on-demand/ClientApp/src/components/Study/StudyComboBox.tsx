@@ -17,12 +17,22 @@ interface Props {
   data: StudyConfig[]
   callBack: any
   callBacksetStudyConfigID: any
+  queryStringParams: any
 }
 
 export const StudyComboBox = (props: Props) => {
   const [selectedItem, setSelectedItem] = useState<IComboBoxOption | null>(null)
   useEffect(() => {
-    setSelectedItem(null) // force combobox to show placeholder text by default
+    const foundStudy = props.data.find((item: StudyConfig) => {
+      return item.StudyName === props.queryStringParams.StudyName
+    })
+    if (foundStudy) {
+      setSelectedItem({
+        key: foundStudy.StudyConfigID.toString(),
+        text: foundStudy.StudyName,
+      })
+      props.callBacksetStudyConfigID(foundStudy.StudyConfigID)
+    } else setSelectedItem(null) // force combobox to show placeholder text by default or if no study is found
   }, [props.data])
 
   const handleChange = (
