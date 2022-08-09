@@ -66,6 +66,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Remove="ClientApp\src\components\Admin\PivotsDetailedList.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\helpers\FilterExpression\FilterExpressionDetailedList.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\helpers\FilterExpression\service.ts" />
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\AddOrUpdateButton.tsx" />

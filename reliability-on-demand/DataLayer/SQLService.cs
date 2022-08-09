@@ -141,5 +141,15 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.GetFilterExpressionForPivotScopeIds(inquiry);
         }
+
+        string ISQLService.GetPivotsForGivenSource(string source)
+        {
+            return _context.GetPivotsForGivenSource(source);
+        }
+
+        string ISQLService.GetAdminConfiguredPivotsData(string source)
+        {
+            return _context.GetAdminConfiguredPivotsData(source);
+        }
     }
 }

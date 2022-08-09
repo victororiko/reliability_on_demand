@@ -32,5 +32,7 @@ namespace reliability_on_demand.DataLayer
         string ClearPivotConfig(PopulationPivotConfig userConfig);
         string GetAllScopeForPivotKeys(string pivotkeys);
         string GetFilterExpressionForPivotScopeIds(StudyConfigIDWithScopesInquiry inquiry);
+        string GetPivotsForGivenSource(string source);
+        string GetAdminConfiguredPivotsData(string source);
     }
 }

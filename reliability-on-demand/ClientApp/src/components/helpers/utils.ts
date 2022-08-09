@@ -104,6 +104,9 @@ export const MAXNUMPIVOTSINCOMBOBOX = 4
 export const PopulationSourceType = 'PopulationSourceType'
 export const AllSourceType = 'All'
 
+export const MinWidth = 200
+export const MaxWidth = 250
+
 export const myParseInt = (value: string): number => {
   return parseInt(value, 10)
 }

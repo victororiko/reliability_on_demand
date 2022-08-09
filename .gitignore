@@ -34,3 +34,4 @@ test-report.xml
 /.vs
 reliability-on-demand/ClientApp/test-report.xml
 *.dgml
+/reliability-on-demand/ClientApp/src/components/helpers/ValidateExpression/service.ts

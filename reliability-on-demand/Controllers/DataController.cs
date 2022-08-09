@@ -427,5 +427,38 @@ namespace reliability_on_demand.Controllers
                 return BadRequest(message);
             }
         }
+
+        [HttpGet("api/Data/GetPivotsForGivenSource/{source}")]
+        public IActionResult GetPivotsForGivenSource(string source)
+        {
+            try
+            {
+                string res = this._sqlservice.GetPivotsForGivenSource(source);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetPivotsForGivenSource.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+
+        [HttpGet("api/Data/GetAdminConfiguredPivotsData/{source}")]
+        public IActionResult GetAdminConfiguredPivotsData(string source)
+        {
+            try
+            {
+                string res = this._sqlservice.GetAdminConfiguredPivotsData(source);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetAdminConfiguredPivotsData.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
     }
 }

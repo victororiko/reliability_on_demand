@@ -1,12 +1,12 @@
 export interface StudyPivotConfig {
+  PivotName?: string
+  UIDataType?: string
   PivotKey: string
   StudyConfigID: number
   PivotScopeID: number
   PivotScopeValue?: string
   PivotOperator?: string
-  UIDataType?: string
   RelationalOperator?: string
-  PivotName?: string
 }
 
 export interface PopulationPivotConfig extends StudyPivotConfig {
