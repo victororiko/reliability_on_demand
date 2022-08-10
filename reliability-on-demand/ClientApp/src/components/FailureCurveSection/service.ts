@@ -470,38 +470,6 @@ export const mapFilterExpTableColumnValue = (
   return FilterExpTableTemp
 }
 
-// Get relational count to form the filter expression
-export const getRelationalOperatorCount = (input: FilterExpTable[]): number => {
-  let ropCount = 0
-  for (const ele of input) {
-    if (ele.RelationalOperator !== null && ele.RelationalOperator !== '') {
-      ropCount += 1
-    }
-  }
-
-  return ropCount
-}
-
-// forming filter expression to display it to the user
-export const showFilterExpression = (input: FilterExpTable[]) => {
-  let filterexp = ''
-  let lastPieceInExp = ''
-
-  for (const ele of input) {
-    if (ele.RelationalOperator !== null && ele.RelationalOperator !== '') {
-      filterexp = `${filterexp} ${ele.PivotName} ${ele.Operator} ${ele.PivotValue} ${ele.RelationalOperator}`
-    } else {
-      lastPieceInExp = `${ele.PivotName} ${ele.Operator} ${ele.PivotValue}`
-    }
-  }
-
-  filterexp = `${filterexp} ${lastPieceInExp}`
-
-  filterexp = filterexp.trim()
-
-  return filterexp
-}
-
 export const getFailureCurvePivotsToSave = (
   filterExpTable: FilterExpTable[],
   pivots: Pivot[]

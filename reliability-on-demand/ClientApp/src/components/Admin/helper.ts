@@ -1,4 +1,5 @@
 import { buildColumns, IColumn, IComboBoxOption } from '@fluentui/react'
+import { StudyPivotConfig } from '../../models/filterexpression.model'
 import { Pivot } from '../../models/pivot.model'
 import { TeamConfig } from '../../models/team.model'
 import { EmptyFieldErrorMessage, MinWidth, MaxWidth } from '../helpers/utils'
@@ -125,9 +126,9 @@ const addDataTypesColumns = (data: Pivot[]): IColumn[] => {
         cols.push({
           key: ele.fieldName ?? '',
           name: ele.fieldName ?? '',
-            fieldName: ele.fieldName ?? '',
-            minWidth: MinWidth,
-            maxWidth: MaxWidth,
+          fieldName: ele.fieldName ?? '',
+          minWidth: MinWidth,
+          maxWidth: MaxWidth,
           isResizable: true,
         })
         break
@@ -149,9 +150,9 @@ const addCheckBoxColumns = (data: Pivot[]): IColumn[] => {
         cols.push({
           key: ele.fieldName ?? '',
           name: ele.fieldName ?? '',
-            fieldName: ele.fieldName ?? '',
-            minWidth: MinWidth,
-            maxWidth: MaxWidth,
+          fieldName: ele.fieldName ?? '',
+          minWidth: MinWidth,
+          maxWidth: MaxWidth,
           isResizable: true,
         })
         break
@@ -174,9 +175,9 @@ const addCheckBoxColumns = (data: Pivot[]): IColumn[] => {
         cols.push({
           key: ele.fieldName ?? '',
           name: ele.fieldName ?? '',
-            fieldName: ele.fieldName ?? '',
-            minWidth: MinWidth,
-            maxWidth: MaxWidth,
+          fieldName: ele.fieldName ?? '',
+          minWidth: MinWidth,
+          maxWidth: MaxWidth,
           isResizable: true,
         })
         break
@@ -198,9 +199,9 @@ const addTextBoxColumns = (data: Pivot[]): IColumn[] => {
         cols.push({
           key: ele.fieldName ?? '',
           name: ele.fieldName ?? '',
-            fieldName: ele.fieldName ?? '',
-            minWidth: MinWidth,
-            maxWidth: MaxWidth,
+          fieldName: ele.fieldName ?? '',
+          minWidth: MinWidth,
+          maxWidth: MaxWidth,
           isResizable: true,
           isMultiline: true,
         })
@@ -280,4 +281,23 @@ export const AddNewPivotsToDetailedList = (
   }
 
   return res
+}
+
+export const convertToStudyConfig = (input: Pivot[]): StudyPivotConfig[] => {
+  const arr: StudyPivotConfig[] = []
+
+  for (const ele of input) {
+    if (ele.IsScopeFilter === true) {
+      const row: StudyPivotConfig = {
+        StudyConfigID: ele.StudyConfigID,
+        PivotScopeID: ele.PivotScopeID,
+        PivotKey: ele.PivotKey,
+        PivotName: ele.PivotName,
+      }
+
+      arr.push(row)
+    }
+  }
+
+  return arr
 }

@@ -8,7 +8,6 @@ import { MultiSelectPivots } from './MultiSelectPivots'
 import { PivotsDetailedList } from './PivotsDetailedList'
 import { FilterExpressionDetailedList } from '../helpers/FilterExpression/FilterExpressionDetailedList'
 import { ConfigureFilterExpressionButton } from './ConfigureFilterExpressionButton'
-import { ValidateFilterExpression } from './ValidateFilterExpression'
 import { AddOrUpdateButton } from './AddOrUpdateButton'
 import { Loading } from '../helpers/Loading'
 import { WikiLink } from '../helpers/WikiLink'
@@ -252,11 +251,11 @@ export const FailureCurve = (props: Props) => {
   )
 
   const validateFilterExpression = (input: boolean) => {
+    setFilterExpTable(getFilterExpTable(studyConfigs))
     setIsValidFilterExp(input)
   }
 
   const updateFilterExpTable = (input: StudyPivotConfig[], flag: boolean) => {
-    setFilterExpTable(getFilterExpTable(input))
     setStudyConfigs(input)
     setCallFilterExpBackend(flag)
   }
@@ -280,10 +279,7 @@ export const FailureCurve = (props: Props) => {
         studyPivotConfigs={studyConfigs}
         callBack={updateFilterExpTable}
         callBackend={callFilterExpBackend}
-      />
-      <ValidateFilterExpression
-        FilterExpArr={filterExpTable}
-        callBack={validateFilterExpression}
+        validateExpCallBack={validateFilterExpression}
       />
     </div>
   )

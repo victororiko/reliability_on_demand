@@ -7,8 +7,15 @@ import { AllSourceType } from '../helpers/utils'
 import { MySingleSelectComboBox } from '../helpers/MySingleSelectComboBox'
 import { MyMultiSelectComboBox } from '../helpers/MyMultiSelectComboBox'
 import { Pivot } from '../../models/pivot.model'
-import { convertToPivot, AddNewPivotsToDetailedList } from './helper'
+import {
+  convertToPivot,
+  AddNewPivotsToDetailedList,
+  convertToStudyConfig,
+} from './helper'
 import { PivotsDetailedList } from './PivotsDetailedList'
+import { ConfigureFilterExpressionButton } from './ConfigureFilterExpressionButton'
+import { FilterExpressionDetailedList } from '../helpers/FilterExpression/FilterExpressionDetailedList'
+import { StudyPivotConfig } from '../../models/filterexpression.model'
 
 export interface IManagePivotsProps {}
 
@@ -24,6 +31,13 @@ export const ManagePivots = (props: IManagePivotsProps) => {
   >([])
   const [selectedPivots, setSelectedPivots] = useState<Pivot[]>([])
   const [sourceSelected, setSourceSelected] = useState<Boolean>(false)
+  const [configureFilterClicked, setConfigureFilterClicked] =
+    useState<Boolean>(false)
+  const [pivotStudyConfig, setPivotStudyConfig] = useState<StudyPivotConfig[]>(
+    []
+  )
+  const [callFilterExpBackend, setCallFilterExpBackend] =
+    useState<boolean>(true)
 
   useEffect(() => {
     setSourceSelected(false)
@@ -107,6 +121,10 @@ export const ManagePivots = (props: IManagePivotsProps) => {
     setSourceSelected(true)
   }
 
+  const onPivotDetailedlistUpdate = (input: any) => {
+    setSelectedPivots(input)
+  }
+
   const onPivotMultiSelectUpdate = (input: IComboBoxOption[]) => {
     setSelectedPivotsPair(input)
 
@@ -125,9 +143,31 @@ export const ManagePivots = (props: IManagePivotsProps) => {
     setSelectedPivots(updated)
   }
 
-  const onPivotDetailedlistUpdate = (input: any) => {
-    setSelectedPivots(input)
+  const onConfigureFilterExp = () => {
+    setConfigureFilterClicked(true)
+    setCallFilterExpBackend(true)
+    setPivotStudyConfig(convertToStudyConfig(selectedPivots))
   }
+
+  const onFilterExpUpdate = (input: any, flag: boolean) => {
+    setPivotStudyConfig(input)
+    setCallFilterExpBackend(flag)
+  }
+
+  const onValidateFilterExpression = (input: boolean) => {}
+
+  const filterExpression = configureFilterClicked ? (
+    <div>
+      <FilterExpressionDetailedList
+        studyPivotConfigs={pivotStudyConfig}
+        callBack={onFilterExpUpdate}
+              callBackend={callFilterExpBackend}
+              validateExpCallBack={onValidateFilterExpression}
+      />
+    </div>
+  ) : (
+    ''
+  )
 
   const pivotDetailedList = sourceSelected ? (
     <div>
@@ -142,6 +182,8 @@ export const ManagePivots = (props: IManagePivotsProps) => {
         data={selectedPivots}
         callBack={onPivotDetailedlistUpdate}
       />
+      <ConfigureFilterExpressionButton callBack={onConfigureFilterExp} />
+      {filterExpression}
     </div>
   ) : (
     ''

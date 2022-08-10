@@ -5,6 +5,7 @@ import {
   Dropdown,
   IColumn,
   IDropdownOption,
+  Label,
   SelectionMode,
   TextField,
   TooltipHost,
@@ -20,20 +21,25 @@ import {
   mapFilterExpTableColumnValue,
   getPivotKey,
   getAllFilteredPivots,
+  getRelationalOperatorCount,
+  showFilterExpression,
 } from './service'
 
 /**
  * Responsibilities : The filter expression component takes in the array of StudyPivotConfig and queries the backend to fetch the filter expression from the RELPivotScope table to show it to the user.
- * Returns an array of StudyPivotConfig
- * Param : StudyPivotConfigs-> array of StudyPivotConfig that are currently configured pivot scope ids or null in case the user wants to configure a new pivot as filter expression
- * Param : callBack -> Return array of StudyPivotConfig that takes 2 arguments -> array of StudyPivotConfig and boolean argument to tell if need to call backend or not
- * Param: callBackend -> decide to call the backend or not. It should be true for the first time to load the already configured or default filter expression.
- * After that, it will be false if it is not explicitly set by the callee.
+ * Also validates the filter expression.
+ * @param : StudyPivotConfigs-> array of StudyPivotConfig that are currently configured pivot scope ids or null in case the user wants to configure a new pivot as filter expression
+ * @param : callBack -> Return array of StudyPivotConfig that takes 2 arguments -> array of StudyPivotConfig and boolean argument to tell if need to call backend or not
+ * @param: callBackend -> decide to call the backend or not. It should be true for the first time to load the already configured or default filter expression.
+ * @param: validateExpCallBack -> optional function with a boolean param to signal if the vaildation for the filter expression has passed or not. After that, it will be false if it is not explicitly set by the callee.
+ * @returns: Returns an array of StudyPivotConfig
+ * @returns: if validation needed, Prints the expression or error
  * */
 interface Props {
   studyPivotConfigs: StudyPivotConfig[] // Currently configured pivotscope ids or null in case user wants to configure a new pivot as filter expression
   callBack: any // Return array of StudyPivotConfig that takes 2 arguments -> array of StudyPivotConfig and boolean argument to tell if need to call backend or not
   callBackend: boolean // Should be false in all the cases where you don't want to reset the filter expression component by reloading the configured filter expression again.
+  validateExpCallBack?: any // function with a boolean param to signal if the vaildation for the filter expression has passed or not
 }
 
 // only type used for input/output is RELStudyPivotConfig
@@ -49,6 +55,7 @@ export const FilterExpressionDetailedList = (props: Props) => {
   const [changedFilterExp, setChangedFilterExp] = React.useState<
     StudyPivotConfig[]
   >([])
+  const [validateStatement, setValidateStatement] = React.useState<string>('')
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getPivotScopeInfo = (input: StudyPivotConfig[]) => {
@@ -230,6 +237,63 @@ export const FilterExpressionDetailedList = (props: Props) => {
     props.callBack(updated, false)
   }
 
+  const handleClick = () => {
+    const relationalOpCount = getRelationalOperatorCount(changedFilterExp)
+    let flag: boolean = false
+    if (relationalOpCount !== changedFilterExp.length - 1) {
+      setValidateStatement('Relational operator not set properly')
+      props.validateExpCallBack(false)
+      return
+    }
+
+    for (const ele of changedFilterExp) {
+      if (ele.UIDataType === 'number' && isNaN(Number(ele.PivotScopeValue))) {
+        setValidateStatement(`Number expected in ${ele.PivotName}`)
+        props.validateExpCallBack(false)
+        flag = true
+        break
+      } else if (ele.PivotOperator === null || ele.PivotOperator === '') {
+        setValidateStatement(`Operator null issue in ${ele.PivotOperator}`)
+        props.validateExpCallBack(false)
+        flag = true
+        break
+      } else if (ele.PivotScopeValue === null || ele.PivotScopeValue === '') {
+        setValidateStatement(`Pivot Value null issue in ${ele.PivotScopeValue}`)
+        props.validateExpCallBack(false)
+        flag = true
+        break
+      }
+    }
+
+    if (flag === false) {
+      setValidateStatement(
+        `${'Filter expression has been validated successfully -> '}${showFilterExpression(
+          changedFilterExp
+        )}`
+      )
+      props.validateExpCallBack(true)
+    }
+  }
+
+  const validate = props.validateExpCallBack ? (
+    <div>
+      <TooltipHost content="Click to validate your filter expression">
+        <div>
+          <DefaultButton
+            text="Validate Filter Expression"
+            onClick={handleClick}
+            allowDisabledFocus
+            disabled={false}
+            checked={false}
+          />
+        </div>
+      </TooltipHost>
+      <Label>{validateStatement}</Label>
+    </div>
+  ) : (
+    ''
+  )
+
   React.useEffect(() => {
     getPivotScopeInfo(props.studyPivotConfigs)
     setCols([])
@@ -335,6 +399,7 @@ export const FilterExpressionDetailedList = (props: Props) => {
           selectionMode={SelectionMode.none}
         />
       </TooltipHost>
+      {validate}
     </div>
   )
 }
