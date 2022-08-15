@@ -115,6 +115,7 @@ export const buildColumnArray = (data: Pivot[]): IColumn[] => {
   return cols
 }
 
+// add datatype columns in the detailed columns list
 const addDataTypesColumns = (data: Pivot[]): IColumn[] => {
   const arr = buildColumns(data)
   const cols: IColumn[] = []
@@ -140,6 +141,7 @@ const addDataTypesColumns = (data: Pivot[]): IColumn[] => {
   return cols
 }
 
+// add checbox controls columns list to the detailed list
 const addCheckBoxColumns = (data: Pivot[]): IColumn[] => {
   const arr = buildColumns(data)
   const cols: IColumn[] = []
@@ -189,6 +191,7 @@ const addCheckBoxColumns = (data: Pivot[]): IColumn[] => {
   return cols
 }
 
+// add columns that requires textbox control
 const addTextBoxColumns = (data: Pivot[]): IColumn[] => {
   const arr = buildColumns(data)
   const cols: IColumn[] = []
@@ -214,6 +217,8 @@ const addTextBoxColumns = (data: Pivot[]): IColumn[] => {
   return cols
 }
 
+
+// converting the backend result to pivot for IsScopeFilter mapping
 export const convertToPivot = (input: any[]): Pivot[] => {
   const res: Pivot[] = []
 
@@ -234,6 +239,8 @@ export const convertToPivot = (input: any[]): Pivot[] => {
       AggregateBy: ele.AggregateBy,
       PivotKey: ele.PivotKey,
       PivotName: ele.PivotName,
+      PivotScopeValue: ele.PivotScopeValue,
+      PivotSourceSubType: ele.PivotSourceSubType,
     }
 
     res.push(row)
@@ -242,6 +249,7 @@ export const convertToPivot = (input: any[]): Pivot[] => {
   return res
 }
 
+// Add a new row to the detailed list oject when + get clicked
 export const AddNewPivotsToDetailedList = (
   selectedPivotsPair: IComboBoxOption[],
   data: Pivot[]
@@ -283,6 +291,7 @@ export const AddNewPivotsToDetailedList = (
   return res
 }
 
+// returns StudyPivotConfig from the pivot object
 export const convertToStudyConfig = (input: Pivot[]): StudyPivotConfig[] => {
   const arr: StudyPivotConfig[] = []
 
@@ -293,6 +302,10 @@ export const convertToStudyConfig = (input: Pivot[]): StudyPivotConfig[] => {
         PivotScopeID: ele.PivotScopeID,
         PivotKey: ele.PivotKey,
         PivotName: ele.PivotName,
+        PivotOperator: ele.PivotOperator,
+        PivotScopeValue: ele.PivotScopeValue,
+        RelationalOperator: ele.RelationalOperator,
+        UIDataType: ele.UIDataType,
       }
 
       arr.push(row)
@@ -300,4 +313,81 @@ export const convertToStudyConfig = (input: Pivot[]): StudyPivotConfig[] => {
   }
 
   return arr
+}
+
+// deduce the mode from the selcted source
+export const getMode = (input: IComboBoxOption): string => {
+  if (
+    input.key.toString().includes('Watson') &&
+    input.key.toString().includes('Kernel')
+  )
+    return 'KernelMode'
+  if (
+    input.key.toString().includes('Watson') &&
+    input.key.toString().includes('User')
+  )
+    return 'UserMode'
+  return 'AllMode'
+}
+
+// Change the pivot detailed list whenever a new pivots gets selected from the multiselect pivot dropdown
+export const AddNewSelectedPivots = (
+  data: string[],
+  temp: Pivot[]
+): Pivot[] => {
+  let flag: boolean = false
+  // Add the new selected enteries
+  for (const ele of data) {
+    flag = false
+
+    for (const e of temp) {
+      if (ele.split(';')[0] === e.PivotKey) {
+        flag = true
+        break
+      }
+    }
+
+    if (flag === false) {
+      const tobeAddedePivotDataType = ele.split(';')[1]
+      const name = ele.split(';')[0].split('_')[1]
+      const pivotkey = ele.split(';')[0]
+
+      const item: Pivot = {
+        PivotName: name,
+        IsApportionJoinColumn: false,
+        IsApportionColumn: false,
+        IsKeyColumn: false,
+        IsScopeFilter: false,
+        IsSelectColumn: false,
+        UIDataType: tobeAddedePivotDataType,
+        PivotKey: pivotkey,
+        ADLDataType: ele.split(';')[2],
+        AggregateBy: false,
+        PivotExpression: '',
+        StudyConfigID: 0,
+        PivotScopeID: 0,
+      }
+      temp.push(item)
+    }
+  }
+
+  return temp
+}
+
+// Get unique pivot pairs selected
+export const getUniquePivotKeyPairs = (input: any): IComboBoxOption[] => {
+  const res: IComboBoxOption[] = []
+  const set = new Set<string>()
+  for (const p of input) {
+    if (!set.has(p.PivotKey)) {
+      const row: IComboBoxOption = {
+        key: `${p.PivotKey};${p.UIDataType};${p.ADLDataType}`,
+        text: p.PivotName,
+      }
+      res.push(row)
+      set.add(p.PivotKey)
+    }
+  }
+
+  return res
 }

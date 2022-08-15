@@ -1,4 +1,4 @@
-/****** Object:  StoredProcedure [dbo].[DeleteStudyIDFromPivotMapping]    Script Date: 7/20/2022 2:11:15 PM ******/
+/****** Object:  StoredProcedure [dbo].[DeleteStudyConfigIDFromPivotMapping]    Script Date: 8/12/2022 2:30:56 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -7,17 +7,13 @@ GO
 
 
 
-
-
-
-CREATE PROCEDURE [dbo].[DeleteStudyConfigIDFromPivotMapping]
-    @PivotSourceSubType /*parameter name*/ varchar(255) /*datatype*/ = '' /*default value*/, 
-    @StudyConfigID /*parameter name*/ int /*datatype*/
+ALTER PROCEDURE [dbo].[DeleteStudyConfigIDFromPivotMapping] 
+    @StudyConfigID /*parameter name*/ int /*datatype*/,
+	@PivotSource /*parameter name*/ varchar(255) /*datatype*/ = '' /*default value*/
 	
 -- add more stored procedure parameters here
 AS
     -- body of the stored procedure
-	DELETE FROM RELStudyPivotConfig WHERE StudyConfigID = @StudyConfigID AND PivotSourceSubType LIKE @PivotSourceSubType
+	DELETE FROM RELStudyPivotConfig 
+	WHERE StudyConfigID = @StudyConfigID AND PivotKey LIKE @PivotSource
 GO
-
-

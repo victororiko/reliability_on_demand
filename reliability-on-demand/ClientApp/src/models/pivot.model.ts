@@ -13,4 +13,6 @@ export interface Pivot extends StudyPivotConfig {
   IsScopeFilter: boolean
   AggregateBy: boolean
   PivotExpression: string
+  Verticals?: string[]
+  PivotSourceSubType?: string
 }

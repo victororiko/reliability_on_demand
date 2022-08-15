@@ -1,9 +1,10 @@
-/****** Object:  StoredProcedure [dbo].[GetFailurePivots]    Script Date: 7/14/2022 10:47:49 PM ******/
+/****** Object:  StoredProcedure [dbo].[GetFailurePivots]    Script Date: 8/10/2022 3:18:42 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -17,10 +18,8 @@ ALTER PROCEDURE [dbo].[GetFailurePivots]
 -- add more stored procedure parameters here
 AS
     -- body of the stored procedure
-    SELECT PivotID,PivotSourceColumnName,UIInputDataType,PivotKey 
+    SELECT PivotID,PivotSourceColumnName AS PivotName,UIInputDataType,PivotKey 
 	FROM [dbo].[RELPivotInfo] AS info INNER JOIN RELPivotSourceMap AS map ON info.PivotSource = map.PivotSource 
 	WHERE info.PivotSourceSubType LIKE @sourcesubtype AND map.PivotSourceType LIKE 'Failure%' 
 	FOR JSON AUTO, Include_Null_Values
 GO
-
-

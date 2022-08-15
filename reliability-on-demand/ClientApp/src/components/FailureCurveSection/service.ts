@@ -1,11 +1,7 @@
 import { IColumn, IDropdownOption, buildColumns } from '@fluentui/react'
-import {
-  Vertical,
-  Pivot,
-  PivotSQLResult,
-  FilterExpTable,
-} from '../../models/failurecurve.model'
+import { Vertical } from '../../models/failurecurve.model'
 import { StudyPivotConfig } from '../../models/filterexpression.model'
+import { Pivot } from '../../models/pivot.model'
 import { CreateNewID } from '../helpers/utils'
 
 // converting verticals to Idropdown Pair
@@ -47,26 +43,94 @@ export const extractModesFromVerticalPair = (
   return modes
 }
 
-export const extractPivotName = (item: Pivot) => {
-  return {
-    key: item.PivotKey,
-    text: item.PivotSourceColumnName,
-  }
-}
-
 export const getPivotNames = (input: Pivot[]): IDropdownOption[] => {
-  if (input != null && input.length > 0) {
-    const result = input.map(extractPivotName)
-    return result
+  const arr: IDropdownOption[] = []
+  for (const ele of input) {
+    const row: IDropdownOption = {
+      key: ele.PivotKey,
+      text: ele.PivotName ?? '',
+    }
+
+    arr.push(row)
   }
 
-  return []
+  return arr
 }
 
-export const getPivotIDs = (input: PivotSQLResult[]): string[] => {
+export const getPivotIDs = (input: Pivot[]): string[] => {
   const res: string[] = []
-  for (const p of input) res.push(p.PivotKey)
+  const set = new Set<string>()
+  for (const p of input) {
+    if (!set.has(p.PivotKey)) {
+      res.push(p.PivotKey)
+      set.add(p.PivotKey)
+    }
+  }
 
+  return res
+}
+
+export const getUniqueMappedPivotWithScopeFilter = (
+  input: Pivot[],
+  studyconfigID: number
+): Pivot[] => {
+  const res: Pivot[] = []
+  const set = new Set<string>()
+
+  for (const ele of input) {
+    if (!set.has(ele.PivotKey)) {
+      const row: Pivot = {
+        PivotKey: ele.PivotKey,
+        PivotScopeID: ele.PivotScopeID,
+        PivotName: ele.PivotName,
+        PivotOperator: ele.PivotOperator,
+        PivotScopeValue: ele.PivotScopeValue,
+        ADLDataType: ele.ADLDataType,
+        UIDataType: ele.UIDataType,
+        IsApportionColumn: ele.IsApportionColumn,
+        IsApportionJoinColumn: ele.IsApportionJoinColumn,
+        IsKeyColumn: ele.IsKeyColumn,
+        IsSelectColumn: ele.IsSelectColumn,
+        IsScopeFilter: ele.PivotScopeID !== -1,
+        StudyConfigID: studyconfigID,
+        RelationalOperator: ele.RelationalOperator,
+        AggregateBy: false,
+        PivotExpression: '',
+      }
+      res.push(row)
+      set.add(ele.PivotKey)
+    }
+  }
+  return res
+}
+
+export const getMappedPivotWithScopeFilter = (
+  input: Pivot[],
+  studyconfigID: number
+): Pivot[] => {
+  const res: Pivot[] = []
+
+  for (const ele of input) {
+    const row: Pivot = {
+      PivotKey: ele.PivotKey,
+      PivotScopeID: ele.PivotScopeID,
+      PivotName: ele.PivotName,
+      PivotOperator: ele.PivotOperator,
+      PivotScopeValue: ele.PivotScopeValue,
+      ADLDataType: ele.ADLDataType,
+      UIDataType: ele.UIDataType,
+      IsApportionColumn: ele.IsApportionColumn,
+      IsApportionJoinColumn: ele.IsApportionJoinColumn,
+      IsKeyColumn: ele.IsKeyColumn,
+      IsSelectColumn: ele.IsSelectColumn,
+      IsScopeFilter: ele.PivotScopeID !== -1,
+      StudyConfigID: studyconfigID,
+      RelationalOperator: ele.RelationalOperator,
+      AggregateBy: false,
+      PivotExpression: '',
+    }
+    res.push(row)
+  }
   return res
 }
 
@@ -77,7 +141,7 @@ export const buildColumnArray = (data: Pivot[]): IColumn[] => {
 
   for (const ele of arr) {
     switch (ele.fieldName) {
-      case 'PivotSourceColumnName':
+      case 'PivotName':
         cols.push({
           key: ele.fieldName ?? '',
           name: ele.fieldName ?? '',
@@ -88,7 +152,7 @@ export const buildColumnArray = (data: Pivot[]): IColumn[] => {
         })
         break
 
-      case 'IsApportionJoinPivot':
+      case 'IsApportionJoinColumn':
         cols.push({
           key: ele.fieldName ?? '',
           name: ele.fieldName ?? '',
@@ -99,7 +163,7 @@ export const buildColumnArray = (data: Pivot[]): IColumn[] => {
         })
         break
 
-      case 'IsApportionPivot':
+      case 'IsApportionColumn':
         cols.push({
           key: ele.fieldName ?? '',
           name: ele.fieldName ?? '',
@@ -110,8 +174,8 @@ export const buildColumnArray = (data: Pivot[]): IColumn[] => {
         })
         break
 
-      case 'IsKeyPivot':
-      case 'IsSelectPivot':
+      case 'IsKeyColumn':
+      case 'IsSelectColumn':
       case 'IsScopeFilter':
         cols.push({
           key: ele.fieldName ?? '',
@@ -140,17 +204,17 @@ export const mapPivotTableColumnValue = (
   const res: Pivot[] = []
   for (const ele of arr) res.push(ele)
   switch (colname) {
-    case 'IsSelectPivot':
-      res[row].IsSelectPivot = val
+    case 'IsSelectColumn':
+      res[row].IsSelectColumn = val
       break
-    case 'IsKeyPivot':
-      res[row].IsKeyPivot = val
+    case 'IsKeyColumn':
+      res[row].IsKeyColumn = val
       break
-    case 'IsApportionPivot':
-      res[row].IsApportionPivot = val
+    case 'IsApportionColumn':
+      res[row].IsApportionColumn = val
       break
-    case 'IsApportionJoinPivot':
-      res[row].IsApportionJoinPivot = val
+    case 'IsApportionJoinColumn':
+      res[row].IsApportionJoinColumn = val
       break
     case 'IsScopeFilter':
       res[row].IsScopeFilter = val
@@ -161,60 +225,7 @@ export const mapPivotTableColumnValue = (
   return res
 }
 
-// for given PivotSQLResult convert it to PivotTable
-export const getPivotTableFromPivotSQL = (data: PivotSQLResult[]): Pivot[] => {
-  const temp: Pivot[] = []
-  for (let pivotptr = 0; pivotptr < data.length; pivotptr++) {
-    const filterexps: FilterExpTable[] = []
-    for (let smapptr = 0; smapptr < data[pivotptr].smap.length; smapptr++) {
-      for (
-        let filterptr = 0;
-        filterptr < data[pivotptr].smap[smapptr].scope.length;
-        filterptr++
-      ) {
-        const filterexp: FilterExpTable = {
-          PivotKey: data[pivotptr].PivotKey,
-          PivotName: data[pivotptr].PivotSourceColumnName,
-          PivotScopeID: data[pivotptr].smap[smapptr].PivotScopeID,
-          PivotValue:
-            data[pivotptr].smap[smapptr].scope[filterptr].PivotScopeValue,
-          Operator: data[pivotptr].smap[smapptr].scope[filterptr].PivotOperator,
-          RelationalOperator: data[pivotptr].smap[smapptr].PivotScopeOperator,
-          UIInputDataType: data[pivotptr].UIInputDataType,
-        }
-
-        filterexps.push(filterexp)
-      }
-    }
-    const item: Pivot = {
-      PivotSourceColumnName: data[pivotptr].PivotSourceColumnName,
-      IsApportionJoinPivot:
-        data[pivotptr].smap[0].IsApportionJoinColumn === null
-          ? false
-          : data[pivotptr].smap[0].IsApportionJoinColumn,
-      IsApportionPivot:
-        data[pivotptr].smap[0].IsApportionColumn === null
-          ? false
-          : data[pivotptr].smap[0].IsApportionColumn,
-      IsKeyPivot:
-        data[pivotptr].smap[0].IsKeyColumn === null
-          ? false
-          : data[pivotptr].smap[0].IsKeyColumn,
-      IsSelectPivot:
-        data[pivotptr].smap[0].IsSelectColumn === null
-          ? false
-          : data[pivotptr].smap[0].IsSelectColumn,
-      IsScopeFilter: data[pivotptr].smap[0].PivotScopeID !== CreateNewID,
-      UIInputDataType: data[pivotptr].UIInputDataType,
-      PivotKey: data[pivotptr].PivotKey,
-      FilterExpressions: filterexps,
-    }
-    temp.push(item)
-  }
-  return temp
-}
-
-// add the new pivot selections to the PivotTable
+// add the new pivot selections to the Pivots
 export const AddNewSelectedPivots = (
   data: string[],
   input: Pivot[],
@@ -238,23 +249,27 @@ export const AddNewSelectedPivots = (
       let pivotkey = ''
       for (const element of input) {
         if (element.PivotKey === ele) {
-          name = element.PivotSourceColumnName
-          tobeAddedePivotDataType = element.UIInputDataType
+          name = element.PivotName ?? ''
+          tobeAddedePivotDataType = element.UIDataType ?? ''
           pivotkey = element.PivotKey
           break
         }
       }
 
       const item: Pivot = {
-        PivotSourceColumnName: name,
-        IsApportionJoinPivot: false,
-        IsApportionPivot: false,
-        IsKeyPivot: false,
+        PivotName: name,
+        IsApportionJoinColumn: false,
+        IsApportionColumn: false,
+        IsKeyColumn: false,
         IsScopeFilter: false,
-        IsSelectPivot: false,
-        UIInputDataType: tobeAddedePivotDataType,
+        IsSelectColumn: false,
+        UIDataType: tobeAddedePivotDataType,
         PivotKey: pivotkey,
-        FilterExpressions: [],
+        ADLDataType: '',
+        AggregateBy: false,
+        PivotExpression: '',
+        StudyConfigID: 0,
+        PivotScopeID: 0,
       }
       temp.push(item)
     }
@@ -287,18 +302,18 @@ export const FilterExpressionbuildColumnArray = (input: any): IColumn[] => {
   })
 
   cols.push({
-    key: 'Operator',
-    name: 'Operator',
-    fieldName: 'Operator',
+    key: 'PivotOperator',
+    name: 'PivotOperator',
+    fieldName: 'PivotOperator',
     minWidth: 100,
     maxWidth: 100,
     isResizable: true,
   })
 
   cols.push({
-    key: 'PivotValue',
-    name: 'PivotValue',
-    fieldName: 'PivotValue',
+    key: 'PivotScopeValue',
+    name: 'PivotScopeValue',
+    fieldName: 'PivotScopeValue',
     minWidth: 100,
     maxWidth: 300,
     isResizable: true,
@@ -361,38 +376,6 @@ export const getVerticalNamesFromPair = (list: IDropdownOption[]): string[] => {
   return verticalnames
 }
 
-// It loads the splits the filter expression in the SQL table and break it into pieces desired by UI to represent
-// Like SQL data has "Build >= 21000" => this function will add a row in "DefaultPivot" array with (PivotID,Build,21000,PivotScopeID,>=, RelationalOperator)
-// This help in populating the detailedlist controls with the required information.
-export const loadFilterExpressionTable = (input: Pivot[]): FilterExpTable[] => {
-  const res: FilterExpTable[] = []
-
-  for (const ele of input) {
-    if (
-      ele.IsScopeFilter === true &&
-      ele.FilterExpressions !== null &&
-      ele.FilterExpressions.length > 0
-    ) {
-      for (const row of ele.FilterExpressions) {
-        res.push(row)
-      }
-    }
-  }
-
-  if (res === null || res.length === 0)
-    res.push({
-      PivotName: '',
-      PivotValue: '',
-      PivotScopeID: 0,
-      Operator: '',
-      RelationalOperator: '',
-      UIInputDataType: '',
-      PivotKey: '',
-    })
-
-  return res
-}
-
 // It checks which element from the array does the input contains
 export const getContainingElementFromArr = (
   input: string,
@@ -409,8 +392,8 @@ export const getContainingElementFromArr = (
   return res
 }
 
-// Get pivot id
-export const getPivotID = (input: any, pivots: FilterExpTable[]): string => {
+// Get pivot keys
+export const getPivotID = (input: any, pivots: Pivot[]): string => {
   for (const d of pivots) {
     if (d.PivotName === input.fieldContent) {
       return d.PivotKey
@@ -427,7 +410,7 @@ export const getAllFilteredPivots = (input: Pivot[]): IDropdownOption[] => {
     if (ele.IsScopeFilter === true) {
       pivotsToFilter.push({
         key: ele.PivotKey,
-        text: ele.PivotSourceColumnName,
+        text: ele.PivotName ?? '',
       })
     }
   }
@@ -437,16 +420,16 @@ export const getAllFilteredPivots = (input: Pivot[]): IDropdownOption[] => {
 
 // map col names in filter expression table to the object value
 export const mapFilterExpTableColumnValue = (
-  arr: FilterExpTable[],
+  arr: Pivot[],
   row: number,
   colname: string,
   val: any
-): FilterExpTable[] => {
+): Pivot[] => {
   const FilterExpTableTemp = arr
 
   switch (colname) {
-    case 'Operator':
-      FilterExpTableTemp[row].Operator = val
+    case 'PivotOperator':
+      FilterExpTableTemp[row].PivotOperator = val
       break
     case 'PivotKey':
       FilterExpTableTemp[row].PivotKey = val
@@ -457,8 +440,8 @@ export const mapFilterExpTableColumnValue = (
     case 'PivotScopeID':
       FilterExpTableTemp[row].PivotScopeID = val
       break
-    case 'PivotValue':
-      FilterExpTableTemp[row].PivotValue = val
+    case 'PivotScopeValue':
+      FilterExpTableTemp[row].PivotScopeValue = val
       break
     case 'RelationalOperator':
       FilterExpTableTemp[row].RelationalOperator = val
@@ -470,112 +453,151 @@ export const mapFilterExpTableColumnValue = (
   return FilterExpTableTemp
 }
 
-export const getFailureCurvePivotsToSave = (
-  filterExpTable: FilterExpTable[],
-  pivots: Pivot[]
-): Pivot[] => {
-  // Update the existing filter expression first empty out all the filter expression
-  for (const row of pivots) {
-    row.FilterExpressions = []
-  }
-  // Add the new enteries in the filter expression
-  for (const ele of filterExpTable) {
-    const pkey = ele.PivotKey
-    for (let i = 0; i < pivots.length; i++) {
-      const key = pivots[i].PivotKey
-      if (pkey === key) {
-        const filterexp: FilterExpTable = {
-          PivotKey: ele.PivotKey,
-          PivotName: ele.PivotName,
-          PivotScopeID: ele.PivotScopeID,
-          PivotValue: ele.PivotValue,
-          Operator: ele.Operator,
-          RelationalOperator: ele.RelationalOperator,
-          UIInputDataType: ele.UIInputDataType,
-        }
-        pivots[i].FilterExpressions.push(filterexp)
-        break
-      }
+// Get relational count to form the filter expression
+export const getRelationalOperatorCount = (input: Pivot[]): number => {
+  let ropCount = 0
+  for (const ele of input) {
+    if (ele.RelationalOperator !== null && ele.RelationalOperator !== '') {
+      ropCount += 1
     }
   }
 
-  return pivots
+  return ropCount
 }
 
-// convert Pivot to StudyPivotConfig
-export const getStudyPivotConfig = (
+// forming filter expression to display it to the user
+export const showFilterExpression = (input: Pivot[]) => {
+  let filterexp = ''
+  let lastPieceInExp = ''
+
+  for (const ele of input) {
+    if (ele.RelationalOperator !== null && ele.RelationalOperator !== '') {
+      filterexp = `${filterexp} ${ele.PivotName} ${ele.PivotOperator} ${ele.PivotScopeValue} ${ele.RelationalOperator}`
+    } else {
+      lastPieceInExp = `${ele.PivotName} ${ele.PivotOperator} ${ele.PivotScopeValue}`
+    }
+  }
+
+  filterexp = `${filterexp} ${lastPieceInExp}`
+
+  filterexp = filterexp.trim()
+
+  return filterexp
+}
+
+// Return the list of pivots that forms the filter expression
+export const getFilterPivots = (
   input: Pivot[],
-  studyConfigID: number
-): StudyPivotConfig[] => {
-  const res: StudyPivotConfig[] = []
+  selected: Pivot[],
+  StudyConfigID: number
+): Pivot[] => {
+  // Adding the common pivots
+  const res: Pivot[] = []
+  const addedPivots = new Set<String>()
 
   for (const ele of input) {
     if (ele.IsScopeFilter === true) {
-      if (
-        ele.FilterExpressions === null ||
-        ele.FilterExpressions.length === 0
-      ) {
-        const studyconfig: StudyPivotConfig = {
-          PivotKey: ele.PivotKey,
-          PivotScopeID: CreateNewID,
-          PivotOperator: '',
-          PivotScopeValue: '',
-          StudyConfigID: studyConfigID,
-          RelationalOperator: '',
-          UIDataType: ele.UIInputDataType,
+      for (const s of selected) {
+        if (ele.PivotKey === s.PivotKey && s.IsScopeFilter === true) {
+          addedPivots.add(ele.PivotKey)
+          res.push(ele)
+          break
         }
-
-        res.push(studyconfig)
-      }
-
-      for (const row of ele.FilterExpressions) {
-        const studyconfig: StudyPivotConfig = {
-          PivotKey: row.PivotKey,
-          PivotScopeID: row.PivotScopeID,
-          PivotOperator: row.Operator,
-          PivotScopeValue: row.PivotValue,
-          StudyConfigID: studyConfigID,
-          RelationalOperator: row.RelationalOperator,
-          UIDataType: row.UIInputDataType,
-        }
-
-        res.push(studyconfig)
       }
     }
   }
 
-  if (res === null || res.length === 0)
-    res.push({
-      PivotKey: '',
-      PivotScopeID: 0,
-      PivotOperator: '',
-      PivotScopeValue: '',
-      StudyConfigID: studyConfigID,
-      RelationalOperator: '',
-      UIDataType: '',
-    })
+  // Add new filter pivots
+
+  for (const ele of selected) {
+    if (!addedPivots.has(ele.PivotKey) && ele.IsScopeFilter === true) {
+      const row: Pivot = {
+        ADLDataType: ele.ADLDataType,
+        IsApportionColumn: ele.IsApportionColumn,
+        IsApportionJoinColumn: ele.IsApportionJoinColumn,
+        IsKeyColumn: ele.IsKeyColumn,
+        IsSelectColumn: ele.IsSelectColumn,
+        IsScopeFilter: ele.IsScopeFilter,
+        AggregateBy: ele.AggregateBy,
+        PivotExpression: ele.PivotExpression,
+        PivotKey: ele.PivotKey,
+        StudyConfigID,
+        PivotScopeID: -1,
+        UIDataType: ele.UIDataType,
+      }
+
+      res.push(row)
+    }
+  }
 
   return res
 }
 
-// convert StudyPivotConfig to FilterExpTable
-export const getFilterExpTable = (
-  input: StudyPivotConfig[]
-): FilterExpTable[] => {
-  const res: FilterExpTable[] = []
+// returns the list of combined pivots to be saved in the backend
+export const getDataToSaveUsingPivot = (
+  input: StudyPivotConfig[],
+  pivots: Pivot[],
+  verticals: IDropdownOption[],
+  mode: string,
+  StudyConfigID: number
+): Pivot[] => {
+  const res: Pivot[] = []
 
-  for (const ele of input) {
-    const row: FilterExpTable = {
-      PivotKey: ele.PivotKey,
-      PivotName: ele.PivotKey.split('_')[1],
-      PivotScopeID: ele.PivotScopeID,
-      PivotValue: ele.PivotScopeValue ?? '',
-      Operator: ele.PivotOperator ?? '',
-      RelationalOperator: ele.RelationalOperator ?? '',
-      UIInputDataType: ele.UIDataType ?? '',
+  const verticalnames = getVerticalNamesFromPair(verticals)
+
+  for (const p of pivots) {
+    p.PivotSourceSubType = mode
+    p.StudyConfigID = StudyConfigID
+    p.Verticals = []
+    for (const v of verticalnames) p.Verticals?.push(v)
+
+    if (p.IsScopeFilter === true) {
+      let hasScoped: boolean = false
+
+      for (const exp of input) {
+        if (exp.PivotKey === p.PivotKey) {
+          hasScoped = true
+          const row: Pivot = {
+            ADLDataType: p.ADLDataType,
+            IsApportionColumn: p.IsApportionColumn,
+            IsApportionJoinColumn: p.IsApportionJoinColumn,
+            IsKeyColumn: p.IsKeyColumn,
+            IsSelectColumn: p.IsSelectColumn,
+            IsScopeFilter: p.IsScopeFilter,
+            AggregateBy: p.AggregateBy,
+            PivotExpression: p.PivotExpression,
+            PivotKey: p.PivotKey,
+            StudyConfigID,
+            PivotScopeID: exp.PivotScopeID,
+            RelationalOperator: exp.RelationalOperator,
+            PivotName: p.PivotName,
+            PivotOperator: exp.PivotOperator,
+            PivotScopeValue: exp.PivotScopeValue,
+            PivotSourceSubType: p.PivotSourceSubType,
+            UIDataType: p.UIDataType,
+            Verticals: p.Verticals,
+          }
+          res.push(row)
+        }
+      }
+
+      if (hasScoped === false) {
+        p.IsScopeFilter = false
+        p.PivotScopeID = -1
+      }
+
+      if (
+        (p.IsApportionColumn === true ||
+          p.IsApportionJoinColumn === true ||
+          p.IsKeyColumn === true ||
+          p.IsSelectColumn === true) &&
+        hasScoped === false
+      ) {
+        res.push(p)
+      }
+    } else {
+      res.push(p)
     }
-
-    res.push(row)
   }
 
   return res

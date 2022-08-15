@@ -1,6 +1,6 @@
 import { Dropdown, IDropdownOption, TooltipHost } from '@fluentui/react'
 import React from 'react'
-import { Pivot } from '../../models/failurecurve.model'
+import { Pivot } from '../../models/pivot.model'
 import { getPivotNames } from './service'
 
 interface Props {
@@ -20,7 +20,7 @@ export const MultiSelectPivots = (props: Props) => {
         : props.selectedOptions?.filter((val) => {
             return val !== item.key
           })
-      props.callBack(updated, props.pivots)
+      props.callBack(updated)
     }
   }
 

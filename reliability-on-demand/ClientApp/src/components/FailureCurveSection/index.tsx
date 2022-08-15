@@ -11,24 +11,19 @@ import { ConfigureFilterExpressionButton } from './ConfigureFilterExpressionButt
 import { AddOrUpdateButton } from './AddOrUpdateButton'
 import { Loading } from '../helpers/Loading'
 import { WikiLink } from '../helpers/WikiLink'
-import {
-  Vertical,
-  Pivot,
-  PivotSQLResult,
-  FailureConfig,
-  FilterExpTable,
-} from '../../models/failurecurve.model'
+import { Vertical } from '../../models/failurecurve.model'
+import { Pivot } from '../../models/pivot.model'
 import { StudyPivotConfig } from '../../models/filterexpression.model'
 import {
   extractModesFromVerticalPair,
   getPivotIDs,
-  getPivotTableFromPivotSQL,
   AddNewSelectedPivots,
-  loadFilterExpressionTable,
   getVerticalNamesFromPair,
   getVerticalNames,
-  getStudyPivotConfig,
-  getFilterExpTable,
+  getMappedPivotWithScopeFilter,
+  getDataToSaveUsingPivot,
+  getFilterPivots,
+  getUniqueMappedPivotWithScopeFilter,
 } from './service'
 
 export interface Props {
@@ -48,23 +43,22 @@ export const FailureCurve = (props: Props) => {
     React.useState<Boolean>(false)
   const [modes, setModes] = React.useState<IDropdownOption[]>([])
   const [pivots, setPivots] = React.useState<Pivot[]>([])
+  const [selectedPivots, setSelectedPivots] = React.useState<Pivot[]>([])
+  const [selectedPivotsSet, setSelectedPivotsSet] = React.useState<Pivot[]>([])
   const [modeSelected, setModeSelected] = React.useState<Boolean>(false)
   const [selectedPivotsKeys, setSelectedPivotsKeys] = React.useState<string[]>(
     []
   )
   const [configureFilterExpClicked, setConfigureFilterExpClicked] =
     React.useState<Boolean>(false)
-  const [filterExpTable, setFilterExpTable] = React.useState<FilterExpTable[]>(
-    []
-  )
   const [studyConfigs, setStudyConfigs] = React.useState<StudyPivotConfig[]>([])
-  const [pivotDetailedList, setPivotDetailedList] = React.useState<Pivot[]>([])
   const [selectedMode, setSelectedMode] = React.useState<string>('')
   const [isValidFilterExp, setIsValidFilterExp] = React.useState<boolean>(false)
   const [buttonName, setButtonName] = React.useState<string>('')
   const [dataSaved, setDataSaved] = React.useState<boolean>(false)
   const [callFilterExpBackend, setCallFilterExpBackend] =
     React.useState<boolean>(true)
+  const [dataToSave, setDataToSave] = React.useState<Pivot[]>([])
 
   const loadVerticals = () => {
     axios.get('api/Data/GetAllVerticals').then((res) => {
@@ -179,16 +173,18 @@ export const FailureCurve = (props: Props) => {
     }
   }
 
-  const loadDetailedListRows = (data: PivotSQLResult[]) => {
-    const temp: Pivot[] = getPivotTableFromPivotSQL(data)
-    setPivotDetailedList(temp)
+  const loadDetailedListRows = (data: Pivot[]) => {
+    setSelectedPivotsSet(
+      getUniqueMappedPivotWithScopeFilter(data, props.StudyConfigID)
+    )
+    setSelectedPivots(getMappedPivotWithScopeFilter(data, props.StudyConfigID))
   }
 
-  const updateDetailedListRows = (data: string[], input: Pivot[]) => {
+  const updateDetailedListRows = (data: string[]) => {
     const temp: Pivot[] = []
     // Adding the rows that from detailed list input that are still selected
     // Also filter the deselected pivots
-    for (const ele of pivotDetailedList) {
+    for (const ele of selectedPivotsSet) {
       for (const e of data) {
         if (ele.PivotKey === e) {
           temp.push(ele)
@@ -198,10 +194,10 @@ export const FailureCurve = (props: Props) => {
     }
 
     // Add new selected checkbox
-    const updatedPivotTable = AddNewSelectedPivots(data, input, temp)
-
+    const updatedPivotTable = AddNewSelectedPivots(data, pivots, temp)
     setSelectedPivotsKeys(data)
-    setPivotDetailedList(updatedPivotTable)
+    setSelectedPivotsSet(updatedPivotTable)
+    // setSelectedPivotsSet(AddNewPivotDetailedList(selectedPivotsSet, data))
   }
 
   React.useEffect(() => {
@@ -223,14 +219,30 @@ export const FailureCurve = (props: Props) => {
   )
 
   const changeDetailedListInput = (input: Pivot[]) => {
-    setPivotDetailedList(input)
+    setSelectedPivotsSet(input)
   }
 
   const loadFilterExpression = () => {
     setConfigureFilterExpClicked(true)
-    setFilterExpTable(loadFilterExpressionTable(pivotDetailedList))
-    setStudyConfigs(getStudyPivotConfig(pivotDetailedList, props.StudyConfigID))
+    setStudyConfigs(
+      getFilterPivots(selectedPivots, selectedPivotsSet, props.StudyConfigID)
+    )
     setCallFilterExpBackend(true)
+  }
+
+  const validateFilterExpression = (input: boolean) => {
+    if (input === true)
+      setDataToSave(
+        getDataToSaveUsingPivot(
+          studyConfigs,
+          selectedPivotsSet,
+          selectedverticals,
+          selectedMode,
+          props.StudyConfigID
+        )
+      )
+
+    setIsValidFilterExp(input)
   }
 
   const pivotSection = !modeSelected ? (
@@ -243,26 +255,21 @@ export const FailureCurve = (props: Props) => {
         selectedOptions={selectedPivotsKeys}
       />
       <PivotsDetailedList
-        data={pivotDetailedList}
+        data={selectedPivotsSet}
         callBack={changeDetailedListInput}
       />
       <ConfigureFilterExpressionButton callBack={loadFilterExpression} />
     </div>
   )
 
-  const validateFilterExpression = (input: boolean) => {
-    setFilterExpTable(getFilterExpTable(studyConfigs))
-    setIsValidFilterExp(input)
-  }
-
   const updateFilterExpTable = (input: StudyPivotConfig[], flag: boolean) => {
     setStudyConfigs(input)
     setCallFilterExpBackend(flag)
   }
 
-  const addOrUpdateStudy = (input: FailureConfig) => {
+  const addOrUpdateStudy = (pivotConfigs: Pivot[]) => {
     axios
-      .post('api/Data/SavedFailureConfig', input)
+      .post('api/Data/SavedFailureConfig', pivotConfigs)
       .then((response) => {
         setDataSaved(true)
       })
@@ -291,11 +298,7 @@ export const FailureCurve = (props: Props) => {
       ButtonName={buttonName}
       callBack={addOrUpdateStudy}
       dataSaved={dataSaved}
-      filterExpTable={filterExpTable}
-      pivots={pivotDetailedList}
-      StudyConfigID={props.StudyConfigID}
-      verticals={getVerticalNamesFromPair(selectedverticals)}
-      pivotSourceSubType={selectedMode}
+      pivots={dataToSave}
     />
   )
 

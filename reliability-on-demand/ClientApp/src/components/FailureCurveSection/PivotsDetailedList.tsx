@@ -7,7 +7,7 @@ import {
   Checkbox,
   IDropdownOption,
 } from '@fluentui/react'
-import { Pivot } from '../../models/failurecurve.model'
+import { Pivot } from '../../models/pivot.model'
 import { buildColumnArray, mapPivotTableColumnValue } from './service'
 
 interface Props {
@@ -26,10 +26,10 @@ export const PivotsDetailedList = (props: Props) => {
     ] as string
 
     if (
-      column?.key === 'IsSelectPivot' ||
-      column?.key === 'IsKeyPivot' ||
-      column?.key === 'IsApportionPivot' ||
-      column?.key === 'IsApportionJoinPivot' ||
+      column?.key === 'IsSelectColumn' ||
+      column?.key === 'IsKeyColumn' ||
+      column?.key === 'IsApportionColumn' ||
+      column?.key === 'IsApportionJoinColumn' ||
       column?.key === 'IsScopeFilter'
     ) {
       return (
@@ -43,7 +43,7 @@ export const PivotsDetailedList = (props: Props) => {
       )
     }
 
-    if (column?.key === 'PivotSourceColumnName') {
+    if (column?.key === 'PivotName') {
       return <span>{fieldContent}</span>
     }
     return <span />

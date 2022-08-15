@@ -4,59 +4,7 @@
 //
 //   "Set quicktype target language"
 
-export interface FailureConfig {
-  StudyConfigID: number
-  Verticals: string[]
-  PivotSourceSubType: string
-  Pivots: Pivot[]
-}
-
 export interface Vertical {
   VerticalName: string
   PivotSourceSubType: string
-}
-
-export interface Pivot {
-  UIInputDataType: string
-  PivotSourceColumnName: string
-  IsSelectPivot: boolean
-  IsKeyPivot: boolean
-  IsApportionPivot: boolean
-  IsApportionJoinPivot: boolean
-  IsScopeFilter: boolean
-  PivotKey: string
-  FilterExpressions: FilterExpTable[]
-}
-
-export interface SmapSQL {
-  IsSelectColumn: boolean
-  IsKeyColumn: boolean
-  IsApportionColumn: boolean
-  IsApportionJoinColumn: boolean
-  PivotScopeID: number
-  PivotKey: string
-  PivotScopeOperator: string
-  scope: Filter[]
-}
-
-export interface PivotSQLResult {
-  PivotSourceColumnName: string
-  UIInputDataType: string
-  PivotKey: string
-  smap: SmapSQL[]
-}
-
-export interface Filter {
-  PivotScopeValue: string
-  PivotOperator: string
-}
-
-export interface FilterExpTable {
-  RelationalOperator: string
-  PivotName: string
-  Operator: string
-  PivotValue: string
-  PivotScopeID: number
-  UIInputDataType: string
-  PivotKey: string
 }

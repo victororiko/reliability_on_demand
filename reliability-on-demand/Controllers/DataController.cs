@@ -237,9 +237,16 @@ namespace reliability_on_demand.Controllers
 
         [Route("api/Data/SavedFailureConfig")]
         [HttpPost("[action]")]
-        public void SavedFailureConfig([FromBody] FailureConfig fg)
+        public void SavedFailureConfig([FromBody] Pivot[] pivots)
         {
-            this._sqlservice.UpdateFailureSavedConfig(fg);
+            this._sqlservice.UpdateFailureSavedConfig(pivots);
+        }
+
+        [Route("api/Data/SavePivotConfig")]
+        [HttpPost("[action]")]
+        public void SavePivotConfig([FromBody] Pivot[] pivots)
+        {
+            this._sqlservice.SavePivotConfig(pivots);
         }
 
         [HttpGet("api/Data/GetDefaultMetricsConfig/{StudyConfigID}")]

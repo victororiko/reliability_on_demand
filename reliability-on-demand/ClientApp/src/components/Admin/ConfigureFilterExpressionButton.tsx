@@ -1,5 +1,5 @@
 import React from 'react'
-import { DefaultButton, TooltipHost } from '@fluentui/react'
+import { DefaultButton } from '@fluentui/react'
 
 type Props = {
   callBack: any

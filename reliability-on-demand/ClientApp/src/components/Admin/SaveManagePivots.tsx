@@ -3,13 +3,12 @@ import { DefaultButton, TooltipHost, Label } from '@fluentui/react'
 import { Pivot } from '../../models/pivot.model'
 
 type Props = {
-  ButtonName: string
   callBack: any
   dataSaved: boolean
   pivots: Pivot[]
 }
 
-export const AddOrUpdateButton = (props: Props) => {
+export const SaveManagePivots = (props: Props) => {
   const handleClick = () => {
     props.callBack(props.pivots)
   }
@@ -24,17 +23,15 @@ export const AddOrUpdateButton = (props: Props) => {
 
   return (
     <div>
-      <TooltipHost content="Click to save all the selected configuration">
-        <div>
-          <DefaultButton
-            text={props.ButtonName}
-            onClick={handleClick}
-            allowDisabledFocus
-            disabled={false}
-            checked={false}
-          />
-        </div>
-      </TooltipHost>
+      <div>
+        <DefaultButton
+          text="Save"
+          onClick={handleClick}
+          allowDisabledFocus
+          disabled={false}
+          checked={false}
+        />
+      </div>
       {saveLabel}
     </div>
   )

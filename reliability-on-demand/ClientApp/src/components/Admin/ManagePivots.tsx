@@ -9,13 +9,20 @@ import { MyMultiSelectComboBox } from '../helpers/MyMultiSelectComboBox'
 import { Pivot } from '../../models/pivot.model'
 import {
   convertToPivot,
-  AddNewPivotsToDetailedList,
-  convertToStudyConfig,
+  AddNewSelectedPivots,
+  getMode,
+  getUniquePivotKeyPairs,
 } from './helper'
 import { PivotsDetailedList } from './PivotsDetailedList'
 import { ConfigureFilterExpressionButton } from './ConfigureFilterExpressionButton'
 import { FilterExpressionDetailedList } from '../helpers/FilterExpression/FilterExpressionDetailedList'
 import { StudyPivotConfig } from '../../models/filterexpression.model'
+import { SaveManagePivots } from './SaveManagePivots'
+import {
+  getDataToSaveUsingPivot,
+  getUniqueMappedPivotWithScopeFilter,
+  getFilterPivots,
+} from '../FailureCurveSection/service'
 
 export interface IManagePivotsProps {}
 
@@ -30,6 +37,7 @@ export const ManagePivots = (props: IManagePivotsProps) => {
     IComboBoxOption[]
   >([])
   const [selectedPivots, setSelectedPivots] = useState<Pivot[]>([])
+  const [selectedPivotsSet, setSelectedPivotsSet] = useState<Pivot[]>([])
   const [sourceSelected, setSourceSelected] = useState<Boolean>(false)
   const [configureFilterClicked, setConfigureFilterClicked] =
     useState<Boolean>(false)
@@ -38,6 +46,10 @@ export const ManagePivots = (props: IManagePivotsProps) => {
   )
   const [callFilterExpBackend, setCallFilterExpBackend] =
     useState<boolean>(true)
+  const [isValidated, setIsValidated] = useState<Boolean>(false)
+  const [dataSaved, setDataSaved] = React.useState<boolean>(false)
+  const [finalData, setFinalData] = React.useState<Pivot[]>([])
+  const [mode, setMode] = React.useState<string>('')
 
   useEffect(() => {
     setSourceSelected(false)
@@ -95,16 +107,11 @@ export const ManagePivots = (props: IManagePivotsProps) => {
       .then((response) => {
         if (response.data) {
           const arr = response.data
-          const ans = arr.map((item: any) => {
-            const rObj = {
-              key: `${item.PivotKey};${item.UIDataType};${item.ADLDataType}`,
-              text: item.PivotName,
-            }
-            return rObj
-          })
-          setSelectedPivotsPair(ans)
+          setSelectedPivotsPair(getUniquePivotKeyPairs(arr))
           setSelectedPivots(convertToPivot(arr))
+          setSelectedPivotsSet(getUniqueMappedPivotWithScopeFilter(arr, -1))
         } else {
+          setSelectedPivotsSet([])
           setSelectedPivots([])
           setSelectedPivotsPair([])
         }
@@ -114,39 +121,44 @@ export const ManagePivots = (props: IManagePivotsProps) => {
       })
   }
 
-  const onSourceSelected = (input: any) => {
+  const onSourceSelected = (input: IComboBoxOption) => {
     setSelectedSource(input)
-    getAllPivotsForASource(input.key)
-    getAllConfiguredPivotsForASource(input.key)
+    getAllPivotsForASource(input.key.toString())
+    getAllConfiguredPivotsForASource(input.key.toString())
     setSourceSelected(true)
+    setMode(getMode(input))
   }
 
   const onPivotDetailedlistUpdate = (input: any) => {
-    setSelectedPivots(input)
+    setSelectedPivotsSet(input)
   }
 
   const onPivotMultiSelectUpdate = (input: IComboBoxOption[]) => {
     setSelectedPivotsPair(input)
-
-    // removin the deselected enteries
     const temp: Pivot[] = []
-    for (const ele of selectedPivots) {
-      for (const selectedEle of input) {
-        if (ele.PivotKey === selectedEle.key.toString().split(';')[0]) {
+    // Adding the rows that from detailed list input that are still selected
+    // Also filter the deselected pivots
+    for (const ele of selectedPivotsSet) {
+      for (const e of input) {
+        if (ele.PivotKey === e.key.toString().split(';')[0]) {
           temp.push(ele)
+          break
         }
       }
     }
 
-    // Add new enteries
-    const updated = AddNewPivotsToDetailedList(input, temp)
-    setSelectedPivots(updated)
+    // Add new selected checkbox
+    const keys: string[] = []
+    for (const ele of input) keys.push(ele.key.toString())
+
+    const updatedPivotTable = AddNewSelectedPivots(keys, temp)
+    setSelectedPivotsSet(updatedPivotTable)
   }
 
   const onConfigureFilterExp = () => {
     setConfigureFilterClicked(true)
     setCallFilterExpBackend(true)
-    setPivotStudyConfig(convertToStudyConfig(selectedPivots))
+    setPivotStudyConfig(getFilterPivots(selectedPivots, selectedPivotsSet, -1))
   }
 
   const onFilterExpUpdate = (input: any, flag: boolean) => {
@@ -154,15 +166,51 @@ export const ManagePivots = (props: IManagePivotsProps) => {
     setCallFilterExpBackend(flag)
   }
 
-  const onValidateFilterExpression = (input: boolean) => {}
+  const onValidateFilterExpression = (input: boolean) => {
+    if (input === true) {
+      setFinalData(
+        getDataToSaveUsingPivot(
+          pivotStudyConfig,
+          selectedPivotsSet,
+          [],
+          mode,
+          -1
+        )
+      )
+    }
+    setIsValidated(input)
+  }
+
+  const saveButtonClicked = (input: Pivot[]) => {
+    axios
+      .post('api/Data/SavePivotConfig', input)
+      .then((response) => {
+        setDataSaved(true)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
 
   const filterExpression = configureFilterClicked ? (
     <div>
       <FilterExpressionDetailedList
         studyPivotConfigs={pivotStudyConfig}
         callBack={onFilterExpUpdate}
-              callBackend={callFilterExpBackend}
-              validateExpCallBack={onValidateFilterExpression}
+        callBackend={callFilterExpBackend}
+        validateExpCallBack={onValidateFilterExpression}
+      />
+    </div>
+  ) : (
+    ''
+  )
+
+  const saveButton = isValidated ? (
+    <div>
+      <SaveManagePivots
+        dataSaved={dataSaved}
+        callBack={saveButtonClicked}
+        pivots={finalData}
       />
     </div>
   ) : (
@@ -179,11 +227,12 @@ export const ManagePivots = (props: IManagePivotsProps) => {
         selectedItems={selectedPivotsPair}
       />
       <PivotsDetailedList
-        data={selectedPivots}
+        data={selectedPivotsSet}
         callBack={onPivotDetailedlistUpdate}
       />
       <ConfigureFilterExpressionButton callBack={onConfigureFilterExp} />
       {filterExpression}
+      {saveButton}
     </div>
   ) : (
     ''

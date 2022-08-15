@@ -73,9 +73,9 @@ namespace reliability_on_demand.DataLayer
             return _context.GetAllConfiguredFailurePivotsForAVertical(sourcesubtype, StudyConfigID);
         }
 
-        void ISQLService.UpdateFailureSavedConfig(FailureConfig f)
+        void ISQLService.UpdateFailureSavedConfig(Pivot[] pivots)
         {
-            _context.UpdateFailureSavedConfig(f);
+            _context.UpdateFailureSavedConfig(pivots);
         }
 
         public string GetAllTeamConfigs()
@@ -150,6 +150,11 @@ namespace reliability_on_demand.DataLayer
         string ISQLService.GetAdminConfiguredPivotsData(string source)
         {
             return _context.GetAdminConfiguredPivotsData(source);
+        }
+
+        void ISQLService.SavePivotConfig(Pivot[] pivots)
+        {
+            _context.SavePivotConfig(pivots);
         }
     }
 }
