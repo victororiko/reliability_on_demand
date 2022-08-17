@@ -8,6 +8,7 @@ import {
 import { FilterExpressionDetailedList } from '../helpers/FilterExpression/FilterExpressionDetailedList'
 import { MessageBox } from '../helpers/MessageBox'
 import { MyMultiSelectComboBox } from '../helpers/MyMultiSelectComboBox'
+import { azureFuncURL } from '../helpers/utils'
 import { SavePivotConfigButton } from './SavePivotConfigButton'
 import {
   convertPivotInfoToOptions,
@@ -99,6 +100,31 @@ export const PivotConfigDetails = (props: IPivotConfigDetailsProps) => {
     console.log(JSON.stringify(newList, null, 2))
   }
 
+  const handleValidation = (callBackend: boolean) => {
+    if (callBackend) {
+      console.log('call backend to validate filter :) ')
+      if (azureFuncURL) {
+        console.log(`azure func URL = ${azureFuncURL}`)
+        axios
+          .post(azureFuncURL, selectedItemConfigsWithScope)
+          .then((response) => {
+            if (response) {
+              console.log(`validated from Backend String = ${response.data}`)
+            } else console.log('no response from Backend Azure Function')
+          })
+          .catch((err) => {
+            console.error(`failed to call backend with error = ${err}`)
+          })
+      } else {
+        console.error(
+          'Azure Function URL missing - make sure you have a .env file added to ClientApp folder as mentioned in the README'
+        )
+      }
+    } else {
+      console.log('no backend calls executed to validate filter expression')
+    }
+  }
+
   return (
     <div>
       <MyMultiSelectComboBox
@@ -112,6 +138,7 @@ export const PivotConfigDetails = (props: IPivotConfigDetailsProps) => {
         studyPivotConfigs={selectedItemConfigs}
         callBack={printFromCallBack}
         callBackend={true}
+        validateExpCallBack={handleValidation}
       />
       <SavePivotConfigButton
         StudyConfigID={props.StudyConfigID}

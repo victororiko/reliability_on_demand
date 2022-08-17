@@ -217,7 +217,6 @@ const addTextBoxColumns = (data: Pivot[]): IColumn[] => {
   return cols
 }
 
-
 // converting the backend result to pivot for IsScopeFilter mapping
 export const convertToPivot = (input: any[]): Pivot[] => {
   const res: Pivot[] = []

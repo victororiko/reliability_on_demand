@@ -130,3 +130,5 @@ export const hardCodedObservationWindows: IDropdownOption[] = [
   { key: 0, text: 'none' },
   { key: 14, text: '14 days' },
 ]
+
+export const azureFuncURL = process.env.REACT_APP_ValidateFilterExpresionURL
