@@ -5,6 +5,6 @@
 //   "Set quicktype target language"
 
 export interface Vertical {
-  VerticalName: string
-  PivotSourceSubType: string
+    VerticalName: string
+    PivotSourceSubType: string
 }

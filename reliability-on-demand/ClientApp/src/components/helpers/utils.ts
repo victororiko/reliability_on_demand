@@ -1,17 +1,17 @@
-import { IDropdownOption } from '@fluentui/react'
+import { IDropdownOption } from "@fluentui/react"
 
 /**
  * Used in Comboboxes or Dropdowns
  */
 export interface KeyTextPair {
-  /**
-   * Arbitrary string associated with this option.
-   */
-  key: string
-  /**
-   * Text to render for this option
-   */
-  text: string
+    /**
+     * Arbitrary string associated with this option.
+     */
+    key: string
+    /**
+     * Text to render for this option
+     */
+    text: string
 }
 
 /**
@@ -22,18 +22,18 @@ export interface KeyTextPair {
  * @returns an array of <Key,Text> Pairs that can be used as Options for Dropdowns or ComboBoxes
  */
 export const convertComplexTypeToOptions = (
-  inputData: any[],
-  useKey: string,
-  useValue: string
+    inputData: any[],
+    useKey: string,
+    useValue: string
 ): KeyTextPair[] => {
-  let parsedList: KeyTextPair[] = []
-  parsedList = inputData.map((item: any) => {
-    return {
-      key: item[useKey],
-      text: item[useValue],
-    }
-  })
-  return parsedList
+    let parsedList: KeyTextPair[] = []
+    parsedList = inputData.map((item: any) => {
+        return {
+            key: item[useKey],
+            text: item[useValue],
+        }
+    })
+    return parsedList
 }
 
 /**
@@ -44,14 +44,14 @@ export const convertComplexTypeToOptions = (
  * @returns 1 Key/Text pair object that can be used in Comboboxes or Dropdowns
  */
 export const convertObjectToOption = (
-  inputData: any,
-  useKey: string,
-  useValue: string
+    inputData: any,
+    useKey: string,
+    useValue: string
 ): KeyTextPair => {
-  return {
-    key: inputData[useKey],
-    text: inputData[useValue],
-  }
+    return {
+        key: inputData[useKey],
+        text: inputData[useValue],
+    }
 }
 
 /**
@@ -61,23 +61,23 @@ export const convertObjectToOption = (
  * @returns returns a list of <Key/Text> Pair that can be used in Dropdowns
  */
 export const convertSimpleTypeToOptions = (
-  inputData: any[],
-  numericKey: boolean
+    inputData: any[],
+    numericKey: boolean
 ): KeyTextPair[] => {
-  let parsedList: KeyTextPair[] = []
-  parsedList = inputData.map((item: any, index: number) => {
-    if (numericKey) {
-      return {
-        key: index,
-        text: item.toString(),
-      }
-    }
-    return {
-      key: item.toString(),
-      text: item.toString(),
-    }
-  })
-  return parsedList
+    let parsedList: KeyTextPair[] = []
+    parsedList = inputData.map((item: any, index: number) => {
+        if (numericKey) {
+            return {
+                key: index,
+                text: item.toString(),
+            }
+        }
+        return {
+            key: item.toString(),
+            text: item.toString(),
+        }
+    })
+    return parsedList
 }
 
 // usage example:
@@ -85,7 +85,7 @@ export const convertSimpleTypeToOptions = (
 // var unique = a.filter(onlyUnique);
 // console.debug(unique); // ['a', 1, 2, '1']
 export const onlyUnique = (myArray: any[]) => {
-  return [...new Set(myArray)]
+    return [...new Set(myArray)]
 }
 
 /**
@@ -95,40 +95,40 @@ export const onlyUnique = (myArray: any[]) => {
 export const CreateNewID = -1
 export const DummyID = -2
 
-export const EmptyFieldErrorMessage = 'Empty Field'
-export const SaveMessage = 'Saved successfully!'
-export const UnAuthorizedMessage = 'You are unauthorized to view the page'
+export const EmptyFieldErrorMessage = "Empty Field"
+export const SaveMessage = "Saved successfully!"
+export const UnAuthorizedMessage = "You are unauthorized to view the page"
 
 export const MAXNUMPIVOTSINCOMBOBOX = 4
 
-export const PopulationSourceType = 'PopulationSourceType'
-export const AllSourceType = 'All'
+export const PopulationSourceType = "PopulationSourceType"
+export const AllSourceType = "All"
 
 export const MinWidth = 200
 export const MaxWidth = 250
 
 export const myParseInt = (value: string): number => {
-  return parseInt(value, 10)
+    return parseInt(value, 10)
 }
 
 export const prepUsageInMS = (timeInSec: number, timeInMin: number): number => {
-  return timeInSec * 1000 + timeInMin * 60000
+    return timeInSec * 1000 + timeInMin * 60000
 }
 
 // Study Section hardcoded values
 export const hardCodedFrequencies: IDropdownOption[] = [
-  { key: 0, text: 'none' },
-  { key: 1, text: 'hourly' },
-  { key: 168, text: 'weekly' },
-  { key: 12, text: 'every 12 hours' },
-  { key: 24, text: 'every 24 hours' },
-  { key: 72, text: 'every 3 days' },
+    { key: 0, text: "none" },
+    { key: 1, text: "hourly" },
+    { key: 168, text: "weekly" },
+    { key: 12, text: "every 12 hours" },
+    { key: 24, text: "every 24 hours" },
+    { key: 72, text: "every 3 days" },
 ]
 
 // generate data for Dropdown
 export const hardCodedObservationWindows: IDropdownOption[] = [
-  { key: 0, text: 'none' },
-  { key: 14, text: '14 days' },
+    { key: 0, text: "none" },
+    { key: 14, text: "14 days" },
 ]
 
 export const azureFuncURL = process.env.REACT_APP_ValidateFilterExpresionURL

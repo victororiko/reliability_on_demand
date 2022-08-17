@@ -1,14 +1,14 @@
-import axios from 'axios'
-import { Label } from '@fluentui/react'
-import React from 'react'
-import { MenuPivots } from './MenuPivots'
-import { Loading } from '../helpers/Loading'
-import { UnAuthorizedMessage } from '../helpers/utils'
+import axios from "axios"
+import { Label } from "@fluentui/react"
+import React from "react"
+import { MenuPivots } from "./MenuPivots"
+import { Loading } from "../helpers/Loading"
+import { UnAuthorizedMessage } from "../helpers/utils"
 
 export interface Props {}
 
 export const AdminPage = (props: Props) => {
-  /*
+    /*
   @anjali to address these comments in Task 38094699
   const [isValidUser, setValidUser] = React.useState<boolean>(true)
   const [loading, setLoading] = React.useState<boolean>(false)
@@ -53,5 +53,5 @@ export const AdminPage = (props: Props) => {
   )
   */
 
-  return <MenuPivots />
+    return <MenuPivots />
 }

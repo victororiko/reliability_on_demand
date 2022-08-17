@@ -1,10 +1,10 @@
-import React from 'react'
-import { Spinner } from '@fluentui/react'
+import React from "react"
+import { Spinner } from "@fluentui/react"
 
 interface Props {
-  message: string
+    message: string
 }
 
 export const Loading = (props: Props) => {
-  return <Spinner label={props.message} />
+    return <Spinner label={props.message} />
 }

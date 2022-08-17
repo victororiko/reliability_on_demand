@@ -1,13 +1,13 @@
-import React from 'react'
-import { PrimaryButton } from '@fluentui/react'
+import React from "react"
+import { PrimaryButton } from "@fluentui/react"
 
 type Props = {
-  callback: any
+    callback: any
 }
 
 export const UpdateStudyButton = (props: Props) => {
-  const handleClick = () => {
-    props.callback()
-  }
-  return <PrimaryButton text="Update" onClick={handleClick} />
+    const handleClick = () => {
+        props.callback()
+    }
+    return <PrimaryButton text="Update" onClick={handleClick} />
 }

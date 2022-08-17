@@ -1,20 +1,20 @@
-import React from 'react'
-import { DefaultButton } from '@fluentui/react'
+import React from "react"
+import { DefaultButton } from "@fluentui/react"
 
 type Props = {
-  callBack: any
+    callBack: any
 }
 
 export const ConfigureFilterExpressionButton = (props: Props) => {
-  const handleClick = () => {
-    props.callBack()
-  }
+    const handleClick = () => {
+        props.callBack()
+    }
 
-  return (
-    <DefaultButton
-      text="Configure Filter Expression"
-      onClick={handleClick}
-      allowDisabledFocus
-    />
-  )
+    return (
+        <DefaultButton
+            text="Configure Filter Expression"
+            onClick={handleClick}
+            allowDisabledFocus
+        />
+    )
 }
