@@ -484,6 +484,8 @@ namespace reliability_on_demand.DataLayer
 
         public void SavePivotConfig(Pivot[] pivots)
         {
+            if (pivots == null || pivots.Length == 0) return;
+
             this.Database.OpenConnection();
             string source = pivots[0].PivotKey.Split('_')[0];
 
@@ -516,7 +518,7 @@ namespace reliability_on_demand.DataLayer
             for (var i = 0; i < pivots.Length; i++)
             {
                 var pivot = pivots[i];
-                if (pivot.IsScopeFilter == true && pivot.PivotOperator != null && pivot.PivotScopeValue != null && !pivot.PivotOperator.Equals("") && !pivot.PivotScopeValue.Equals(""))
+                if (pivot.PivotOperator != null && pivot.PivotScopeValue != null && !pivot.PivotOperator.Equals("") && !pivot.PivotScopeValue.Equals(""))
                 {
                     int pivotscopeid = AddFilterPivotToFailureCurve(pivot.PivotKey, pivot.PivotOperator, pivot.PivotScopeValue, scopeid);
                     pivot.PivotScopeID = pivotscopeid;
@@ -528,7 +530,7 @@ namespace reliability_on_demand.DataLayer
             for (var i = 0; i < pivots.Length; i++)
             {
                 var pivot = pivots[i];
-                if (pivot.IsScopeFilter == true && pivot.PivotOperator != null && pivot.PivotScopeValue != null && !pivot.PivotOperator.Equals("") && !pivot.PivotScopeValue.Equals(""))
+                if (pivot.PivotOperator != null && pivot.PivotScopeValue != null && !pivot.PivotOperator.Equals("") && !pivot.PivotScopeValue.Equals(""))
                 {
                     AddFilterPivotsAndValuesToFailureCurve(pivot);
                 }
@@ -956,146 +958,7 @@ namespace reliability_on_demand.DataLayer
             return sb.ToString();
         }
 
-        private bool EmptyScope(PopulationPivotConfig userConfig)
-        {
-            return userConfig.PivotScopeValue == "";
-        }
-
-        private int GetMaxScopeID()
-        {
-            this.Database.OpenConnection();
-            var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetMaximumPivotScopeID";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-            var maxScopeObj = cmd.ExecuteScalar();
-            Int32 maxscopeid = (Convert.IsDBNull(maxScopeObj) ? 0 : (Int32)maxScopeObj);
-            return maxscopeid;
-        }
-
-        public string AddOrUpdatePivotConfig(PopulationPivotConfig[] allUserConfigs)
-        {
-            if (allUserConfigs == null || allUserConfigs.Length == 0) return "";
-
-            // clear all previous StudyPivotConfigs for the specified Study
-            int studyConfigIdToUse = allUserConfigs[0].StudyConfigID;
-            string pivotSourceSubTypeToUse = allUserConfigs[0].PivotSourceSubType;
-            // Note: converting to FailureConfig becuase these methods are implemented in terms of failure configs
-            FailureConfig fc = new FailureConfig();
-            fc.StudyConfigID = studyConfigIdToUse;
-            fc.PivotSourceSubType = pivotSourceSubTypeToUse;
-            int numConfigs = GetMaximumStudyPivotConfigCount(studyConfigIdToUse,pivotSourceSubTypeToUse);
-            string source = allUserConfigs[0].PivotKey.Split('_')[0];
-
-            if (numConfigs > 0)
-                DeleteStudyConfigIDFromPivotMapping(studyConfigIdToUse,source);
-
-            StringBuilder sb = new StringBuilder();
-            foreach(PopulationPivotConfig userConfig in allUserConfigs)
-            {
-                string ans = AddOrUpdatePivotConfig(userConfig);
-                sb.Append(ans);
-            }
-            return sb.ToString();
-        }
-
-        /*
-         * Summary
-         * if pivot has scope defined:
-         *      if scope exists:
-         *          scopeIdToUse = GetScopeIDForFilterExpression()
-         *      else:
-         *          scopeIdToUse = Generate new ScopeID
-         * else:
-         *      use scopeId that came with userConfig (typically -1)
-         * 
-         * if userConfig exists in backend:
-         *      update record with values in userConfig
-         * else
-         *      add new record with values in userConfig
-         */
-        public string AddOrUpdatePivotConfig(PopulationPivotConfig userConfig)
-        {
-            //ensure that connection is open
-            this.Database.OpenConnection();
-
-            // let's start with PivotScopeID provided (may be -1 or a proper ScopeID)
-            int scopeIdToUse = userConfig.PivotScopeID;
-            // Handle addition of pivot scope first
-            if (!EmptyScope(userConfig))
-            {
-                // extract a filter expression from userConfig to check if it exists
-                FilterExpression fe = new FilterExpression();
-                fe.PivotValue = userConfig.PivotScopeValue;
-                fe.PivotKey = userConfig.PivotKey;
-                fe.Operator = userConfig.PivotOperator;
-
-                // check if the scope associated to userConfig exists
-                // if it does: use that scopeID else generate a new one
-                int scopeIdToCheck = GetPivotScopeIDForFilterExp(fe.PivotKey,fe.Operator,fe.PivotValue);
-                if (scopeIdToCheck == 0) // scope does not exist
-                {
-                    // get max scopeid
-                    scopeIdToUse = GetMaxScopeID() + 1;
-                    // add scope to RELPivotScope table
-                    var cmd2 = this.Database.GetDbConnection().CreateCommand();
-                    cmd2.CommandText = "dbo.AddFilterPivotToFailureCurve";
-                    cmd2.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmd2.Parameters.Add(new SqlParameter("@PivotScopeID", scopeIdToUse));
-                    cmd2.Parameters.Add(new SqlParameter("@PivotScopeValue", userConfig.PivotScopeValue));
-                    cmd2.Parameters.Add(new SqlParameter("@PivotOperator", userConfig.PivotOperator));
-                    cmd2.Parameters.Add(new SqlParameter("@PivotKey", userConfig.PivotKey));
-                    var reader = cmd2.ExecuteReader();
-                    reader.Close();
-                }
-                else // scope exists
-                {
-                    scopeIdToUse = scopeIdToCheck;
-                }
-            }
-
-            // Check if the Pivot has already been added
-            var cmd3 = this.Database.GetDbConnection().CreateCommand();
-            cmd3.CommandText = "dbo.PivotConfigExists";
-            cmd3.CommandType = CommandType.StoredProcedure;
-            cmd3.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
-            cmd3.Parameters.Add(new SqlParameter("@PivotKey", userConfig.PivotKey));
-            cmd3.Parameters.Add(new SqlParameter("@PivotScopeID", scopeIdToUse));
-            var result3 = cmd3.ExecuteScalar();
-            if (result3 == null)
-            {
-                // Add a record to RELStudyPivotConfig table with new scopeid
-                var cmd = this.Database.GetDbConnection().CreateCommand();
-                cmd.CommandText = "dbo.AddPivotConfig";
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                // add any params here
-                cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
-                cmd.Parameters.Add(new SqlParameter("@PivotKey", userConfig.PivotKey));
-                cmd.Parameters.Add(new SqlParameter("@PivotScopeID", scopeIdToUse));
-                cmd.Parameters.Add(new SqlParameter("@AggregateBy", userConfig.AggregateBy));
-                cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", userConfig.PivotSourceSubType));
-                cmd.Parameters.Add(new SqlParameter("@PivotScopeOperator", userConfig.RelationalOperator));
-                var result5 = cmd.ExecuteScalar();
-                return $"Successfully Added PivotConfig to Backend = {userConfig}";
-            }
-            else
-            {
-                // UPDATE with new scopeid
-                var cmd4 = this.Database.GetDbConnection().CreateCommand();
-                cmd4.CommandText = "dbo.UpdatePivotConfig";
-                cmd4.CommandType = CommandType.StoredProcedure;
-                cmd4.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
-                cmd4.Parameters.Add(new SqlParameter("@PivotKey", userConfig.PivotKey));
-                cmd4.Parameters.Add(new SqlParameter("@PivotScopeID", scopeIdToUse));
-                cmd4.Parameters.Add(new SqlParameter("@AggregateBy", userConfig.AggregateBy));
-                cmd4.Parameters.Add(new SqlParameter("@PivotSourceSubType", userConfig.PivotSourceSubType));
-                cmd4.Parameters.Add(new SqlParameter("@PivotScopeOperator", userConfig.RelationalOperator));
-                var result4 = cmd4.ExecuteScalar();
-                return $"Successfully Updated PivotConfig to Backend = {userConfig}";
-            }
-
-        }
-
-        public string ClearPivotConfig(PopulationPivotConfig userConfig)
+        public string ClearPivotConfig(Pivot userConfig)
         {
             //ensure that connection is open
             this.Database.OpenConnection();

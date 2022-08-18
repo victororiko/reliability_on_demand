@@ -123,11 +123,11 @@ namespace reliability_on_demand.DataLayer
             return _context.GetUserPivotConfigs(PivotSource,StudyConfigID);
         }
 
-        string ISQLService.AddOrUpdatePivotConfig(PopulationPivotConfig[] allUserConfigs)
+        void ISQLService.AddOrUpdatePivotConfig(Pivot[] allUserConfigs)
         {
-            return _context.AddOrUpdatePivotConfig(allUserConfigs);   
+            _context.SavePivotConfig(allUserConfigs);   
         }
-        string ISQLService.ClearPivotConfig(reliability_on_demand.DataLayer.PopulationPivotConfig userConfig)
+        string ISQLService.ClearPivotConfig(reliability_on_demand.DataLayer.Pivot userConfig)
         {
             return _context.ClearPivotConfig(userConfig);   
         }

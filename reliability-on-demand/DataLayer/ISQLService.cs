@@ -29,8 +29,8 @@ namespace reliability_on_demand.DataLayer
         string GetAllSourcesForGivenSourceType(string sourcetype);
         string GetPopulationPivots(string PivotSource);
         string GetUserPivotConfigs(string PivotSource, int StudyConfigID);
-        string AddOrUpdatePivotConfig(PopulationPivotConfig[] userConfig);
-        string ClearPivotConfig(PopulationPivotConfig userConfig);
+        void AddOrUpdatePivotConfig(Pivot[] userConfig);
+        string ClearPivotConfig(Pivot userConfig);
         string GetAllScopeForPivotKeys(string pivotkeys);
         string GetFilterExpressionForPivotScopeIds(StudyConfigIDWithScopesInquiry inquiry);
         string GetPivotsForGivenSource(string source);
