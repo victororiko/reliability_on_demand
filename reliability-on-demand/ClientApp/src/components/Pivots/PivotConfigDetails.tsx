@@ -30,7 +30,7 @@ export const PivotConfigDetails = (props: IPivotConfigDetailsProps) => {
         axios
             .get(`api/Data/GetPopulationPivots/${props.pivotSource}`)
             .then((response) => {
-                if (response.data) setPopulationPivots(response.data)
+                if (response) setPopulationPivots(response.data)
                 else setPopulationPivots([])
             })
             .catch((exception) => {
@@ -42,20 +42,26 @@ export const PivotConfigDetails = (props: IPivotConfigDetailsProps) => {
                 `api/Data/GetUserPivotConfigs/PivotSource/${props.pivotSource}/StudyConfigID/${props.StudyConfigID}`
             )
             .then((response) => {
-                if (response.data) {
-                    // save raw SQL
-                    setSelectedItemConfigs(response.data as PopulationPivotConfig[])
-                    // map to Dropdown options
-                    const arr = response.data
-                    const ans = arr.map((item: any) => {
-                        const rObj = {
-                            ...item,
-                            key: item.PivotKey,
-                            text: item["dbo.RELPivotInfo"][0].PivotName, // using [0] because the array will only have 1 object - SQL weirdness
-                        }
-                        return rObj
-                    })
-                    setSelectedItems(ans) // force combobox to show placeholder text by default
+                if (response) {
+                    // these nested if statements are required to set the right state if we get no records from backend
+                    if (response.data === "") {
+                        setSelectedItemConfigs([])
+                        setSelectedItems([])
+                    } else {
+                        // save raw SQL
+                        setSelectedItemConfigs(response.data as PopulationPivotConfig[])
+                        // map to Dropdown options
+                        const arr = response.data
+                        const ans = arr.map((item: any) => {
+                            const rObj = {
+                                ...item,
+                                key: item.PivotKey,
+                                text: item["dbo.RELPivotInfo"][0].PivotName, // using [0] because the array will only have 1 object - SQL weirdness
+                            }
+                            return rObj
+                        })
+                        setSelectedItems(ans) // set any user selections previously made, otherwise set defaults created by admin
+                    }
                 } else setSelectedItems([])
             })
             .catch((exception) => {
@@ -114,6 +120,25 @@ export const PivotConfigDetails = (props: IPivotConfigDetailsProps) => {
         }
     }
 
+    const showFilterExpressionIfPivotSelected =
+        selectedItems.length > 0 ? (
+            <div>
+                <FilterExpressionDetailedList
+                    studyPivotConfigs={selectedItemConfigs}
+                    callBack={printFromCallBack}
+                    callBackend={true}
+                    validateExpCallBack={handleValidation}
+                />
+                <SavePivotConfigButton
+                    StudyConfigID={props.StudyConfigID}
+                    selectedPivots={selectedItemConfigsWithScope}
+                    callbackStatus={handleBackendStatus}
+                />
+            </div>
+        ) : (
+            ""
+        )
+
     return (
         <div>
             <MyMultiSelectComboBox
@@ -123,17 +148,7 @@ export const PivotConfigDetails = (props: IPivotConfigDetailsProps) => {
                 placeholder="type a pivot name to search OR select from the list"
                 selectedItems={selectedItems}
             />
-            <FilterExpressionDetailedList
-                studyPivotConfigs={selectedItemConfigs}
-                callBack={printFromCallBack}
-                callBackend={true}
-                validateExpCallBack={handleValidation}
-            />
-            <SavePivotConfigButton
-                StudyConfigID={props.StudyConfigID}
-                selectedPivots={selectedItemConfigsWithScope}
-                callbackStatus={handleBackendStatus}
-            />
+            {showFilterExpressionIfPivotSelected}
             {backendStatus === "" ? "" : <MessageBox message={backendStatus} />}
         </div>
     )
