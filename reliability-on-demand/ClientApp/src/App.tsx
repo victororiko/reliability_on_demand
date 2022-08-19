@@ -7,6 +7,7 @@ import { Config } from "./components/Config"
 import { KustoData } from "./components/Other/KustoData"
 import { AdminPage } from "./components/Admin/index"
 import "./custom.css"
+import { StudySearch } from "./components/StudySearch"
 
 initializeIcons()
 
@@ -20,6 +21,7 @@ export const App = () => {
         ignore rest of the routes once it has found matching route */}
                 <Route path="/kusto-data" component={KustoData} />
                 <Route path="/admin-page" component={AdminPage} />
+                <Route path="/study-search" component={StudySearch} />
                 {/* If none of the previous routes render anything,
             this route acts as a fallback.
 

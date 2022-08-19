@@ -29,14 +29,17 @@ export const Team = (props: Props) => {
                     setTeamConfigs(response.data as TeamConfig[])
                 } else setTeamConfigs([])
 
-                const foundTeam = response.data.find((item: TeamConfig) => {
-                    return (
-                        item.OwnerTeamFriendlyName === props.queryStringParams.OwnerTeamFriendlyName
-                    )
-                })
-                if (foundTeam) {
-                    setSelectedTeam(foundTeam)
-                    props.callback(foundTeam.TeamID)
+                if (props.queryStringParams) {
+                    const foundTeam = response.data.find((item: TeamConfig) => {
+                        return (
+                            item.OwnerTeamFriendlyName ===
+                            props.queryStringParams.OwnerTeamFriendlyName
+                        )
+                    })
+                    if (foundTeam) {
+                        setSelectedTeam(foundTeam)
+                        props.callback(foundTeam.TeamID)
+                    }
                 }
 
                 setLoading(false)
