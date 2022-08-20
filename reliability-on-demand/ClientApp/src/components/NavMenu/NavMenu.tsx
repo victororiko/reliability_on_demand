@@ -69,11 +69,6 @@ export class NavMenu extends React.Component<INavMenuProps, INavMenuState> {
                                     </NavLink>
                                 </NavItem>
                                 <NavItem>
-                                    <NavLink tag={Link} className="text-dark" to="/study-search">
-                                        Study Search
-                                    </NavLink>
-                                </NavItem>
-                                <NavItem>
                                     <NavLink
                                         tag={Link}
                                         className="text-dark"

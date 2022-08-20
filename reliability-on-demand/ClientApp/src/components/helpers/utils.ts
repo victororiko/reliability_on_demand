@@ -132,3 +132,8 @@ export const hardCodedObservationWindows: IDropdownOption[] = [
 ]
 
 export const azureFuncURL = process.env.REACT_APP_ValidateFilterExpresionURL
+
+export enum SimplifiedButtonType {
+    Primary = 1,
+    Other,
+}

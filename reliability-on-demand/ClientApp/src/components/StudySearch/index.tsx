@@ -1,9 +1,11 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import * as QueryString from "query-string"
 import { Team } from "../Team"
-import { CreateNewID } from "../helpers/utils"
+import { CreateNewID, SimplifiedButtonType } from "../helpers/utils"
 import { Pivots } from "../Pivots"
 import { SearchByDropdown } from "./SearchByDropdown"
+import { Loading } from "../helpers/Loading"
+import { MyButton } from "../helpers/MyButton"
 
 interface IStudySearchProps {
     location: any
@@ -15,13 +17,25 @@ export const StudySearch = (props: IStudySearchProps) => {
 
     // state
     const [teamID, setTeamID] = useState(CreateNewID)
+    // update this page with teamID if it exists
+    useEffect(() => {
+        console.log(`teamID = ${teamID}`)
+    }, [props])
+
     const [searchBy, setSearchBy] = useState("")
+    const [loading, setLoading] = useState(false)
+
     const callback_setTeamID = (selection_teamID: number) => {
         setTeamID(selection_teamID)
     }
 
     const callback_setSearchBy = (searchByStr: string) => {
         setSearchBy(searchByStr)
+    }
+
+    const handleSearchButtonCallback = (loadingFlag: boolean) => {
+        const prevLoading = loading
+        setLoading(!prevLoading)
     }
 
     return (
@@ -40,6 +54,12 @@ export const StudySearch = (props: IStudySearchProps) => {
             ) : (
                 ""
             )}
+            <MyButton
+                callback={handleSearchButtonCallback}
+                text="Search"
+                buttonType={SimplifiedButtonType.Primary}
+            />
+            {loading ? <Loading message="Hang tight - getting your Studies" /> : ""}
         </div>
     )
 }
