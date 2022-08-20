@@ -30,7 +30,12 @@ export const Config = (props: any) => {
     // render
     return (
         <Stack tokens={containerStackTokens}>
-            <Team callback={selectTeam} queryStringParams={params} />
+            <Team
+                callback={selectTeam}
+                queryStringParams={params}
+                showMoreDetails={true}
+                showTitle={true}
+            />
             {currentTeamId === CreateNewID ? (
                 ""
             ) : (
@@ -44,7 +49,7 @@ export const Config = (props: any) => {
                         ""
                     ) : (
                         <div>
-                            <Pivots StudyConfigID={currentStudyConfigID} />
+                            <Pivots StudyConfigID={currentStudyConfigID} showSaveButton={true} />
                             <FailureCurve StudyConfigID={currentStudyConfigID} />
                             <Metrics StudyConfigID={currentStudyConfigID} />
                         </div>

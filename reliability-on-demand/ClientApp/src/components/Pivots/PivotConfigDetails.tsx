@@ -12,6 +12,7 @@ import { convertPivotInfoToOptions, generateCorrespondingStudyConfig } from "./s
 interface IPivotConfigDetailsProps {
     pivotSource: string
     StudyConfigID: number
+    showSaveButton: boolean
 }
 
 export const PivotConfigDetails = (props: IPivotConfigDetailsProps) => {
@@ -129,11 +130,15 @@ export const PivotConfigDetails = (props: IPivotConfigDetailsProps) => {
                     callBackend={true}
                     validateExpCallBack={handleValidation}
                 />
-                <SavePivotConfigButton
-                    StudyConfigID={props.StudyConfigID}
-                    selectedPivots={selectedItemConfigsWithScope}
-                    callbackStatus={handleBackendStatus}
-                />
+                {props.showSaveButton ? (
+                    <SavePivotConfigButton
+                        StudyConfigID={props.StudyConfigID}
+                        selectedPivots={selectedItemConfigsWithScope}
+                        callbackStatus={handleBackendStatus}
+                    />
+                ) : (
+                    ""
+                )}
             </div>
         ) : (
             ""

@@ -9,6 +9,7 @@ import { PivotConfigDetails } from "./PivotConfigDetails"
 
 type Props = {
     StudyConfigID: number
+    showSaveButton: boolean
 }
 
 export const Pivots = (props: Props) => {
@@ -57,6 +58,7 @@ export const Pivots = (props: Props) => {
             )}
             {selectedPivotSource ? (
                 <PivotConfigDetails
+                    {...props}
                     pivotSource={selectedPivotSource.text}
                     StudyConfigID={props.StudyConfigID}
                 />

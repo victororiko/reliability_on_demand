@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import { TeamConfig } from "../../models/team.model"
 import { Loading } from "../helpers/Loading"
 import { MySingleSelectComboBox } from "../helpers/MySingleSelectComboBox"
-import { convertComplexTypeToOptions, convertObjectToOption, CreateNewID } from "../helpers/utils"
+import { convertComplexTypeToOptions, convertObjectToOption } from "../helpers/utils"
 import { getTeamFromId } from "./helper"
 import { OwnerContactAlias } from "./OwnerContactAlias"
 import { OwnerTeamFriendlyName } from "./OwnerTeamFriendlyName"
@@ -13,6 +13,8 @@ import { OwnerTriageAlias } from "./OwnerTriageAlias"
 type Props = {
     callback: any
     queryStringParams: any
+    showMoreDetails: boolean
+    showTitle: boolean
 }
 
 export const Team = (props: Props) => {
@@ -63,7 +65,7 @@ export const Team = (props: Props) => {
                 <Loading message="Getting Teams for you - hang tight" />
             ) : (
                 <>
-                    <h1>Team Section</h1>
+                    {props.showTitle ? <h1>Team Section</h1> : ""}
                     <MySingleSelectComboBox
                         options={convertComplexTypeToOptions(
                             teamConfigs,
@@ -83,7 +85,7 @@ export const Team = (props: Props) => {
                                   )
                         }
                     />
-                    {selectedTeam ? (
+                    {selectedTeam && props.showMoreDetails ? (
                         <div>
                             <OwnerContactAlias currentTeam={selectedTeam} />
                             <OwnerTeamFriendlyName currentTeam={selectedTeam} />
