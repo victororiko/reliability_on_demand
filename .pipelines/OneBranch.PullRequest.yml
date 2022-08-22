@@ -91,10 +91,14 @@ extends:
               versionSpec: '12.x'
             displayName: 'Install Node.js'
 
-          - task: Npm@1
+          - task: npmAuthenticate@0
             inputs:
-              command: 'install'
-              workingDir: '$(clientAppDir)'
+              workingFile: '$(clientAppDir)/.npmrc'
+
+          - task: CmdLine@2
+            inputs:
+              script: 'npm install'
+              workingDirectory: '$(clientAppDir)'
             displayName: 'npm install'
           
           - task: CmdLine@2
