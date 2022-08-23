@@ -30,7 +30,7 @@ namespace reliability_on_demand.Helpers
             var tenantId = configuration.GetValue<string>("TenantID");
 
             // Values from app registration
-            var clientId = configuration.GetValue<string>("ClientId");
+            var clientId = configuration.GetValue<string>("AppClientId");
             var clientSecret = configuration.GetValue<string>("ClientSecret");
 
             // using Azure.Identity;
@@ -102,8 +102,9 @@ namespace reliability_on_demand.Helpers
                 var memberGroups = await this.CheckMemberGroupsAsync(userName, groupIds).ConfigureAwait(false);
                 return memberGroups.Any();
             }
-            catch
+            catch(Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }
