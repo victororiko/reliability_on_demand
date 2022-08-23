@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react"
 import * as QueryString from "query-string"
+import axios from "axios"
 import { Team } from "../Team"
 import { CreateNewID, SimplifiedButtonType } from "../helpers/utils"
 import { Pivots } from "../Pivots"
 import { SearchByDropdown } from "./SearchByDropdown"
 import { Loading } from "../helpers/Loading"
 import { MyButton } from "../helpers/MyButton"
+import { StudyConfig } from "../../models/study.model"
+import { MessageBox } from "../helpers/MessageBox"
 
 interface IStudySearchProps {
     location: any
@@ -22,8 +25,11 @@ export const StudySearch = (props: IStudySearchProps) => {
         console.log(`teamID = ${teamID}`)
     }, [props])
 
+    const [studyConfigs, setStudyConfigs] = useState<StudyConfig[]>([])
+
     const [searchBy, setSearchBy] = useState("")
     const [loading, setLoading] = useState(false)
+    const [studyConfigsLoaded, setStudyConfigsLoaded] = useState(false)
 
     const callback_setTeamID = (selection_teamID: number) => {
         setTeamID(selection_teamID)
@@ -33,33 +39,39 @@ export const StudySearch = (props: IStudySearchProps) => {
         setSearchBy(searchByStr)
     }
 
-    const handleSearchButtonCallback = (loadingFlag: boolean) => {
-        const prevLoading = loading
-        setLoading(!prevLoading)
+    const loadStudies = () => {
+        setLoading(true)
+        axios.get(`api/Data/GetStudies/${teamID}`).then((res) => {
+            if (res) setStudyConfigs(res.data as StudyConfig[])
+            else setStudyConfigs([])
+            setLoading(false)
+            setStudyConfigsLoaded(true)
+        })
     }
 
     return (
         <div>
             <h1>Search Studies</h1>
             <SearchByDropdown callback={callback_setSearchBy} />
-            {searchBy.toLocaleLowerCase() === "team" ? (
+            {searchBy === "Team" ? (
                 <Team
                     callback={callback_setTeamID}
                     queryStringParams={params}
                     showMoreDetails={false}
                     showTitle={false}
                 />
-            ) : searchBy.toLocaleLowerCase() === "pivots" ? (
+            ) : searchBy === "Pivots" ? (
                 <Pivots StudyConfigID={CreateNewID} showSaveButton={false} />
             ) : (
                 ""
             )}
             <MyButton
-                callback={handleSearchButtonCallback}
+                callback={loadStudies}
                 text="Search"
                 buttonType={SimplifiedButtonType.Primary}
             />
             {loading ? <Loading message="Hang tight - getting your Studies" /> : ""}
+            {studyConfigsLoaded ? <MessageBox message={studyConfigs} isJSON /> : "No Studies Found"}
         </div>
     )
 }
