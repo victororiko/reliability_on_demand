@@ -66,9 +66,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Remove="ClientApp\src\authConfig.ts" />
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\ConfigureFilterExpressionButton.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\PivotsDetailedList.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\SaveManagePivots.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\ErrorComponent.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\helpers\FilterExpression\FilterExpressionDetailedList.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\helpers\FilterExpression\service.ts" />
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\AddOrUpdateButton.tsx" />
@@ -76,7 +78,12 @@
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\FailureModesSelection.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\MultiSelectPivots.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\PivotsDetailedList.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\SignInButton.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\SignInSignOutButton.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\SignOutButton.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\models\filterexpression.model.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\utils\MsGraphApiCall.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\utils\NavigationClient.ts" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

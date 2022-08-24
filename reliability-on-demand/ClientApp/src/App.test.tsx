@@ -1,13 +1,17 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { MemoryRouter } from "react-router-dom"
+import { PublicClientApplication } from "@azure/msal-browser"
 import { App } from "./App"
+import { msalConfig } from "./authConfig"
+
+export const msalInstance = new PublicClientApplication(msalConfig)
 
 it("renders without crashing", async () => {
     const div = document.createElement("div")
     ReactDOM.render(
         <MemoryRouter>
-            <App />
+            <App pca={msalInstance} />
         </MemoryRouter>,
         div
     )

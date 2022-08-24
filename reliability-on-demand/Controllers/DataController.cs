@@ -15,6 +15,7 @@ using reliability_on_demand.Extensions;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web.Resource;
 
 namespace reliability_on_demand.Controllers
 {
@@ -26,6 +27,7 @@ namespace reliability_on_demand.Controllers
         private ILogger<DataController> _logger;
         private readonly IMicrosoftGraphAdapter graphAdapter;
         IOptions<ValueSettings> valueSettings;
+        static readonly string[] scopeRequiredByApi = new string[] { "user_impersonation" };
 
         public DataController(IKustoService kustoservice, ISQLService sqlservice, ILogger<DataController> logger, IOptions<ValueSettings> valueSettings, IMicrosoftGraphAdapter graphAdapter)
         {
@@ -310,18 +312,16 @@ namespace reliability_on_demand.Controllers
             }
         }
 
-        /*
+        [Authorize]
         [HttpGet("api/Data/IsValidUserForAdmin")]
         public bool IsValidUserForAdmin()
         {
             ICollection<string> names = new List<string>();
             //Guid ID for cosreldata
             names.Add("f4f89fb5-761e-492a-80f3-bc0044932491");
-            _logger.LogError(this.HttpContext.GetUserName());
             var isValidUser = this.graphAdapter.IsMemberAsync(this.HttpContext.GetUserName(), names).Result;
             return isValidUser;
         }
-        */
 
         [HttpPost("api/Data/DeleteMetricConfig/")]
         public IActionResult DeleteMetricConfig(MetricConfig userConfig)
