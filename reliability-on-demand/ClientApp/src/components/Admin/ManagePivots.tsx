@@ -41,6 +41,7 @@ export const ManagePivots = (props: IManagePivotsProps) => {
     const [mode, setMode] = React.useState<string>("")
 
     useEffect(() => {
+        setSourceSelected(false)
         setLoading(true)
         axios
             .get(`api/Data/GetAllSourcesForGivenSourceType/${AllSourceType}`)
