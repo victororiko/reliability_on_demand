@@ -10,6 +10,7 @@ namespace reliability_on_demand.DataLayer
         string SaveTeam(TeamConfig inquiry);
         string AddStudy(StudyConfig userCreatedStudy);
         string UpdateStudy(StudyConfig userCreatedStudy);
+        string DeleteStudy(StudyConfig userCreatedStudy);
         string GetAllStudyConfigsForTeam(int TeamID);
         int LogRelOnDemandQuery<T>(string username, string url, string access, T payload);
         void UpdateRelOnDemandQuery(int id, bool status, string exception);

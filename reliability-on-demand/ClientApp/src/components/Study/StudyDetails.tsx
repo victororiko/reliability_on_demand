@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react"
 import { StudyConfig } from "../../models/study.model"
 import { horizontalStackTokens } from "../helpers/Styles"
 import { AddStudyButton } from "./AddStudyButton"
+import { DeleteStudyButton } from "./DeleteStudyButton"
 import { ExpiryDatePicker } from "./ExpiryDatePicker"
 import { FrequencyDropdown } from "./FrequencyDropdown"
 import { ObservationWindowDropdown } from "./ObservationWindowDropdown"
@@ -102,6 +103,24 @@ export const StudyDetails = (props: Props) => {
         } else console.error(`props.selectedStudy is ${props.selectedStudy}`)
     }
 
+    const deleteStudyToBackend = () => {
+        // delete study config
+        if (props.selectedStudy !== undefined) {
+            console.log(`deleting study ...`)
+            const studyToDelete = { ...props.selectedStudy }
+            studyToDelete.StudyConfigID = props.selectedStudy.StudyConfigID.toString()
+            axios
+                .post("api/Data/DeleteStudy", studyToDelete)
+                .then((res) => {
+                    props.callback("delete button clicked") // reset study dropdown
+                    return console.debug(res)
+                })
+                .catch((err) => {
+                    return console.error(err)
+                })
+        }
+    }
+
     return (
         <div>
             <StudyNameTextField currentStudy={props?.selectedStudy} callBack={setUserStudyName} />
@@ -112,6 +131,11 @@ export const StudyDetails = (props: Props) => {
                 callBack={setUserObservationWindow}
             />
             {/* Display Add, Update and Cancel buttons based on selection from dropdown and touching of fields */}
+            {props.selectedStudy !== undefined ? (
+                <DeleteStudyButton callback={deleteStudyToBackend} />
+            ) : (
+                ""
+            )}
             {isNewStudy ? (
                 allRequiredFieldsTouched() ? (
                     <AddStudyButton disabled={false} callback={addStudyToBackend} />

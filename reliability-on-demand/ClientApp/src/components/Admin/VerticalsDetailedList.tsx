@@ -5,7 +5,7 @@ import {
     SelectionMode,
     IColumn,
     Checkbox,
-    IDropdownOption
+    IDropdownOption,
 } from "@fluentui/react"
 import { Pivot } from "../../models/pivot.model"
 import { mapPivotTableColumnValue, buildColumnArray } from "./helper"
@@ -20,21 +20,19 @@ export const PivotsDetailedList = (props: Props) => {
     const renderItemColumn = (item: IDropdownOption, index?: number, column?: IColumn) => {
         const fieldContent = item[column?.fieldName as keyof IDropdownOption] as string
 
-        if (
-            column?.key === "VerticalName"
-        ) {
+        if (column?.key === "VerticalName") {
             return <span>{fieldContent}</span>
         }
 
-            return (
-                <span>
-                    <Checkbox
-                        checked={Boolean(fieldContent ?? false)}
-                        id={`${index}_${column?.key}`}
-                        onChange={onCheckboxChange}
-                    />
-                </span>
-            )
+        return (
+            <span>
+                <Checkbox
+                    checked={Boolean(fieldContent ?? false)}
+                    id={`${index}_${column?.key}`}
+                    onChange={onCheckboxChange}
+                />
+            </span>
+        )
     }
 
     const onCheckboxChange = (
@@ -51,13 +49,13 @@ export const PivotsDetailedList = (props: Props) => {
 
     return (
         <div>
-                <DetailsList
-                    items={props.data}
-                    setKey="set"
-                    columns={buildColumnArray(props.data)}
-                    onRenderItemColumn={renderItemColumn}
-                    selectionMode={SelectionMode.none}
-                />
+            <DetailsList
+                items={props.data}
+                setKey="set"
+                columns={buildColumnArray(props.data)}
+                onRenderItemColumn={renderItemColumn}
+                selectionMode={SelectionMode.none}
+            />
         </div>
     )
 }

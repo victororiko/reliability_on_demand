@@ -128,6 +128,22 @@ namespace reliability_on_demand.Controllers
             }
         }
 
+        [HttpPost("api/Data/DeleteStudy")]
+        public IActionResult DeleteStudy([FromBody] StudyConfig userCreatedStudy)
+        {
+            try
+            {
+                _logger.LogInformation($"DeleteStudy was called | StudyConfig = {userCreatedStudy}");
+                return Ok(this._sqlservice.DeleteStudy(userCreatedStudy));
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed DeleteStudy.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
         [Route("api/Data/SaveTeam")]
         [HttpPost("[action]")]
         public IActionResult SaveTeam([FromBody] TeamConfig inquiry)

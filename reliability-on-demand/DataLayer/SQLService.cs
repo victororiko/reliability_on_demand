@@ -46,6 +46,11 @@ namespace reliability_on_demand.DataLayer
             return _context.UpdateStudy(userCreatedStudy);
         }
 
+        string ISQLService.DeleteStudy(StudyConfig userCreatedStudy)
+        {
+            return _context.DeleteStudy(userCreatedStudy);
+        }
+
         string ISQLService.GetAllVerticals()
         {
             string str = _context.GetAllVerticals();

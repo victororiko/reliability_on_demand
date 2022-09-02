@@ -5,9 +5,9 @@ type Props = {
     callback: any
 }
 
-export const CancelButton = (props: Props) => {
+export const DeleteStudyButton = (props: Props) => {
     const handleClick = () => {
         props.callback()
     }
-    return <PrimaryButton text="Cancel" onClick={handleClick} />
+    return <PrimaryButton text="Delete" onClick={handleClick} />
 }

@@ -254,6 +254,36 @@ namespace reliability_on_demand.DataLayer
             return sb.ToString();
 
         }
+
+        public string DeleteStudy(StudyConfig userUpdatedStudy)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+
+            cmd.CommandText = "dbo.DeleteStudy";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyName", userUpdatedStudy.StudyName));
+            cmd.Parameters.Add(new SqlParameter("@LastRefreshDate", userUpdatedStudy.LastRefreshDate));
+            cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userUpdatedStudy.CacheFrequency));
+            cmd.Parameters.Add(new SqlParameter("@Expiry", userUpdatedStudy.Expiry));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userUpdatedStudy.StudyConfigID));
+            cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userUpdatedStudy.ObservationWindowDays));
+
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+
+        }
+
         public string GetSQLResults(string SQLquery)
         {
             // ensure that connection is open
