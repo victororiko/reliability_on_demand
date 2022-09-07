@@ -9,7 +9,7 @@ CREATE TABLE [dbo].[RELStudyPivotConfig](
 	[PivotKey] [nvarchar](255) NOT NULL,
 	[PivotScopeID] [int] NOT NULL,
 	[PivotScopeOperator] [varchar](5) NOT NULL,
-	[StudyConfigID] [int] NOT NULL,
+	[StudyConfigID] [bigint] NOT NULL,
 	[AggregateBy] [bit] NOT NULL,
 	[IsSelectColumn] [bit] NOT NULL,
 	[IsApportionColumn] [bit] NOT NULL,
@@ -50,4 +50,8 @@ ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
 
-
+ALTER TABLE [dbo].[RELStudyPivotConfig]  WITH CHECK ADD FOREIGN KEY([StudyConfigID])
+REFERENCES [dbo].[RELStudyConfig] ([StudyConfigID])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
