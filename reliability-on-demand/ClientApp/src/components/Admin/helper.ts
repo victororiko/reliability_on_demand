@@ -336,7 +336,8 @@ export const AddNewSelectedPivots = (data: string[], temp: Pivot[]): Pivot[] => 
 
         if (flag === false) {
             const tobeAddedePivotDataType = ele.split(";")[1]
-            const name = ele.split(";")[0].split("_")[1]
+            const pivotkeyPivotNamePair = ele.split(";")[0]
+            const name = pivotkeyPivotNamePair.substring(pivotkeyPivotNamePair.indexOf("_")+1)
             const pivotkey = ele.split(";")[0]
 
             const item: Pivot = {
