@@ -147,8 +147,8 @@ export const FailureCurve = (props: Props) => {
     }
 
     const loadFailureVerticalModes = (input: IDropdownOption[], flag: boolean) => {
-        setSelectedVerticals(input)
         setModes(extractModesFromVerticalPair(input))
+        setSelectedVerticals(input)
         if (modes.length === 2) {
             let mode = ""
             for (let i = 0; i < modes.length; i++) {
@@ -158,6 +158,9 @@ export const FailureCurve = (props: Props) => {
             }
             setSelectedMode(mode)
             loadFailureCurvePivots(mode, flag)
+        }
+        else {
+            setSelectedMode("")
         }
     }
 
