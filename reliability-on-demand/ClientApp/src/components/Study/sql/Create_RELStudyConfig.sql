@@ -2,14 +2,14 @@
 USE ReliabilityReporting
 -- Drop the table 'RELStudyConfig' in schema 'dbo'
 IF EXISTS (
-    SELECT *
+	SELECT *
 FROM sys.tables
-    JOIN sys.schemas
-    ON sys.tables.schema_id = sys.schemas.schema_id
+	JOIN sys.schemas
+	ON sys.tables.schema_id = sys.schemas.schema_id
 WHERE sys.schemas.name = 'dbo'
-    AND sys.tables.name = 'RELStudyConfig'
+	AND sys.tables.name = 'RELStudyConfig'
 )
-    DROP TABLE dbo.RELStudyConfig
+	DROP TABLE dbo.RELStudyConfig
 GO
 
 -- Recreate Table
@@ -20,17 +20,24 @@ GO
 
 CREATE TABLE [dbo].[RELStudyConfig]
 (
-    [StudyConfigID] BIGINT IDENTITY NOT NULL,
-    [StudyName] NVARCHAR (128) NOT NULL,
-    [LastRefreshDate] DATETIME NOT NULL,
-    [CacheFrequency] INT NOT NULL,
-    [Expiry] DATETIME NOT NULL,
-    [TeamID] BIGINT NOT NULL,
-    [ObservationWindowDays] INT NOT NULL DEFAULT(14),
-
-[HashString] VARCHAR
-(255) NOT NULL UNIQUE,
-    PRIMARY KEY CLUSTERED ([StudyConfigID] ASC),
-    FOREIGN KEY ([TeamID]) REFERENCES [dbo].[RELTeamConfig] ([TeamID]) ON DELETE CASCADE
+	[StudyConfigID] BIGINT NOT NULL IDENTITY(-1,1),
+	[StudyName] NVARCHAR (128) NOT NULL,
+	[LastRefreshDate] DATETIME NOT NULL,
+	[CacheFrequency] INT NOT NULL,
+	[Expiry] DATETIME NOT NULL,
+	[TeamID] BIGINT NOT NULL,
+	[ObservationWindowDays] INT NOT NULL DEFAULT(14),
+	[HashString] VARCHAR(255) NOT NULL UNIQUE,
+	PRIMARY KEY CLUSTERED ([StudyConfigID] ASC),
+	FOREIGN KEY ([TeamID]) REFERENCES [dbo].[RELTeamConfig] ([TeamID]) ON DELETE CASCADE
 );
 
+-- Insert rows into table 'RELStudyConfig'
+EXECUTE dbo.AddStudy 
+	@StudyName = 'DefaultStudy',
+	@LastRefreshDate = '09/27/2022 10:34 AM',
+	@CacheFrequency = 12,
+	@Expiry = '03/27/2023 10:34 AM',
+	@TeamId = -1,
+	@ObservationWindowDays = 14
+GO

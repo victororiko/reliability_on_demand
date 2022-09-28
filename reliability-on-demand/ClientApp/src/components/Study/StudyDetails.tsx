@@ -3,6 +3,7 @@ import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { StudyConfig } from "../../models/study.model"
 import { horizontalStackTokens } from "../helpers/Styles"
+import { CreateNewID } from "../helpers/utils"
 import { AddStudyButton } from "./AddStudyButton"
 import { DeleteStudyButton } from "./DeleteStudyButton"
 import { ExpiryDatePicker } from "./ExpiryDatePicker"
@@ -106,18 +107,22 @@ export const StudyDetails = (props: Props) => {
     const deleteStudyToBackend = () => {
         // delete study config
         if (props.selectedStudy !== undefined) {
-            console.log(`deleting study ...`)
-            const studyToDelete = { ...props.selectedStudy }
-            studyToDelete.StudyConfigID = props.selectedStudy.StudyConfigID.toString()
-            axios
-                .post("api/Data/DeleteStudy", studyToDelete)
-                .then((res) => {
-                    props.callback("delete button clicked") // reset study dropdown
-                    return console.debug(res)
-                })
-                .catch((err) => {
-                    return console.error(err)
-                })
+            if (props.selectedStudy.StudyConfigID === CreateNewID.toString()) {
+                console.log("found default - not deleting")
+            } else {
+                console.log(`deleting study ... ${props.selectedStudy.StudyName}`)
+                const studyToDelete = { ...props.selectedStudy }
+                studyToDelete.StudyConfigID = props.selectedStudy.StudyConfigID.toString()
+                axios
+                    .post("api/Data/DeleteStudy", studyToDelete)
+                    .then((res) => {
+                        props.callback("delete button clicked") // reset study dropdown
+                        return console.debug(res)
+                    })
+                    .catch((err) => {
+                        return console.error(err)
+                    })
+            }
         }
     }
 

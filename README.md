@@ -113,6 +113,11 @@ These were learnings from initial coding exercies. Keeping these in mind will ma
 
 ## Troubleshooting 
 ### Backend
+#### .NET Framework errors
+If you see errors around **.net framework not found**
+Download and install [.NET 5 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-5.0.408-windows-x64-installer)
+- This will install the correct .NET framework in the location `C:\Program Files\dotnet`
+#### Nuget Errors
 If you see errors around **Nuget 401 Unauthorized** 
 1. Delete `bin` and `obj` folders
 2. On terminal `dotnet clean`

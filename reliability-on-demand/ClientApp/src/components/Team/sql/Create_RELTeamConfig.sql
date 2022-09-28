@@ -18,13 +18,41 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[RELTeamConfig] (
-    [TeamID]                  BIGINT         NOT NULL IDENTITY,
-    [OwnerContact]            VARCHAR(255) NULL,
-    [OwnerTeamFriendlyName]   VARCHAR(255) NOT NULL,
-    [OwnerTriageAlias]        VARCHAR(50) NULL,
+CREATE TABLE [dbo].[RELTeamConfig]
+(
+    [TeamID] BIGINT NOT NULL IDENTITY(-1,1),
+    [OwnerContact] VARCHAR(255) NULL,
+    [OwnerTeamFriendlyName] VARCHAR(255) NOT NULL,
+    [OwnerTriageAlias] VARCHAR(50) NULL,
     [ComputeResourceLocation] VARCHAR(MAX) NULL,
-    [HashString]              VARCHAR(255)  NOT NULL UNIQUE,
+    [HashString] VARCHAR(255) NOT NULL UNIQUE,
     PRIMARY KEY CLUSTERED ([TeamId] ASC)
 );
+GO
+
+-- Insert rows into table 'RELTeamConfig'
+INSERT INTO RELTeamConfig
+    (
+    [OwnerContact] ,
+    [OwnerTeamFriendlyName] ,
+    [OwnerTriageAlias] ,
+    [ComputeResourceLocation] ,
+    [HashString]
+    )
+VALUES
+    (
+        'cosreldata' ,
+        'DefaultTeam' ,
+        'cosreldata' ,
+        'https://www.cosmos15.osdinfra.net/cosmos/asimov.partner.swat/' ,
+        'DefaultTeam'
+)
+    ,(
+        'OSGRELDev',
+        'Platform Health Reliability Team',
+        'cosreldata',
+        'https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat',
+        'CLIENT FUN TEAM'
+    )
+GO
 

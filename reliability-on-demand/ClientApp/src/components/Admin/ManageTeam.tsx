@@ -86,10 +86,14 @@ export const ManageTeam = (props: IManageTeamProps) => {
             ComputeResourceLocation: selectedTeamObj?.ComputeResourceLocation,
         } as TeamConfig
 
-        axios.post("api/Data/DeleteTeam", teamToAddOrUpdate).then(() => {
-            loadTeams()
-            selectCurrentTeam(-1)
-        })
+        if (teamToAddOrUpdate.TeamID === CreateNewID)
+            console.log("found default team - not deleting")
+        else {
+            axios.post("api/Data/DeleteTeam", teamToAddOrUpdate).then(() => {
+                loadTeams()
+                selectCurrentTeam(CreateNewID)
+            })
+        }
     }
 
     const addOrSetTeamToBackend = () => {
@@ -138,7 +142,7 @@ export const ManageTeam = (props: IManageTeamProps) => {
 
     useEffect(() => {
         setLoading(true)
-        selectCurrentTeam(-1)
+        selectCurrentTeam(CreateNewID)
         loadTeams()
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
