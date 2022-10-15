@@ -26,6 +26,15 @@
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="RIOD.AggregatorService.Usage.GenerateWatsonCutOff.script.scopet4">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="RIOD.AggregatorService.Usage.wfdef">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="RIOD.AggregatorService.Usage.script.scopet4">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="RIOD.Pivot.PivotInfoConfig.json">
       <SubType>Content</SubType>
     </Content>

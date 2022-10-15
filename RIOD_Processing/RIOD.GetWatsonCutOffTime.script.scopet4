@@ -1,0 +1,56 @@
+﻿<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "VcClient" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@ import namespace = "System.Web" #>
+<#@include file="ReadTextFromStream.scopet4" #>
+<#@ import namespace = "System" #>
+<#@ assembly name= "NEWTONSOFT.JSON.DLL" #>
+<#@ import namespace = "Newtonsoft.Json" #>
+<#@ import namespace = "Newtonsoft.Json.Linq" #>
+<#@include file="ConfigurationHelper.scopet4" #>
+<#@include file="DebugOutput.scopet4" #>
+<#@include file="SchemaExplorer.scopet4" #>
+<#@include file="GetLatestStreamDate.scopet4" #>
+<#@include file="SaveTextToStream.scopet4" #>
+
+/*
+Generates marker file containing the watson latest timestamp 
+*/
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+	DateTime today = DateTime.UtcNow;
+	string outputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/";
+	string expirationStreamCount = "30";
+	Char[] trimChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}','"'};
+	string inputWatsonView = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/WatsonSnapshotLatestTime.view";
+	string outputStreamName = @"WatsonLatestTime.txt";
+
+    // Check if we are running under XFlow
+    if (context != null)
+    {
+    }
+#>
+
+USING System.Security.Cryptography; 
+// Import Next Generation Privacy annotation module 
+// Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy;
+
+#DECLARE outputMakerFile string= string.Format("{0}/{1}", "<#=outputReliabilityRoot#>", "<#=outputStreamName#>");
+
+// Fetching Watson latest time from the API
+latestTimeStamp = 
+    SELECT MAX(TimeStamp) AS TimeStamp
+    FROM
+    (
+        VIEW @"<#=inputWatsonView#>"
+    );
+
+
+// output
+OUTPUT latestTimeStamp
+TO @outputMakerFile
+WITH STREAMEXPIRY "<#=expirationStreamCount#>"
+USING DefaultTextOutputter();

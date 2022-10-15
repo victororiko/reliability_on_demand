@@ -1,0 +1,120 @@
+﻿<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "VcClient" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@ import namespace = "System.Web" #>
+<#@include file="ReadTextFromStream.scopet4" #>
+<#@ import namespace = "System" #>
+<#@ assembly name= "NEWTONSOFT.JSON.DLL" #>
+<#@ import namespace = "Newtonsoft.Json" #>
+<#@ import namespace = "Newtonsoft.Json.Linq" #>
+<#@include file="ConfigurationHelper.scopet4" #>
+<#@include file="DebugOutput.scopet4" #>
+<#@include file="SchemaExplorer.scopet4" #>
+<#@include file="GetLatestStreamDate.scopet4" #>
+<#@include file="SaveTextToStream.scopet4" #>
+
+/*
+Generates the aggregate Usage for last 14 days from Watsonlatesttime 
+*/
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+	DateTime today = DateTime.UtcNow;
+	int inputDayLookBack=14;
+	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
+	string inputUsageDailyFolder = @"/Usage/AggregatedObservationPeriod/";
+	string expirationStreamCount = "30";
+	string inputUsageWatsonCutOffStreamName = @"UsageFor";
+	Char[] trimChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}','"'};
+	string inputWatsonMarkerFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt";
+
+	string inputWatsonLatestTimeFile = ReadTextFromStream(inputWatsonMarkerFile);
+    string watsonLatestTimeString = inputWatsonLatestTimeFile.Trim(trimChars).Split('\n')[0];
+	DateTime watsonLatestTime = DateTime.Parse(watsonLatestTimeString);
+
+    // Check if we are running under XFlow
+    if (context != null)
+    {
+    }
+#>
+
+USING System.Security.Cryptography; 
+// Import Next Generation Privacy annotation module 
+// Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy;
+
+#DECLARE input_UsagePattern_ss string = @"/Usage/Hourly/UsageHourlyData_%Y-%m-%d-%h.ss";
+
+#DECLARE runDate DateTime = DateTime.Parse("<#=watsonLatestTime#>");
+#DECLARE xStartDate DateTime = @runDate.AddDays(-<#=inputDayLookBack#>);
+#DECLARE endDate string = @runDate.ToString("yyyy-MM-dd");
+#DECLARE startDate string = @runDate.Date.AddDays(-<#=inputDayLookBack+1#>).ToString("yyyy-MM-dd");
+#DECLARE output_UsageWatsonLastXDays_ss = "";
+#DECLARE EndDateId int = @runDate.Year * 10000 + @runDate.Month * 100 + @runDate.Day + @runDate.Hour;
+#DECLARE StartDateId int = @xStartDate.Year * 10000 + @xStartDate.Month * 100 + @xStartDate.Day + @xStartDate.Hour;
+
+// Fetching last 15 days hourly stream
+input = SELECT *
+		FROM
+		(
+		SSTREAM
+                                SPARSE STREAMSET "<#=inputReliabilityRoot#>"
+								PATTERN @input_UsagePattern_ss
+								RANGE __date = [@startDate, @endDate],
+								__hour = ["00", "23"]
+		);
+
+#SET output_UsageWatsonLastXDays_ss = string.Format("{0}/{1}/{2}_{3}Days_{4}"+".ss", 
+                                            @"<#=inputReliabilityRoot#>",
+                                            @"<#=inputUsageDailyFolder#>",
+                                            @"<#=inputUsageWatsonCutOffStreamName#>",
+											@"<#=inputDayLookBack#>",
+											@runDate.ToString("yyyy-MM-dd_hh_mm_ss"));
+
+// Calculate the ID for the timestamp hourly stream has been produced
+input = SELECT *,
+		DailyFirstSeenDateTime.Year * 10000 + DailyFirstSeenDateTime.Month * 100 + DailyFirstSeenDateTime.Day + UsageHour AS UsageDateId
+		FROM input;
+
+// Apply the cutoff filter to fetch the required usage data for last 14 days from the Watson Cut off time
+input = SELECT i.*
+		FROM input AS i
+		WHERE UsageDateId>=@StartDateId AND UsageDateId<=@EndDateId;
+
+res = SELECT DeviceId,
+										SUM(UsageUnitValue) AS UsageUnitValue,
+										ANY_VALUE(UsageUnitColumn) AS UsageUnitColumn,
+										ANY_VALUE(ViewSourcePath) AS ViewSourcePath,
+										UsageJoinKey,
+										UsageJoinGuid,
+										MIN(DailyFirstSeenDateTime) AS DailyFirstSeenDateTime,
+										MAX(DailyLastSeenDateTime) AS DailyLastSeenDateTime
+										FROM input
+										GROUP BY DeviceId,
+										UsageJoinKey,
+										UsageJoinGuid
+										; 
+
+res = SELECT DeviceId,
+				(long)UsageUnitValue AS UsageUnitValue,
+				UsageUnitColumn,
+				ViewSourcePath,
+				UsageJoinKey,
+				(Guid)UsageJoinGuid AS UsageJoinGuid,
+				DailyFirstSeenDateTime,
+				DailyLastSeenDateTime,
+				@xStartDate AS StartDate,
+				@runDate AS WatsonLatestDate
+				FROM res;
+
+
+[Privacy.DataType.ProductAndServiceUsage]
+[Privacy.DataType.ProductAndServicePerformance]
+[Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
+OUTPUT res
+TO SSTREAM @output_UsageWatsonLastXDays_ss
+CLUSTERED BY DeviceId,UsageJoinKey,UsageJoinGuid
+SORTED BY DeviceId,UsageJoinKey,UsageJoinGuid
+WITH STREAMEXPIRY @"<#= expirationStreamCount #>";
+	
