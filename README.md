@@ -141,6 +141,9 @@ Often you'll run into linting errors where you may need to use a later version o
 Read instructions for [nvm](https://github.com/coreybutler/nvm-windows) to download it.
 **nuance: use Powershell in admin mode to run nvm** after installing it.
 
+#### npm install authentication issues
+If you haven't set up authentication to Azure Feed for all of our npm packages, please do so by visiting [How to connect to Azure Feed: PhReliabilityCloud](https://microsoft.visualstudio.com/OS.Fun/_artifacts/feed/PhReliabilityCloud/connect/npm)
+
 ## Linting
 This project uses airbnb-base and airbnb-typescript rules for linting. Furthermore, [these instructions](https://gist.github.com/EliEladElrom/54c5046cf21877824d1bc38d5dd33d81) were used to configure linting.
 
