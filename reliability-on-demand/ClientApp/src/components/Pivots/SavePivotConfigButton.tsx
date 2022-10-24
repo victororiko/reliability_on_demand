@@ -1,44 +1,43 @@
 import { PrimaryButton } from "@fluentui/react"
 import axios from "axios"
-import React, { useEffect } from "react"
-import { PopulationPivotConfig } from "../../models/filterexpression.model"
+import React, { useEffect, useState } from "react"
+import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
+import { sanitizeList } from "./service"
 
 type Props = {
-    StudyConfigID: number
-    selectedPivots: PopulationPivotConfig[]
-    callbackStatus: any
+    selectedPivots: PopulationPivotConfigUI[]
 }
 
+/**
+ * Captures, sanitizes, and saves list of pivot configs
+ * @param props list of pivots, study config id
+ * @returns Save Button or updated status
+ */
 export const SavePivotConfigButton = (props: Props) => {
-    // reset status whenever this component is mounted
-    useEffect(() => {}, [props.selectedPivots])
+    const [status, setStatus] = useState<string>("")
+    const [finalList, setFinalList] = useState<PopulationPivotConfigUI[]>([])
+
+    useEffect(() => {
+        const sanitizedList = sanitizeList(props.selectedPivots)
+        setFinalList(sanitizedList)
+        setStatus("")
+    }, [JSON.stringify(props.selectedPivots)])
 
     const handleClick = () => {
-        // loop through selectedPivots generating pivot config
-        const pivotsWithStudyConfigID = props.selectedPivots.map((item) => {
-            return {
-                ...item,
-                StudyConfigID: props.StudyConfigID,
-            }
-        })
-
+        const pivotsWithStudyConfigID = finalList
         // save all generated PivotConfigs - one by one
         axios
             .post("api/Data/AddOrUpdatePivotConfig/", pivotsWithStudyConfigID)
             .then((response) => {
-                props.callbackStatus("Pivot Configs saved Successfully")
+                setStatus(`Pivot Configs saved`)
             })
             .catch((exception) => {
-                props.callbackStatus("Error: Failed to save Pivot Configs")
+                setStatus(`Pivot Configs were NOT saved`)
                 return console.error(exception)
             })
-
-        console.debug(`Saved pivot config(s) with study id = ${props.StudyConfigID}`)
-        console.debug(`Saved list of pivots = ${JSON.stringify(pivotsWithStudyConfigID, null, 2)}`)
     }
-    return (
-        <div>
-            <PrimaryButton text="Save" onClick={handleClick} />
-        </div>
-    )
+
+    const renderUI = status === "" ? <PrimaryButton text="Save" onClick={handleClick} /> : status
+
+    return <div>{renderUI}</div>
 }

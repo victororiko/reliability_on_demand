@@ -107,10 +107,7 @@ export const StudyDetails = (props: Props) => {
     const deleteStudyToBackend = () => {
         // delete study config
         if (props.selectedStudy !== undefined) {
-            if (props.selectedStudy.StudyConfigID === CreateNewID.toString()) {
-                console.log("found default - not deleting")
-            } else {
-                console.log(`deleting study ... ${props.selectedStudy.StudyName}`)
+            if (props.selectedStudy.StudyConfigID !== CreateNewID.toString()) {
                 const studyToDelete = { ...props.selectedStudy }
                 studyToDelete.StudyConfigID = props.selectedStudy.StudyConfigID.toString()
                 axios

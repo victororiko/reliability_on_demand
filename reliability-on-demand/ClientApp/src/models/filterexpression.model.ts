@@ -15,6 +15,11 @@ export interface PopulationPivotConfig extends StudyPivotConfig {
     PivotScopeOperator: string
 }
 
+export interface PopulationPivotConfigUI extends PopulationPivotConfig {
+    AggregateByChecked: boolean
+    ScopeByChecked: boolean
+}
+
 export interface FilterExpTable {
     RelationalOperator: string
     PivotName: string

@@ -21,9 +21,7 @@ export const StudySearch = (props: IStudySearchProps) => {
     // state
     const [teamID, setTeamID] = useState(CreateNewID)
     // update this page with teamID if it exists
-    useEffect(() => {
-        console.log(`teamID = ${teamID}`)
-    }, [props])
+    useEffect(() => {}, [props])
 
     const [studyConfigs, setStudyConfigs] = useState<StudyConfig[]>([])
 

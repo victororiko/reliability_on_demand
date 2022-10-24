@@ -5,7 +5,7 @@ import { PivotSource } from "../../models/pivot.model"
 import { Loading } from "../helpers/Loading"
 import { MySingleSelectComboBox } from "../helpers/MySingleSelectComboBox"
 import { convertComplexTypeToOptions, PopulationSourceType } from "../helpers/utils"
-import { PivotConfigDetails } from "./PivotConfigDetails"
+import { PivotCombobox } from "./PivotCombobox"
 
 type Props = {
     StudyConfigID: number
@@ -35,7 +35,7 @@ export const Pivots = (props: Props) => {
     }, [props.StudyConfigID])
 
     // callback
-    const print = (selection: IComboBoxOption) => {
+    const handlePivotSourceSelection = (selection: IComboBoxOption) => {
         setSelectedPivotSource(selection)
     }
 
@@ -50,18 +50,20 @@ export const Pivots = (props: Props) => {
                         "PivotSource",
                         "PivotSource"
                     )}
-                    callback={print}
+                    callback={handlePivotSourceSelection}
                     label="Pivot Source"
                     placeholder="type a Pivot Source to search OR select from the list"
                     selectedItem={undefined} // this shows placeholder text upon load
                 />
             )}
             {selectedPivotSource ? (
-                <PivotConfigDetails
-                    {...props}
-                    pivotSource={selectedPivotSource.text}
-                    StudyConfigID={props.StudyConfigID}
-                />
+                <div>
+                    <PivotCombobox
+                        {...props}
+                        pivotSource={selectedPivotSource.text}
+                        StudyConfigID={props.StudyConfigID}
+                    />
+                </div>
             ) : (
                 ""
             )}

@@ -142,7 +142,7 @@ export const FailureCurve = (props: Props) => {
                 }
             })
             .catch((err) => {
-                console.log("Axios Error:", err.message)
+                console.error("Axios Error:", err.message)
             })
     }
 
@@ -158,8 +158,7 @@ export const FailureCurve = (props: Props) => {
             }
             setSelectedMode(mode)
             loadFailureCurvePivots(mode, flag)
-        }
-        else {
+        } else {
             setSelectedMode("")
         }
     }
@@ -258,7 +257,7 @@ export const FailureCurve = (props: Props) => {
                 setDataSaved(true)
             })
             .catch((err) => {
-                console.log(err)
+                console.error(err)
             })
     }
 

@@ -30,6 +30,6 @@ export const callMsGraph = async (msalInstance: any) => {
             return res
         })
         .catch((error) => {
-            return console.log(error)
+            return console.error(error)
         })
 }

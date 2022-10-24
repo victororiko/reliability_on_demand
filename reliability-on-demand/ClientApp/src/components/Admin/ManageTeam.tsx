@@ -86,9 +86,7 @@ export const ManageTeam = (props: IManageTeamProps) => {
             ComputeResourceLocation: selectedTeamObj?.ComputeResourceLocation,
         } as TeamConfig
 
-        if (teamToAddOrUpdate.TeamID === CreateNewID)
-            console.log("found default team - not deleting")
-        else {
+        if (teamToAddOrUpdate.TeamID !== CreateNewID) {
             axios.post("api/Data/DeleteTeam", teamToAddOrUpdate).then(() => {
                 loadTeams()
                 selectCurrentTeam(CreateNewID)

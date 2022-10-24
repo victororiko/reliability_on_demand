@@ -87,7 +87,7 @@ export const FilterExpressionDetailedList = (props: Props) => {
                     }
                 })
                 .catch((err) => {
-                    console.log(err)
+                    console.error(err)
                 })
         }
     }
@@ -263,7 +263,8 @@ export const FilterExpressionDetailedList = (props: Props) => {
         getPivotScopeInfo(props.studyPivotConfigs)
         setCols([])
         setCols(FilterExpressionbuildColumnArray(changedFilterExp))
-    }, [props.studyPivotConfigs])
+        setValidateStatement("")
+    }, [JSON.stringify(props.studyPivotConfigs)])
 
     const renderItemColumn = (item: IDropdownOption, index?: number, column?: IColumn) => {
         const fieldContent = item[column?.fieldName as keyof IDropdownOption] as string

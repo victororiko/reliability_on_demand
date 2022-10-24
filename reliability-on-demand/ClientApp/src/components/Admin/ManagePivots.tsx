@@ -169,7 +169,7 @@ export const ManagePivots = (props: IManagePivotsProps) => {
                 setDataSaved(true)
             })
             .catch((err) => {
-                console.log(err)
+                console.error(err)
             })
     }
 
