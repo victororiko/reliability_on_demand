@@ -28,8 +28,8 @@ This script queries the view API and outputs the daily usage and hourly usage fo
 	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
 	string inputUsageDailyFolder = @"/Usage/Daily/";
 	string inputUsageHourlyFolder = @"/Usage/Hourly/";
-	string inputUsageHourlyStreamName = @"UsageHourlyData";
-	string inputUsageDailyStreamName = @"UsageDailyData";
+	string inputUsageHourlyStreamName = @"UsageHourlyDataWithXMLUsagePivots";
+	string inputUsageDailyStreamName = @"UsageDailyDataWithXMLUsagePivots";
 	string expirationStreamCount = "30";
 	string inputUsageWatsonCutOffStreamName = @"UsageWatsonCutOffData";
 	Char[] trimChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}','"'};
@@ -290,6 +290,53 @@ for(int idxLookBackDay=0;idxLookBackDay<=inputDayLookBack;idxLookBackDay++)
   i++;
  }
  #>
+
+UsageDataHourly = SELECT *,
+						string.Concat("<CustomFields><Field name=\"",UsageUnitColumn,"\">",UsageUnitValue,"</Field></CustomFields>") AS UsageUnit
+						FROM UsageDataHourly;
+
+UsageDataHourly =  SELECT DeviceId,
+							UsageHour,
+							string.Join("", LIST(UsageUnit).ToArray()) AS UsageUnit,
+							UsageJoinKey,
+							UsageJoinGuid,
+							DailyFirstSeenDateTime,
+							DeviceClass,
+							AggregateBy,
+							DailyLastSeenDateTime
+							FROM UsageDataHourly
+							GROUP BY DeviceId,
+							UsageHour,
+							UsageJoinKey,
+							UsageJoinGuid,
+							DailyFirstSeenDateTime,
+							DailyLastSeenDateTime,
+							DeviceClass,
+							AggregateBy;
+
+ UsageDataDaily_<#=idxLookBackDay#> = SELECT *,
+											string.Concat("<CustomFields><Field name=\"",UsageUnitColumn,"\">",UsageUnitValue,"</Field></CustomFields>") AS UsageUnit
+											FROM UsageDataDaily_<#=idxLookBackDay#>;
+
+
+UsageDataDaily_<#=idxLookBackDay#> = SELECT DeviceId,
+										UsageDateMaxHour,
+										string.Join("", LIST(UsageUnit).ToArray()) AS UsageUnit,
+										UsageJoinKey,
+										UsageJoinGuid,
+										DailyFirstSeenDateTime,
+										DailyLastSeenDateTime,
+										DeviceClass,
+										AggregateBy
+										FROM UsageDataDaily_<#=idxLookBackDay#>
+										GROUP BY DeviceId,
+										UsageDateMaxHour,
+										UsageJoinKey,
+										UsageJoinGuid,
+										DailyFirstSeenDateTime,
+										DailyLastSeenDateTime,
+										DeviceClass,
+										AggregateBy;
 
  MaxUsageDate = SELECT MAX(DailyLastSeenDateTime) AS UsageDate
 									  FROM  UsageDataDaily_<#=idxLookBackDay#>;

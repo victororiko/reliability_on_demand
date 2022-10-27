@@ -85,25 +85,29 @@ input = SELECT i.*
 res = SELECT DeviceId,
 										SUM(UsageUnitValue) AS UsageUnitValue,
 										ANY_VALUE(UsageUnitColumn) AS UsageUnitColumn,
-										ANY_VALUE(ViewSourcePath) AS ViewSourcePath,
 										UsageJoinKey,
 										UsageJoinGuid,
+										AggregateBy,
+										DeviceClass,
 										MIN(DailyFirstSeenDateTime) AS DailyFirstSeenDateTime,
 										MAX(DailyLastSeenDateTime) AS DailyLastSeenDateTime
 										FROM input
 										GROUP BY DeviceId,
 										UsageJoinKey,
+										AggregateBy,
+										DeviceClass,
 										UsageJoinGuid
 										; 
 
 res = SELECT DeviceId,
 				(long)UsageUnitValue AS UsageUnitValue,
 				UsageUnitColumn,
-				ViewSourcePath,
 				UsageJoinKey,
 				(Guid)UsageJoinGuid AS UsageJoinGuid,
 				DailyFirstSeenDateTime,
 				DailyLastSeenDateTime,
+				AggregateBy,
+				DeviceClass,
 				@xStartDate AS StartDate,
 				@runDate AS WatsonLatestDate
 				FROM res;
