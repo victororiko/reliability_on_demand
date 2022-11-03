@@ -512,6 +512,7 @@ export const getFilterPivots = (
                 StudyConfigID,
                 PivotScopeID: -1,
                 UIDataType: ele.UIDataType,
+                RelationalOperator: ele.RelationalOperator
             }
 
             res.push(row)

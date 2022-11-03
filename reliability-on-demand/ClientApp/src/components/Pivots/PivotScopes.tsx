@@ -40,7 +40,7 @@ export const PivotScopes = (props: IPivotScopesProps) => {
         props.updateScopes(scopingAnswers)
     }
 
-    const callAzureFunc = (callBackendFlag: boolean) => {
+    const callAzureFunc = (input: StudyPivotConfig[], callBackendFlag: boolean) => {
         if (callBackendFlag) {
             if (azureFuncURL) {
                 axios

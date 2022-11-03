@@ -7,17 +7,19 @@ import { AllSourceType } from "../helpers/utils"
 import { MySingleSelectComboBox } from "../helpers/MySingleSelectComboBox"
 import { MyMultiSelectComboBox } from "../helpers/MyMultiSelectComboBox"
 import { Pivot } from "../../models/pivot.model"
-import { convertToPivot, AddNewSelectedPivots, getMode, getUniquePivotKeyPairs } from "./helper"
+import {
+    convertToPivot,
+    AddNewSelectedPivots,
+    getMode,
+    getUniquePivotKeyPairs,
+    getUniqueMappedPivotWithScopeFilter,
+} from "./helper"
 import { PivotsDetailedList } from "./PivotsDetailedList"
 import { ConfigureFilterExpressionButton } from "./ConfigureFilterExpressionButton"
 import { FilterExpressionDetailedList } from "../helpers/FilterExpression/FilterExpressionDetailedList"
 import { StudyPivotConfig } from "../../models/filterexpression.model"
 import { SaveManagePivots } from "./SaveManagePivots"
-import {
-    getDataToSaveUsingPivot,
-    getUniqueMappedPivotWithScopeFilter,
-    getFilterPivots,
-} from "../FailureCurveSection/service"
+import { getDataToSaveUsingPivot, getFilterPivots } from "../FailureCurveSection/service"
 
 export interface IManagePivotsProps {}
 
@@ -155,11 +157,11 @@ export const ManagePivots = (props: IManagePivotsProps) => {
         setCallFilterExpBackend(flag)
     }
 
-    const onValidateFilterExpression = (input: boolean) => {
-        if (input === true) {
-            setFinalData(getDataToSaveUsingPivot(pivotStudyConfig, selectedPivotsSet, [], mode, -1))
+    const onValidateFilterExpression = (input: StudyPivotConfig[], flag: boolean) => {
+        if (flag === true) {
+            setFinalData(getDataToSaveUsingPivot(input, selectedPivotsSet, [], mode, -1))
         }
-        setIsValidated(input)
+        setIsValidated(flag)
     }
 
     const saveButtonClicked = (input: Pivot[]) => {

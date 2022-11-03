@@ -216,11 +216,11 @@ export const FailureCurve = (props: Props) => {
         setCallFilterExpBackend(true)
     }
 
-    const validateFilterExpression = (input: boolean) => {
-        if (input === true)
+    const validateFilterExpression = (input: StudyPivotConfig[], isValidated: boolean) => {
+        if (isValidated === true)
             setDataToSave(
                 getDataToSaveUsingPivot(
-                    studyConfigs,
+                    input,
                     selectedPivotsSet,
                     selectedverticals,
                     selectedMode,
@@ -228,7 +228,7 @@ export const FailureCurve = (props: Props) => {
                 )
             )
 
-        setIsValidFilterExp(input)
+        setIsValidFilterExp(isValidated)
     }
 
     const pivotSection = !modeSelected ? (

@@ -39,7 +39,7 @@ interface Props {
     studyPivotConfigs: StudyPivotConfig[] // Currently configured pivotscope ids or null in case user wants to configure a new pivot as filter expression
     callBack: any // Return array of StudyPivotConfig that takes 2 arguments -> array of StudyPivotConfig and boolean argument to tell if need to call backend or not
     callBackend: boolean // Should be false in all the cases where you don't want to reset the filter expression component by reloading the configured filter expression again.
-    validateExpCallBack?: any // function with a boolean param to signal if the vaildation for the filter expression has passed or not
+    validateExpCallBack?: any // function with 2 arguments -> a boolean param to signal if the vaildation for the filter expression has passed or not and latest filter expression data that needs to be saved in the backend (StudyPivotConfig[] type)
 }
 
 // only type used for input/output is RELStudyPivotConfig
@@ -204,39 +204,42 @@ export const FilterExpressionDetailedList = (props: Props) => {
 
     const handleClick = () => {
         const relationalOpCount = getRelationalOperatorCount(changedFilterExp)
-        let flag: boolean = false
+        let isValidated: boolean = false
         if (relationalOpCount !== changedFilterExp.length - 1) {
             setValidateStatement("Relational operator not set properly")
-            props.validateExpCallBack(false)
+
+            // Passing the filter expression data to be saved and result of the validation
+            props.validateExpCallBack(changedFilterExp,false)
             return
         }
 
         for (const ele of changedFilterExp) {
             if (ele.UIDataType === "number" && isNaN(Number(ele.PivotScopeValue))) {
                 setValidateStatement(`Number expected in ${ele.PivotName}`)
-                props.validateExpCallBack(false)
-                flag = true
+                props.validateExpCallBack(changedFilterExp,false)
+                isValidated = true
                 break
             } else if (ele.PivotOperator === null || ele.PivotOperator === "") {
                 setValidateStatement(`Operator null issue in ${ele.PivotOperator}`)
-                props.validateExpCallBack(false)
-                flag = true
+                props.validateExpCallBack(changedFilterExp,false)
+                isValidated = true
                 break
             } else if (ele.PivotScopeValue === null || ele.PivotScopeValue === "") {
                 setValidateStatement(`Pivot Value null issue in ${ele.PivotScopeValue}`)
-                props.validateExpCallBack(false)
-                flag = true
+                props.validateExpCallBack(changedFilterExp,false)
+                isValidated = true
                 break
             }
         }
 
-        if (flag === false) {
+        if (isValidated === false) {
             setValidateStatement(
                 `${"Filter expression has been validated successfully -> "}${showFilterExpression(
                     changedFilterExp
                 )}`
             )
-            props.validateExpCallBack(true)
+
+            props.validateExpCallBack(changedFilterExp,true)
         }
     }
 

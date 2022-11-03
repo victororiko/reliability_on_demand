@@ -311,6 +311,41 @@ export const convertToStudyConfig = (input: Pivot[]): StudyPivotConfig[] => {
     return arr
 }
 
+// Getting unique rows for the detailed list
+export const getUniqueMappedPivotWithScopeFilter = (
+    input: Pivot[],
+    studyconfigID: number
+): Pivot[] => {
+    const res: Pivot[] = []
+    const set = new Set<string>()
+
+    for (const ele of input) {
+        if (!set.has(ele.PivotKey)) {
+            const row: Pivot = {
+                PivotKey: ele.PivotKey,
+                PivotScopeID: ele.PivotScopeID,
+                PivotName: ele.PivotName,
+                PivotOperator: ele.PivotOperator,
+                PivotScopeValue: ele.PivotScopeValue,
+                ADLDataType: ele.ADLDataType,
+                UIDataType: ele.UIDataType,
+                IsApportionColumn: ele.IsApportionColumn,
+                IsApportionJoinColumn: ele.IsApportionJoinColumn,
+                IsKeyColumn: ele.IsKeyColumn,
+                IsSelectColumn: ele.IsSelectColumn,
+                IsScopeFilter: ele.PivotScopeID !== -1,
+                StudyConfigID: studyconfigID,
+                RelationalOperator: ele.RelationalOperator,
+                AggregateBy: ele.AggregateBy,
+                PivotExpression: "",
+            }
+            res.push(row)
+            set.add(ele.PivotKey)
+        }
+    }
+    return res
+}
+
 // deduce the mode from the selcted source
 export const getMode = (input: IComboBoxOption): string => {
     if (input.key.toString().includes("Watson") && input.key.toString().includes("Kernel"))
