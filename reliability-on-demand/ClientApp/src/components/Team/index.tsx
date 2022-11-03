@@ -5,7 +5,7 @@ import { TeamConfig } from "../../models/team.model"
 import { Loading } from "../helpers/Loading"
 import { MySingleSelectComboBox } from "../helpers/MySingleSelectComboBox"
 import { convertComplexTypeToOptions, convertObjectToOption } from "../helpers/utils"
-import { getTeamFromId } from "./helper"
+import { getTeamFromHashString } from "./helper"
 import { OwnerContactAlias } from "./OwnerContactAlias"
 import { OwnerTeamFriendlyName } from "./OwnerTeamFriendlyName"
 import { OwnerTriageAlias } from "./OwnerTriageAlias"
@@ -43,7 +43,6 @@ export const Team = (props: Props) => {
                         props.callback(foundTeam.TeamID)
                     }
                 }
-
                 setLoading(false)
             })
             .catch((exception) => {
@@ -54,9 +53,10 @@ export const Team = (props: Props) => {
     // callbacks
 
     const handleTeamSelection = (selection: IComboBoxOption) => {
-        const teamIdInt = selection.key as number
-        setSelectedTeam(getTeamFromId(teamConfigs, teamIdInt))
-        props.callback(teamIdInt)
+        const selectionHashString = selection.key as string
+        const teamFromSelection = getTeamFromHashString(teamConfigs, selectionHashString)
+        setSelectedTeam(teamFromSelection)
+        props.callback(teamFromSelection?.TeamID)
     }
 
     return (
@@ -69,7 +69,7 @@ export const Team = (props: Props) => {
                     <MySingleSelectComboBox
                         options={convertComplexTypeToOptions(
                             teamConfigs,
-                            "TeamID",
+                            "HashString",
                             "OwnerTeamFriendlyName"
                         )}
                         callback={handleTeamSelection}
@@ -80,7 +80,7 @@ export const Team = (props: Props) => {
                                 ? undefined
                                 : convertObjectToOption(
                                       selectedTeam,
-                                      "TeamID",
+                                      "HashString",
                                       "OwnerTeamFriendlyName"
                                   )
                         }

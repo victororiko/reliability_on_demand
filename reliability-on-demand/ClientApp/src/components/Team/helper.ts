@@ -1,7 +1,7 @@
 import { TeamConfig } from "../../models/team.model"
 
-export const getTeamFromId = (teams: TeamConfig[], id: number) => {
+export const getTeamFromHashString = (teams: TeamConfig[], hashstring: string) => {
     return teams.find((item) => {
-        return item.TeamID === id
+        return item.HashString === hashstring
     })
 }

@@ -493,5 +493,21 @@ namespace reliability_on_demand.Controllers
                 return BadRequest(message);
             }
         }
+
+        [HttpGet("api/Data/GetPivotsAndScopesForStudyConfigID/{StudyConfigID}")]
+        public IActionResult GetPivotsAndScopesForStudyConfigID(int StudyConfigID)
+        {
+            try
+            {
+                string res = this._sqlservice.GetPivotsAndScopesForStudyConfigID(StudyConfigID);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetPivotsAndScopesForStudyConfigID.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
     }
 }

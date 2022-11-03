@@ -8,6 +8,7 @@ export interface StudyConfig {
     Expiry: Date
     TeamID: number
     ObservationWindowDays: number
+    HashString?: string
 }
 
 export const convertToOptions = (inputData: StudyConfig[]) => {

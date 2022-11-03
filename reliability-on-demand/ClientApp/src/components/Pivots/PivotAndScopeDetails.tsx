@@ -43,10 +43,9 @@ export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
     }
 
     // render()
-    const renderScopes =
-        scopingCandidates && scopingCandidates.length > 0 &&
-            <PivotScopes userConfigs={scopingCandidates} updateScopes={handleUpdateScopes} />
-        
+    const renderScopes = scopingCandidates && scopingCandidates.length > 0 && (
+        <PivotScopes userConfigs={scopingCandidates} updateScopes={handleUpdateScopes} />
+    )
 
     const renderSaveButton =
         props.showSaveButton && userConfigs.length > 0 ? (

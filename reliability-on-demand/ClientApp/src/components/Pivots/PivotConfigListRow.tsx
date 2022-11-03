@@ -2,17 +2,13 @@ import { Checkbox, Stack, Text } from "@fluentui/react"
 import React, { useEffect, useState } from "react"
 import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
 import { MessageBox } from "../helpers/MessageBox"
-import { horizontalStackTokens } from "../helpers/Styles"
+import { fixedWidth300px, horizontalStackTokens } from "../helpers/Styles"
 import { getPivotName } from "./service"
 
 interface IPivotConfigListRowProps {
     config: PopulationPivotConfigUI
     updateConfig: any
 }
-const fixedWidth300px = {
-    root: { width: "300px;" },
-}
-
 export const PivotConfigListRow = (props: IPivotConfigListRowProps) => {
     // capture old value for PivotScopeID once when this component is mounted
     const [configInstance, setConfigInstance] = useState<PopulationPivotConfigUI>(props.config)

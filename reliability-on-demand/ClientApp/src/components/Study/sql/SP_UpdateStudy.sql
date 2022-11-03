@@ -26,7 +26,13 @@ CREATE PROCEDURE [dbo].[UpdateStudy]
 -- add more stored procedure parameters here
 AS
     -- body of the stored procedure
-    UPDATE RELStudyConfig SET StudyName = @StudyName, LastRefreshDate = @LastRefreshDate,CacheFrequency = @CacheFrequency, Expiry = @Expiry,ObservationWindowDays=@ObservationWindowDays WHERE StudyConfigID =@StudyConfigID
+    UPDATE RELStudyConfig 
+	SET StudyName = @StudyName, 
+		LastRefreshDate = @LastRefreshDate,
+		CacheFrequency = @CacheFrequency, 
+		Expiry = @Expiry,
+		ObservationWindowDays=@ObservationWindowDays 
+	WHERE StudyConfigID =@StudyConfigID
 GO
 
 

@@ -26,13 +26,10 @@ export const convertComplexTypeToOptions = (
     useKey: string,
     useValue: string
 ): KeyTextPair[] => {
-    let parsedList: KeyTextPair[] = []
-    parsedList = inputData.map((item: any) => {
-        return {
-            key: item[useKey],
-            text: item[useValue],
-        }
-    })
+    const parsedList: KeyTextPair[] = []
+    for (const element of inputData) {
+        parsedList.push(convertObjectToOption(element, useKey, useValue))
+    }
     return parsedList
 }
 

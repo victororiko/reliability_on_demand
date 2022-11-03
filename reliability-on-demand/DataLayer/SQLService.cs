@@ -166,5 +166,10 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.GetUsageColumns();
         }
+
+        string ISQLService.GetPivotsAndScopesForStudyConfigID(int StudyConfigID)
+        {
+            return _context.GetPivotsAndScopesForStudyConfigID(StudyConfigID);
+        }
     }
 }

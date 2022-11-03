@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react"
-import * as QueryString from "query-string"
 import axios from "axios"
-import { Team } from "../Team"
-import { CreateNewID, SimplifiedButtonType } from "../helpers/utils"
-import { Pivots } from "../Pivots"
-import { SearchByDropdown } from "./SearchByDropdown"
+import * as QueryString from "query-string"
+import React, { useEffect, useState } from "react"
+import { StudyConfig } from "../../models/study.model"
 import { Loading } from "../helpers/Loading"
 import { MyButton } from "../helpers/MyButton"
-import { StudyConfig } from "../../models/study.model"
-import { MessageBox } from "../helpers/MessageBox"
+import { CreateNewID, SimplifiedButtonType } from "../helpers/utils"
+import { Pivots } from "../Pivots"
+import { Team } from "../Team"
+import { SearchByDropdown } from "./SearchByDropdown"
+import { StudyConfigList } from "./StudyConfigList"
 
 interface IStudySearchProps {
     location: any
@@ -24,16 +24,15 @@ export const StudySearch = (props: IStudySearchProps) => {
     useEffect(() => {}, [props])
 
     const [studyConfigs, setStudyConfigs] = useState<StudyConfig[]>([])
-
     const [searchBy, setSearchBy] = useState("")
     const [loading, setLoading] = useState(false)
     const [studyConfigsLoaded, setStudyConfigsLoaded] = useState(false)
 
-    const callback_setTeamID = (selection_teamID: number) => {
+    const setTeamIdFromSelection = (selection_teamID: number) => {
         setTeamID(selection_teamID)
     }
 
-    const callback_setSearchBy = (searchByStr: string) => {
+    const setSearchByFromSelection = (searchByStr: string) => {
         setSearchBy(searchByStr)
     }
 
@@ -47,13 +46,21 @@ export const StudySearch = (props: IStudySearchProps) => {
         })
     }
 
+    const renderStudyConfigs = studyConfigsLoaded ? (
+        <div>
+            <StudyConfigList studyConfigs={studyConfigs} />
+        </div>
+    ) : (
+        "No Studies Found"
+    )
+
     return (
         <div>
             <h1>Search Studies</h1>
-            <SearchByDropdown callback={callback_setSearchBy} />
+            <SearchByDropdown callback={setSearchByFromSelection} />
             {searchBy === "Team" ? (
                 <Team
-                    callback={callback_setTeamID}
+                    callback={setTeamIdFromSelection}
                     queryStringParams={params}
                     showMoreDetails={false}
                     showTitle={false}
@@ -69,7 +76,7 @@ export const StudySearch = (props: IStudySearchProps) => {
                 buttonType={SimplifiedButtonType.Primary}
             />
             {loading ? <Loading message="Hang tight - getting your Studies" /> : ""}
-            {studyConfigsLoaded ? <MessageBox message={studyConfigs} isJSON /> : "No Studies Found"}
+            {renderStudyConfigs}
         </div>
     )
 }
