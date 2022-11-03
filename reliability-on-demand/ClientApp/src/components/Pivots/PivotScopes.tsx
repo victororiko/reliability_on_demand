@@ -5,11 +5,7 @@ import { PopulationPivotConfigUI, StudyPivotConfig } from "../../models/filterex
 import { FilterExpressionDetailedList } from "../helpers/FilterExpression/FilterExpressionDetailedList"
 import { MessageBox } from "../helpers/MessageBox"
 import { azureFuncURL } from "../helpers/utils"
-import {
-    getAggregateByCheckedValue,
-    getAggregateByValue,
-    getScopeCheckedValue
-} from "./service"
+import { getAggregateByCheckedValue, getAggregateByValue, getScopeCheckedValue } from "./service"
 
 interface IPivotScopesProps {
     userConfigs: PopulationPivotConfigUI[]
@@ -23,7 +19,6 @@ export const PivotScopes = (props: IPivotScopesProps) => {
 
     useEffect(() => {
         setScopingCandidates(props.userConfigs)
-        
     }, [JSON.stringify(props.userConfigs)])
 
     // handlers
@@ -81,9 +76,7 @@ export const PivotScopes = (props: IPivotScopesProps) => {
                     callBackend={true}
                     validateExpCallBack={callAzureFunc}
                 />
-                <DefaultButton
-                    text="Merge Scopes"
-                    onClick={pushScopedListUp} />
+                <DefaultButton text="Merge Scopes" onClick={pushScopedListUp} />
             </div>
         )
 

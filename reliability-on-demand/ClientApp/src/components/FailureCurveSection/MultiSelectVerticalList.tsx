@@ -69,12 +69,7 @@ export const MultiSelectVerticalList = (props: Props) => {
 
     // onMount
     useEffect(() => {
-        console.debug("Mounted MultiSelect Vertical list")
         selectedKeyLogic(props.configuredverticals)
-
-        return () => {
-            console.debug("UnMounted MultiSelect Vertical list")
-        }
     }, [props.configuredverticals])
 
     return (

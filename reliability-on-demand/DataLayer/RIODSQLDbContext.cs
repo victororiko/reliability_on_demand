@@ -813,6 +813,7 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userCreatedMetric.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@MetricGoalAspirational", userCreatedMetric.MetricGoalAspirational));
             cmd.Parameters.Add(new SqlParameter("@IsUsage", userCreatedMetric.IsUsage));
+            cmd.Parameters.Add(new SqlParameter("@PivotKey", userCreatedMetric.PivotKey));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
@@ -851,35 +852,9 @@ namespace reliability_on_demand.DataLayer
 
         public string UpdateMetricConfig(MetricConfig userConfig)
         {
-            //ensure that connection is open
-            this.Database.OpenConnection();
-
-            // prepare store procedure with necessary parameters
-            var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.UpdateMetricConfig";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-            // add any params here
-            cmd.Parameters.Add(new SqlParameter("@UniqueKey", userConfig.UniqueKey));
-            cmd.Parameters.Add(new SqlParameter("@MetricName", userConfig.MetricName));
-            cmd.Parameters.Add(new SqlParameter("@Vertical", userConfig.Vertical));
-            cmd.Parameters.Add(new SqlParameter("@MinUsageInMS", userConfig.MinUsageInMS));
-            cmd.Parameters.Add(new SqlParameter("@FailureRateInHour", userConfig.FailureRateInHour));
-            cmd.Parameters.Add(new SqlParameter("@HighUsageMinInMS", userConfig.HighUsageMinInMS));
-            cmd.Parameters.Add(new SqlParameter("@MetricGoal", userConfig.MetricGoal));
-            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
-            cmd.Parameters.Add(new SqlParameter("@MetricGoalAspirational", userConfig.MetricGoalAspirational));
-            cmd.Parameters.Add(new SqlParameter("@IsUsage", userConfig.IsUsage));
-
-            // execute stored procedure and return json
-            StringBuilder sb = new StringBuilder();
-            using (var reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    sb.Append(reader.GetString(0));
-                }
-            }
-            return sb.ToString();
+            DeleteMetricConfig(userConfig);
+            string ans = AddMetricConfig(userConfig);
+            return ans;
         }
 
         public string DeleteMetricConfig(MetricConfig userConfig)
@@ -902,6 +877,7 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
             cmd.Parameters.Add(new SqlParameter("@MetricGoalAspirational", userConfig.MetricGoalAspirational));
             cmd.Parameters.Add(new SqlParameter("@IsUsage", userConfig.IsUsage));
+            cmd.Parameters.Add(new SqlParameter("@PivotKey", userConfig.PivotKey));
 
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
@@ -1061,7 +1037,27 @@ namespace reliability_on_demand.DataLayer
             return sb.ToString();
         }
 
-        
+        public string GetUsageColumns()
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetUsageColumns";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
     }
 }
 

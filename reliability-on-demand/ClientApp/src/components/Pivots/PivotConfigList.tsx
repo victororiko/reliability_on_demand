@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
 import { PivotConfigListRow } from "./PivotConfigListRow"
-import {
-    pushAggByCheckboxToModel,
-    pushScopeByCheckboxToModel,
-    updateFromChild
-} from "./service"
+import { pushAggByCheckboxToModel, pushScopeByCheckboxToModel, updateFromChild } from "./service"
 
 interface IPivotConfigListProps {
     studyPivotConfigs: PopulationPivotConfigUI[] // list of pivotConfigs selected by user in the dropdown in parent component

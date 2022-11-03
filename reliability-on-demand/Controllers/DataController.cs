@@ -477,5 +477,21 @@ namespace reliability_on_demand.Controllers
                 return BadRequest(message);
             }
         }
+
+        [HttpGet("api/Data/GetUsageColumns")]
+        public IActionResult GetUsageColumns()
+        {
+            try
+            {
+                string res = this._sqlservice.GetUsageColumns();
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetUsageColumns.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
     }
 }

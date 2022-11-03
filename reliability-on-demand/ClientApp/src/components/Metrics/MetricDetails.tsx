@@ -1,6 +1,7 @@
-import { Stack, Text } from "@fluentui/react"
+import { IComboBoxOption, Stack, Text } from "@fluentui/react"
 import React from "react"
 import { Metric } from "../../models/metric.model"
+import { MySingleSelectComboBox } from "../helpers/MySingleSelectComboBox"
 import { horizontalStackTokens } from "../helpers/Styles"
 import { CreateNewID } from "../helpers/utils"
 import { AddMetricConfigButton } from "./AddMetricConfigButton"
@@ -8,6 +9,7 @@ import { DeleteMetricConfigButton } from "./DeleteMetricConfigButton"
 import { FailureRate } from "./FailureRate"
 import { HighUsageMinimum } from "./HighUsageMinimum"
 import { LowUsageMinimum } from "./LowUsageMinimum"
+import { UsageColumnSingleSelectDropdown } from "./UsageColumnsSingleSelectDropdown"
 
 interface Props {
     isUserMetric: boolean
@@ -28,7 +30,10 @@ export const MetricDetails = (props: Props) => {
     userMetric.StudyConfigID = props.StudyConfigID ?? CreateNewID
 
     userMetric.UniqueKey = props.metricData ? props.metricData.UniqueKey : ""
-
+    userMetric.PivotKey = props.metricData
+        ? props.metricData.PivotKey
+        : "AggregatedAppUsageMetricsHourly.ss_InteractivityDurationMS"
+    // callbacks
     const updateUserMetricMinUsage = (minUsage: number) => {
         userMetric.MinUsageInMS = minUsage
     }
@@ -38,12 +43,20 @@ export const MetricDetails = (props: Props) => {
     const updateUserMetricFailureRate = (failureRate: number) => {
         userMetric.FailureRateInHour = failureRate
     }
+    const updateUsagePivotColumn = (pivotKey: string) => {
+        userMetric.PivotKey = pivotKey
+    }
 
+    // render()
     return (
         <div>
             {props.metricData && props.metricData.IsUsage ? (
                 <div>
                     <Text variant="xLarge">Usage</Text>
+                    <UsageColumnSingleSelectDropdown
+                        metricData={props.metricData}
+                        callback={updateUsagePivotColumn}
+                    />
                     <Stack horizontal tokens={horizontalStackTokens}>
                         <LowUsageMinimum
                             title="Low Usage Minimum"

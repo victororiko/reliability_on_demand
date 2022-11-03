@@ -161,5 +161,10 @@ namespace reliability_on_demand.DataLayer
         {
             _context.SavePivotConfig(pivots);
         }
+
+        public string GetUsageColumns()
+        {
+            return _context.GetUsageColumns();
+        }
     }
 }

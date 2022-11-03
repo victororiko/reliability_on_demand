@@ -14,6 +14,7 @@ export interface Metric {
     MetricType: string
     UniqueKey: string
     HashString: string
+    PivotKey?: string
 }
 
 export const getDistinctVerticals = (arr: Metric[]): string[] => {

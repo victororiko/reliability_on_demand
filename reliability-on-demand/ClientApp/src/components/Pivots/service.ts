@@ -2,7 +2,7 @@ import { IComboBoxOption } from "@fluentui/react/lib/components/ComboBox"
 import {
     PopulationPivotConfig,
     PopulationPivotConfigUI,
-    StudyPivotConfig
+    StudyPivotConfig,
 } from "../../models/filterexpression.model"
 import { CreateNewID } from "../helpers/utils"
 
@@ -90,6 +90,7 @@ export const parsePivotKey = (pivotKey: string): [string, string] => {
     return ["no pivot source", "no pivot name"]
 }
 
+// TODO extract this functionality to common folder :)
 export const getPivotName = (pivotKey: string): string => {
     const [pivotSource, pivotName] = parsePivotKey(pivotKey)
     return pivotName

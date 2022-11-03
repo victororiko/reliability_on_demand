@@ -1,4 +1,15 @@
--- Create table
+-- Create table if it doesn't exist
+IF EXISTS (
+	SELECT *
+FROM sys.tables
+	JOIN sys.schemas
+	ON sys.tables.schema_id = sys.schemas.schema_id
+WHERE sys.schemas.name = 'dbo'
+	AND sys.tables.name = 'RelMetricConfiguration'
+)
+	DROP TABLE dbo.RelMetricConfiguration
+GO
+
 SET ANSI_NULLS ON
 GO
 
@@ -19,7 +30,11 @@ CREATE TABLE [dbo].[RelMetricConfiguration]
     [IsUsage] [bit] NULL,
     [UniqueKey] [UNIQUEIDENTIFIER] DEFAULT newsequentialid() NOT NULL,
     [HashString] VARCHAR(255)  NOT NULL UNIQUE,
+    [PivotKey] [nvarchar](255),
+    [PivotScopeID] [int],
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    FOREIGN KEY ([StudyConfigID]) REFERENCES [dbo].[RELStudyConfig] ([StudyConfigID]) ON DELETE CASCADE
+    FOREIGN KEY ([StudyConfigID]) REFERENCES [dbo].[RELStudyConfig] ([StudyConfigID]) ON DELETE CASCADE,
+    FOREIGN KEY ([PivotKey],[StudyConfigID],[PivotScopeID] ) REFERENCES [dbo].[RELStudyPivotConfig] ([PivotKey],[StudyConfigID],[PivotScopeID])
 );
+GO
 -- end create table

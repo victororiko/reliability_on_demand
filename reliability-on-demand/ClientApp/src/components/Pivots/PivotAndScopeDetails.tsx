@@ -3,10 +3,7 @@ import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
 import { PivotConfigList } from "./PivotConfigList"
 import { PivotScopes } from "./PivotScopes"
 import { SavePivotConfigButton } from "./SavePivotConfigButton"
-import {
-    extractScopeByChecked, mergeScopesIntoConfigs,
-    pushModelToCheckBoxes
-} from "./service"
+import { extractScopeByChecked, mergeScopesIntoConfigs, pushModelToCheckBoxes } from "./service"
 
 interface IPivotAndScopeDetailsProps {
     showSaveButton: boolean
@@ -47,14 +44,16 @@ export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
 
     // render()
     const renderScopes =
-        scopingCandidates.length === 0 ? (
-            ""
-        ) : (
+        scopingCandidates && scopingCandidates.length > 0 &&
             <PivotScopes userConfigs={scopingCandidates} updateScopes={handleUpdateScopes} />
-        )
+        
 
     const renderSaveButton =
-        props.showSaveButton && userConfigs.length > 0 ? <SavePivotConfigButton selectedPivots={userConfigs} /> : ""
+        props.showSaveButton && userConfigs.length > 0 ? (
+            <SavePivotConfigButton selectedPivots={userConfigs} />
+        ) : (
+            ""
+        )
 
     return (
         <div>

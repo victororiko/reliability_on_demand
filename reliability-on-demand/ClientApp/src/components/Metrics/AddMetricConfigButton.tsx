@@ -15,6 +15,8 @@ export const AddMetricConfigButton = (props: Props) => {
     const [metricUpdated, setMetricUpdated] = useState(false)
     const handleClick = () => {
         if (props.isUserMetric) {
+            console.clear()
+            console.table(props.userMetric)
             axios
                 .post("api/Data/UpdateMetricConfig", props.userMetric)
                 .then((response) => {

@@ -36,5 +36,6 @@ namespace reliability_on_demand.DataLayer
         string GetFilterExpressionForPivotScopeIds(StudyConfigIDWithScopesInquiry inquiry);
         string GetPivotsForGivenSource(string source);
         string GetAdminConfiguredPivotsData(string source);
+        string GetUsageColumns();
     }
 }

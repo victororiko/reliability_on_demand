@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 
 namespace reliability_on_demand.DataLayer
 {
@@ -17,6 +18,7 @@ namespace reliability_on_demand.DataLayer
         public bool IsUsage { get; set; }
         public string UniqueKey { get; set; }
         public string HashString {get; set;}
+        public string? PivotKey { get; set; }
 
         public override string ToString()
         {

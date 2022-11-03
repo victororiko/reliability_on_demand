@@ -1,3 +1,13 @@
+IF EXISTS (
+    SELECT
+        *
+    FROM
+        INFORMATION_SCHEMA.ROUTINES
+    WHERE
+        SPECIFIC_SCHEMA = N'dbo'
+        AND SPECIFIC_NAME = N'DeleteMetricConfig'
+) DROP PROCEDURE dbo.DeleteMetricConfig
+GO
 CREATE PROCEDURE dbo.DeleteMetricConfig
     @UniqueKey               varchar(255),
     @MetricName              varchar(255),
@@ -8,11 +18,42 @@ CREATE PROCEDURE dbo.DeleteMetricConfig
     @MetricGoal              float,
     @StudyConfigID                 int,
     @MetricGoalAspirational  float,
-    @IsUsage                 bit
-
+    @IsUsage                 bit,
+    @PivotKey varchar(255) = null,
+    @PivotScopeID int = -1 
 AS
 -- body of the stored procedure
-DELETE FROM RelMetricConfiguration
-    WHERE Vertical = @Vertical AND MetricName = @MetricName	/* add search conditions here */
-    GO
+    -- delete from Metric table
+    DELETE FROM RelMetricConfiguration
+    WHERE 
+    UniqueKey = @UniqueKey 
+    -- AND
+    -- MetricName = @MetricName 
+    -- AND
+    -- Vertical = @Vertical 
+    -- AND
+    -- MinUsageInMS = @MinUsageInMS 
+    -- AND
+    -- FailureRateInHour = @FailureRateInHour 
+    -- AND
+    -- HighUsageMinInMS = @HighUsageMinInMS 
+    -- AND
+    -- MetricGoal = @MetricGoal 
+    -- AND
+    -- StudyConfigID = @StudyConfigID 
+    -- AND
+    -- MetricGoalAspirational = @MetricGoalAspirational 
+    -- AND
+    -- IsUsage = @IsUsage 
+    -- AND
+    -- PivotKey = @PivotKey 
+    -- AND
+    -- PivotScopeID = @PivotScopeID   
+    ;
+    -- delete usage pivot if it exsits in the RELStudyPivotCofig
+    EXECUTE dbo.DeleteUsagePivotColIfExists 
+        @PivotKey = @PivotKey,
+        @PivotScopeID = @PivotScopeID,
+        @StudyConfigID = @StudyConfigID
+    ;
 GO
