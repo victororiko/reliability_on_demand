@@ -26,9 +26,6 @@
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="RIOD.AggregatorService.UsageWithXMLUsagePivots.script.scopet4">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="RIOD.AggregatorService.Usage.GenerateWatsonCutOff.script.scopet4">
       <SubType>Content</SubType>
     </Content>

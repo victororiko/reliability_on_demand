@@ -39,13 +39,6 @@
 					<Parameter Name="_priority" Value="998"/>
 				</Parameters>
 			</Activity>
-      <Activity Name="UsageAggregatorWithPivotXML" ConfigBase="MissionControlBYODT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
-        <Parameters>
-          <Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.AggregatorService.UsageWithXMLUsagePivots.script.scopet4"/>
-          <Parameter Name="_tokenAllocation" Value="120"/>
-          <Parameter Name="_priority" Value="998"/>
-        </Parameters>
-      </Activity>
       <Activity Name="GenerateWatsonCutOff" ConfigBase="MissionControlBYODT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
         <Parameters>
           <Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.AggregatorService.Usage.GenerateWatsonCutOff.script.scopet4"/>
