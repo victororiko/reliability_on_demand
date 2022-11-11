@@ -119,7 +119,7 @@ extends:
             parameters:
               configuration: 'Release'
               fakeDeployment: false
-              targets: 'Build,Deploy'
+              targets: 'Build'
               clientId: $(DeploymentClientId)
               clientSecret: $(DeploymentClientSecret)
 
