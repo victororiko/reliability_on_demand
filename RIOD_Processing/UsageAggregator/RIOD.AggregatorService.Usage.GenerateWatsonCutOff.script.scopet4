@@ -15,10 +15,11 @@
 <#@include file="SaveTextToStream.scopet4" #>
 
 /*
-Generates the aggregate Usage for last 14 days from Watsonlatesttime 
+Generates the aggregate Usage for last 14 days from Watsonlatesttime using the hourly streams
 */
 <#
     var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+	string feederJSONFile = @"shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIODUsageColumns.json";
 	DateTime today = DateTime.UtcNow;
 	int inputDayLookBack=14;
 	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
@@ -35,7 +36,31 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime
     // Check if we are running under XFlow
     if (context != null)
     {
+       feederJSONFile = (string)context.GetParameter<string>("_feederJSONFile", feederJSONFile);
     }
+	
+    string AggregateBy = string.Empty;
+	string UsagePivotColumns = string.Empty;
+	string ViewSourcePath = string.Empty;
+	
+	string configContent = ReadTextFromStream(feederJSONFile);
+    List<Dictionary<string,string>> configInfo = new List<Dictionary<string,string>>();
+
+	JArray jsonFeederConfig = JArray.Parse(configContent);
+	foreach (JObject content in jsonFeederConfig.Children<JObject>())
+    {
+		AggregateBy = content["AggregateBy"].ToString();
+		UsagePivotColumns = content["UsagePivotColumns"].ToString();
+		ViewSourcePath = content["ViewSourcePath"].ToString();
+
+		Dictionary<string, string> usageQueryDetails = new Dictionary<string, string> ();
+
+		usageQueryDetails.Add("AggregateBy", AggregateBy);
+		usageQueryDetails.Add("UsagePivotColumns", UsagePivotColumns);
+		usageQueryDetails.Add("ViewSourcePath", ViewSourcePath);
+
+		configInfo.Add(usageQueryDetails);
+	}
 #>
 
 USING System.Security.Cryptography; 
@@ -82,16 +107,71 @@ input = SELECT i.*
 		FROM input AS i
 		WHERE UsageDateId>=@StartDateId AND UsageDateId<=@EndDateId;
 
-res = SELECT DeviceId,
+<#
+    int i=0;
+	Dictionary<string, string> UsageQueryDetailsOut = new Dictionary<string, string>();
+	// For each of the query in the feeder file
+	foreach(var ele in configInfo)
+	{
+		UsageQueryDetailsOut = new Dictionary<string, string>();
+		UsageQueryDetailsOut = ele;
+		ViewSourcePath = UsageQueryDetailsOut["ViewSourcePath"].Trim(trimChars).Replace("\"","");
+		AggregateBy = UsageQueryDetailsOut["AggregateBy"].Trim(trimChars).Replace("\"","");
+		UsagePivotColumns = UsageQueryDetailsOut["UsagePivotColumns"].Trim(trimChars).Replace("\"","");
+		String[] usagePivots = UsagePivotColumns.Split(',');
+
+		// for each of the Usage Pivots columns in a query
+		for(int j=0;j<usagePivots.Length;j++)
+		{
+
+#>
+
+		// Fetches the required columns from the usage stream
+		UsageData_<#=i#><#=j#> = SELECT DeviceId,
+								 (long)<#=usagePivots[j]#> AS UsageUnitValue,
+								 "<#=usagePivots[j]#>" AS UsageUnitColumn,
+								 DeviceClass,
+								 "<#=ViewSourcePath#>" AS ViewSourcePath,
+								 string.Concat(
+								 <#
+								 for(int k=0;k<AggregateBy.Split(',').Length;k++)
+								 {
+								 if(k!= AggregateBy.Split(',').Length-1)
+								 {
+								 #>
+								 <#=AggregateBy.Split(',')[k]#>,";",
+								 <#
+								 }
+								 else
+								 {
+								 #>
+								 <#=AggregateBy.Split(',')[k]#>
+								 <#
+								 }
+								 #>
+								 <#
+								 }
+								 #>) AS UsageJoinKey,
+								 DailyFirstSeenDateTime,
+								 DailyLastSeenDateTime,
+								 "<#=AggregateBy#>" AS AggregateBy
+								 FROM input;
+
+		UsageData_<#=i#><#=j#> = SELECT *,
+										(Guid)new Guid(MD5.Create() .ComputeHash(Encoding.Default.GetBytes(UsageJoinKey))) AS UsageJoinGuid
+										FROM UsageData_<#=i#><#=j#>
+										HAVING UsageJoinGuid != NULL;
+
+		UsageData_<#=i#><#=j#> = SELECT DeviceId,
 										SUM(UsageUnitValue) AS UsageUnitValue,
 										ANY_VALUE(UsageUnitColumn) AS UsageUnitColumn,
 										UsageJoinKey,
-										UsageJoinGuid,
+										(Guid)UsageJoinGuid AS UsageJoinGuid,
 										AggregateBy,
 										DeviceClass,
 										MIN(DailyFirstSeenDateTime) AS DailyFirstSeenDateTime,
 										MAX(DailyLastSeenDateTime) AS DailyLastSeenDateTime
-										FROM input
+										FROM UsageData_<#=i#><#=j#>
 										GROUP BY DeviceId,
 										UsageJoinKey,
 										AggregateBy,
@@ -99,24 +179,48 @@ res = SELECT DeviceId,
 										UsageJoinGuid
 										; 
 
-res = SELECT DeviceId,
-				(long)UsageUnitValue AS UsageUnitValue,
-				UsageUnitColumn,
+		<#
+             if(i==0 && j==0)
+             {
+#>
+                    UsageData = SELECT *
+                                     FROM UsageData_<#=i#><#=j#>;
+
+<#
+			 }
+		     else
+		     {
+#>
+                   UsageData = SELECT *
+                                    FROM UsageData
+                                    UNION 
+                                    SELECT *
+                                    FROM UsageData_<#=i#><#=j#>;
+
+<#
+		}
+  }
+  i++;
+ }
+ #>
+
+ UsageData = SELECT DeviceId,
+					DeviceClass,
+					AggregateBy,
+				@xStartDate AS StartDate,
+				@runDate AS WatsonLatestDate,
 				UsageJoinKey,
 				(Guid)UsageJoinGuid AS UsageJoinGuid,
+				(long)UsageUnitValue AS UsageUnitValue,
+				UsageUnitColumn,
 				DailyFirstSeenDateTime,
-				DailyLastSeenDateTime,
-				AggregateBy,
-				DeviceClass,
-				@xStartDate AS StartDate,
-				@runDate AS WatsonLatestDate
-				FROM res;
-
+				DailyLastSeenDateTime
+				FROM UsageData;
 
 [Privacy.DataType.ProductAndServiceUsage]
 [Privacy.DataType.ProductAndServicePerformance]
 [Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
-OUTPUT res
+OUTPUT UsageData
 TO SSTREAM @output_UsageWatsonLastXDays_ss
 CLUSTERED BY DeviceId,UsageJoinKey,UsageJoinGuid
 SORTED BY DeviceId,UsageJoinKey,UsageJoinGuid
