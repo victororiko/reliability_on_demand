@@ -40,28 +40,7 @@ export const PivotScopes = (props: IPivotScopesProps) => {
         props.updateScopes(scopingAnswers)
     }
 
-    const callAzureFunc = (input: StudyPivotConfig[], callBackendFlag: boolean) => {
-        if (callBackendFlag) {
-            if (azureFuncURL) {
-                axios
-                    .post(azureFuncURL, scopingAnswers)
-                    .then((response) => {
-                        if (response) {
-                            console.debug(`validated from Backend String = ${response.data}`)
-                        } else console.debug("no response from Backend Azure Function")
-                    })
-                    .catch((err) => {
-                        console.error(`failed to call backend with error = ${err}`)
-                    })
-            } else {
-                console.error(
-                    "Azure Function URL missing - make sure you have a .env file added to ClientApp folder as mentioned in the README"
-                )
-            }
-        } else {
-            console.debug("no backend calls executed to validate filter expression")
-        }
-    }
+    const validateFilterExpression = (input: StudyPivotConfig[], isValidated: boolean) => {}
 
     // render()
     const renderPivotScopes =
@@ -74,7 +53,7 @@ export const PivotScopes = (props: IPivotScopesProps) => {
                     studyPivotConfigs={scopingCandidates}
                     callBack={setNewlyCreatedScopes}
                     callBackend={true}
-                    validateExpCallBack={callAzureFunc}
+                    validateExpCallBack={validateFilterExpression}
                 />
                 <DefaultButton text="Merge Scopes" onClick={pushScopedListUp} />
             </div>

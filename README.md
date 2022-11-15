@@ -32,7 +32,13 @@
 - Go to Azure KeyVault page: [relondemandvault>appsettings](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/asset/Microsoft_Azure_KeyVault/Secret/https://relondemandvault.vault.azure.net/secrets/appsettings/644af47b6a344ee59e4f7fdc58c7fd6e)
 - copy secret value, and paste it in a new file named  ```appsettings.json``` under `reliability-on-demand` folder<br>
 -- File path should look like this: `{your repo path}\reliability.on.demand\reliability-on-demand\appsettings.json`
-- do the same for `.env` file and add it under `ClientApp` folder
+- do the same for `.env` file and add it under `ClientApp` 
+- This is how the .env file looks after copying - 
+"
+BROWSER=
+REACT_APP_ValidateFilterExpresionURL=
+"
+Separate the gap between Browser and REACT_APP_ValidateFilterExpresionURL with different lines
 ## Running the project
 This repo contains both frontend ([React](https://reactjs.org/docs/hello-world.html)) and backend ([ASP.NET 5.0](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-5.0)) API.
 ### Backend - Debug

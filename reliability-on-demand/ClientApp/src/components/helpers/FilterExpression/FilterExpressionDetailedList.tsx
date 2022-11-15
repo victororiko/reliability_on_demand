@@ -21,9 +21,8 @@ import {
     mapFilterExpTableColumnValue,
     getPivotKey,
     getAllFilteredPivots,
-    getRelationalOperatorCount,
-    showFilterExpression,
 } from "./service"
+import { azureFuncURL } from "../utils"
 
 /**
  * Responsibilities : The filter expression component takes in the array of StudyPivotConfig and queries the backend to fetch the filter expression from the RELPivotScope table to show it to the user.
@@ -202,44 +201,29 @@ export const FilterExpressionDetailedList = (props: Props) => {
         props.callBack(updated, false)
     }
 
+    // call azure function to validate and return the validated filter expression
     const handleClick = () => {
-        const relationalOpCount = getRelationalOperatorCount(changedFilterExp)
-        let isValidated: boolean = false
-        if (relationalOpCount !== changedFilterExp.length - 1) {
-            setValidateStatement("Relational operator not set properly")
-
-            // Passing the filter expression data to be saved and result of the validation
-            props.validateExpCallBack(changedFilterExp,false)
-            return
-        }
-
-        for (const ele of changedFilterExp) {
-            if (ele.UIDataType === "number" && isNaN(Number(ele.PivotScopeValue))) {
-                setValidateStatement(`Number expected in ${ele.PivotName}`)
-                props.validateExpCallBack(changedFilterExp,false)
-                isValidated = true
-                break
-            } else if (ele.PivotOperator === null || ele.PivotOperator === "") {
-                setValidateStatement(`Operator null issue in ${ele.PivotOperator}`)
-                props.validateExpCallBack(changedFilterExp,false)
-                isValidated = true
-                break
-            } else if (ele.PivotScopeValue === null || ele.PivotScopeValue === "") {
-                setValidateStatement(`Pivot Value null issue in ${ele.PivotScopeValue}`)
-                props.validateExpCallBack(changedFilterExp,false)
-                isValidated = true
-                break
-            }
-        }
-
-        if (isValidated === false) {
+        if (azureFuncURL) {
+            axios
+                .post(azureFuncURL, changedFilterExp)
+                .then((response) => {
+                    if (response) {
+                        setValidateStatement(`validated from Backend String = ${response.data}`)
+                        props.validateExpCallBack(changedFilterExp, true)
+                    } else {
+                        setValidateStatement("no response from Backend Azure Function")
+                        props.validateExpCallBack(changedFilterExp, false)
+                    }
+                })
+                .catch((err) => {
+                    setValidateStatement(`failed to call backend with error = ${err}`)
+                    props.validateExpCallBack(changedFilterExp, false)
+                })
+        } else {
             setValidateStatement(
-                `${"Filter expression has been validated successfully -> "}${showFilterExpression(
-                    changedFilterExp
-                )}`
+                "Azure Function URL missing - make sure you have a .env file added to ClientApp folder as mentioned in the README"
             )
-
-            props.validateExpCallBack(changedFilterExp,true)
+            props.validateExpCallBack(changedFilterExp, false)
         }
     }
 
@@ -249,7 +233,7 @@ export const FilterExpressionDetailedList = (props: Props) => {
                 <div>
                     <DefaultButton
                         text="Validate Filter Expression"
-                        onClick={handleClick}
+                        onClick={() => handleClick()}
                         allowDisabledFocus
                         disabled={false}
                         checked={false}
