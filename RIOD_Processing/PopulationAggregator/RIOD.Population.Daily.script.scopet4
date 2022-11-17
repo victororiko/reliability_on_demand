@@ -1,0 +1,231 @@
+﻿<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "VcClient" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@include file="ReadTextFromStream.scopet4" #>
+<#@ import namespace = "System" #>
+<#@ assembly name= "NEWTONSOFT.JSON.DLL" #>
+<#@ import namespace = "Newtonsoft.Json" #>
+<#@ import namespace = "Newtonsoft.Json.Linq" #>
+<#@include file="ConfigurationHelper.scopet4" #>
+<#@include file="DebugOutput.scopet4" #>
+<#@include file="SchemaExplorer.scopet4" #>
+<#@include file="GetLatestStreamDate.scopet4" #>
+<#@include file="SaveTextToStream.scopet4" #>
+
+/*
+ --------------------------------------------------------------------------------------------------------------------
+    This script is used to dump device level data from Census views into 3 streams: hourly, daily, and current for 
+    further processing.
+    uploaded to: https://www.cosmos15.osdinfra.net/cosmos/asimov.partner.swat/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.Population.Daily.script.scopet4?property=info
+    
+    History:
+    11/14/2022 (karanda): Script has been created
+ --------------------------------------------------------------------------------------------------------------------
+*/
+
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+
+    string inputFilterExpression = "";
+    string outputFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/";
+    string currentFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Current/";
+    string hourlyFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Hourly/";
+    string dailyFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Daily/";
+    string outputStreamName = @"RIOD.DevicePopulation.ss";
+    int inputDayLookBack = 1;
+    int inputMinBuildCutoff = 22000;
+	string inputOSBuildDefinitionFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json";
+	int minBuild = int.MaxValue;
+	int maxBuild = int.MinValue;
+	string OSCadenceArray =  "";
+	string applyUnifiedOSConfig = @"";
+	List<int> retailBuilds = new List<int>(){inputMinBuildCutoff}; // by default start with same value as inputMinBuildCutoff to keep all the logic as is in the case when we don't read in OS Cadence Array
+    // selection statements for underlying query
+    string devicesAllOSSelectStatement = "OSVersionFull,OSVersion,!string.IsNullOrWhiteSpace(BuildNumber) ? (int?)int.Parse(BuildNumber) : (int?)null AS BuildNumber,!string.IsNullOrWhiteSpace(BuildRevision) ? (int?)int.Parse(BuildRevision) : (int?)null AS RevisionNumber,(BuildBranch ?? string.Empty).ToLowerInvariant() AS BuildBranch,DeviceId,(LocalDeviceId ?? string.Empty) AS SqmId,DeviceFamily AS _DeviceFamily,IsTestLab,IsMSFTOwned,OEMName_Uncleaned AS OldOEMName,OEMModel AS MappingOEMModel,ExpId AS ExpIds,OSEdition AS SkuEdition,OSSkuId,LastUpdatedDate AS LastSeenEventDate,OSOOBEDateTime,OSInstallTypeId,OSInstallTypeName";
+    string devicesMostRecentSelectStatement = "DeviceId,ProcessorModel,TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,OEMModelBaseBoard,CommercialId,(FlightRing ?? string.Empty).ToLowerInvariant() AS FlightRing,FirmwareVersion,OSArchitecture,InternalSalesSegmentKey,ModelHierarchyId,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,DeviceModelKey";
+    string devicesSelectStatement = "daos.*,ProcessorModel,TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,OEMModelBaseBoard,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,(DeviceManufacturer ?? string.Empty) == string.Empty ? \"Unknown\": DeviceManufacturer AS OEMName,(DeviceModelName ?? string.Empty) == string.Empty ? \"Unknown\" : (DeviceModelName ?? string.Empty).ToLowerInvariant().StartsWith(\"hp \") ? DeviceModelName.Substring(3).Trim() : DeviceModelName AS OEMModel,OEMFamily,IsMDA,ROW_NUMBER() OVER(PARTITION BY DeviceId, BuildNumber, RevisionNumber ORDER BY LastSeenEventDate DESC) AS DevicePrevalence";
+    
+    // Check if we are running under XFlow
+    if (context != null)
+    {
+        inputDayLookBack = (int)context.GetParameter<int>("_inputDayLookBack", inputDayLookBack);
+        inputMinBuildCutoff = (int)context.GetParameter<int>("_inputMinBuildCutoff", inputMinBuildCutoff);
+        inputFilterExpression = (string)context.GetParameter<string>("_inputFilterExpression", inputFilterExpression);
+        outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
+        currentFolder = (string)context.GetParameter<string>("_currentFolder", currentFolder);
+        hourlyFolder = (string)context.GetParameter<string>("_hourlyFolder", hourlyFolder);
+        dailyFolder = (string)context.GetParameter<string>("_dailyFolder", dailyFolder);
+        outputStreamName = (string)context.GetParameter<string>("_outputStreamName", outputStreamName);
+		inputOSBuildDefinitionFile = (string)context.GetParameter<string>("_inputOSBuildDefinitionFile", inputOSBuildDefinitionFile);
+		OSCadenceArray = (string)context.GetParameter<string>("_OSCadence", OSCadenceArray);
+		applyUnifiedOSConfig = (string)context.GetParameter<string>("_applyUnifiedOSConfig", applyUnifiedOSConfig);
+		devicesAllOSSelectStatement = (string)context.GetParameter<string>("_devicesAllOSSelectStatement", devicesAllOSSelectStatement);
+		devicesMostRecentSelectStatement = (string)context.GetParameter<string>("_devicesMostRecentSelectStatement", devicesMostRecentSelectStatement);
+		devicesSelectStatement = (string)context.GetParameter<string>("_devicesSelectStatement", devicesSelectStatement);
+    }
+
+	List<Dictionary<string, string>> streamsDefinition = new List<Dictionary<string, string>>();
+
+    if (!string.IsNullOrEmpty(applyUnifiedOSConfig))
+    {
+        string streamsDefinitionContent = ReadTextFromStream(inputOSBuildDefinitionFile);
+        streamsDefinition = ParseConfiguration(streamsDefinitionContent);
+    }
+
+
+	for (int i=0; i<streamsDefinition.Count; i++)
+    {
+        string currentCadenace = streamsDefinition[i]["OSCadence"];
+        if (OSCadenceArray.Contains(currentCadenace) && currentCadenace.Contains("Development"))
+		{
+			minBuild = Math.Min(minBuild,int.Parse(streamsDefinition[i]["MinBuild"]));
+			maxBuild = Math.Max(maxBuild,int.Parse(streamsDefinition[i]["MaxBuild"]));
+		}
+		else if(OSCadenceArray.Contains(currentCadenace) && currentCadenace.Contains("Retail"))
+		{
+			retailBuilds.Add(int.Parse(streamsDefinition[i]["MinBuild"]));
+		}
+	}
+
+    // remove any dupes if they exist in retailBuilds
+    var noDupsList = new HashSet<int>(retailBuilds).ToList();
+    retailBuilds = noDupsList;
+
+#>
+
+// Import Next Generation Privacy annotation module 
+// Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy; 
+
+MODULE "/shares/asimov.prod.data/Public/Resources/Latest/Dimensions/CommonDimensionsLite.module" AS CommonDimensions;
+
+#DECLARE inputMinBuildCutoff int = <#=inputMinBuildCutoff#>;
+#DECLARE today DateTime = DateTime.UtcNow;
+#DECLARE minLastSeenDateTime DateTime = @today.AddDays(-<#=inputDayLookBack#>);
+#DECLARE expirationStreamCount string = "60";
+
+// Census resources
+#DECLARE rootFolder string = "/shares/asimov.prod.data";
+#DECLARE deviceCensusDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Device.Census.dll", @rootFolder);
+#DECLARE commonUtilitiesDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Common.Utilities.dll", @rootFolder);
+#DECLARE commonParsersDll string = String.Format("{0}/Public/Resources/Latest/Device/Microsoft.Telemetry.Common.Parsers.dll", @rootFolder);
+
+// Views
+#DECLARE deviceCensusHistoricalView string = @"/shares/asimov.prod.data/Public/Processed/Device/Census/ConsolidatedHistory/DeviceCensusConsolidatedHistory.View";
+#DECLARE deviceCensusView string = @"/shares/asimov.prod.data/Public/Processed/Device/Census/Consolidated/DeviceCensusConsolidated.View";
+#DECLARE dimDeviceModelView string = @"/shares/asimov.prod.data/Public/Processed/Common/Dimensions/DimDeviceModel/DimDeviceModel.view";
+
+#DECLARE outputStream string = @"<#=string.Format("{0}/{1}",outputFolder ,outputStreamName ) #>";
+#DECLARE currentStream string = @"<#=string.Format("{0}/{1}",currentFolder ,outputStreamName ) #>";
+#DECLARE hourlyStream string = @"<#=string.Format("{0}/{1}",hourlyFolder ,outputStreamName.Replace(".ss" , "_" + DateTime.UtcNow.ToString("yyyy_MM_dd_HH")+".ss") ) #>";
+#DECLARE dailyStream string = @"<#=string.Format("{0}/{1}",dailyFolder ,outputStreamName.Replace(".ss" , "_" + DateTime.UtcNow.ToString("yyyy_MM_dd")+".ss") ) #>";
+
+REFERENCE @deviceCensusDll;
+REFERENCE @commonUtilitiesDll;
+REFERENCE @commonParsersDll;
+
+USING Microsoft.Telemetry.Device.Census;
+USING Microsoft.Telemetry.Common.Utilities;
+USING Microsoft.Telemetry.Common.Parsers;
+
+// -----------------------------------------------------------------------------------------------------------------
+// take data from history stream (combination of device id and OSVersion)
+
+devicesAllOS = 
+    SELECT 
+    <# 
+        printColumns(devicesAllOSSelectStatement,','); 
+    #>
+    FROM ( VIEW @deviceCensusHistoricalView ) AS v
+    WHERE BuildNumber != null && int.Parse(BuildNumber) >= @inputMinBuildCutoff AND LastUpdatedDate  >= @minLastSeenDateTime;
+
+// add missing attributes
+devicesMostRecent =
+    SELECT 
+    <# 
+        printColumns(devicesMostRecentSelectStatement,','); 
+    #>
+    FROM (VIEW @deviceCensusView)
+ WHERE OSBuildNumber >= @inputMinBuildCutoff AND LastUpdatedDate  >= @minLastSeenDateTime;
+
+devices = 
+    SELECT
+    <# 
+        printColumns(devicesSelectStatement,','); 
+    #>  
+    FROM devicesAllOS AS daos
+         INNER JOIN devicesMostRecent AS dmr
+                    ON daos.DeviceId == dmr.DeviceId
+        LEFT OUTER JOIN 
+            (VIEW @dimDeviceModelView PARAMS (version = "V4")) AS ddm
+             ON dmr.DeviceModelKey == ddm.DeviceModelKey
+        ;
+
+devices = SELECT DISTINCT d.*
+          FROM devices AS d;
+
+//  output intermediate machines
+
+[Privacy.DataType.ProductAndServicePerformance]
+[Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration] 
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OSVersion")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OEMModel")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OEMName")]
+ // current
+ OUTPUT devices
+  TO SSTREAM @currentStream
+ CLUSTERED BY DeviceId, OSVersion
+   SORTED BY DeviceId, OSVersion
+    WITH STREAMEXPIRY @expirationStreamCount
+    WHERE DevicePrevalence == 1 <#= getFiltersIfSpecified(applyUnifiedOSConfig, OSCadenceArray, minBuild, maxBuild, retailBuilds) #>;
+
+// daily
+    OUTPUT devices
+  TO SSTREAM @dailyStream
+ CLUSTERED BY DeviceId, OSVersion
+   SORTED BY DeviceId, OSVersion
+    WITH STREAMEXPIRY @expirationStreamCount
+    WHERE DevicePrevalence == 1 <#= getFiltersIfSpecified(applyUnifiedOSConfig, OSCadenceArray, minBuild, maxBuild, retailBuilds) #>;
+
+// hourly
+    OUTPUT devices
+  TO SSTREAM @hourlyStream
+ CLUSTERED BY DeviceId, OSVersion
+   SORTED BY DeviceId, OSVersion
+    WITH STREAMEXPIRY @expirationStreamCount
+    WHERE DevicePrevalence == 1 <#= getFiltersIfSpecified(applyUnifiedOSConfig, OSCadenceArray, minBuild, maxBuild, retailBuilds) #>;
+
+<#+
+    string getFiltersIfSpecified(string applyUnifiedOSConfig, string OSCadenceArray, int minBuild, int maxBuild, List<int> retailBuilds)
+    {
+        string query = "";
+        if(!string.IsNullOrEmpty(applyUnifiedOSConfig))
+        {
+            if(OSCadenceArray.Contains("Development"))
+            {
+                query = query + " AND (BuildNumber >=" + minBuild + " AND BuildNumber <="+ maxBuild + ")";
+            }
+            if(OSCadenceArray.Contains("Retail"))
+            {
+                query = query + " OR BuildNumber IN (" + (string.Join(",", retailBuilds.ToArray())) + ")";
+            }
+        }
+        return query;
+    }
+
+	void printColumns(string str, char splitter)
+	{
+		var colsArr = str.Split(splitter);
+		for(int i = 0; i < colsArr.Length; i++)
+		{
+			string statement = colsArr[i];
+			if(i < colsArr.Length - 1)
+				statement += ",";
+			statement += "\n";
+			Write(statement);
+		}
+	}
+#>
