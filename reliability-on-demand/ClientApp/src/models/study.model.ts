@@ -11,6 +11,11 @@ export interface StudyConfig {
     HashString?: string
 }
 
+export interface StudyTypeConfig {
+    StudyType: string
+    Verticals: string[]
+}
+
 export const convertToOptions = (inputData: StudyConfig[]) => {
     let parsedList: IComboBoxOption[] = []
     if (inputData) {

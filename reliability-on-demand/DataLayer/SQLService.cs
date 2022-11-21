@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using reliability_on_demand.Models;
+using System.Collections.Generic;
 
 namespace reliability_on_demand.DataLayer
 {
@@ -170,6 +171,20 @@ namespace reliability_on_demand.DataLayer
         string ISQLService.GetPivotsAndScopesForStudyConfigID(int StudyConfigID)
         {
             return _context.GetPivotsAndScopesForStudyConfigID(StudyConfigID);
+        }
+
+        public string GetAllStudyTypes()
+        {
+            return _context.GetAllStudyTypes();
+        }
+        public string GetVerticalsForAStudyType(string StudyType)
+        {
+            return _context.GetVerticalsForAStudyType(StudyType);
+        }
+
+        public void SaveVerticalsForAStudyType(StudyTypeConfig config)
+        {
+            _context.SaveVerticalsForAStudyType(config);
         }
     }
 }

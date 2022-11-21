@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using reliability_on_demand.Extensions;
+using reliability_on_demand.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1060,6 +1061,89 @@ namespace reliability_on_demand.DataLayer
             }
             return sb.ToString();
         }
+
+        public string GetAllStudyTypes()
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetAllStudyTypes";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+        public string GetVerticalsForAStudyType(string StudyType)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetAllDefaultVerticalsForSelectedStudyType";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyType", StudyType));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        public void SaveVerticalsForAStudyType(StudyTypeConfig studyTypeObj)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // Delete Study type enteries from the table first
+            DeleteStudyType(studyTypeObj.StudyType);
+
+            // insert the selected data from the UI into the table
+            for (int verticalCtr = 0; verticalCtr < studyTypeObj.Verticals.Length; verticalCtr++)
+            {
+                // prepare store procedure with necessary parameters
+                var cmd = this.Database.GetDbConnection().CreateCommand();
+                cmd.CommandText = "dbo.SaveVerticalsForStudyType";
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                // add any params here
+                cmd.Parameters.Add(new SqlParameter("@Vertical", studyTypeObj.Verticals[verticalCtr]));
+                cmd.Parameters.Add(new SqlParameter("@StudyType", studyTypeObj.StudyType));
+                var reader = cmd.ExecuteReader();
+                reader.Close();
+            }
+
+            this.Database.CloseConnection();
+        }
+
+        public void DeleteStudyType(string StudyType)
+        {
+            // Delete Study type enteries from the table first
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.DeleteStudyType";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyType", StudyType));
+            var reader = cmd.ExecuteReader();
+            reader.Close();
+        }
+
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using reliability_on_demand.Models;
+using System;
 using System.Collections.Generic;
 
 namespace reliability_on_demand.DataLayer
@@ -38,5 +39,8 @@ namespace reliability_on_demand.DataLayer
         string GetAdminConfiguredPivotsData(string source);
         string GetPivotsAndScopesForStudyConfigID(int StudyConfigID);
         string GetUsageColumns();
+        string GetAllStudyTypes();
+        string GetVerticalsForAStudyType(string StudyType);
+        void SaveVerticalsForAStudyType(StudyTypeConfig config);
     }
 }

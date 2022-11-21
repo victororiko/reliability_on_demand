@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web.Resource;
+using reliability_on_demand.Models;
 
 namespace reliability_on_demand.Controllers
 {
@@ -507,6 +508,52 @@ namespace reliability_on_demand.Controllers
                 string message = $"Failed GetPivotsAndScopesForStudyConfigID.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
+            }
+        }
+
+        [HttpGet("api/Data/GetAllStudyTypes")]
+        public IActionResult GetAllStudyTypes()
+        {
+            try
+            {
+                string res = this._sqlservice.GetAllStudyTypes();
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetAllStudyTypes.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [HttpGet("api/Data/GetVerticalsForAStudyType/{StudyType}")]
+        public IActionResult GetVerticalsForAStudyType(string StudyType)
+        {
+            try
+            {
+                string res = this._sqlservice.GetVerticalsForAStudyType(StudyType);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetVerticalsForAStudyType.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [HttpPost("api/Data/GetVerticalsForAStudyType")]
+        public void GetVerticalsForAStudyType([FromBody]StudyTypeConfig config)
+        {
+            try
+            {
+                this._sqlservice.SaveVerticalsForAStudyType(config);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetVerticalsForAStudyType.\nException = {ex}";
+                _logger.LogError(message);
             }
         }
     }

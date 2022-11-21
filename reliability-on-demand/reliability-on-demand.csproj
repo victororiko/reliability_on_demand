@@ -70,6 +70,7 @@
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\ConfigureFilterExpressionButton.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\PivotsDetailedList.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\SaveManagePivots.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\Admin\SaveManageVerticalsButton.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\VerticalsDetailedList.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\ErrorComponent.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\helpers\FilterExpression\FilterExpressionDetailedList.tsx" />
