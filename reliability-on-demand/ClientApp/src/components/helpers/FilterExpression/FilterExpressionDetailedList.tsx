@@ -202,7 +202,7 @@ export const FilterExpressionDetailedList = (props: Props) => {
     }
 
     // call azure function to validate and return the validated filter expression
-    const handleClick = () => {
+    const handleValidateFilterExpressionClick = () => {
         if (azureFuncURL) {
             axios
                 .post(azureFuncURL, changedFilterExp)
@@ -233,7 +233,7 @@ export const FilterExpressionDetailedList = (props: Props) => {
                 <div>
                     <DefaultButton
                         text="Validate Filter Expression"
-                        onClick={() => handleClick()}
+                        onClick={() => {return handleValidateFilterExpressionClick()}}
                         allowDisabledFocus
                         disabled={false}
                         checked={false}
