@@ -2,41 +2,42 @@
 
 <Workflows>
 	<!-- https://xflow.microsoft.com/Workflows/Details/Rel.RIOD.PopulationAggregator.T4 -->
-	<Workflow Name="Rel.RIOD.PopulationAggregator.T4"
+	<Workflow Name="Rel.RIOD.PopulationAggregator.T4" 
 			  Enabled="true"
 			  Author ="cosreldata"
-			  FolderName ="PlatformHealth.Reliability"
-			  RecurrenceUnit="2"
-			  RecurrenceAmount="12"
-			  Start="2021-03-01T12:00:00"
-			  Email="cosreldata@microsoft.com"
-			  TriggeredByWorkflow="WatsonSnapshotUserModeStatus"
-			  TriggeredByActivity="WatsonSnapshotUserModeStatus.Finished"
-            >
+			  FolderName ="PlatformHealth.Reliability" 
+			  RecurrenceUnit="2" 
+			  RecurrenceAmount="12" 
+			  Start="2021-03-01T12:00:00" 
+			  Email="cosreldata@microsoft.com" 
+			  CancelIfRunning="false"
+			  TriggeredByWorkflow="Rel.RIOD.AggregatorSvc.Failures.T4"
+			  TriggeredByActivity="Rel.RIOD.AggregatorSvc.Failures.T4.WatsonCutOffTime"
+			  >
 		<ConfigBases>
-			<ConfigBase Name="MissionControlBYODT4" File="MissionControlBYODT4.xml"/>
+			<ConfigBase Name="MissionControlBYODT4" File="MissionControlBYODT4.xml" />
 		</ConfigBases>
 		<Parameters>
 			<Parameter Name="__vc" Value="https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat" />
-			<Parameter Name="_scopePath" Value="$(CLUSTER_ROOT);$(CLUSTER_ROOT)/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Schema;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Policy"/>
-			<Parameter Name="_priority" Value="998"/>
-			<Parameter Name="_tokenAllocation" Value="30"/>
-			<Parameter Name="_inputDayLookBack" Value="14"/>
-			<Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel"/>
-			<Parameter Name="_OSCadence" Value="Development;Development-Skip"/>
-			<Parameter Name="_outputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/"/>
-			<Parameter Name="_inputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/"/>
+			<Parameter Name="_scopePath" Value="$(CLUSTER_ROOT);$(CLUSTER_ROOT)/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Schema;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Policy" />
+			<Parameter Name="_priority" Value="998" />
+			<Parameter Name="_tokenAllocation" Value="100" />
+			<Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel" />
 		</Parameters>
 		<Activities>
-			<Activity Name="CensusDevices" ConfigBase="MissionControlBYODT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
+			<Activity Name="AggregatePopulation" ConfigBase="MissionControlBYODT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public" MaxRetries="1">
 				<Parameters>
-					<Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/FailureCurve/UnifiedSchema.FailureCurve.CensusDevices.v2.script.scopet4"/>
-					<Parameter Name="_inputFilterExpression" Value="(_DeviceFamily ?? string.Empty).ToLowerInvariant()== &quot;windows.desktop&quot; AND !(bool)(IsTestLab ?? false)"/>
-					<Parameter Name="_inputOSBuildDefinitionFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json"/>
-					<Parameter Name="_applyUnifiedOSConfig" Value="yes"/>
-					<Parameter Name="_outputStreamName" Value="Census.Devices.ss"/>
-					<Parameter Name="_tokenAllocation" Value="60"/>
-					<Parameter Name="_priority" Value="998"/>
+					<Parameter Name="_script" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.PopulationAggregator.script.scopet4" />
+					<Parameter Name="_inputDayLookBack" Value="14" />
+					<Parameter Name="_feederJSONFile" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIOD.PopulationColumns.json" />
+					<Parameter Name="_debugOutput" Value="false" />
+					<Parameter Name="_outputDebugSubFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Aggregated/Debug" />
+					<Parameter Name="_inputReliabilityRoot" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/" />
+					<Parameter Name="_inputHourlyFolder" Value="Population/Hourly/" />
+					<Parameter Name="_outputPopulationAggregateFolder" Value="/Population/Aggregated/" />
+					<Parameter Name="_outputStreamName" Value="RIOD.Devices.Population.Aggregated" />
+					<Parameter Name="_populationJoinKeySplitterChar" Value="." /> 
+					<Parameter Name="_inputWatsonMarkerFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt" />
 				</Parameters>
 			</Activity>
 		</Activities>

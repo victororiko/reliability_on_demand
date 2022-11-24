@@ -1,0 +1,29 @@
+<#+
+    //
+    // Parses configuration file into list of key value pairs
+    //
+    List<Dictionary<string,string>> ParseConfiguration(string configContent)
+    {
+        List<Dictionary<string, string>> configInfo = new List<Dictionary<string,string>>();
+        JArray jsonData = JArray.Parse(configContent);
+	    foreach (JObject content in jsonData.Children<JObject>())
+        {
+            var properties = new Dictionary<string, string>();                
+            foreach (JProperty prop in content.Properties())
+                properties.Add(prop.Name, prop.Value.ToString());
+            configInfo.Add(properties);
+        }
+        return configInfo;
+    }
+    //
+    // Parses configuration JSON Array into list of strings
+    //
+     public static List<string> parseToListUsingDelimeter(string json, char ch)
+    {
+        List<string> list = new List<string>();
+        JArray arr = JArray.Parse(json);
+        for (int i = 0; i < arr.Count; i++)
+            list.Add(arr[i].ToString());
+        return list;
+    }
+#>

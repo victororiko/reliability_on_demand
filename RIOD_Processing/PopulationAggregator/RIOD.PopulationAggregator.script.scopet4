@@ -1,0 +1,259 @@
+<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "VcClient" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@ import namespace = "System.Web" #>
+<#@include file="ReadTextFromStream.scopet4" #>
+<#@ import namespace = "System" #>
+<#@ assembly name= "NEWTONSOFT.JSON.DLL" #>
+<#@ import namespace = "Newtonsoft.Json" #>
+<#@ import namespace = "Newtonsoft.Json.Linq" #>
+<#@include file="ConfigurationHelper.scopet4" #>
+<#@include file="DebugOutput.scopet4" #>
+<#@include file="SchemaExplorer.scopet4" #>
+<#@include file="GetLatestStreamDate.scopet4" #>
+<#@include file="SaveTextToStream.scopet4" #>
+// Import Next Generation Privacy annotation module 
+// Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy; 
+USING System.Security.Cryptography; 
+
+// Uploaded here - https://www.cosmos15.osdinfra.net/cosmos/asimov.partner.swat/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.PopulationAggregator.script.scopet4?property=info
+
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+
+	/* Use feeder output located at the following path: 
+		https://aad.cosmos15.osdinfra.net/cosmos/asimov.partner.swat/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIOD.PopulationColumns.json?property=info
+	*/
+	string feederJSONFile = @"shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIOD.PopulationColumns.json"; 
+	int inputDayLookBack=14;  
+	bool debugOutput = true;
+	string outputDebugSubFolder = "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Aggregated/Debug";
+	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
+	string inputHourlyFolder = @"Population/Hourly/";
+	string outputPopulationAggregateFolder = @"/Population/Aggregated/";
+	string outputStreamName = @"RIOD.Devices.Population.Aggregated";
+	char populationJoinKeySplitterChar = '.';
+	Char[] trimChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}','"'};
+	
+	// capture watson cutoff time
+	string inputWatsonMarkerFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt";
+	string inputWatsonLatestTimeFile = ReadTextFromStream(inputWatsonMarkerFile);
+    string watsonLatestTimeString = inputWatsonLatestTimeFile.Trim(trimChars).Split('\n')[0];
+	DateTime watsonLatestTime = DateTime.Parse(watsonLatestTimeString);
+
+	// set date ranges for initial lookup in hourly streams
+	string startDateStr = watsonLatestTime.Date.AddDays(-inputDayLookBack+1).ToString("yyyy-MM-dd");
+	string endDateStr = watsonLatestTime.ToString("yyyy-MM-dd");
+
+	// convert dates to long based ids to apply watson cutoff filter on input data
+	DateTime xStartDate = watsonLatestTime.Date.AddDays(-inputDayLookBack);
+	long startDateId = getHourBasedDateId(xStartDate);
+	long endDateId = getHourBasedDateId(watsonLatestTime);
+
+
+    // Check if we are running under XFlow
+    if (context != null)
+    {
+       	feederJSONFile = (string)context.GetParameter<string>("_feederJSONFile", feederJSONFile);
+    	inputDayLookBack = (int)context.GetParameter<int>("_inputDayLookBack", inputDayLookBack);
+    	debugOutput = (bool)context.GetParameter<bool>("_debugOutput", debugOutput);
+       	outputDebugSubFolder = (string)context.GetParameter<string>("_outputDebugSubFolder", outputDebugSubFolder);
+       	inputReliabilityRoot = (string)context.GetParameter<string>("_inputReliabilityRoot", inputReliabilityRoot);
+       	inputHourlyFolder = (string)context.GetParameter<string>("_inputHourlyFolder", inputHourlyFolder);
+       	outputPopulationAggregateFolder = (string)context.GetParameter<string>("_outputPopulationAggregateFolder", outputPopulationAggregateFolder);
+       	outputStreamName = (string)context.GetParameter<string>("_outputStreamName", outputStreamName);
+       	populationJoinKeySplitterChar = (char)context.GetParameter<char>("_populationJoinKeySplitterChar", populationJoinKeySplitterChar);
+       	inputWatsonMarkerFile = (string)context.GetParameter<string>("_inputWatsonMarkerFile", inputWatsonMarkerFile);
+    }
+
+	// Parse JSON from Feeder
+	string configContent = ReadTextFromStream(feederJSONFile);
+	JArray jsonConfigArray = JArray.Parse(configContent); 
+#>
+
+/*
+Summary: Generates the aggregate Population for last <#=inputDayLookBack#> days from Watsonlatesttime using the hourly streams
+*/
+
+<# 
+    if (debugOutput)
+    {
+#>
+// debug output for intermediate streams
+#DECLARE debugOutputRoot string =  @"<#= outputDebugSubFolder #>";
+<#
+    }
+#>
+
+#DECLARE input_PopulationPattern_ss string = "RIOD.DevicePopulation_%Y_%m_%d_%h.ss";
+
+// fetch hourly streams from last X days
+// refer to https://mscosmos.visualstudio.com/CosmosWiki/_wiki/wikis/Cosmos.wiki/599/Defining-a-streamset
+DevicesPopulationHourly = SELECT *
+		FROM
+		(
+		SSTREAM
+                                SPARSE STREAMSET "<#=inputReliabilityRoot + inputHourlyFolder#>"
+								PATTERN @input_PopulationPattern_ss
+								RANGE __date = [@"<#=startDateStr#>", @"<#=endDateStr#>"], __hour =["00", "23"]
+		);
+
+<# GenerateDebugOutput(debugOutput, "DevicesPopulationHourly", "DeviceId"); #>
+
+// Calculate the ID for the timestamp hourly stream has been produced
+DevicesPopulationHourly_Normalized = SELECT *,
+		(long)(LastSeenEventDate.Hour + LastSeenEventDate.Day * 100 + LastSeenEventDate.Month * 10000 + LastSeenEventDate.Year * 1000000) AS PopulationDateId
+		FROM DevicesPopulationHourly;
+
+<# GenerateDebugOutput(debugOutput, "DevicesPopulationHourly_Normalized", "DeviceId"); #>
+
+// Apply the cutoff filter to fetch the required population data for last 14 days from the Watson Cut off time
+DevicesPopulationHourly_WatsonCutoff = SELECT i.*
+		FROM DevicesPopulationHourly_Normalized AS i
+		WHERE PopulationDateId >= <#=startDateId#> AND PopulationDateId <= <#=endDateId#>;
+
+<# GenerateDebugOutput(debugOutput, "DevicesPopulationHourly_WatsonCutoff", "DeviceId"); #>
+
+<#
+	// placeholders
+	string SelectColumnList = "";
+	HashSet<string> SelectColumnSet = new HashSet<string>();
+	string PopulationJoinKeyExpressionCol = "";
+	string PopulationJoinKey = "";
+	// extract select columns and PopulationJoinKey from each config
+	foreach (JObject config in jsonConfigArray.Children<JObject>())
+    {
+		// keep track of distinct select columns
+		SelectColumnList = config["SelectColumnList"].ToString().Trim(trimChars).Replace("\"","");
+		SelectColumnList.Split(',').ToList().ForEach(x => SelectColumnSet.Add(x));
+		// update PopulationKey
+		PopulationJoinKeyExpressionCol = config["PopulationJoinKeyExpressionCol"].ToString().Trim(trimChars).Replace("\"","");
+		PopulationJoinKey = PopulationJoinKeyExpressionCol.Replace(";",""+populationJoinKeySplitterChar); // replace semi-colons with dots for final output
+	} // end foreach
+#>
+
+
+// Master Script 
+#DECLARE today DateTime = DateTime.UtcNow;
+
+// select columns parsed from the JSON + our set of desired columns 
+DevicesAggregated = SELECT
+            DeviceId,
+            LastSeenEventDate,
+            @today AS RunDate,
+			string.Concat(<#printDelimitedStringAsList(PopulationJoinKey,populationJoinKeySplitterChar);#>) AS PopulationJoinKey, 
+            // the following columns come from SelectionColumnsList (Feeder JSON)
+            <#
+				string selectColumnStr = string.Join(",", SelectColumnSet.ToArray());
+				PrintCustomXML(selectColumnStr, ',');
+			#>
+           FROM DevicesPopulationHourly_WatsonCutoff
+;
+
+<# GenerateDebugOutput(debugOutput, "DevicesAggregated", "DeviceId"); #>
+
+// add PopulationJoinKeyGUID
+
+DevicesAggregated_PopulationJoinKeyGuid = SELECT *,
+		(Guid)new Guid(MD5.Create() .ComputeHash(Encoding.Default.GetBytes(PopulationJoinKey))) AS PopulationJoinKeyGuid
+           FROM DevicesAggregated
+		   HAVING PopulationJoinKeyGuid != NULL;
+;
+
+<# GenerateDebugOutput(debugOutput, "DevicesAggregated_PopulationJoinKeyGuid", "DeviceId"); #>
+
+// aggregate columns
+DevicesAggregated_Final = 
+	SELECT
+            DeviceId,
+			PopulationJoinKey,
+			LAST(PopulationJoinKeyGuid) AS PopulationJoinKeyGuid,
+            MAX(LastSeenEventDate) AS LastSeenEventDate,
+            LAST(RunDate) AS RunDate,
+            LAST(CustomXML) AS CustomXML
+    FROM DevicesAggregated_PopulationJoinKeyGuid
+    GROUP BY 
+            DeviceId,
+            PopulationJoinKey
+    ;
+
+
+<# GenerateDebugOutput(debugOutput, "DevicesAggregated_Final", "DeviceId"); #>
+
+
+// Output
+// Historical
+#DECLARE output_PopulationWatsonLastXDays_ss = string.Format("{0}/{1}/{2}_For{3}Days_{4}"+".ss", 
+                                            @"<#=inputReliabilityRoot#>",
+                                            @"<#=outputPopulationAggregateFolder#>",
+                                            @"<#=outputStreamName#>",
+											@"<#=inputDayLookBack#>",
+											@"<#=watsonLatestTime.ToString("yyyy_MM_dd_hh_mm_ss")#>");
+OUTPUT DevicesAggregated_Final
+TO SSTREAM @output_PopulationWatsonLastXDays_ss
+CLUSTERED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
+SORTED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
+;
+
+// Current
+#DECLARE lastest_outputPopulationAggregateFolder = string.Format("{0}/{1}/{2}_For{3}Days"+".ss", 
+                                            @"<#=inputReliabilityRoot#>",
+                                            @"<#=outputPopulationAggregateFolder#>",
+                                            @"<#=outputStreamName#>",
+											@"<#=inputDayLookBack#>");
+OUTPUT DevicesAggregated_Final
+TO SSTREAM @lastest_outputPopulationAggregateFolder
+CLUSTERED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
+SORTED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
+;
+
+#CS
+public static long getHourBasedDateId(DateTime date)
+{
+ 	return date.Hour + date.Day * 100 + date.Month * 10000 + date.Year * 1000000;
+}
+#ENDCS
+
+<#+   
+	void PrintCustomXML(string str, char splitter)
+	{
+		Write("string.Concat(");
+
+		var tokenized = str.Split(splitter);
+		
+		string allFields = "";
+		foreach(var token in tokenized)
+		{
+			allFields += string.Format("\n\"<Field name=\\\"{0}\\\">\", {0}, \"</Field>",token);
+			allFields += "\",";
+		}
+		
+		string ans = string.Format("\"<CustomXML>\",{0}\"</CustomXML>",allFields);
+		Write(ans);
+
+		Write("\")");
+		Write(" AS CustomXML");
+	}
+	// using char splitter because T4 won't allow string as a splitter 
+	void printDelimitedStringAsList(string str, char splitter)
+	{
+		string[] arr = str.Split(splitter);
+		for(int i = 0; i < arr.Length; i++)
+		{
+			Write(arr[i]);
+			if(i < arr.Length - 1)
+			{
+				Write(",");
+				Write("\"" + splitter + "\"");
+				Write(",");
+			}
+		}
+	}
+	long getHourBasedDateId(DateTime date)
+	{
+		return date.Hour + date.Day * 100 + date.Month * 10000 + date.Year * 1000000;
+	}
+#>
