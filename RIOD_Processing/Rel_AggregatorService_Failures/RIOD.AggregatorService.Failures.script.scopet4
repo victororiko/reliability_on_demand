@@ -1,0 +1,436 @@
+﻿<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "VcClient" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@ import namespace = "System.Web" #>
+<#@include file="ReadTextFromStream.scopet4" #>
+<#@ import namespace = "System" #>
+<#@ assembly name= "NEWTONSOFT.JSON.DLL" #>
+<#@ import namespace = "Newtonsoft.Json" #>
+<#@ import namespace = "Newtonsoft.Json.Linq" #>
+<#@include file="ConfigurationHelper.scopet4" #>
+<#@include file="DebugOutput.scopet4" #>
+<#@include file="SchemaExplorer.scopet4" #>
+<#@include file="GetLatestStreamDate.scopet4" #>
+<#@include file="SaveTextToStream.scopet4" #>
+
+
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+
+	string feederJSONFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIOD.FailureColumns.Final.json"; 
+	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
+	string outputFailureAggregateFolder = @"Failures/Aggregated/";
+	string inputVerticalToColumn = "appcrash:AppCrashCount;apphang:AppHangCount;oscrash:OSCrashCount;criticalservice:CriticalServiceCrashCount;livekerneldump:LiveKernelDumpCount;dirtyshutdown:DirtyShutdownCount;corruption:CorruptionCount;verifier:VerifierCount;watchdog:WatchdogCount;oom:OOMCount;setup:SetupCount;offlinecrashdump:OfflineCrashDumpCount;abs_bugcheck:ABSBugcheckCount;abs_lpbh:ABSLPBHCount;abs_hw:ABSHWCount;abs_unknown:ABSUnknownCount";
+    string inputVerticalToFailureCountColumn = "appcrash:AppCrashFailureCount;apphang:AppHangFailureCount;oscrash:OSCrashFailureCount;criticalservice:CriticalServiceFailureCount;livekerneldump:LiveKernelDumpFailureCount;corruption:CorruptionFailureCount;verifier:VerifierFailureCount;watchdog:WatchdogFailureCount;oom:OOMFailureCount;setup:SetupFailureCount;offlinecrashdump:OfflineCrashDumpFailureCount;abs_bugcheck:ABSBugcheckFailureCount;abs_lpbh:ABSLPBHFailureCount;abs_hw:ABSHWFailureCount;abs_unknown:ABSUnknownFailureCount";
+    int inputDayLookBack=14;  
+    string outputGenericDeviceFailureFlattenedStreamName= "RIOD.Devices.Failures.Flattened.Generic";
+    string outputDeviceFailureFlattenedStreamName = "RIOD.Devices.Failures.Flattened";
+	string outputGenericDeviceFailureStreamName= "RIOD.Devices.Failures.Generic";
+    string inputWatsonMarkerFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt";
+	Char[] trimExtraChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}'};
+	
+	string inputWatsonLatestTimeFile = ReadTextFromStream(inputWatsonMarkerFile);
+    string watsonLatestTimeString = inputWatsonLatestTimeFile.Trim(trimExtraChars).Split('\n')[0];
+	DateTime watsonLatestTime = DateTime.Parse(watsonLatestTimeString);
+
+    // Check if we are running under XFlow
+    if (context != null)
+    {
+       feederJSONFile = (string)context.GetParameter<string>("_feederJSONFile", feederJSONFile);
+	   inputReliabilityRoot = (string)context.GetParameter<string>("_inputReliabilityRoot", inputReliabilityRoot);
+	   inputVerticalToColumn = (string)context.GetParameter<string>("_inputVerticalToColumn", inputVerticalToColumn);
+	   inputDayLookBack = (int)context.GetParameter<int>("_inputDayLookBack", inputDayLookBack);
+	   inputVerticalToFailureCountColumn = (string)context.GetParameter<string>("_inputVerticalToFailureCountColumn", inputVerticalToFailureCountColumn);
+    }
+	
+    string QueryId = string.Empty;
+	string StudyIdList = string.Empty;
+	string SnapShotType = string.Empty;
+	string SnapShotSource = string.Empty;
+	string ViewSourcePath = string.Empty;
+	string LookBackPeriodInHours = string.Empty;
+	string SelectColumns = string.Empty;
+	string ApportionJoinColumns = string.Empty;
+	string ApportionColumns = string.Empty;
+	string KeyColumns = string.Empty;
+	string WatsonEventList = string.Empty;
+	string Measures = string.Empty;
+	string AttributedHits = string.Empty;
+	string FilterExpression = string.Empty;
+	string FailureJoinKeyExpressionCols = string.Empty;
+	
+	
+	string configContent = ReadTextFromStream(feederJSONFile);
+    Dictionary<string, Dictionary<string,string>> configInfo = new Dictionary<string,Dictionary<string,string>>();
+
+	JArray jsonFeederConfig = JArray.Parse(configContent);
+	foreach (JObject content in jsonFeederConfig.Children<JObject>())
+    {
+		QueryId = content["QueryId"].ToString();
+		StudyIdList = content["StudyIdList"].ToString();
+		SnapShotType = content["SnapShotType"].ToString();
+		SnapShotSource = content["SnapShotSource"].ToString();
+		ViewSourcePath = content["ViewSourcePath"].ToString();
+		LookBackPeriodInHours = content["LookBackPeriodInHours"].ToString();
+		SelectColumns = content["SelectColumns"].ToString();
+		ApportionJoinColumns = content["ApportionJoinColumns"].ToString();
+		ApportionColumns = content["ApportionColumns"].ToString();
+		KeyColumns = content["KeyColumns"].ToString();
+		WatsonEventList = content["WatsonEventList"].ToString();
+		Measures = content["Measures"].ToString();
+		FilterExpression = content["FilterExpression"].ToString();
+		FailureJoinKeyExpressionCols = content["FailureJoinKeyExpressionCols"].ToString();
+
+		Dictionary<string, string> watsonQueryDetails = new Dictionary<string, string> ();
+
+		watsonQueryDetails.Add("QueryId", QueryId);
+		watsonQueryDetails.Add("StudyIdList", StudyIdList);
+		watsonQueryDetails.Add("SnapShotType", SnapShotType);
+		watsonQueryDetails.Add("SnapShotSource", SnapShotSource);
+		watsonQueryDetails.Add("ViewSourcePath", ViewSourcePath);
+		watsonQueryDetails.Add("LookBackPeriodInHours", LookBackPeriodInHours);
+		watsonQueryDetails.Add("SelectColumns", SelectColumns);
+		watsonQueryDetails.Add("ApportionJoinColumns", ApportionJoinColumns);
+		watsonQueryDetails.Add("ApportionColumns", ApportionColumns);
+		watsonQueryDetails.Add("KeyColumns", KeyColumns);
+		watsonQueryDetails.Add("WatsonEventList", WatsonEventList);
+		watsonQueryDetails.Add("Measures", Measures);
+		watsonQueryDetails.Add("FilterExpression", FilterExpression);
+		watsonQueryDetails.Add("FailureJoinKeyExpressionCols", FailureJoinKeyExpressionCols);
+
+		configInfo.Add(QueryId, watsonQueryDetails);
+	}
+#>
+
+MODULE "shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module" AS m;
+
+USING System.Security.Cryptography; 
+// Import Next Generation Privacy annotation module 
+// Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy; 
+
+#DECLARE runDate DateTime = DateTime.Parse("<#=watsonLatestTime#>");
+
+<# 
+    int i=0;
+    string QueryIdStr = string.Empty;
+    Dictionary<string, string> WatsonQueryDetailsOut = new Dictionary<string, string>();
+    int idxNumFailureExprCols = 0;
+	int numFailureExprCols = 0;
+	int columnLen = 0;
+	
+	foreach(var ele in configInfo)
+	{
+		QueryId = (string)ele.Key;
+		WatsonQueryDetailsOut = new Dictionary<string, string>();
+		WatsonQueryDetailsOut = ele.Value;
+		SnapShotType = WatsonQueryDetailsOut["SnapShotType"].Trim(trimExtraChars);
+		SnapShotSource = WatsonQueryDetailsOut["SnapShotSource"].Trim(trimExtraChars);
+		ViewSourcePath = WatsonQueryDetailsOut["ViewSourcePath"].Trim(trimExtraChars);
+		LookBackPeriodInHours = WatsonQueryDetailsOut["LookBackPeriodInHours"].Trim(trimExtraChars); 
+		SelectColumns = WatsonQueryDetailsOut["SelectColumns"].Trim(trimExtraChars); 
+		ApportionColumns = WatsonQueryDetailsOut["ApportionColumns"].Trim(trimExtraChars);
+		ApportionJoinColumns = WatsonQueryDetailsOut["ApportionJoinColumns"].Trim(trimExtraChars);
+		WatsonEventList = WatsonQueryDetailsOut["WatsonEventList"].Trim(trimExtraChars);
+		KeyColumns = WatsonQueryDetailsOut["KeyColumns"].Trim(trimExtraChars);
+		Measures = WatsonQueryDetailsOut["Measures"].Trim(trimExtraChars);
+		FilterExpression = WatsonQueryDetailsOut["FilterExpression"].Trim(trimExtraChars);
+		FailureJoinKeyExpressionCols = WatsonQueryDetailsOut["FailureJoinKeyExpressionCols"].Trim(trimExtraChars);
+
+		if(!String.IsNullOrEmpty(KeyColumns))
+		{
+#>
+		     RIODDeviceFailuresRaw_<#=i#> = m.WatsonSnapshotAggView
+                (
+                    numHours = 24 * <#=inputDayLookBack#>
+                    ,snapshotType = "<#=SnapShotType#>"
+<#
+             if(!String.IsNullOrEmpty(SnapShotSource))
+			 {
+#>
+                    ,snapshotSource = "<#=SnapShotSource#>"
+<#
+			 }
+#>
+                    ,measures = new ARRAY<string>  { <#=Measures#> }
+                    ,roundApportionedMachineCount = false
+                    ,watsonEventNameList = new ARRAY<string>  { <#=WatsonEventList#> }
+                    ,filterExpression =  "<#=FilterExpression#>"
+                    ,selectColumns = new ARRAY<string> {
+                          <#=SelectColumns#>
+                    }
+                    ,keyColumns = new ARRAY<string> {
+                        <#=KeyColumns#>
+                    }
+<#
+             if(!String.IsNullOrEmpty(ApportionJoinColumns))
+			 {
+#>
+                    ,apportionJoinColumns = new ARRAY<string> { 
+                        <#=ApportionJoinColumns#>
+                    }
+<#
+			 }
+             if(!String.IsNullOrEmpty(ApportionColumns))
+			 {
+#>
+                    ,apportionedColumns = new ARRAY<string> { <#=ApportionColumns#> }
+<#
+			 }
+#>
+             );
+
+             RIODDeviceFailuresGeneric_<#=i#> = 
+                                SELECT <#=QueryId#> AS QueryId,
+                                       DeviceId,
+									   (
+<#
+					         numFailureExprCols = FailureJoinKeyExpressionCols.Split(';').Count();
+                             idxNumFailureExprCols = 0;
+							 foreach (var failureJoinKeyColumnExpr in FailureJoinKeyExpressionCols.Split(';'))
+							 {
+                                   string[] failureJoinKeyColumnExprStrings = failureJoinKeyColumnExpr.Split('#');
+                                   columnLen = failureJoinKeyColumnExprStrings.Count();
+                                   string keyColumnNameStr = (!failureJoinKeyColumnExpr.Contains("#")?failureJoinKeyColumnExprStrings[0]:("\"" + failureJoinKeyColumnExprStrings[columnLen-2].ToString() + "\""));
+                                   string keyColumnName = keyColumnNameStr.Replace("\"", "");
+#>
+                                   <#=keyColumnName#> +
+<#
+					               if(idxNumFailureExprCols < numFailureExprCols-1)
+                                   {
+#>
+                                       "." + 
+<#					   
+                                   }
+                                   idxNumFailureExprCols++;
+							 }
+#>
+                                   String.Empty) AS FailureJoinKey,
+                                   "<CurvePivots><PivotFields>" +
+<#
+							 foreach (var columnExpr in SelectColumns.Split(','))
+							 {
+										string[] columnExprStrings = columnExpr.Split('#');
+										columnLen = columnExprStrings.Count();
+										string columnNameStr = (!columnExpr.Contains("#")?columnExprStrings[0]:("\"" + columnExprStrings[columnLen-2].ToString() + "\""));
+										string columnName = columnNameStr.Replace("\"", "");
+#>
+										"<PivotField name=\"" + <#=columnNameStr#> + "\">"+ <#=columnName#> + "</PivotField>" +
+<#
+							 }
+#>
+									   "</PivotFields></CurvePivots>" AS CustomFields,
+									   FailureHelper.GetVerticalFromEvent(watsonEventName2,FailureInfo_FailureBucketId) AS Vertical,
+									   FailureInfo_FailureBucketId,
+									   FailureInfo_FailureHash,
+									   FailureInfo_ModuleName,
+<#
+							 if(Measures.Contains("ApportionedHits"))
+							 {
+#>
+									   (double)SUM(ApportionedHits) AS HitCount,
+									   (double)SUM(ApportionedMachineCount) AS MachineCount
+<#
+                             }
+					         else
+							 { 
+#>
+									   (double)SUM(AttributedHits) AS HitCount,
+									   (double)SUM(0) AS MachineCount                                      
+<#
+                             }
+#>
+								FROM RIODDeviceFailuresRaw_<#=i#>
+								GROUP BY QueryId,
+									   DeviceId,
+									   FailureJoinKey,
+									   CustomFields,
+									   Vertical,
+									   FailureInfo_ModuleName,
+									   FailureInfo_FailureBucketId,
+									   FailureInfo_FailureHash;
+<#
+             if(i==0)
+             {
+#>
+                   RIODDeviceFailuresGeneric = SELECT *
+                                               FROM RIODDeviceFailuresGeneric_<#=i#>;
+<#
+		     }
+		     else
+		     {
+#>
+                   RIODDeviceFailuresGeneric = SELECT *
+                                               FROM RIODDeviceFailuresGeneric
+                                               UNION 
+                                               SELECT *
+                                               FROM RIODDeviceFailuresGeneric_<#=i#>; 
+<#
+             }
+             i++;
+        }
+     }
+#>;
+
+
+RIODDeviceFailuresGeneric = 
+            SELECT *,
+			       (Guid)new Guid(MD5.Create() .ComputeHash(Encoding.Default.GetBytes(FailureJoinKey))) AS FailureJoinKeyGuid
+             FROM RIODDeviceFailuresGeneric;
+
+#DECLARE outputDeviceFailuresGeneric = string.Format("{0}/{1}/{2}"+".ss", 
+                                                         @"<#=inputReliabilityRoot#>",
+                                                         @"<#=outputFailureAggregateFolder#>",
+                                                         @"<#=outputGenericDeviceFailureStreamName#>");
+														 
+// Current stream Device Failures Flattened stream
+OUTPUT RIODDeviceFailuresGeneric
+TO SSTREAM @outputDeviceFailuresGeneric
+CLUSTERED BY DeviceId, FailureJoinKey
+SORTED BY MachineCount, HitCount
+WITH STREAMEXPIRY "30";
+
+RIODDeviceFailuresFlattened =
+           SELECT DeviceId,
+                  FailureJoinKey,
+                  FailureJoinKeyGuid,
+                  CustomFields
+<#
+         foreach (var inputVerticalToColMap in inputVerticalToColumn.Split(';'))
+         {
+		            int verticalColLen = inputVerticalToColMap.Count();
+					string[] verticalMapStrings = inputVerticalToColMap.Split(':');
+					string verticalName = verticalMapStrings[0];
+					string verticalCountName = verticalMapStrings[1];
+#>
+				   ,
+                   SUM(Vertical == "<#=verticalName#>"?HitCount:0) AS <#=verticalCountName#>
+<#
+         }
+#>
+         FROM RIODDeviceFailuresGeneric
+         GROUP BY DeviceId,
+                  FailureJoinKey,
+                  FailureJoinKeyGuid,
+                  CustomFields;
+
+// Current stream Device Failures Flattened stream
+#DECLARE outputFlattenedDeviceFailures = string.Format("{0}/{1}/{2}"+".ss", 
+                                                         @"<#=inputReliabilityRoot#>",
+                                                         @"<#=outputFailureAggregateFolder#>",
+                                                         @"<#=outputDeviceFailureFlattenedStreamName#>");
+
+// Current stream Device Failures Flattened stream into datted stream format
+#DECLARE outputFlattenedDeviceFailuresHistory = string.Format("{0}_{1}"+".ss", 
+                                                               @outputFlattenedDeviceFailures,
+                                                               @runDate.ToString("yyyy-MM-dd_hh_mm_ss"));
+
+OUTPUT RIODDeviceFailuresFlattened
+TO SSTREAM @outputFlattenedDeviceFailures
+CLUSTERED BY DeviceId, FailureJoinKey, FailureJoinKeyGuid
+SORTED BY CustomFields
+WITH STREAMEXPIRY "30";
+
+OUTPUT RIODDeviceFailuresFlattened
+TO SSTREAM @outputFlattenedDeviceFailuresHistory
+CLUSTERED BY DeviceId, FailureJoinKey, FailureJoinKeyGuid
+SORTED BY CustomFields
+WITH STREAMEXPIRY "30";
+
+
+RIODDeviceFailuresFlattenedXml =
+           SELECT DeviceId,
+                  FailureJoinKey,
+                  FailureJoinKeyGuid,
+                  CustomFields,
+                  ("<FailureCounts><VerticalFields>" +
+<#
+         foreach (var inputVerticalToColMap in inputVerticalToColumn.Split(';'))
+         {
+		            int verticalColLen = inputVerticalToColMap.Count();
+					string[] verticalMapStrings = inputVerticalToColMap.Split(':');
+					string verticalName = "\"" + verticalMapStrings[0] + "\"";
+					string verticalCountName = verticalMapStrings[1];
+#>
+                    "<Vertical name=\"" + <#=verticalName#> + "\">"+ <#=verticalCountName#> + "</Vertical>" +
+<#
+         }
+#>
+                   "</VerticalFields></FailureCounts>") AS FailureCountsXml
+         FROM RIODDeviceFailuresFlattened;
+
+// Current stream Device Failures Flattened stream
+#DECLARE outputFlattenedDeviceFailuresXml = string.Format("{0}/{1}/{2}"+".ss", 
+                                                                   @"<#=inputReliabilityRoot#>",
+                                                                   @"<#=outputFailureAggregateFolder#>",
+                                                                   @"<#=outputGenericDeviceFailureFlattenedStreamName#>");
+
+// Current stream Device Failures Flattened stream into datted stream format
+#DECLARE outputFlattenedDeviceFailuresXmlHistory = string.Format("{0}_{1}"+".ss", 
+                                                                   @outputFlattenedDeviceFailuresXml,
+                                                                   @runDate.ToString("yyyy-MM-dd_hh_mm_ss"));
+
+OUTPUT RIODDeviceFailuresFlattenedXml
+TO SSTREAM @outputFlattenedDeviceFailuresXml
+CLUSTERED BY DeviceId, FailureJoinKey, FailureJoinKeyGuid
+SORTED BY CustomFields
+WITH STREAMEXPIRY "30";
+
+OUTPUT RIODDeviceFailuresFlattenedXml
+TO SSTREAM @outputFlattenedDeviceFailuresXmlHistory
+CLUSTERED BY DeviceId, FailureJoinKey, FailureJoinKeyGuid
+SORTED BY CustomFields
+WITH STREAMEXPIRY "30";
+
+#CS
+
+using System;
+using System.Collections.Generic;
+using System.Xml;
+
+public static class FailureHelper
+{
+    public static string GetVerticalFromEvent(string watsonEventName,string failureName)
+    {
+        if(watsonEventName == "criticalprocessfault2")
+		{
+		   return "criticalservice";
+		}
+		else if(watsonEventName == "windowsofflinecrash")
+		{
+		   return "windowsofflinecrash";
+		}
+		else if(watsonEventName.Contains("hang"))
+		{
+		   return "apphang";
+		}
+		else if(watsonEventName == "containercrashdump")
+		{
+           return "containercrash";
+		}
+		else if(watsonEventName == "bluescreen" && !string.IsNullOrEmpty(failureName) && (failureName.ToUpper().StartsWith("0xc8") || failureName.StartsWith("0xe2")) )
+		{
+           return "abs_lpbh";
+		}
+		else if(watsonEventName == "bluescreen")
+		{
+		   return "oscrash";
+		}
+		else if(watsonEventName == "livekernelevent")
+		{
+		   return "livekerneldump";
+		}
+		else if(watsonEventName == "hupbugcheck")
+		{
+		   return "hupbugcheck";
+		}
+		else
+		{
+           return "appcrash";
+		}
+    }
+}
+
+#ENDCS
