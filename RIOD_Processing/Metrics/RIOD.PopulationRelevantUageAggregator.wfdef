@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Workflows>
+	<!-- https://xflow.microsoft.com/Workflows/Details/Rel.RIOD.PopulationRelevantUageAggregator.T4 -->
+	<Workflow Name="Rel.RIOD.PopulationRelevantUageAggregator.T4"
+			  Enabled="true"
+			  Author ="cosreldata"
+			  FolderName ="PlatformHealth.Reliability"
+			  RecurrenceUnit="2"
+			  RecurrenceAmount="12"
+			  Start="2021-03-01T12:00:00"
+        Email="cosreldata@microsoft.com"
+        TriggeredByWorkflow="Rel.RIOD.AggregatorSvc.Failures.T4"
+        TriggeredByActivity="Rel.RIOD.AggregatorSvc.Failures.T4.FailureAggregator"
+        >
+		<ConfigBases>
+			<ConfigBase Name="RIODConfigT4" File="RIODConfigT4.xml"/>
+		</ConfigBases>
+		<Parameters>
+			<Parameter Name="__vc" Value="https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat" />
+			<Parameter Name="_scopePath" Value="$(CLUSTER_ROOT);$(CLUSTER_ROOT)/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Schema;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Policy"/>
+			<Parameter Name="_priority" Value="998"/>
+			<Parameter Name="_tokenAllocation" Value="30"/>
+			<Parameter Name="_inputDayLookBack" Value="14"/>
+			<Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel"/>
+			<Parameter Name="_outputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/DevicesFlattened/"/>
+			<Parameter Name="_inputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/"/>
+		</Parameters>
+		<Activities>
+			<Activity Name="PopulationRelevantUsage" ConfigBase="RIODConfigT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
+				<Parameters>
+					<Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.PopulationRelevantUsage.script.scopet4"/>
+					<Parameter Name="_tokenAllocation" Value="60"/>
+					<Parameter Name="_priority" Value="998"/>
+				</Parameters>
+			</Activity>
+		</Activities>
+	</Workflow>
+</Workflows>

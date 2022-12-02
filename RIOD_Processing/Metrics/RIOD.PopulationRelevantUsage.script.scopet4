@@ -1,0 +1,88 @@
+﻿<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "VcClient" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@include file="ReadTextFromStream.scopet4" #>
+<#@ import namespace = "System" #>
+<#@ assembly name= "NEWTONSOFT.JSON.DLL" #>
+<#@ import namespace = "Newtonsoft.Json" #>
+<#@ import namespace = "Newtonsoft.Json.Linq" #>
+<#@include file="ConfigurationHelper.scopet4" #>
+<#@include file="DebugOutput.scopet4" #>
+<#@include file="SchemaExplorer.scopet4" #>
+<#@include file="GetLatestStreamDate.scopet4" #>
+<#@include file="SaveTextToStream.scopet4" #>
+
+/*
+ --------------------------------------------------------------------------------------------------------------------
+Combines all the 3 streams together - Population, Failure and Usage based on Study type join key>
+ --------------------------------------------------------------------------------------------------------------------
+*/
+
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+	string inputFolder = @"shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
+	string inputPopulationAggStream = @"/Population/Aggregated/RIOD.Devices.Population.Aggregated.Generic.ss";
+	string inputUsageAggStream = @"/Usage/AggregatedObservationPeriod/RIOD.Devices.Usage.Aggregated.Generic.ss";
+	string inputFailureAggStream = @"/Failures/Aggregated/RIOD.Devices.Failures.Flattened.Generic.ss";
+	string outputFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/DevicesFlattened/";
+	string outputStreamName=@"RIOD.Devices.Flattened.Generic.ss";
+	//string outputStreamNameWithoutXML=@"RIOD.Devices.Flattened.Expanded.ss";
+
+    // Check if we are running under XFlow
+    if (context != null)
+    {
+        inputFolder = (string)context.GetParameter<string>("_inputFolder", inputFolder);
+		inputPopulationAggStream = (string)context.GetParameter<string>("_inputPopulationAggStream", inputPopulationAggStream);
+		inputUsageAggStream = (string)context.GetParameter<string>("_inputUsageAggStream", inputUsageAggStream);
+		inputFailureAggStream = (string)context.GetParameter<string>("_inputFailureAggStream", inputFailureAggStream);
+		outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
+		outputStreamName = (string)context.GetParameter<string>("_outputStreamName", outputStreamName);
+	}
+
+#>
+
+
+#DECLARE expirationStreamCount string = "60";
+#DECLARE input_Population_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputPopulationAggStream ) #>";
+#DECLARE input_Usage_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputUsageAggStream ) #>";
+#DECLARE input_Failure_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputFailureAggStream ) #>";
+
+// Import Next Generation Privacy annotation module 
+// Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy; 
+
+#DECLARE outputStream string = @"<#=string.Format("{0}/{1}",outputFolder ,outputStreamName ) #>";
+
+populationFailureUsageData = SELECT p.DeviceId,
+					  p.PopulationJoinKey,
+					  p.PopulationJoinKeyGuid,
+					  p.LastSeenEventDate AS Population_LastSeenEventDate,
+					  p.RunDate AS Population_RunDate,
+					  p.CustomXML AS Population_CustomFields,
+					  u.StartDate AS Usage_StartDate,
+					  u.WatsonLatestDate AS Usage_EndDate,
+					  u.UsageJoinKey,
+					  u.UsageJoinGuid,
+					  u.UsageUnit,
+					  u.DailyFirstSeenDateTime AS Usage_DailyFirstSeenDateTime,
+					  u.DailyLastSeenDateTime AS Usage_DailyLastSeenDateTime,
+					  f.FailureJoinKey,
+					  f.FailureJoinKeyGuid,
+					  f.CustomFields AS Failure_CustomFields,
+					  f.FailureCountsXml
+					  FROM (SSTREAM @input_Population_ss) AS p
+					  LEFT OUTER JOIN
+					  (SSTREAM @input_Usage_ss) AS u
+					  ON p.PopulationJoinKeyGuid == u.UsageJoinGuid
+					  LEFT OUTER JOIN
+					  (SSTREAM @input_Failure_ss) AS f
+					  ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid;
+
+
+OUTPUT populationFailureUsageData
+TO SSTREAM @outputStream
+CLUSTERED BY DeviceId, PopulationJoinKeyGuid,UsageJoinGuid,FailureJoinKeyGuid
+SORTED BY DeviceId, PopulationJoinKeyGuid,UsageJoinGuid,FailureJoinKeyGuid
+WITH STREAMEXPIRY @expirationStreamCount;
