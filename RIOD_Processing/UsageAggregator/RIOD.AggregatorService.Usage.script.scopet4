@@ -108,30 +108,31 @@ USING Privacy;
 RESOURCE @"shares/asimov.prod.data/Public/Resources/Latest/Usage/DynamicView/AppUsage/Aggregates/AggregatedAppUsageMetricsHourly.xml";
 
 // Gets all last 2 days data from the API
-MinusTwoUsageData = VIEW "/shares/asimov.prod.data/Public/Processed/Usage/AppUsage/AggregatedAppUsageMetrics/AggregatedAppUsageMetricsHourly.view"
-                        PARAMS
-                        (
-                            sparseStreamSet = true,
-                            startDate = @minusOneDate,
-                            endDate = @dtEndDate,
-                            DataSource = @"AppInteractivity"
-                        );
+AggreateAppUsageMetricHourlyData = VIEW "/shares/asimov.prod.data/Public/Processed/Usage/AppUsage/AggregatedAppUsageMetrics/AggregatedAppUsageMetricsHourly.view"
+									PARAMS
+									(
+										sparseStreamSet = true,
+										startDate = @minusOneDate,
+										endDate = @dtEndDate,
+										DataSource = @"AppInteractivity"
+									);
 
 // Filtering out the data for min build and device family
-MinusTwoUsageData = SELECT *,
-							OSVersion AS OSVersionFull,
-							OSVersion.Split('.')[0]+"."+OSVersion.Split('.')[1]+"."+OSVersion.Split('.')[2]+"."+OSVersion.Split('.')[3] AS OSVersionOnly,
-						   HelperRoutine.ParseString(OSBuild) AS numberOSBuild
-						   FROM MinusTwoUsageData
-						   HAVING <#=nullCheckFilterExpression#>;
+AggreateAppUsageMetricHourlyData = SELECT *,
+										OSVersion AS OSVersionFull,
+										(OSVersion.Split('.').Length>3? (OSVersion.Split('.')[0]+"."+OSVersion.Split('.')[1]+"."+OSVersion.Split('.')[2]+"."+OSVersion.Split('.')[3] ): "") AS OSVersionOnly,
+									   HelperRoutine.ParseString(OSBuild) AS numberOSBuild
+									   FROM AggreateAppUsageMetricHourlyData
+									   HAVING <#=nullCheckFilterExpression#>
+									   ;
 
 // for each day in the look back
 <#  
 for(int idxLookBackDay=0;idxLookBackDay<=inputDayLookBack;idxLookBackDay++)
-   {
-   #>
+{
+#>
 
-   #SET usageDate = @endDate.AddDays(-<#=idxLookBackDay#>).Date;
+		#SET usageDate = @endDate.AddDays(-<#=idxLookBackDay#>).Date;
         #SET usageDateId = @usageDate.Year * 10000 + @usageDate.Month * 100 + @usageDate.Day;
 		#SET output_UsageDataDaily_ss = string.Format("{0}/{2}/{3}"+"_{1:yyyy}-{1:MM}-{1:dd}.ss", 
                                             @"<#=inputReliabilityRoot#>",  
@@ -145,56 +146,56 @@ for(int idxLookBackDay=0;idxLookBackDay<=inputDayLookBack;idxLookBackDay++)
                                             @"<#=inputUsageDailyFolder#>",
                                             @"<#=inputUsageDailyWithXMLStreamName#>");
 
-		MinusTwoUsageData_<#=idxLookBackDay#> = SELECT *,
+		AggreateAppUsageMetricHourlyData_<#=idxLookBackDay#> = SELECT *,
 												(int)(HourId/100) AS DateId,
 												DailyLastSeenDateTime.Hour AS UsageHour
-												FROM MinusTwoUsageData;
+												FROM AggreateAppUsageMetricHourlyData;
 
-		MinusTwoUsageData_<#=idxLookBackDay#> = SELECT *
-												FROM MinusTwoUsageData_<#=idxLookBackDay#>
-												WHERE DateId == @usageDateId;
+		AggreateAppUsageMetricHourlyData_<#=idxLookBackDay#> = SELECT *
+																FROM AggreateAppUsageMetricHourlyData_<#=idxLookBackDay#>
+																WHERE DateId == @usageDateId;
 
 		// Renaming the OSVersion issue
-		MinusTwoUsageData_<#=idxLookBackDay#> = SELECT DeviceId,
-														<#
-														 for(int k=0;k<inputUsageUnitCols.Split(';').Length;k++)
-														 {
-														 #>
-														 (long)SUM(<#=inputUsageUnitCols.Split(';')[k]#>) AS <#=inputUsageUnitCols.Split(';')[k]#>,
-														 <#
-														 }
-														 #>
-														 <#
-														 for(int k=0;k<inputRawAggregateByCols.Split(';').Length;k++)
-														 {
-														 #>
-														 <#=inputRawAggregateByCols.Split(';')[k]#>,
-														 <#
-														 }
-														 #>
-													DeviceClass,
-													OSVersionOnly AS OSVersion,
-													OSVersion AS OSVersionFull,
-													HourId,
-													UsageHour
-													FROM MinusTwoUsageData_<#=idxLookBackDay#> ;
+		AggreateAppUsageMetricHourlyData_<#=idxLookBackDay#> = SELECT DeviceId,
+																<#
+																 for(int unitColsPtr=0;unitColsPtr<inputUsageUnitCols.Split(';').Length;unitColsPtr++)
+																 {
+																 #>
+																 (long)SUM(<#=inputUsageUnitCols.Split(';')[unitColsPtr]#>) AS <#=inputUsageUnitCols.Split(';')[unitColsPtr]#>,
+																 <#
+																 }
+																 #>
+																 <#
+																 for(int unitColsPtr=0;unitColsPtr<inputRawAggregateByCols.Split(';').Length;unitColsPtr++)
+																 {
+																 #>
+																 <#=inputRawAggregateByCols.Split(';')[unitColsPtr]#>,
+																 <#
+																 }
+																 #>
+																DeviceClass,
+																OSVersionOnly AS OSVersion,
+																OSVersion AS OSVersionFull,
+																HourId,
+																UsageHour
+															FROM AggreateAppUsageMetricHourlyData_<#=idxLookBackDay#> ;
 
 
 		// Grouping by all the Device ID and Aggregate By Cols for daily stream
 		UsageDataDaily_<#=idxLookBackDay#> = SELECT DeviceId,
 														<#
-														 for(int k=0;k<inputUsageUnitCols.Split(';').Length;k++)
+														 for(int unitColsPtr=0;unitColsPtr<inputUsageUnitCols.Split(';').Length;unitColsPtr++)
 														 {
 														 #>
-														 (long)SUM(<#=inputUsageUnitCols.Split(';')[k]#>) AS <#=inputUsageUnitCols.Split(';')[k]#>,
+														 (long)SUM(<#=inputUsageUnitCols.Split(';')[unitColsPtr]#>) AS <#=inputUsageUnitCols.Split(';')[unitColsPtr]#>,
 														 <#
 														 }
 														 #>
 														 <#
-														 for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
+														 for(int unitColsPtr=0;unitColsPtr<inputAggregateByCols.Split(';').Length;unitColsPtr++)
 														 {
 														 #>
-														 <#=inputAggregateByCols.Split(';')[k]#>,
+														 <#=inputAggregateByCols.Split(';')[unitColsPtr]#>,
 														 <#
 														 }
 														 #>
@@ -202,13 +203,13 @@ for(int idxLookBackDay=0;idxLookBackDay<=inputDayLookBack;idxLookBackDay++)
 														MAX(@usageDate.AddHours(HourId%100)) AS UsageDateMaxHour,
 														MIN(DailyFirstSeenDateTime) AS DailyFirstSeenDateTime,
 														MAX(DailyLastSeenDateTime) AS DailyLastSeenDateTime
-														FROM MinusTwoUsageData_<#=idxLookBackDay#>
+														FROM AggreateAppUsageMetricHourlyData_<#=idxLookBackDay#>
 														GROUP BY DeviceId,
 														<#
-														 for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
+														 for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
 														 {
 														 #>
-														 <#=inputAggregateByCols.Split(';')[k]#>,
+														 <#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
 														 <#
 														 }
 														 #>
@@ -219,31 +220,31 @@ for(int idxLookBackDay=0;idxLookBackDay<=inputDayLookBack;idxLookBackDay++)
 													 DeviceClass,
 													 UsageHour,
 													 <#
-														 for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
+														 for(int unitColsPtr=0;unitColsPtr<inputAggregateByCols.Split(';').Length;unitColsPtr++)
 														 {
 														 #>
-														 <#=inputAggregateByCols.Split(';')[k]#>,
+														 <#=inputAggregateByCols.Split(';')[unitColsPtr]#>,
 														 <#
 														 }
 														 #>
 														<#
-														 for(int k=0;k<inputUsageUnitCols.Split(';').Length;k++)
+														 for(int unitColsPtr=0;unitColsPtr<inputUsageUnitCols.Split(';').Length;unitColsPtr++)
 														 {
 														 #>
-														 (long)SUM(<#=inputUsageUnitCols.Split(';')[k]#>) AS <#=inputUsageUnitCols.Split(';')[k]#>,
+														 (long)SUM(<#=inputUsageUnitCols.Split(';')[unitColsPtr]#>) AS <#=inputUsageUnitCols.Split(';')[unitColsPtr]#>,
 														 <#
 														 }
 														 #>
 														MIN(DailyFirstSeenDateTime) AS DailyFirstSeenDateTime,
 														MAX(DailyLastSeenDateTime) AS DailyLastSeenDateTime
-														FROM MinusTwoUsageData_<#=idxLookBackDay#>
+														FROM AggreateAppUsageMetricHourlyData_<#=idxLookBackDay#>
 														GROUP BY DeviceId,
 														UsageHour,
 														<#
-														 for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
+														 for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
 														 {
 														 #>
-														 <#=inputAggregateByCols.Split(';')[k]#>,
+														 <#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
 														 <#
 														 }
 														 #>
@@ -251,28 +252,29 @@ for(int idxLookBackDay=0;idxLookBackDay<=inputDayLookBack;idxLookBackDay++)
 														;
 // Rearranging hourly columns
 UsageDataHourly_<#=idxLookBackDay#> = SELECT DeviceId,
-													 DeviceClass,
-													 UsageHour,
-													 <#
-														 for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
-														 {
-														 #>
-														 <#=inputAggregateByCols.Split(';')[k]#>,
-														 <#
-														 }
-														 #>
-									  HelperRoutine.ParseString(OSVersion.Split('.')[3]) AS OSRevision,
-									  <#
-														 for(int k=0;k<inputUsageUnitCols.Split(';').Length;k++)
-														 {
-														 #>
-														 (long)SUM(<#=inputUsageUnitCols.Split(';')[k]#>) AS <#=inputUsageUnitCols.Split(';')[k]#>,
-														 <#
-														 }
-														 #>
-														 DailyFirstSeenDateTime,
-														 DailyLastSeenDateTime
-									  FROM UsageDataHourly_<#=idxLookBackDay#>;
+											DeviceClass,
+											UsageHour,
+											<#
+											for(int unitColsPtr=0;unitColsPtr<inputAggregateByCols.Split(';').Length;unitColsPtr++)
+											{
+											#>
+											<#=inputAggregateByCols.Split(';')[unitColsPtr]#>,
+											<#
+											}
+											#>
+											((OSVersion.Split('.').Length>3) ? (HelperRoutine.ParseString(OSVersion.Split('.')[3])) :  int.MaxValue) AS OSRevision,
+											<#
+											for(int aggColsPtr=0;aggColsPtr<inputUsageUnitCols.Split(';').Length;aggColsPtr++)
+											{
+											#>
+											(long)SUM(<#=inputUsageUnitCols.Split(';')[aggColsPtr]#>) AS <#=inputUsageUnitCols.Split(';')[aggColsPtr]#>,
+											<#
+											}
+											#>
+											DailyFirstSeenDateTime,
+											DailyLastSeenDateTime
+									  FROM UsageDataHourly_<#=idxLookBackDay#>
+									  HAVING OSRevision !=  int.MaxValue;
 
  // Fetching Max usage date for daily stream
  MaxUsageDate = SELECT MAX(DailyLastSeenDateTime) AS UsageDate
@@ -288,25 +290,26 @@ UsageDataDaily_<#=idxLookBackDay#> = SELECT DeviceId,
 											UsageDate,
 											UsageDateMaxHour,
 											<#
-														 for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
-														 {
-														 #>
-														 <#=inputAggregateByCols.Split(';')[k]#>,
-														 <#
-														 }
+												for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
+												{
+												#>
+												<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
+												<#
+												}
 											#>
-										 HelperRoutine.ParseString(OSVersion.Split('.')[3]) AS OSRevision,
+											((OSVersion.Split('.').Length>3) ? (HelperRoutine.ParseString(OSVersion.Split('.')[3])) :  int.MaxValue) AS OSRevision,
 											<#
-														 for(int k=0;k<inputUsageUnitCols.Split(';').Length;k++)
-														 {
-														 #>
-														 (long)SUM(<#=inputUsageUnitCols.Split(';')[k]#>) AS <#=inputUsageUnitCols.Split(';')[k]#>,
-														 <#
-														 }
+												for(int unitColsPtr=0;unitColsPtr<inputUsageUnitCols.Split(';').Length;unitColsPtr++)
+												{
+												#>
+												(long)SUM(<#=inputUsageUnitCols.Split(';')[unitColsPtr]#>) AS <#=inputUsageUnitCols.Split(';')[unitColsPtr]#>,
+												<#
+												}
 											#>
 											DailyFirstSeenDateTime,
 											DailyLastSeenDateTime
-											FROM UsageDataDaily_<#=idxLookBackDay#>;
+											FROM UsageDataDaily_<#=idxLookBackDay#>
+											HAVING OSRevision !=  int.MaxValue;
 
 [Privacy.DataType.ProductAndServiceUsage]
 [Privacy.DataType.ProductAndServicePerformance]
@@ -314,18 +317,18 @@ UsageDataDaily_<#=idxLookBackDay#> = SELECT DeviceId,
 OUTPUT UsageDataDaily_<#=idxLookBackDay#>
 TO SSTREAM @output_UsageDataDaily_ss
 CLUSTERED BY <#
-			for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
+			for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
 			{
 			#>
-			<#=inputAggregateByCols.Split(';')[k]#>,
+			<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
 			<#
 			}
 			#>DeviceId
 SORTED BY <#
-			for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
+			for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
 			{
 			#>
-			<#=inputAggregateByCols.Split(';')[k]#>,
+			<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
 			<#
 			}
 			#>DeviceId
@@ -334,21 +337,21 @@ WITH STREAMEXPIRY @"<#= expirationStreamCount #>";
 
  UsageDataDailyWithXML_<#=idxLookBackDay#> = SELECT string.Concat(
 											 <#
-											 for(int k=0;k<inputUsageUnitCols.Split(';').Length;k++)
+											 for(int unitColsPtr=0;unitColsPtr<inputUsageUnitCols.Split(';').Length;unitColsPtr++)
 											 {
 											 #>
-											 "<Field Name=\"","<#=inputUsageUnitCols.Split(';')[k]#>","\">",<#=inputUsageUnitCols.Split(';')[k]#>,"</Field>",
+											 "<Field Name=\"","<#=inputUsageUnitCols.Split(';')[unitColsPtr]#>","\">",<#=inputUsageUnitCols.Split(';')[unitColsPtr]#>,"</Field>",
 											 <#
 											 }
 											 #>"") AS UsageUnitColumns,
 											 <#
-														 for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
-														 {
-														 #>
-														 <#=inputAggregateByCols.Split(';')[k]#>,
-														 <#
-														 }
-														 #>
+											for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
+											{
+											#>
+											<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
+											<#
+											}
+											#>
 											 DeviceId,
 											 DeviceClass,
 											 UsageDateMaxHour,
@@ -364,28 +367,27 @@ UsageDataDailyWithXML_<#=idxLookBackDay#> = SELECT DeviceId,
 										DailyFirstSeenDateTime,
 										DailyLastSeenDateTime,
 										<#
-														 for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
-														 {
-														 #>
-														 <#=inputAggregateByCols.Split(';')[k]#>,
-														 <#
-														 }
-														 #>
+										for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
+										{
+										#>
+										<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
+										<#
+										}
+										#>
 										DeviceClass
 										FROM UsageDataDailyWithXML_<#=idxLookBackDay#>
 										GROUP BY DeviceId,
 										UsageDateMaxHour,
 										DailyFirstSeenDateTime,
 										DailyLastSeenDateTime,
-										
-														<#
-														 for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
-														 {
-														 #>
-														 <#=inputAggregateByCols.Split(';')[k]#>,
-														 <#
-														 }
-														 #>
+										<#
+										for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
+										{
+										#>
+										<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
+										<#
+										}
+										#>
 										DeviceClass;
 
 UsageDataDailyWithXML_<#=idxLookBackDay#> = SELECT DeviceId,
@@ -394,14 +396,14 @@ UsageDataDailyWithXML_<#=idxLookBackDay#> = SELECT DeviceId,
 										DailyFirstSeenDateTime,
 										DailyLastSeenDateTime,
 										string.Concat(
-											 <#
-											 for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
-											 {
-											 #>
-											 "<Field Name=\"","<#=inputAggregateByCols.Split(';')[k]#>","\">",<#=inputAggregateByCols.Split(';')[k]#>,"</Field>",
-											 <#
-											 }
-											 #>"") AS AggregateByXML,
+										<#
+										for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
+										{
+										#>
+										"<Field Name=\"","<#=inputAggregateByCols.Split(';')[aggColsPtr]#>","\">",<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,"</Field>",
+										<#
+										}
+										#>"") AS AggregateByXML,
 										DeviceClass
 										FROM UsageDataDailyWithXML_<#=idxLookBackDay#>;
 
@@ -429,20 +431,20 @@ WITH STREAMEXPIRY @"<#= expirationStreamCount #>";
 
 // XML columns for each usage primary unit columns
 UsageDataHourlyWithXML_<#=idxLookBackDay#> = SELECT 
-								string.Concat(
+											string.Concat(
 											 <#
-											 for(int k=0;k<inputUsageUnitCols.Split(';').Length;k++)
+											 for(int unitColsPtr=0;unitColsPtr<inputUsageUnitCols.Split(';').Length;unitColsPtr++)
 											 {
 											 #>
-											 "<Field Name=\"","<#=inputUsageUnitCols.Split(';')[k]#>","\">",<#=inputUsageUnitCols.Split(';')[k]#>,"</Field>",
+											 "<Field Name=\"","<#=inputUsageUnitCols.Split(';')[unitColsPtr]#>","\">",<#=inputUsageUnitCols.Split(';')[unitColsPtr]#>,"</Field>",
 											 <#
 											 }
 											 #>"") AS UsageUnitColumns,
 											 <#
-											for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
+											for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
 											{
 											#>
-											<#=inputAggregateByCols.Split(';')[k]#>,
+											<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
 											<#
 											}
 											#>
@@ -451,63 +453,63 @@ UsageDataHourlyWithXML_<#=idxLookBackDay#> = SELECT
 											DailyFirstSeenDateTime,
 											DeviceClass,
 											DailyLastSeenDateTime
-						FROM UsageDataHourly_<#=idxLookBackDay#>;
+											FROM UsageDataHourly_<#=idxLookBackDay#>;
 
 UsageDataHourlyWithXML_<#=idxLookBackDay#> =  SELECT DeviceId,
-							UsageHour,
-							string.Join("", LIST(UsageUnitColumns).ToArray()) AS UsageUnitXML,
-							DailyFirstSeenDateTime,
-							DeviceClass,
-							<#
-							for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
-							{
-							#>
-							<#=inputAggregateByCols.Split(';')[k]#>,
-							<#
-							}
-							#>
-							DailyLastSeenDateTime
-							FROM UsageDataHourlyWithXML_<#=idxLookBackDay#>
-							GROUP BY DeviceId,
-							UsageHour,
-							DailyFirstSeenDateTime,
-							DailyLastSeenDateTime,
-							<#
-							for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
-							{
-							#>
-							<#=inputAggregateByCols.Split(';')[k]#>,
-							<#
-							}
-							#>
-							DeviceClass
-						;
+													UsageHour,
+													string.Join("", LIST(UsageUnitColumns).ToArray()) AS UsageUnitXML,
+													DailyFirstSeenDateTime,
+													DeviceClass,
+													<#
+													for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
+													{
+													#>
+													<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
+													<#
+													}
+													#>
+													DailyLastSeenDateTime
+													FROM UsageDataHourlyWithXML_<#=idxLookBackDay#>
+													GROUP BY DeviceId,
+													UsageHour,
+													DailyFirstSeenDateTime,
+													DailyLastSeenDateTime,
+													<#
+													for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
+													{
+													#>
+													<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
+													<#
+													}
+													#>
+													DeviceClass
+												;
 
 UsageDataHourlyWithXML_<#=idxLookBackDay#> = SELECT DeviceId,
-										UsageHour,
-										UsageUnitXML,
-										DailyFirstSeenDateTime,
-										DailyLastSeenDateTime,
-										string.Concat(
-										<#
-										for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
-										{
-										#>
-										"<Field Name=\"","<#=inputAggregateByCols.Split(';')[k]#>","\">",<#=inputAggregateByCols.Split(';')[k]#>,"</Field>",
-										<#
-										}
-										#>"") AS AggregateByXML,
-										DeviceClass
-										FROM UsageDataHourlyWithXML_<#=idxLookBackDay#>;
+													UsageHour,
+													UsageUnitXML,
+													DailyFirstSeenDateTime,
+													DailyLastSeenDateTime,
+													string.Concat(
+													<#
+													for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
+													{
+													#>
+													"<Field Name=\"","<#=inputAggregateByCols.Split(';')[aggColsPtr]#>","\">",<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,"</Field>",
+													<#
+													}
+													#>"") AS AggregateByXML,
+													DeviceClass
+													FROM UsageDataHourlyWithXML_<#=idxLookBackDay#>;
 
 UsageDataHourlyWithXML_<#=idxLookBackDay#> = SELECT DeviceId,
-										UsageHour,
-										string.Concat("<CustomFields>",UsageUnitXML,"</CustomFields>") AS UsageUnit,
-										DailyFirstSeenDateTime,
-										DailyLastSeenDateTime,
-										DeviceClass,
-										string.Concat("<CustomFields>",AggregateByXML,"</CustomFields>") AS AggregateBy
-										FROM UsageDataHourlyWithXML_<#=idxLookBackDay#>;
+													UsageHour,
+													string.Concat("<CustomFields>",UsageUnitXML,"</CustomFields>") AS UsageUnit,
+													DailyFirstSeenDateTime,
+													DailyLastSeenDateTime,
+													DeviceClass,
+													string.Concat("<CustomFields>",AggregateByXML,"</CustomFields>") AS AggregateBy
+													FROM UsageDataHourlyWithXML_<#=idxLookBackDay#>;
 
 // Generatin each hour stream
 <#
@@ -534,18 +536,18 @@ UsageDataForEachHour_<#=idxHour#> = SELECT *
 OUTPUT UsageDataForEachHour_<#=idxHour#>
 TO SSTREAM @output_UsageHourly_ss
 CLUSTERED BY <#
-			for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
+			for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
 			{
 			#>
-			<#=inputAggregateByCols.Split(';')[k]#>,
+			<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
 			<#
 			}
 			#>DeviceId
 SORTED BY <#
-			for(int k=0;k<inputAggregateByCols.Split(';').Length;k++)
+			for(int aggColsPtr=0;aggColsPtr<inputAggregateByCols.Split(';').Length;aggColsPtr++)
 			{
 			#>
-			<#=inputAggregateByCols.Split(';')[k]#>,
+			<#=inputAggregateByCols.Split(';')[aggColsPtr]#>,
 			<#
 			}
 			#>DeviceId
