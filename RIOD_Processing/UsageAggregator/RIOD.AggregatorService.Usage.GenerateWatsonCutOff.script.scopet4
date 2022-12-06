@@ -64,6 +64,7 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime using the h
 	JArray jsonFeederConfig = JArray.Parse(configContent);
 	string UsageUnitList = "";
 	HashSet<string> UsageUnitSet = new HashSet<string>();
+	HashSet<string> UsageKeysSet = new HashSet<string>();
 	foreach (JObject content in jsonFeederConfig.Children<JObject>())
     {
 		// keep track of distinct usage unit columns to do union of all usage unit columns
@@ -81,6 +82,9 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime using the h
 		usageQueryDetails.Add("ViewSourcePath", ViewSourcePath);
 
 		configInfo.Add(usageQueryDetails);
+
+		// Collecting all unqiue expression keys in the set
+		UsageKeysSet.Add(UsageJoinKey);
 	}
 #>
 
@@ -148,12 +152,9 @@ input = SELECT i.*
     int i=0;
 	Dictionary<string, string> UsageQueryDetailsOut = new Dictionary<string, string>();
 	// For each of the query in the feeder file
-	foreach(var ele in configInfo)
+	foreach(var ele in UsageKeysSet)
 	{
-		UsageQueryDetailsOut = new Dictionary<string, string>();
-		UsageQueryDetailsOut = ele;
-		ViewSourcePath = UsageQueryDetailsOut["ViewSourcePath"].Trim(trimChars).Replace("\"","");
-		UsageJoinKey = UsageQueryDetailsOut["UsageJoinKey"].Trim(trimChars).Replace("\"","");
+		UsageJoinKey = ele.Trim(trimChars).Replace("\"","");
 
 		// loop for individual cols stream
 		String[] usageUnits = inputUsageUnitCols.Split(';');
