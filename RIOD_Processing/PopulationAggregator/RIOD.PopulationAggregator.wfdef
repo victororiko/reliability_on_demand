@@ -35,7 +35,7 @@
 					<Parameter Name="_inputReliabilityRoot" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/" />
 					<Parameter Name="_inputHourlyFolder" Value="Population/Hourly/" />
 					<Parameter Name="_outputPopulationAggregateFolder" Value="/Population/Aggregated/" />
-					<Parameter Name="_outputStreamName" Value="RIOD.Devices.Population.Aggregated" />
+					<Parameter Name="_outputStreamName" Value="RIOD.Devices.Population.Aggregated.Generic" />
 					<Parameter Name="_populationJoinKeySplitterChar" Value="." /> 
 					<Parameter Name="_inputWatsonMarkerFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt" />
 				</Parameters>

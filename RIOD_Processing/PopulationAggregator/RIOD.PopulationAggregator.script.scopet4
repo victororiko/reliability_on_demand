@@ -34,7 +34,8 @@ USING System.Security.Cryptography;
 	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
 	string inputHourlyFolder = @"Population/Hourly/";
 	string outputPopulationAggregateFolder = @"/Population/Aggregated/";
-	string outputStreamName = @"RIOD.Devices.Population.Aggregated";
+	string outputStreamName = @"RIOD.Devices.Population.Aggregated.Generic";
+	string outputExpandedStreamName = @"RIOD.Devices.Population.Aggregated";
 	char populationJoinKeySplitterChar = '.';
 	Char[] trimChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}','"'};
 	
@@ -65,6 +66,7 @@ USING System.Security.Cryptography;
        	inputHourlyFolder = (string)context.GetParameter<string>("_inputHourlyFolder", inputHourlyFolder);
        	outputPopulationAggregateFolder = (string)context.GetParameter<string>("_outputPopulationAggregateFolder", outputPopulationAggregateFolder);
        	outputStreamName = (string)context.GetParameter<string>("_outputStreamName", outputStreamName);
+		outputExpandedStreamName = (string)context.GetParameter<string>("_outputExpandedStreamName", outputExpandedStreamName);
        	populationJoinKeySplitterChar = (char)context.GetParameter<char>("_populationJoinKeySplitterChar", populationJoinKeySplitterChar);
        	inputWatsonMarkerFile = (string)context.GetParameter<string>("_inputWatsonMarkerFile", inputWatsonMarkerFile);
     }
@@ -88,7 +90,7 @@ Summary: Generates the aggregate Population for last <#=inputDayLookBack#> days 
     }
 #>
 
-#DECLARE input_PopulationPattern_ss string = "RIOD.DevicePopulation_%Y_%m_%d_%h.ss";
+#DECLARE input_PopulationPattern_ss string = "RIOD.Devices.Population_%Y_%m_%d_%h.ss";
 
 // fetch hourly streams from last X days
 // refer to https://mscosmos.visualstudio.com/CosmosWiki/_wiki/wikis/Cosmos.wiki/599/Defining-a-streamset
@@ -199,16 +201,112 @@ SORTED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
 ;
 
 // Current
-#DECLARE lastest_outputPopulationAggregateFolder = string.Format("{0}/{1}/{2}_For{3}Days"+".ss", 
+#DECLARE lastest_outputPopulationAggregateFolder = string.Format("{0}/{1}/{2}"+".ss", 
                                             @"<#=inputReliabilityRoot#>",
                                             @"<#=outputPopulationAggregateFolder#>",
-                                            @"<#=outputStreamName#>",
-											@"<#=inputDayLookBack#>");
+                                            @"<#=outputStreamName#>");
 OUTPUT DevicesAggregated_Final
 TO SSTREAM @lastest_outputPopulationAggregateFolder
 CLUSTERED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
 SORTED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
 ;
+
+// Individual select columns
+DevicesAggregatedExpanded = SELECT
+							DeviceId,
+							LastSeenEventDate,
+							@today AS RunDate,
+							string.Concat(<#printDelimitedStringAsList(PopulationJoinKey,populationJoinKeySplitterChar);#>) AS PopulationJoinKey, 
+							// the following columns come from SelectionColumnsList (Feeder JSON)
+							<#
+								int selectColsPtr = 0;
+								foreach(var col in SelectColumnSet)
+								{
+									if(selectColsPtr != SelectColumnSet.Count-1)
+									{
+							#>
+										<#=col#>,
+							<#
+									}
+									else
+									{
+							#>
+										<#=col#>
+							<#
+									}
+									selectColsPtr++;
+								}
+							#>
+						   FROM DevicesPopulationHourly_WatsonCutoff;
+
+// add PopulationJoinKeyGUID
+DevicesAggregatedExpanded_PopulationJoinKeyGuid = SELECT *,
+												  (Guid)new Guid(MD5.Create() .ComputeHash(Encoding.Default.GetBytes(PopulationJoinKey))) AS PopulationJoinKeyGuid
+												  FROM DevicesAggregatedExpanded
+												  HAVING PopulationJoinKeyGuid != NULL;
+
+
+// aggregate columns
+DevicesAggregatedExpanded_Final = 
+									SELECT
+											DeviceId,
+											PopulationJoinKey,
+											PopulationJoinKeyGuid,
+											MAX(LastSeenEventDate) AS LastSeenEventDate,
+											LAST(RunDate) AS RunDate,
+											// the following columns come from SelectionColumnsList (Feeder JSON)
+											<#
+												selectColsPtr = 0;
+												foreach(var col in SelectColumnSet)
+												{
+													if(selectColsPtr != SelectColumnSet.Count-1)
+													{
+											#>
+														ANY_VALUE(<#=col#>) AS <#=col#>,
+											<#
+													}
+													else
+													{
+											#>
+														ANY_VALUE(<#=col#>) AS <#=col#>										
+											<#
+													}
+													selectColsPtr++;
+												}
+											#>
+											FROM DevicesAggregatedExpanded_PopulationJoinKeyGuid
+											GROUP BY 
+											DeviceId,
+											PopulationJoinKey,
+											PopulationJoinKeyGuid
+											;
+
+// Output
+// Historical
+#DECLARE output_ExpandedPopulationWatsonLastXDays_ss = string.Format("{0}/{1}/{2}_For{3}Days_{4}"+".ss", 
+														@"<#=inputReliabilityRoot#>",
+														@"<#=outputPopulationAggregateFolder#>",
+														@"<#=outputExpandedStreamName#>",
+														@"<#=inputDayLookBack#>",
+														@"<#=watsonLatestTime.ToString("yyyy_MM_dd_hh_mm_ss")#>");
+OUTPUT DevicesAggregatedExpanded_Final
+TO SSTREAM @output_ExpandedPopulationWatsonLastXDays_ss
+CLUSTERED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
+SORTED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
+;
+
+// Current
+#DECLARE lastest_outputExpandedPopulationAggregateFolder = string.Format("{0}/{1}/{2}"+".ss", 
+															@"<#=inputReliabilityRoot#>",
+															@"<#=outputPopulationAggregateFolder#>",
+															@"<#=outputExpandedStreamName#>");
+OUTPUT DevicesAggregatedExpanded_Final
+TO SSTREAM @lastest_outputExpandedPopulationAggregateFolder
+CLUSTERED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
+SORTED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
+;
+
+
 
 #CS
 public static long getHourBasedDateId(DateTime date)

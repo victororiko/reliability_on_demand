@@ -32,7 +32,7 @@
     string currentFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Current/";
     string hourlyFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Hourly/";
     string dailyFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Daily/";
-    string outputStreamName = @"RIOD.DevicePopulation.ss";
+    string outputStreamName = @"RIOD.Devices.Population.ss";
     int inputDayLookBack = 1;
     int inputMinBuildCutoff = 22000;
 	string inputOSBuildDefinitionFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json";
