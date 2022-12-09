@@ -32,7 +32,7 @@
 					<Parameter Name="_currentFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Current/"/>
 					<Parameter Name="_dailyFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Daily/"/>
 					<Parameter Name="_hourlyFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Population/Hourly/"/>
-					<Parameter Name="_outputStreamName" Value="RIOD.DevicePopulation.ss"/>
+					<Parameter Name="_outputStreamName" Value="RIOD.Devices.Population.ss"/>
 					<Parameter Name="_inputOSBuildDefinitionFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json"/>
 					<Parameter Name="_OSCadence" Value="Development;Development-Skip;Retail-CB"/>
 					<Parameter Name="_applyUnifiedOSConfig" Value="yes"/>

@@ -27,7 +27,17 @@ Combines all the 3 streams together - Population, Failure and Usage based on Stu
 	string inputFailureAggStream = @"/Failures/Aggregated/RIOD.Devices.Failures.Flattened.Generic.ss";
 	string outputFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/DevicesFlattened/";
 	string outputStreamName=@"RIOD.Devices.Flattened.Generic.ss";
-	//string outputStreamNameWithoutXML=@"RIOD.Devices.Flattened.Expanded.ss";
+	string outputStreamNameWithoutXML=@"RIOD.Devices.Flattened.Expanded.ss";
+
+	string inputPopulationAggExpandedStream = @"/Population/Aggregated/RIOD.Devices.Population.Aggregated.ss";
+	string inputUsageAggExpandedStream = @"/Usage/AggregatedObservationPeriod/RIOD.Devices.Usage.Aggregated.ss";
+	string inputFailureAggExpandedStream = @"/Failures/Aggregated/RIOD.Devices.Failures.Flattened.ss";
+
+	// Workflow parameter for all predicted usage unit that can be used
+	string inputUsageUnitCols = "InteractivityDurationMS;EngagementDurationMS;FocusDurationMS;OutOfFocusDurationMS;ProcessDurationMS;RunDurationMS;SuspendDurationMS;AudioInMS;AudioOutMS;UserActiveDurationMS";
+
+	// Failure counts
+	string inputVerticalToColumn = "appcrash:AppCrashCount;apphang:AppHangCount;oscrash:OSCrashCount;criticalservice:CriticalServiceCrashCount;livekerneldump:LiveKernelDumpCount;dirtyshutdown:DirtyShutdownCount;corruption:CorruptionCount;verifier:VerifierCount;watchdog:WatchdogCount;oom:OOMCount;setup:SetupCount;offlinecrashdump:OfflineCrashDumpCount;abs_bugcheck:ABSBugcheckCount;abs_lpbh:ABSLPBHCount;abs_hw:ABSHWCount;abs_unknown:ABSUnknownCount";
 
     // Check if we are running under XFlow
     if (context != null)
@@ -38,6 +48,7 @@ Combines all the 3 streams together - Population, Failure and Usage based on Stu
 		inputFailureAggStream = (string)context.GetParameter<string>("_inputFailureAggStream", inputFailureAggStream);
 		outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
 		outputStreamName = (string)context.GetParameter<string>("_outputStreamName", outputStreamName);
+		outputStreamNameWithoutXML = (string)context.GetParameter<string>("_outputStreamNameWithoutXML", outputStreamNameWithoutXML);
 	}
 
 #>
@@ -54,35 +65,93 @@ MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/Privac
 USING Privacy; 
 
 #DECLARE outputStream string = @"<#=string.Format("{0}/{1}",outputFolder ,outputStreamName ) #>";
+#DECLARE outputExpandedStream string = @"<#=string.Format("{0}/{1}",outputFolder ,outputStreamNameWithoutXML ) #>";
+
+//Expanded input streams
+#DECLARE input_Expanded_Population_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputPopulationAggExpandedStream ) #>";
+#DECLARE input_Expanded_Usage_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputUsageAggExpandedStream ) #>";
+#DECLARE input_Expanded_Failure_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputFailureAggExpandedStream ) #>";
+
 
 populationFailureUsageData = SELECT p.DeviceId,
-					  p.PopulationJoinKey,
-					  p.PopulationJoinKeyGuid,
-					  p.LastSeenEventDate AS Population_LastSeenEventDate,
-					  p.RunDate AS Population_RunDate,
-					  p.CustomXML AS Population_CustomFields,
-					  u.StartDate AS Usage_StartDate,
-					  u.WatsonLatestDate AS Usage_EndDate,
-					  u.UsageJoinKey,
-					  u.UsageJoinGuid,
-					  u.UsageUnit,
-					  u.DailyFirstSeenDateTime AS Usage_DailyFirstSeenDateTime,
-					  u.DailyLastSeenDateTime AS Usage_DailyLastSeenDateTime,
-					  f.FailureJoinKey,
-					  f.FailureJoinKeyGuid,
-					  f.CustomFields AS Failure_CustomFields,
-					  f.FailureCountsXml
-					  FROM (SSTREAM @input_Population_ss) AS p
-					  LEFT OUTER JOIN
-					  (SSTREAM @input_Usage_ss) AS u
-					  ON p.PopulationJoinKeyGuid == u.UsageJoinGuid
-					  LEFT OUTER JOIN
-					  (SSTREAM @input_Failure_ss) AS f
-					  ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid;
+									p.PopulationJoinKey,
+									p.PopulationJoinKeyGuid,
+									p.LastSeenEventDate AS Population_LastSeenEventDate,
+									p.StartDate AS Population_StartDate,
+									p.RunDate AS Population_RunDate,
+									p.CustomXML AS Population_CustomFields,
+									u.StartDate AS Usage_StartDate,
+									u.WatsonLatestDate AS Usage_EndDate,
+									u.UsageJoinKey,
+									u.UsageJoinGuid,
+									u.UsageUnit,
+									u.DailyFirstSeenDateTime AS Usage_DailyFirstSeenDateTime,
+									u.DailyLastSeenDateTime AS Usage_DailyLastSeenDateTime,
+									f.FailureJoinKey,
+									f.FailureJoinKeyGuid,
+									f.CustomFields AS Failure_CustomFields,
+									f.FailureCountsXml
+									FROM (SSTREAM @input_Population_ss) AS p
+									LEFT OUTER JOIN
+									(SSTREAM @input_Usage_ss) AS u
+									ON p.PopulationJoinKeyGuid == u.UsageJoinGuid
+									LEFT OUTER JOIN
+									(SSTREAM @input_Failure_ss) AS f
+									ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid;
 
 
 OUTPUT populationFailureUsageData
 TO SSTREAM @outputStream
+CLUSTERED BY DeviceId, PopulationJoinKeyGuid,UsageJoinGuid,FailureJoinKeyGuid
+SORTED BY DeviceId, PopulationJoinKeyGuid,UsageJoinGuid,FailureJoinKeyGuid
+WITH STREAMEXPIRY @expirationStreamCount;
+
+populationFailureUsageExpandedData = SELECT p.*,
+											u.UsageJoinKey,
+											u.UsageJoinGuid,
+											u.DailyFirstSeenDateTime AS Usage_DailyFirstSeenDateTime,
+											u.DailyLastSeenDateTime AS Usage_DailyLastSeenDateTime,
+											<#
+											 for(int k=0;k<inputUsageUnitCols.Split(';').Length;k++)
+											 {
+											 if(k!= inputUsageUnitCols.Split(';').Length-1)
+											 {
+											 #>
+												u.<#=inputUsageUnitCols.Split(';')[k]#>,
+											 <#
+											 }
+											 else
+											 {
+											 #>
+												u.<#=inputUsageUnitCols.Split(';')[k]#>,
+											 <#
+											 }
+											 }
+											 #>
+											 f.FailureJoinKey,
+											 f.FailureJoinKeyGuid,
+											 f.CustomFields AS Failure_CustomFields
+											 <#
+											 foreach (var inputVerticalToColMap in inputVerticalToColumn.Split(';'))
+											 {
+													string[] verticalMapStrings = inputVerticalToColMap.Split(':');
+													string verticalCountName = verticalMapStrings[1];
+											#>
+													,
+													<#=verticalCountName#>
+											<#
+														}
+											#>
+											 FROM (SSTREAM @input_Expanded_Population_ss) AS p
+											 LEFT OUTER JOIN
+											 (SSTREAM @input_Expanded_Usage_ss) AS u
+											 ON p.PopulationJoinKeyGuid == u.UsageJoinGuid
+											 LEFT OUTER JOIN
+											 (SSTREAM @input_Expanded_Failure_ss) AS f
+											 ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid;
+
+OUTPUT populationFailureUsageExpandedData
+TO SSTREAM @outputExpandedStream
 CLUSTERED BY DeviceId, PopulationJoinKeyGuid,UsageJoinGuid,FailureJoinKeyGuid
 SORTED BY DeviceId, PopulationJoinKeyGuid,UsageJoinGuid,FailureJoinKeyGuid
 WITH STREAMEXPIRY @expirationStreamCount;

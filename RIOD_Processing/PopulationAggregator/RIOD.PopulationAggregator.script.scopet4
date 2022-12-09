@@ -140,12 +140,17 @@ DevicesPopulationHourly_WatsonCutoff = SELECT i.*
 
 // Master Script 
 #DECLARE today DateTime = DateTime.UtcNow;
+#DECLARE runDate DateTime = DateTime.Parse("<#=watsonLatestTime#>");
+#DECLARE xStartDate DateTime = @runDate.AddDays(-<#=inputDayLookBack#>);
+#DECLARE endDate string = @runDate.ToString("yyyy-MM-dd");
+#DECLARE startDate string = @runDate.Date.AddDays(-<#=inputDayLookBack+1#>).ToString("yyyy-MM-dd");
 
 // select columns parsed from the JSON + our set of desired columns 
 DevicesAggregated = SELECT
             DeviceId,
             LastSeenEventDate,
-            @today AS RunDate,
+            @xStartDate AS StartDate,
+			@runDate AS RunDate,
 			string.Concat(<#printDelimitedStringAsList(PopulationJoinKey,populationJoinKeySplitterChar);#>) AS PopulationJoinKey, 
             // the following columns come from SelectionColumnsList (Feeder JSON)
             <#
@@ -174,6 +179,7 @@ DevicesAggregated_Final =
 			PopulationJoinKey,
 			LAST(PopulationJoinKeyGuid) AS PopulationJoinKeyGuid,
             MAX(LastSeenEventDate) AS LastSeenEventDate,
+			LAST(StartDate) AS StartDate,
             LAST(RunDate) AS RunDate,
             LAST(CustomXML) AS CustomXML
     FROM DevicesAggregated_PopulationJoinKeyGuid
@@ -215,7 +221,8 @@ SORTED BY DeviceId, PopulationJoinKey, PopulationJoinKeyGuid
 DevicesAggregatedExpanded = SELECT
 							DeviceId,
 							LastSeenEventDate,
-							@today AS RunDate,
+							@xStartDate AS StartDate,
+							@runDate AS RunDate,
 							string.Concat(<#printDelimitedStringAsList(PopulationJoinKey,populationJoinKeySplitterChar);#>) AS PopulationJoinKey, 
 							// the following columns come from SelectionColumnsList (Feeder JSON)
 							<#
@@ -253,6 +260,7 @@ DevicesAggregatedExpanded_Final =
 											PopulationJoinKey,
 											PopulationJoinKeyGuid,
 											MAX(LastSeenEventDate) AS LastSeenEventDate,
+											LAST(StartDate) AS StartDate,
 											LAST(RunDate) AS RunDate,
 											// the following columns come from SelectionColumnsList (Feeder JSON)
 											<#
