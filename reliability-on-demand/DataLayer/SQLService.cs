@@ -186,5 +186,9 @@ namespace reliability_on_demand.DataLayer
         {
             _context.SaveVerticalsForAStudyType(config);
         }
+        public string GetStudyConfigIDsForPivotsAndScopes(Pivot[] pivots)
+        {
+            return _context.GetStudyConfigIDsForPivotsAndScopes(pivots);
+        }
     }
 }

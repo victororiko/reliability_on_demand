@@ -10,6 +10,7 @@ interface IPivotComboboxProps {
     pivotSource: string
     StudyConfigID: number
     showSaveButton: boolean
+    finalList: any
 }
 
 export const PivotCombobox = (props: IPivotComboboxProps) => {
@@ -72,6 +73,10 @@ export const PivotCombobox = (props: IPivotComboboxProps) => {
         )
     }
 
+    const handleFinalList = (list: PopulationPivotConfigUI[]) => {
+        props.finalList(list)
+    }
+
     const renderPivotAndScopeDetails =
         selectedItemConfigs.length === 0 ? (
             ""
@@ -79,6 +84,7 @@ export const PivotCombobox = (props: IPivotComboboxProps) => {
             <PivotAndScopeDetails
                 {...props}
                 selectedItemConfigs={selectedItemConfigs as PopulationPivotConfigUI[]}
+                finalList={handleFinalList}
             />
         )
 

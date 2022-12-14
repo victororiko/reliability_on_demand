@@ -42,5 +42,6 @@ namespace reliability_on_demand.DataLayer
         string GetAllStudyTypes();
         string GetVerticalsForAStudyType(string StudyType);
         void SaveVerticalsForAStudyType(StudyTypeConfig config);
+        string GetStudyConfigIDsForPivotsAndScopes(Pivot[] pivots);
     }
 }

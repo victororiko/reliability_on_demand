@@ -8,6 +8,7 @@ import { extractScopeByChecked, mergeScopesIntoConfigs, pushModelToCheckBoxes } 
 interface IPivotAndScopeDetailsProps {
     showSaveButton: boolean
     selectedItemConfigs: PopulationPivotConfigUI[]
+    finalList: any
 }
 
 export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
@@ -41,6 +42,9 @@ export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
         const newList = mergeScopesIntoConfigs(userConfigs, list)
         setUserConfigs(newList)
     }
+
+    // always call
+    props.finalList(userConfigs)
 
     // render()
     const renderScopes = scopingCandidates && scopingCandidates.length > 0 && (

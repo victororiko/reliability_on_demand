@@ -13,10 +13,10 @@ export const PivotResultHeader = (props: IPivotResultHeaderProps) => {
                         Pivot Name
                     </Text>
                     <Text styles={fixedWidth300px} variant="xLarge">
-                        Operator
+                        Aggregate By
                     </Text>
                     <Text styles={fixedWidth300px} variant="xLarge">
-                        Value
+                        Pivot Scope
                     </Text>
                 </Stack>
             </div>

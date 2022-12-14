@@ -15,20 +15,19 @@ CREATE PROCEDURE dbo.GetPivotsAndScopesForStudyConfigID
 AS
 -- body of the stored procedure
 select
--- pc.PivotKey,
+ pc.PivotKey,
 dbo.GetPivotName(pc.PivotKey) as PivotName,
--- pc.AggregateBy,
--- pc.IsUsagePivot,
-scope.PivotOperator,
-scope.PivotScopeValue
--- pc.PivotScopeOperator
+pc.AggregateBy,
+pc.PivotScopeOperator,
+scope.PivotOperator as PivotOperator,
+scope.PivotScopeValue as PivotScopeValue
 from RELStudyPivotConfig as pc 
-inner join RELPivotScope as scope
+left outer join RELPivotScope as scope
 on pc.PivotScopeID = scope.PivotScopeID
 where pc.StudyConfigID = @StudyConfigID
-FOR JSON AUTO, Include_Null_Values
+FOR JSON PATH 
 go
 GO
 -- example to execute the stored procedure we just created
-EXECUTE dbo.GetPivotsAndScopesForStudyConfigID 1
+EXECUTE dbo.GetPivotsAndScopesForStudyConfigID 7
 GO

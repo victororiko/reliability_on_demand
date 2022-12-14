@@ -1024,7 +1024,7 @@ namespace reliability_on_demand.DataLayer
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "dbo.GetUsageColumns";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
-            
+
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
             using (var reader = cmd.ExecuteReader())
@@ -1036,7 +1036,7 @@ namespace reliability_on_demand.DataLayer
             }
             return sb.ToString();
         }
-    
+
 
         public string GetPivotsAndScopesForStudyConfigID(int StudyConfigID)
         {
@@ -1144,6 +1144,44 @@ namespace reliability_on_demand.DataLayer
             reader.Close();
         }
 
+        public string GetStudyConfigIDsForPivotsAndScopes(Pivot[] pivots)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[");
+            for (int i = 0; i < pivots.Length; i++)
+            {
+                Pivot p = pivots[i];
+                // prepare store procedure with necessary parameters
+                var cmd = this.Database.GetDbConnection().CreateCommand();
+                cmd.CommandText = "dbo.GetStudyConfigIDsForPivotsAndScopes";
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                // add any params here
+                cmd.Parameters.Add(new SqlParameter("@PivotKey", p.PivotKey));
+                cmd.Parameters.Add(new SqlParameter("@AggregateBy", p.AggregateBy));
+
+                // execute stored procedure and return json
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string sqlResult = reader.GetString(0);
+                        sb.Append(sqlResult);
+                        sb.Append(",");
+                    }
+                }
+            }
+            sb.Append("]");
+            string str = sb.ToString();
+            // remove last , from the string
+            int lastCommaIdx = str.LastIndexOf(',');
+            if (lastCommaIdx > 0)
+            {
+                str = str.Remove(lastCommaIdx, 1);
+            }
+            return str;
+        }
 
     }
 }

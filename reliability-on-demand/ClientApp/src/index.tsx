@@ -31,11 +31,11 @@ msalInstance.addEventCallback((event: EventMessage) => {
 
 ReactDOM.render(
     <BrowserRouter>
-        <React.StrictMode>
-            <ThemeProvider>
-                <App pca={msalInstance} />
-            </ThemeProvider>
-        </React.StrictMode>
+        {/* <React.StrictMode> */}
+        <ThemeProvider>
+            <App pca={msalInstance} />
+        </ThemeProvider>
+        {/* </React.StrictMode> */}
     </BrowserRouter>,
     document.getElementById("root")
 )

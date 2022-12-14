@@ -1,9 +1,8 @@
 import axios from "axios"
 import React, { useEffect, useState } from "react"
-import { StudyPivotConfig } from "../../models/filterexpression.model"
+import { PopulationPivotConfig } from "../../models/filterexpression.model"
 import { StudyConfig } from "../../models/study.model"
-import { PivotResultHeader } from "./PivotResultHeader"
-import { PivotResultRow } from "./PivotResultRow"
+import { MyTable } from "../helpers/MyTable"
 
 interface IPivotResultListProps {
     config: StudyConfig
@@ -11,7 +10,7 @@ interface IPivotResultListProps {
 
 // Responsibility: get pivots from backend and pass to PivotResultRow
 export const PivotResultList = (props: IPivotResultListProps) => {
-    const [pivotConfigs, setPivotConfigs] = useState<StudyPivotConfig[]>([])
+    const [pivotConfigs, setPivotConfigs] = useState<PopulationPivotConfig[]>([])
     useEffect(() => {
         loadPivots(props.config.StudyConfigID)
     }, [props.config])
@@ -21,21 +20,31 @@ export const PivotResultList = (props: IPivotResultListProps) => {
             .get(`api/Data/GetPivotsAndScopesForStudyConfigID/${studyConfigID}`)
             .then((response) => {
                 if (response) {
-                    console.table(response.data)
-                    setPivotConfigs(response.data as StudyPivotConfig[])
+                    setPivotConfigs(response.data as PopulationPivotConfig[])
                 } else setPivotConfigs([])
             })
     }
 
+    const pivotsModified = pivotConfigs.map((item: PopulationPivotConfig) => {
+        const pivotSource = item.PivotKey.split("_")[0]
+        const pivotName = item.PivotKey.split("_")[1]
+        const pivotOperator = item.PivotOperator
+        const pivotScopeValue = item.PivotScopeValue
+        const pivotScopeStr: string =
+            pivotOperator && pivotScopeValue
+                ? `${pivotName} ${pivotOperator} ${pivotScopeValue}`
+                : ""
+        return {
+            "Pivot Source": pivotSource,
+            "Pivot Name": pivotName,
+            "Pivot Scope": pivotScopeStr,
+            "Aggregate By": item.AggregateBy ? "true" : "false",
+        }
+    })
+
     const renderPivotResultRows =
         pivotConfigs.length > 0 ? (
-            <div>
-                <PivotResultHeader />
-                {/* Show a list of pivots if configured */}
-                {pivotConfigs.map((pivot: StudyPivotConfig) => {
-                    return <PivotResultRow config={pivot} key={pivot.PivotKey} />
-                })}
-            </div>
+            <MyTable data={pivotsModified} renderFilter={true} />
         ) : (
             "No Pivots configured"
         )

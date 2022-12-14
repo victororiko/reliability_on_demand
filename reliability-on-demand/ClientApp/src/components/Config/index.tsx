@@ -1,6 +1,7 @@
 import { Stack } from "@fluentui/react"
 import * as QueryString from "query-string"
 import React, { useState } from "react"
+import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
 import { FailureCurve } from "../FailureCurveSection"
 import { containerStackTokens } from "../helpers/Styles"
 import { CreateNewID } from "../helpers/utils"
@@ -27,6 +28,8 @@ export const Config = (props: any) => {
         setCurrentStudyConfigID(selection)
     }
 
+    const handlecaptureStudyPivotConfigs = (studyPivotConfigs: PopulationPivotConfigUI[]) => {}
+
     // render
     return (
         <Stack tokens={containerStackTokens}>
@@ -49,7 +52,11 @@ export const Config = (props: any) => {
                         ""
                     ) : (
                         <div>
-                            <Pivots StudyConfigID={currentStudyConfigID} showSaveButton={true} />
+                            <Pivots
+                                StudyConfigID={currentStudyConfigID}
+                                showSaveButton={true}
+                                captureStudyPivotConfigs={handlecaptureStudyPivotConfigs}
+                            />
                             <FailureCurve StudyConfigID={currentStudyConfigID} />
                             <Metrics StudyConfigID={currentStudyConfigID} />
                         </div>

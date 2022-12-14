@@ -556,5 +556,22 @@ namespace reliability_on_demand.Controllers
                 _logger.LogError(message);
             }
         }
+
+        [HttpPost("api/Data/GetStudyConfigIDsForPivotsAndScopes/")]
+        public IActionResult GetStudyConfigIDsForPivotsAndScopes(Pivot[] userConfigs)
+        {
+            try
+            {
+                string res = this._sqlservice.GetStudyConfigIDsForPivotsAndScopes(userConfigs);
+                _logger.LogInformation($"GetStudyConfigIDsForPivotsAndScopes called with userConfigs = {userConfigs}");
+                return Ok(res);
+            }
+            catch (Exception ex)
+            { 
+                string message = $"Failed GetStudyConfigIDsForPivotsAndScopes.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
     }
 }

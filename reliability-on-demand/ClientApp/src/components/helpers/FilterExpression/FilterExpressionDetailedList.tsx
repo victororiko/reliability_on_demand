@@ -233,7 +233,9 @@ export const FilterExpressionDetailedList = (props: Props) => {
                 <div>
                     <DefaultButton
                         text="Validate Filter Expression"
-                        onClick={() => {return handleValidateFilterExpressionClick()}}
+                        onClick={() => {
+                            return handleValidateFilterExpressionClick()
+                        }}
                         allowDisabledFocus
                         disabled={false}
                         checked={false}

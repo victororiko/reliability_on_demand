@@ -2,6 +2,7 @@ import { Stack, Text } from "@fluentui/react"
 import React, { useEffect, useState } from "react"
 import { StudyConfig } from "../../models/study.model"
 import { fixedWidth300px, horizontalStackTokens, lightBlueBox } from "../helpers/Styles"
+import { hardCodedFrequencies } from "../helpers/utils"
 import { PivotResultList } from "./PivotResultList"
 import { getNameAndDate } from "./service"
 
@@ -24,6 +25,10 @@ export const StudyConfigRow = (props: IStudyConfigRowProps) => {
         setShowDetails(!oldShowDetails)
     }
 
+    const CacheFrequencyStr = hardCodedFrequencies.find((item) => {
+        return item.key === props.config.CacheFrequency
+    })?.text
+
     return (
         <div>
             <Stack
@@ -32,8 +37,11 @@ export const StudyConfigRow = (props: IStudyConfigRowProps) => {
                 horizontal
                 tokens={horizontalStackTokens}
             >
-                <Text styles={fixedWidth300px}>{simplifiedConfig["Study Name"]}</Text>
-                <Text styles={fixedWidth300px}>{simplifiedConfig["Created Date"]}</Text>
+                <Text styles={fixedWidth300px}>{props.config.StudyName}</Text>
+                <Text styles={fixedWidth300px}>{props.config.LastRefreshDate}</Text>
+                <Text styles={fixedWidth300px}>{CacheFrequencyStr}</Text>
+                <Text styles={fixedWidth300px}>{props.config.Expiry}</Text>
+                <Text styles={fixedWidth300px}>{props.config.ObservationWindowDays}</Text>
             </Stack>
             {showDetails && <PivotResultList config={props.config} />}
         </div>

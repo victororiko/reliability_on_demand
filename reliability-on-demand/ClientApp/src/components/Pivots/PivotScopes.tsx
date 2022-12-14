@@ -40,7 +40,11 @@ export const PivotScopes = (props: IPivotScopesProps) => {
         props.updateScopes(scopingAnswers)
     }
 
-    const validateFilterExpression = (input: StudyPivotConfig[], isValidated: boolean) => {}
+    const validateFilterExpression = (input: StudyPivotConfig[], isValidated: boolean) => {
+        if (isValidated) {
+            pushScopedListUp()
+        }
+    }
 
     // render()
     const renderPivotScopes =
@@ -48,14 +52,12 @@ export const PivotScopes = (props: IPivotScopesProps) => {
             "Please check Scope box for at least 1 pivot"
         ) : (
             <div>
-                <MessageBox message="Note - you will need to touch the Scopes UI below to ensure that scopes are merged into configs" />
                 <FilterExpressionDetailedList
                     studyPivotConfigs={scopingCandidates}
                     callBack={setNewlyCreatedScopes}
                     callBackend={true}
                     validateExpCallBack={validateFilterExpression}
                 />
-                <DefaultButton text="Merge Scopes" onClick={pushScopedListUp} />
             </div>
         )
 

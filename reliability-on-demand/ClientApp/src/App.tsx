@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Route, Switch } from "react-router"
-// icons doc: https://developer.microsoft.com/en-us/fluentui#/controls/web/icon
+// icons doc: https://developer.microsoft.com/en-us/fluentui#/styles/web/icons
 import { initializeIcons } from "@fluentui/react/lib/Icons"
 import { MsalProvider, MsalAuthenticationTemplate } from "@azure/msal-react"
 import { IPublicClientApplication, InteractionType } from "@azure/msal-browser"

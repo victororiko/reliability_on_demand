@@ -14,6 +14,15 @@ export const StudyConfigHeader = (props: IStudyConfigHeaderProps) => {
                 <Text styles={fixedWidth300px} variant="xLarge">
                     Created Date
                 </Text>
+                <Text styles={fixedWidth300px} variant="xLarge">
+                    Cache Frequency
+                </Text>
+                <Text styles={fixedWidth300px} variant="xLarge">
+                    Expiry Date
+                </Text>
+                <Text styles={fixedWidth300px} variant="xLarge">
+                    Observation Window
+                </Text>
             </Stack>
         </div>
     )

@@ -1,6 +1,7 @@
 import { IComboBoxOption } from "@fluentui/react"
 import axios from "axios"
 import React, { useEffect, useState } from "react"
+import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
 import { PivotSource } from "../../models/pivot.model"
 import { Loading } from "../helpers/Loading"
 import { MySingleSelectComboBox } from "../helpers/MySingleSelectComboBox"
@@ -10,6 +11,7 @@ import { PivotCombobox } from "./PivotCombobox"
 type Props = {
     StudyConfigID: number
     showSaveButton: boolean
+    captureStudyPivotConfigs: any // callback that can be used to capture the final list of pivots
 }
 
 export const Pivots = (props: Props) => {
@@ -39,6 +41,10 @@ export const Pivots = (props: Props) => {
         setSelectedPivotSource(selection)
     }
 
+    const handleFinalList = (list: PopulationPivotConfigUI[]) => {
+        props.captureStudyPivotConfigs(list)
+    }
+
     return (
         <div>
             {loading ? (
@@ -62,6 +68,7 @@ export const Pivots = (props: Props) => {
                         {...props}
                         pivotSource={selectedPivotSource.text}
                         StudyConfigID={props.StudyConfigID}
+                        finalList={handleFinalList}
                     />
                 </div>
             ) : (

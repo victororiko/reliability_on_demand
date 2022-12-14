@@ -52,7 +52,7 @@ export const ManageVerticals = (props: IManageVerticalsProps) => {
                     const ans = arr.map((item: any) => {
                         const rObj = {
                             // storing pivot sourcesubtype in the key to use it if required to save a backend call of fetching the sourcesubtype of the selected verticals
-                            key: item.VerticalName.concat("_", item.PivotSourceSubType), 
+                            key: item.VerticalName.concat("_", item.PivotSourceSubType),
                             text: item.VerticalName,
                         }
                         return rObj
