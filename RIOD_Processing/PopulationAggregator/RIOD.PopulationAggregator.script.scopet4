@@ -123,7 +123,7 @@ DevicesPopulationHourly_WatsonCutoff = SELECT i.*
 	// placeholders
 	string SelectColumnList = "";
 	HashSet<string> SelectColumnSet = new HashSet<string>();
-	string PopulationJoinKeyExpressionCol = "";
+	string PopulationJoinKeyExpressionCols = "";
 	string PopulationJoinKey = "";
 	// extract select columns and PopulationJoinKey from each config
 	foreach (JObject config in jsonConfigArray.Children<JObject>())
@@ -132,8 +132,8 @@ DevicesPopulationHourly_WatsonCutoff = SELECT i.*
 		SelectColumnList = config["SelectColumnList"].ToString().Trim(trimChars).Replace("\"","");
 		SelectColumnList.Split(',').ToList().ForEach(x => SelectColumnSet.Add(x));
 		// update PopulationKey
-		PopulationJoinKeyExpressionCol = config["PopulationJoinKeyExpressionCol"].ToString().Trim(trimChars).Replace("\"","");
-		PopulationJoinKey = PopulationJoinKeyExpressionCol.Replace(";",""+populationJoinKeySplitterChar); // replace semi-colons with dots for final output
+		PopulationJoinKeyExpressionCols = config["PopulationJoinKeyExpressionCols"].ToString().Trim(trimChars).Replace("\"","");
+		PopulationJoinKey = PopulationJoinKeyExpressionCols.Replace(";",""+populationJoinKeySplitterChar); // replace semi-colons with dots for final output
 	} // end foreach
 #>
 

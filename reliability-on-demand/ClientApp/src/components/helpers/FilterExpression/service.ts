@@ -28,7 +28,7 @@ export const loadOperators = (): IDropdownOption[] => {
     arr.push({ key: "!=", text: "!=" })
     arr.push({ key: "<", text: "<" })
     arr.push({ key: ">", text: ">" })
-    arr.push({ key: "IN", text: "IN" })
+    arr.push({ key: "in", text: "in" })
 
     return arr
 }

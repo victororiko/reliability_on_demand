@@ -1,10 +1,6 @@
-import { DefaultButton } from "@fluentui/react"
-import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { PopulationPivotConfigUI, StudyPivotConfig } from "../../models/filterexpression.model"
 import { FilterExpressionDetailedList } from "../helpers/FilterExpression/FilterExpressionDetailedList"
-import { MessageBox } from "../helpers/MessageBox"
-import { azureFuncURL } from "../helpers/utils"
 import { getAggregateByCheckedValue, getAggregateByValue, getScopeCheckedValue } from "./service"
 
 interface IPivotScopesProps {
