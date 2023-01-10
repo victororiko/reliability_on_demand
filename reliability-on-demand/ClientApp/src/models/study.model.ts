@@ -1,5 +1,16 @@
 import { IComboBoxOption, IDropdownOption } from "@fluentui/react"
 
+export interface StudyInstanceData {
+    StudyKey: string
+    StartTime: string
+    EndTime: string
+    TotalDevices: number
+    DevicesWithUsage: number
+    UniqueFailureCount: number
+    StudyAggregateByCols: string
+    ExpandedCols: any
+}
+
 export interface StudyConfig {
     StudyConfigID: string
     StudyName: string

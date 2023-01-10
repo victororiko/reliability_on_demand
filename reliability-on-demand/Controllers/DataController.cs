@@ -39,24 +39,6 @@ namespace reliability_on_demand.Controllers
             this.valueSettings = valueSettings;
         }
 
-        [Route("api/Data/GetAllReleases")]
-        [HttpGet]
-        public IActionResult GetAllReleases()
-        {
-            try
-            {
-                _logger.LogInformation("GetAllReleases was called");
-                string str = this._kustoservice.GetAllReleases();
-                return Ok(str);
-            }
-            catch (Exception ex)
-            {
-                string message = $"Failed to get all releases from Kusto.\nException = {ex}";
-                _logger.LogError(message);
-                return BadRequest(message);
-            }
-        }
-
         [Route("api/Data/GetAllTeamConfigs")]
         [HttpGet]
         public IActionResult GetAllTeamConfigs()
@@ -417,9 +399,9 @@ namespace reliability_on_demand.Controllers
         {
             try
             {
-                 this._sqlservice.AddOrUpdatePivotConfig(allUserConfigs);
+                this._sqlservice.AddOrUpdatePivotConfig(allUserConfigs);
                 _logger.LogInformation("AddOrUpdatePivotConfig called with following userConfigs:\n");
-                foreach(var userConfig in allUserConfigs)
+                foreach (var userConfig in allUserConfigs)
                     _logger.LogInformation($"{userConfig}");
             }
             catch (Exception ex)
@@ -439,7 +421,7 @@ namespace reliability_on_demand.Controllers
                 return Ok(res);
             }
             catch (Exception ex)
-            { 
+            {
                 string message = $"Failed ClearPivotConfig.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
@@ -544,7 +526,7 @@ namespace reliability_on_demand.Controllers
         }
 
         [HttpPost("api/Data/GetVerticalsForAStudyType")]
-        public void GetVerticalsForAStudyType([FromBody]StudyTypeConfig config)
+        public void GetVerticalsForAStudyType([FromBody] StudyTypeConfig config)
         {
             try
             {
@@ -567,8 +549,26 @@ namespace reliability_on_demand.Controllers
                 return Ok(res);
             }
             catch (Exception ex)
-            { 
+            {
                 string message = $"Failed GetStudyConfigIDsForPivotsAndScopes.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [Route("api/Data/GetStudyInstances/{studyConfigID}")]
+        [HttpGet]
+        public IActionResult GetStudyInstances(int studyConfigID)
+        {
+            try
+            {
+                _logger.LogInformation($"GetStudyInstances was called with StudyConfigID = {studyConfigID}");
+                string str = this._kustoservice.GetStudyInstances(studyConfigID);
+                return Ok(str);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed to get all releases from Kusto.\nException = {ex}";
                 _logger.LogError(message);
                 return BadRequest(message);
             }

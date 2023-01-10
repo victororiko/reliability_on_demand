@@ -1,21 +1,26 @@
-import { Stack, Text } from "@fluentui/react"
+import { Link, Stack, Text } from "@fluentui/react"
+import queryString from "query-string"
 import React, { useEffect, useState } from "react"
+import { useHistory } from "react-router-dom"
 import { StudyConfig } from "../../models/study.model"
 import { fixedWidth300px, horizontalStackTokens, lightBlueBox } from "../helpers/Styles"
 import { hardCodedFrequencies } from "../helpers/utils"
 import { PivotResultList } from "./PivotResultList"
-import { getNameAndDate } from "./service"
 
 interface IStudyConfigRowProps {
     config: StudyConfig
 }
 
 export const StudyConfigRow = (props: IStudyConfigRowProps) => {
-    const [simplifiedConfig, setSimplifiedConfig] = useState(getNameAndDate(props.config))
+    const history = useHistory()
+
+    const navigateToStudyInstance = () => {
+        const params = queryString.stringify({ StudyConfigID: props.config.StudyConfigID })
+        history.push(`/study-instance?${params}`)
+    }
+
     useEffect(() => {
         // set new state
-        const smallerObj = getNameAndDate(props.config)
-        setSimplifiedConfig(smallerObj)
     }, [props.config])
 
     const [showDetails, setShowDetails] = useState<boolean>(false)
@@ -37,7 +42,9 @@ export const StudyConfigRow = (props: IStudyConfigRowProps) => {
                 horizontal
                 tokens={horizontalStackTokens}
             >
-                <Text styles={fixedWidth300px}>{props.config.StudyName}</Text>
+                <Text styles={fixedWidth300px}>
+                    <Link onClick={navigateToStudyInstance}>{props.config.StudyName}</Link>
+                </Text>
                 <Text styles={fixedWidth300px}>{props.config.LastRefreshDate}</Text>
                 <Text styles={fixedWidth300px}>{CacheFrequencyStr}</Text>
                 <Text styles={fixedWidth300px}>{props.config.Expiry}</Text>

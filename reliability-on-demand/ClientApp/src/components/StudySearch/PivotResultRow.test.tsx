@@ -1,8 +1,8 @@
-import { render, screen } from "@testing-library/react"
 import "@testing-library/jest-dom"
+import { render, screen } from "@testing-library/react"
 import React from "react"
-import { PivotResultRow } from "./PivotResultRow"
 import { PopulationPivotConfig } from "../../models/filterexpression.model"
+import { PivotResultRow } from "./PivotResultRow"
 
 // Write a test for PivotResultRow react component
 describe("PivotResultRow", () => {

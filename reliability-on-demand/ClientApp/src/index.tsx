@@ -10,6 +10,7 @@ import {
     Configuration,
 } from "@azure/msal-browser"
 import { ThemeProvider } from "@fluentui/react"
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
 import { App } from "./App"
 import { msalConfig } from "./authConfig"
 
@@ -29,11 +30,15 @@ msalInstance.addEventCallback((event: EventMessage) => {
     }
 })
 
+const queryClient = new QueryClient()
+
 ReactDOM.render(
     <BrowserRouter>
         {/* <React.StrictMode> */}
         <ThemeProvider>
-            <App pca={msalInstance} />
+            <QueryClientProvider client={queryClient}>
+                <App pca={msalInstance} />
+            </QueryClientProvider>
         </ThemeProvider>
         {/* </React.StrictMode> */}
     </BrowserRouter>,

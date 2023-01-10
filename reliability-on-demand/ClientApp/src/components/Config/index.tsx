@@ -1,6 +1,7 @@
 import { Stack } from "@fluentui/react"
 import * as QueryString from "query-string"
 import React, { useState } from "react"
+import { Container } from "reactstrap"
 import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
 import { FailureCurve } from "../FailureCurveSection"
 import { containerStackTokens } from "../helpers/Styles"
@@ -32,37 +33,34 @@ export const Config = (props: any) => {
 
     // render
     return (
-        <Stack tokens={containerStackTokens}>
-            <Team
-                callback={selectTeam}
-                queryStringParams={params}
-                showMoreDetails={true}
-                showTitle={true}
-            />
-            {currentTeamId === CreateNewID ? (
-                ""
-            ) : (
-                <div>
-                    <Study
-                        teamid={currentTeamId}
-                        callback={selectStudy}
-                        queryStringParams={params}
-                    />
-                    {currentStudyConfigID === CreateNewID ? (
-                        ""
-                    ) : (
-                        <div>
-                            <Pivots
-                                StudyConfigID={currentStudyConfigID}
-                                showSaveButton={true}
-                                captureStudyPivotConfigs={handlecaptureStudyPivotConfigs}
-                            />
-                            <FailureCurve StudyConfigID={currentStudyConfigID} />
-                            <Metrics StudyConfigID={currentStudyConfigID} />
-                        </div>
-                    )}
-                </div>
-            )}
-        </Stack>
+        <Container>
+            <Stack tokens={containerStackTokens}>
+                <Team callback={selectTeam} showMoreDetails={true} showTitle={true} />
+                {currentTeamId === CreateNewID ? (
+                    ""
+                ) : (
+                    <div>
+                        <Study
+                            teamid={currentTeamId}
+                            callback={selectStudy}
+                            queryStringParams={params}
+                        />
+                        {currentStudyConfigID === CreateNewID ? (
+                            ""
+                        ) : (
+                            <div>
+                                <Pivots
+                                    StudyConfigID={currentStudyConfigID}
+                                    showSaveButton={true}
+                                    captureStudyPivotConfigs={handlecaptureStudyPivotConfigs}
+                                />
+                                <FailureCurve StudyConfigID={currentStudyConfigID} />
+                                <Metrics StudyConfigID={currentStudyConfigID} />
+                            </div>
+                        )}
+                    </div>
+                )}
+            </Stack>
+        </Container>
     )
 }

@@ -39,7 +39,7 @@ namespace reliability_on_demand
             // Creating policies that wraps the authorization requirements
             services.AddAuthorization();
 
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 
             services.AddOptions();
             services.AddSingleton(Configuration);

@@ -1,12 +1,4 @@
 import { StudyConfig } from "../../models/study.model"
-import { onlyUnique } from "../helpers/utils"
-
-export const getNameAndDate = (config: StudyConfig) => {
-    return {
-        "Study Name": config.StudyName,
-        "Created Date": config.LastRefreshDate,
-    }
-}
 
 export const getUniqueStudies = (studies: StudyConfig[]): StudyConfig[] => {
     const uniqueStudies: StudyConfig[] = []

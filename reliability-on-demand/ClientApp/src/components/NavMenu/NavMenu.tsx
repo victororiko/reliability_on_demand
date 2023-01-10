@@ -68,15 +68,6 @@ export class NavMenu extends React.Component<INavMenuProps, INavMenuState> {
                                         Study Search
                                     </NavLink>
                                 </NavItem>
-                                <NavItem>
-                                    <NavLink
-                                        tag={Link}
-                                        className="text-dark"
-                                        to="/kusto-data?name=Kusto"
-                                    >
-                                        Kusto data
-                                    </NavLink>
-                                </NavItem>
                             </ul>
                         </Collapse>
                     </Container>

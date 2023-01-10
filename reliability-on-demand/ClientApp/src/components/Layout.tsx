@@ -10,7 +10,7 @@ export const Layout = (props: Props) => {
     return (
         <div>
             <NavMenu />
-            <Container>{props.children}</Container>
+            <Container fluid>{props.children}</Container>
         </div>
     )
 }

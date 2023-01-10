@@ -2,7 +2,7 @@ import { IComboBoxOption } from "@fluentui/react/lib/components/ComboBox"
 import {
     PopulationPivotConfig,
     PopulationPivotConfigUI,
-    StudyPivotConfig
+    StudyPivotConfig,
 } from "../../models/filterexpression.model"
 import { CreateNewID } from "../helpers/utils"
 

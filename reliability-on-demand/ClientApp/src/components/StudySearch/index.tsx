@@ -1,7 +1,7 @@
 import { PrimaryButton } from "@fluentui/react"
 import axios from "axios"
-import * as QueryString from "query-string"
 import React, { useEffect, useState } from "react"
+import { Container } from "reactstrap"
 import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
 import { StudyConfig } from "../../models/study.model"
 import { Loading } from "../helpers/Loading"
@@ -13,14 +13,9 @@ import { SearchByDropdown } from "./SearchByDropdown"
 import { getUniqueStudies } from "./service"
 import { StudyConfigList } from "./StudyConfigList"
 
-interface IStudySearchProps {
-    location: any
-}
+interface IStudySearchProps {}
 
 export const StudySearch = (props: IStudySearchProps) => {
-    // query string parsing
-    const params = QueryString.parse(props.location.search)
-
     // state
     const [teamID, setTeamID] = useState(CreateNewID)
     // update this page with teamID if it exists
@@ -57,14 +52,13 @@ export const StudySearch = (props: IStudySearchProps) => {
                     if (res) {
                         const studies = res.data as StudyConfig[]
                         const uniqueStudies = getUniqueStudies(studies)
-                        console.table(uniqueStudies)
                         setStudyConfigs(uniqueStudies as StudyConfig[])
                     } else setStudyConfigs([])
                     setLoading(false)
                     setStudyConfigsLoaded(true)
                 })
         } else {
-            console.log("please set a search by term")
+            console.error("please set a search by term")
         }
         setLoading(false)
     }
@@ -96,16 +90,11 @@ export const StudySearch = (props: IStudySearchProps) => {
     }
 
     return (
-        <div>
+        <Container>
             <h1>Search Studies</h1>
             <SearchByDropdown callback={setSearchByFromSelection} />
             {searchBy === "Team" ? (
-                <Team
-                    callback={setTeamIdFromSelection}
-                    queryStringParams={params}
-                    showMoreDetails={false}
-                    showTitle={false}
-                />
+                <Team callback={setTeamIdFromSelection} showMoreDetails={false} showTitle={false} />
             ) : searchBy === "Pivots" ? (
                 <Pivots
                     StudyConfigID={CreateNewID}
@@ -118,6 +107,6 @@ export const StudySearch = (props: IStudySearchProps) => {
             {renderSearchButton}
             {loading ? <Loading message="Hang tight - getting your Studies" /> : ""}
             {renderStudyConfigs}
-        </div>
+        </Container>
     )
 }

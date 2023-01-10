@@ -14,13 +14,9 @@ namespace reliability_on_demand.DataLayer
             _credentials = credentials.Value;
         }
 
-        public string GetAllReleases()
+        public string GetStudyInstances(int studyConfigID)
         {
-            // Mock JSON 
-            //string mockJSON = "[{\"Release\": \"Manganese\"},{\"Release\": \"19H1\"},{\"Release\": \"Vibranium\"},{\"Release\": \"Iron\"},{\"Release\": \"Vanadium\"}]";
-            //return mockJSON;
-
-            return GetKustoResults($"GetJSON_GetAllReleasesForPromotedBugs()");
+            return GetKustoResults($"RIOD_JSON_Get_StudyInstances_Latest(studyConfigID = {studyConfigID})");
         }
 
         public string GetKustoResults(string query)

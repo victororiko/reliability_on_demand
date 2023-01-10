@@ -4,6 +4,6 @@ namespace reliability_on_demand.DataLayer
 {
     public interface IKustoService
     {
-        string GetAllReleases();
+        string GetStudyInstances(int studyConfigID);
     }
 }
