@@ -345,20 +345,33 @@ RIODDeviceFailuresFlattenedXml =
                   FailureJoinKey,
                   FailureJoinKeyGuid,
                   CustomFields,
-                  ("<FailureCounts><VerticalFields>" +
+                  ("{" +
 <#
+		 int count = 0;
          foreach (var inputVerticalToColMap in inputVerticalToColumn.Split(';'))
          {
 		            int verticalColLen = inputVerticalToColMap.Count();
 					string[] verticalMapStrings = inputVerticalToColMap.Split(':');
 					string verticalName = "\"" + verticalMapStrings[0] + "\"";
 					string verticalCountName = verticalMapStrings[1];
+
+					if(count!=0)
+					{
+
 #>
-                    "<Vertical name=\"" + <#=verticalName#> + "\">"+ <#=verticalCountName#> + "</Vertical>" +
+					",\"" + <#=verticalName#> + "\":\""+ <#=verticalCountName#> + "\"" +
 <#
+					}
+					else
+					{
+#>
+                    "\"" + <#=verticalName#> + "\":\""+ <#=verticalCountName#> + "\"" +
+<#
+					}
+					count++;
          }
 #>
-                   "</VerticalFields></FailureCounts>") AS FailureCountsXml
+                   "}") AS FailureCountsXml
          FROM RIODDeviceFailuresFlattened;
 
 // Current stream Device Failures Flattened stream

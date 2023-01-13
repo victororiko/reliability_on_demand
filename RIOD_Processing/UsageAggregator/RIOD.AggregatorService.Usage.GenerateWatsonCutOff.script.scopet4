@@ -380,7 +380,7 @@ UsageDataXML = SELECT DeviceId,
 					@runDate AS WatsonLatestDate,
 					UsageJoinKey,
 					UsageJoinGuid,
-					string.Concat("<Field Name=\"",UsageUnitColumn,"\">",UsageUnitValue,"</Field>") AS UsageUnitXML,
+					string.Concat("\"",UsageUnitColumn,"\":\"",UsageUnitValue,"\"") AS UsageUnitXML,
 					DailyFirstSeenDateTime,
 					DailyLastSeenDateTime
 					FROM UsageData;
@@ -392,7 +392,7 @@ UsageDataXML = SELECT DeviceId,
 					@runDate AS WatsonLatestDate,
 					UsageJoinKey,
 					UsageJoinGuid,
-					string.Join("", LIST(UsageUnitXML).ToArray()) AS UsageUnitXML,
+					string.Join(",", LIST(UsageUnitXML).ToArray()) AS UsageUnitXML,
 					DailyFirstSeenDateTime,
 					DailyLastSeenDateTime
 					FROM UsageDataXML
@@ -412,7 +412,7 @@ UsageDataXML  = SELECT DeviceId,
 					@runDate AS WatsonLatestDate,
 					UsageJoinKey,
 					UsageJoinGuid,
-					string.Concat("<CustomFields>",UsageUnitXML,"</CustomFields>") AS UsageUnit,
+					string.Concat("{",UsageUnitXML,"}") AS UsageUnit,
 					DailyFirstSeenDateTime,
 					DailyLastSeenDateTime
 					FROM UsageDataXML;

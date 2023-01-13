@@ -153,10 +153,28 @@ DevicesAggregated = SELECT
 			@runDate AS RunDate,
 			string.Concat(<#printDelimitedStringAsList(PopulationJoinKey,populationJoinKeySplitterChar);#>) AS PopulationJoinKey, 
             // the following columns come from SelectionColumnsList (Feeder JSON)
+			("{" +
             <#
 				string selectColumnStr = string.Join(",", SelectColumnSet.ToArray());
-				PrintCustomXML(selectColumnStr, ',');
+				int count = 0;
+				foreach (var token in selectColumnStr.Split(','))
+				{
+					if(count!=0)
+					{
 			#>
+						",\"" + "<#=token#>" + "\":\""+ <#=token#> + "\"" +
+			<#
+					}
+			else
+					{
+			#>
+                    "\"" + "<#=token#>" + "\":\""+ <#=token#> + "\"" +
+			<#
+					}
+					count++;
+				}
+			#>
+                "}") AS CustomXML
            FROM DevicesPopulationHourly_WatsonCutoff
 ;
 
@@ -333,11 +351,11 @@ public static long getHourBasedDateId(DateTime date)
 		string allFields = "";
 		foreach(var token in tokenized)
 		{
-			allFields += string.Format("\n\"<Field name=\\\"{0}\\\">\", {0}, \"</Field>",token);
-			allFields += "\",";
+			allFields += string.Format("\\\"{0}\\\":\"{0}\"",token);
+			allFields += ",";
 		}
 		
-		string ans = string.Format("\"<CustomXML>\",{0}\"</CustomXML>",allFields);
+		string ans = string.Format("{,{0}}",allFields);
 		Write(ans);
 
 		Write("\")");
