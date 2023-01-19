@@ -28,6 +28,7 @@ Combines all the 3 streams together - Population, Failure and Usage based on Stu
 	string outputFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/DevicesFlattened/";
 	string outputStreamName=@"RIOD.Devices.Flattened.Generic.ss";
 	string outputStreamNameWithoutXML=@"RIOD.Devices.Flattened.Expanded.ss";
+	int numberOfPartitions = 3000;
 
 	string inputPopulationAggExpandedStream = @"/Population/Aggregated/RIOD.Devices.Population.Aggregated.ss";
 	string inputUsageAggExpandedStream = @"/Usage/AggregatedObservationPeriod/RIOD.Devices.Usage.Aggregated.ss";
@@ -99,6 +100,10 @@ populationFailureUsageData = SELECT p.DeviceId,
 									(SSTREAM @input_Failure_ss) AS f
 									ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid;
 
+populationFailureUsageData = SELECT *,
+									getPartitionNumber(PopulationJoinKey,<#=numberOfPartitions#>) AS PartitionNumber
+							 FROM populationFailureUsageData;
+
 
 OUTPUT populationFailureUsageData
 TO SSTREAM @outputStream
@@ -155,3 +160,14 @@ TO SSTREAM @outputExpandedStream
 CLUSTERED BY DeviceId, PopulationJoinKeyGuid,UsageJoinGuid,FailureJoinKeyGuid
 SORTED BY DeviceId, PopulationJoinKeyGuid,UsageJoinGuid,FailureJoinKeyGuid
 WITH STREAMEXPIRY @expirationStreamCount;
+
+#CS
+
+int getPartitionNumber(String key,int mod)
+{
+	int keyHash = key.GetHashCode() & 0xfffffff;
+	int partitionNum = keyHash%mod;
+	return partitionNum;
+}
+
+#ENDCS

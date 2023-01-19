@@ -69,7 +69,8 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime using the h
     {
 		// keep track of distinct usage unit columns to do union of all usage unit columns
 		UsageUnitList = content["UsagePivotColumns"].ToString().Trim(trimChars).Replace("\"","");
-		UsageUnitList.Split(',').ToList().ForEach(x => UsageUnitSet.Add(x.Trim()));
+		if(!String.IsNullOrEmpty(UsageUnitList))
+			UsageUnitList.Split(',').ToList().ForEach(x => UsageUnitSet.Add(x.Trim()));
 
 		UsageJoinKey = content["UsageJoinKeyExpressionCols"].ToString();
 		UsagePivotColumns = content["UsagePivotColumns"].ToString();
