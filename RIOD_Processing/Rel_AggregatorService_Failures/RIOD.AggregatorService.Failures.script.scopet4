@@ -23,6 +23,7 @@
 	string outputFailureAggregateFolder = @"Failures/Aggregated/";
 	string inputVerticalToColumn = "appcrash:AppCrashCount;apphang:AppHangCount;oscrash:OSCrashCount;criticalservice:CriticalServiceCrashCount;livekerneldump:LiveKernelDumpCount;dirtyshutdown:DirtyShutdownCount;corruption:CorruptionCount;verifier:VerifierCount;watchdog:WatchdogCount;oom:OOMCount;setup:SetupCount;offlinecrashdump:OfflineCrashDumpCount;abs_bugcheck:ABSBugcheckCount;abs_lpbh:ABSLPBHCount;abs_hw:ABSHWCount;abs_unknown:ABSUnknownCount";
     string inputVerticalToFailureCountColumn = "appcrash:AppCrashFailureCount;apphang:AppHangFailureCount;oscrash:OSCrashFailureCount;criticalservice:CriticalServiceFailureCount;livekerneldump:LiveKernelDumpFailureCount;corruption:CorruptionFailureCount;verifier:VerifierFailureCount;watchdog:WatchdogFailureCount;oom:OOMFailureCount;setup:SetupFailureCount;offlinecrashdump:OfflineCrashDumpFailureCount;abs_bugcheck:ABSBugcheckFailureCount;abs_lpbh:ABSLPBHFailureCount;abs_hw:ABSHWFailureCount;abs_unknown:ABSUnknownFailureCount";
+    string inputSelectColumns = "ProcessorModel;osArchitecture";
     int inputDayLookBack=14;  
     string outputGenericDeviceFailureFlattenedStreamName= "RIOD.Devices.Failures.Flattened.Generic";
     string outputDeviceFailureFlattenedStreamName = "RIOD.Devices.Failures.Flattened";
@@ -40,6 +41,7 @@
        feederJSONFile = (string)context.GetParameter<string>("_feederJSONFile", feederJSONFile);
 	   inputReliabilityRoot = (string)context.GetParameter<string>("_inputReliabilityRoot", inputReliabilityRoot);
 	   inputVerticalToColumn = (string)context.GetParameter<string>("_inputVerticalToColumn", inputVerticalToColumn);
+	   inputSelectColumns = (string)context.GetParameter<string>("_inputSelectColumns", inputSelectColumns);
 	   inputDayLookBack = (int)context.GetParameter<int>("_inputDayLookBack", inputDayLookBack);
 	   inputVerticalToFailureCountColumn = (string)context.GetParameter<string>("_inputVerticalToFailureCountColumn", inputVerticalToFailureCountColumn);
     }
@@ -210,7 +212,7 @@ USING Privacy;
                                    String.Empty) AS FailureJoinKey,
                                    "<CurvePivots><PivotFields>" +
 <#
-							 foreach (var columnExpr in SelectColumns.Split(','))
+							 foreach (var columnExpr in inputSelectColumns.Split(';'))
 							 {
 										string[] columnExprStrings = columnExpr.Split('#');
 										columnLen = columnExprStrings.Count();
