@@ -12,5 +12,6 @@ namespace reliability_on_demand.DataLayer
         public DateTime Expiry { get; set; }
         public int TeamID { get; set; }
         public int ObservationWindowDays { get; set; }
+        public string StudyType { get; set; }
     }
 }

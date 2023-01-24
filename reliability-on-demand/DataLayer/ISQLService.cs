@@ -17,6 +17,7 @@ namespace reliability_on_demand.DataLayer
         void UpdateRelOnDemandQuery(int id, bool status, string exception);
         string GetAllVerticals();
         string GetConfiguredVerticalForAStudy(int StudyConfigID);
+        string GetDefaultVerticalForAStudy(int StudyConfigID);
         string GetFailurePivots(string sourcesubtype);
         string GetAllDefaultFailurePivotsForAVertical(string sourcesubtype);
         string GetAllConfiguredFailurePivotsForAVertical(string sourcesubtype, int StudyConfigID);

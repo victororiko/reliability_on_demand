@@ -1,6 +1,6 @@
 /* eslint-disable arrow-body-style */
 import { Box } from "@mui/material"
-import type { MRT_ColumnDef } from "material-react-table"; // If using TypeScript (optional, but recommended)
+import type { MRT_ColumnDef } from "material-react-table" // If using TypeScript (optional, but recommended)
 import MaterialReactTable from "material-react-table"
 import React from "react"
 import { StudyInstanceData } from "../../models/study.model"

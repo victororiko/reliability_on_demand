@@ -20,6 +20,10 @@ export interface StudyConfig {
     TeamID: number
     ObservationWindowDays: number
     HashString?: string
+    StudyType: string
+    FailureJoinKeyExpressionCols: string
+    UsageJoinKeyExpressionCols: string
+    PopulationJoinKeyExpressionCols: string
 }
 
 export interface StudyTypeConfig {

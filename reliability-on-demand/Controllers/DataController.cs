@@ -198,6 +198,16 @@ namespace reliability_on_demand.Controllers
             }
         }
 
+        [HttpGet("api/Data/GetDefaultVerticalForAStudy/{StudyConfigID}")]
+        public IActionResult GetDefaultVerticalForAStudy(int StudyConfigID)
+        {
+            _logger.LogInformation($"StudyConfigID = {StudyConfigID}");
+            if (StudyConfigID <= 0)
+                return BadRequest("Bad request. Please specify a sourcetype like KernelMode or UserMode");
+            string res = this._sqlservice.GetDefaultVerticalForAStudy(StudyConfigID);
+            return Ok(res);
+        }
+
         [HttpGet("api/Data/GetConfiguredVerticalForAStudy/{StudyConfigID?}")]
         public IActionResult GetConfiguredVerticalForAStudy(int StudyConfigID)
         {
@@ -573,5 +583,6 @@ namespace reliability_on_demand.Controllers
                 return BadRequest(message);
             }
         }
+
     }
 }

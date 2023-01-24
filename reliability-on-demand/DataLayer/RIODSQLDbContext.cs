@@ -214,6 +214,7 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@Expiry", userCreatedStudy.Expiry));
             cmd.Parameters.Add(new SqlParameter("@TeamId", userCreatedStudy.TeamID));
             cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userCreatedStudy.ObservationWindowDays));
+            cmd.Parameters.Add(new SqlParameter("@StudyType", userCreatedStudy.StudyType));
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
             using (var reader = cmd.ExecuteReader())
@@ -229,8 +230,33 @@ namespace reliability_on_demand.DataLayer
 
         public string UpdateStudy(StudyConfig userUpdatedStudy)
         {
-            DeleteStudy(userUpdatedStudy);
-            return AddStudy(userUpdatedStudy);
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+
+            // prepare store procedure with necessary parameters
+            cmd.CommandText = "dbo.UpdateStudy";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyName", userUpdatedStudy.StudyName));
+            cmd.Parameters.Add(new SqlParameter("@LastRefreshDate", userUpdatedStudy.LastRefreshDate));
+            cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userUpdatedStudy.CacheFrequency));
+            cmd.Parameters.Add(new SqlParameter("@Expiry", userUpdatedStudy.Expiry));
+            cmd.Parameters.Add(new SqlParameter("@TeamId", userUpdatedStudy.TeamID));
+            cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userUpdatedStudy.ObservationWindowDays));
+            cmd.Parameters.Add(new SqlParameter("@StudyType", userUpdatedStudy.StudyType));
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userUpdatedStudy.StudyConfigID));
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
         }
 
         public string DeleteStudy(StudyConfig userUpdatedStudy)
@@ -243,12 +269,8 @@ namespace reliability_on_demand.DataLayer
             cmd.CommandText = "dbo.DeleteStudy";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
-            cmd.Parameters.Add(new SqlParameter("@StudyName", userUpdatedStudy.StudyName));
-            cmd.Parameters.Add(new SqlParameter("@LastRefreshDate", userUpdatedStudy.LastRefreshDate));
-            cmd.Parameters.Add(new SqlParameter("@CacheFrequency", userUpdatedStudy.CacheFrequency));
-            cmd.Parameters.Add(new SqlParameter("@Expiry", userUpdatedStudy.Expiry));
+            cmd.Parameters.Add(new SqlParameter("@TeamID", userUpdatedStudy.TeamID));
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userUpdatedStudy.StudyConfigID));
-            cmd.Parameters.Add(new SqlParameter("@ObservationWindowDays", userUpdatedStudy.ObservationWindowDays));
 
             StringBuilder sb = new StringBuilder();
             using (var reader = cmd.ExecuteReader())
@@ -413,6 +435,26 @@ namespace reliability_on_demand.DataLayer
             StringBuilder sb = new StringBuilder();
             var cmd = this.Database.GetDbConnection().CreateCommand();
             cmd.CommandText = "dbo.GetJSONConfiguredVerticalForAStudy";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+
+        public string GetDefaultVerticalForAStudy(int StudyConfigID)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+            StringBuilder sb = new StringBuilder();
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetDefaultVerticalForAStudy";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));

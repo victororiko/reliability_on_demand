@@ -67,14 +67,30 @@ export const FailureCurve = (props: Props) => {
             axios
                 .get(`api/Data/GetConfiguredVerticalForAStudy/${props.StudyConfigID}`)
                 .then((res) => {
-                    setConfiguredVerticals(res.data)
-                    setSelectedVerticals(getVerticalNames(res.data))
+                    if (res.data) {
+                        setConfiguredVerticals(res.data)
+                        setSelectedVerticals(getVerticalNames(res.data))
+                    } else {
+                        getDefaultVerticals()
+                    }
                 })
                 .catch((err) => {
                     console.error("Axios Error:", err.message)
                 })
         } else setConfiguredVerticals([])
     }, [props.StudyConfigID])
+
+    const getDefaultVerticals = () => {
+        axios
+            .get(`api/Data/GetDefaultVerticalForAStudy/${props.StudyConfigID}`)
+            .then((res) => {
+                setConfiguredVerticals(res.data)
+                setSelectedVerticals(getVerticalNames(res.data))
+            })
+            .catch((err) => {
+                console.error("Axios Error:", err.message)
+            })
+    }
 
     const selectedVerticals = (selection: IDropdownOption[]) => {
         setSelectedVerticals(selection)

@@ -1,7 +1,9 @@
-import { Stack } from "@fluentui/react"
+import { IComboBoxOption, Stack, TextField } from "@fluentui/react"
 import axios from "axios"
 import React, { useEffect, useState } from "react"
+import { Label } from "reactstrap"
 import { StudyConfig } from "../../models/study.model"
+import { MySingleSelectComboBox } from "../helpers/MySingleSelectComboBox"
 import { horizontalStackTokens } from "../helpers/Styles"
 import { CreateNewID } from "../helpers/utils"
 import { AddStudyButton } from "./AddStudyButton"
@@ -27,6 +29,8 @@ export const StudyDetails = (props: Props) => {
         undefined
     )
     const [isNewStudy, setIsNewStudy] = useState<boolean>(!props.selectedStudy)
+    const [studyTypes, setStudyTypes] = useState<IComboBoxOption[]>([])
+    const [selectedStudyType, setSelectedStudyType] = useState<IComboBoxOption>()
 
     useEffect(() => {
         // Whenever this component is loaded - flush previous user selections
@@ -36,6 +40,35 @@ export const StudyDetails = (props: Props) => {
         setUserObservationWindow(undefined)
         // Show add button if 'create new study' option is selected in study combobox
         setIsNewStudy(!props.selectedStudy)
+
+        // Fetching all studytypes from the backend
+        axios.get(`api/Data/GetAllStudyTypes`).then((response) => {
+            if (response.data) {
+                const arr = response.data
+                const ans = arr.map((item: any) => {
+                    const rObj = {
+                        key: item.StudyType,
+                        text: item.StudyType,
+                    }
+                    return rObj
+                })
+                const defaultEntry: IComboBoxOption = {
+                    key: "Select study type",
+                    text: "Select study type",
+                }
+                ans.push(defaultEntry)
+                setStudyTypes(ans)
+            } else {
+                setStudyTypes([]) // force combobox to show placeholder text by default
+            }
+        })
+
+        const selectedOption: IComboBoxOption = {
+            key: props.selectedStudy?.StudyType ?? "Select study type",
+            text: props.selectedStudy?.StudyType ?? "Select study type",
+        }
+
+        setSelectedStudyType(selectedOption)
     }, [props.selectedStudy])
 
     // helper methods
@@ -65,6 +98,7 @@ export const StudyDetails = (props: Props) => {
             // additional properties that to generate a valid study config object
             TeamID: props.teamid,
             LastRefreshDate: new Date(),
+            StudyType: selectedStudyType?.key,
         } as StudyConfig
         axios
             .post(`api/Data/AddStudy`, newUserCreatedStudy)
@@ -89,6 +123,9 @@ export const StudyDetails = (props: Props) => {
             if (userExpiryDate !== undefined) updatedUserStudy.Expiry = userExpiryDate
             if (userObservationWindow !== undefined) {
                 updatedUserStudy.ObservationWindowDays = userObservationWindow
+            }
+            if (selectedStudyType !== undefined) {
+                updatedUserStudy.StudyType = selectedStudyType.key.toString()
             }
             updatedUserStudy.LastRefreshDate = new Date()
             updatedUserStudy.StudyConfigID = props.selectedStudy.StudyConfigID.toString()
@@ -123,6 +160,10 @@ export const StudyDetails = (props: Props) => {
         }
     }
 
+    const onStudyTypeSelected = (input: any) => {
+        setSelectedStudyType(input)
+    }
+
     return (
         <div>
             <StudyNameTextField currentStudy={props?.selectedStudy} callBack={setUserStudyName} />
@@ -131,6 +172,28 @@ export const StudyDetails = (props: Props) => {
             <ObservationWindowDropdown
                 currentStudy={props?.selectedStudy}
                 callBack={setUserObservationWindow}
+            />
+            <MySingleSelectComboBox
+                label="Study Type"
+                options={studyTypes}
+                placeholder="Type a vertical name or select verticals from the list"
+                selectedItem={selectedStudyType}
+                callback={onStudyTypeSelected}
+            />
+            <TextField
+                label="Failure Join Key Expression Columns"
+                disabled
+                defaultValue={props.selectedStudy?.FailureJoinKeyExpressionCols}
+            />
+            <TextField
+                label="Usage Join Key Expression Columns"
+                disabled
+                defaultValue={props.selectedStudy?.UsageJoinKeyExpressionCols}
+            />
+            <TextField
+                label="Population Join Key Expression Columns"
+                disabled
+                defaultValue={props.selectedStudy?.PopulationJoinKeyExpressionCols}
             />
             {/* Display Add, Update and Cancel buttons based on selection from dropdown and touching of fields */}
             {props.selectedStudy !== undefined ? (
