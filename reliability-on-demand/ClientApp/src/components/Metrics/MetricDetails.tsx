@@ -1,7 +1,6 @@
-import { IComboBoxOption, Stack, Text } from "@fluentui/react"
+import { Stack, Text } from "@fluentui/react"
 import React from "react"
 import { Metric } from "../../models/metric.model"
-import { MySingleSelectComboBox } from "../helpers/MySingleSelectComboBox"
 import { horizontalStackTokens } from "../helpers/Styles"
 import { CreateNewID } from "../helpers/utils"
 import { AddMetricConfigButton } from "./AddMetricConfigButton"
@@ -30,9 +29,11 @@ export const MetricDetails = (props: Props) => {
     userMetric.StudyConfigID = props.StudyConfigID ?? CreateNewID
 
     userMetric.UniqueKey = props.metricData ? props.metricData.UniqueKey : ""
-    userMetric.PivotKey = props.metricData
-        ? props.metricData.PivotKey
-        : "AggregatedAppUsageMetricsHourly.ss_InteractivityDurationMS"
+    userMetric.PivotKey =
+        props.metricData && props.metricData.PivotKey !== undefined
+            ? props.metricData.PivotKey
+            : "AggregatedAppUsageMetricsHourly.ss_InteractivityDurationMS"
+
     // callbacks
     const updateUserMetricMinUsage = (minUsage: number) => {
         userMetric.MinUsageInMS = minUsage
@@ -59,12 +60,12 @@ export const MetricDetails = (props: Props) => {
                     />
                     <Stack horizontal tokens={horizontalStackTokens}>
                         <LowUsageMinimum
-                            title="Low Usage Minimum"
+                            title="Minimum Low Usage"
                             metricData={props.metricData}
                             callback={updateUserMetricMinUsage}
                         />
                         <HighUsageMinimum
-                            title="High Usage Minimum"
+                            title="Minimum High Usage"
                             metricData={props.metricData}
                             callback={updateUserMetricHighMinUsage}
                         />

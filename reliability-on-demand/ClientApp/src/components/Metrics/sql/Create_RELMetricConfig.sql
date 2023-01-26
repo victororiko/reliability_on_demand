@@ -5,9 +5,9 @@ FROM sys.tables
 	JOIN sys.schemas
 	ON sys.tables.schema_id = sys.schemas.schema_id
 WHERE sys.schemas.name = 'dbo'
-	AND sys.tables.name = 'RelMetricConfiguration'
+	AND sys.tables.name = 'RELMetricConfig'
 )
-	DROP TABLE dbo.RelMetricConfiguration
+	DROP TABLE dbo.RELMetricConfig
 GO
 
 SET ANSI_NULLS ON
@@ -16,7 +16,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE TABLE [dbo].[RelMetricConfiguration]
+CREATE TABLE [dbo].[RELMetricConfig]
 (
     [Id] INT IDENTITY(1,1) NOT NULL,
     [MetricName] [varchar](255) NULL,
@@ -34,7 +34,6 @@ CREATE TABLE [dbo].[RelMetricConfiguration]
     [PivotScopeID] [int],
     PRIMARY KEY CLUSTERED ([Id] ASC),
     FOREIGN KEY ([StudyConfigID]) REFERENCES [dbo].[RELStudyConfig] ([StudyConfigID]) ON DELETE CASCADE,
-    FOREIGN KEY ([PivotKey],[StudyConfigID],[PivotScopeID] ) REFERENCES [dbo].[RELStudyPivotConfig] ([PivotKey],[StudyConfigID],[PivotScopeID])
 );
 GO
 -- end create table

@@ -275,6 +275,4 @@ export const debugList = (input: PopulationPivotConfigUI[]) => {
         }
         return rObj
     })
-    console.clear()
-    console.table(limitedObj)
 }

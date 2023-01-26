@@ -24,36 +24,7 @@ CREATE PROCEDURE dbo.DeleteMetricConfig
 AS
 -- body of the stored procedure
     -- delete from Metric table
-    DELETE FROM RelMetricConfiguration
+    DELETE FROM RELMetricConfig
     WHERE 
     UniqueKey = @UniqueKey 
-    -- AND
-    -- MetricName = @MetricName 
-    -- AND
-    -- Vertical = @Vertical 
-    -- AND
-    -- MinUsageInMS = @MinUsageInMS 
-    -- AND
-    -- FailureRateInHour = @FailureRateInHour 
-    -- AND
-    -- HighUsageMinInMS = @HighUsageMinInMS 
-    -- AND
-    -- MetricGoal = @MetricGoal 
-    -- AND
-    -- StudyConfigID = @StudyConfigID 
-    -- AND
-    -- MetricGoalAspirational = @MetricGoalAspirational 
-    -- AND
-    -- IsUsage = @IsUsage 
-    -- AND
-    -- PivotKey = @PivotKey 
-    -- AND
-    -- PivotScopeID = @PivotScopeID   
-    ;
-    -- delete usage pivot if it exsits in the RELStudyPivotCofig
-    EXECUTE dbo.DeleteUsagePivotColIfExists 
-        @PivotKey = @PivotKey,
-        @PivotScopeID = @PivotScopeID,
-        @StudyConfigID = @StudyConfigID
-    ;
 GO

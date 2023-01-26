@@ -19,11 +19,7 @@ GO
     @IsUsage bit = 1,
     @PivotKey varchar(255) = null,
     @PivotScopeID int = -1 
-AS -- Add usage pivot in RELStudyPivotConfig first 
-    EXECUTE dbo.AddUsagePivotColIfMissing 
-        @PivotKey = @PivotKey,
-        @PivotScopeID = @PivotScopeID,
-        @StudyConfigID = @StudyConfigID;
+AS 
 -- get Study hash string
 DECLARE @FailureVerticalHashString VARCHAR(255);
 SELECT
@@ -33,9 +29,9 @@ FROM
 WHERE
     StudyConfigID = @StudyConfigID
     AND VerticalName = @Vertical;
--- Insert rows into table 'dbo.RELMetricConfiguration'
+-- Insert rows into table 'dbo.RELMetricConfig'
 INSERT INTO
-    dbo.RELMetricConfiguration (
+    dbo.RELMetricConfig (
         -- columns to insert data into
         MetricName,
         Vertical,

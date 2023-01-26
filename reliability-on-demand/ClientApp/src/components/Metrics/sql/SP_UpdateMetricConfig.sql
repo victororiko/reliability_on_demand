@@ -8,32 +8,21 @@ DROP PROCEDURE dbo.UpdateMetricConfig
 GO
 -- Create the stored procedure in the specified schema
 CREATE PROCEDURE dbo.UpdateMetricConfig
-    @UniqueKey               varchar(255),
+    @UniqueKey               [UNIQUEIDENTIFIER],
     @MetricName              varchar(255),
     @Vertical                varchar(255),
     @MinUsageInMS            bigint,
     @FailureRateInHour       float,
     @HighUsageMinInMS        bigint,
     @MetricGoal              float,
-    @StudyConfigID           int,
+    @StudyConfigID           bigint,
     @MetricGoalAspirational  float,
     @IsUsage                 bit,
-    @PivotKey                varchar(255) = null
+    @PivotKey                nvarchar(255) = null
 AS
--- body of the stored procedure
-DECLARE @OldPivotKey AS varchar(255) = ''
-select @OldPivotKey = (
-    select PivotKey 
-    from RelMetricConfiguration
-    where UniqueKey = @UniqueKey);
-select @OldPivotKey;
--- first update the associated row in RELStudyPivotConfig table
-UPDATE dbo.RELStudyPivotConfig
-SET PivotKey = @PivotKey
-WHERE StudyConfigID = @StudyConfigID and PivotScopeID = -1 and PivotKey = @OldPivotKey;
 -- execute update
-UPDATE dbo.RELMetricConfiguration
-    SET     -- columns to insert data into
+UPDATE dbo.RELMetricConfig
+    SET     -- columns to update
         MetricName = @MetricName,
         Vertical = @Vertical,
         MinUsageInMS = @MinUsageInMS,
@@ -47,3 +36,7 @@ UPDATE dbo.RELMetricConfiguration
     WHERE UniqueKey = @UniqueKey
     GO
 GO
+
+-- Test
+-- EXECUTE UpdateMetricConfig '865EC1AA-339D-ED11-994C-00224822950F', 'Test Metric', 'Test Vertical', 100, 0.1, 100, 0.1, 1, 0.1, 1, 'Test Pivot Key'
+-- GO
