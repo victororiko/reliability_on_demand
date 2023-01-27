@@ -2,10 +2,11 @@ import { PrimaryButton } from "@fluentui/react"
 import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
-import { sanitizeList } from "./service"
+import { sanitizeList, setCorrectStudyConfigID } from "./service"
 
 type Props = {
     selectedPivots: PopulationPivotConfigUI[]
+    studyConfigID: number
 }
 
 /**
@@ -24,7 +25,7 @@ export const SavePivotConfigButton = (props: Props) => {
     }, [JSON.stringify(props.selectedPivots)])
 
     const handleClick = () => {
-        const pivotsWithStudyConfigID = finalList
+        const pivotsWithStudyConfigID = setCorrectStudyConfigID(finalList, props.studyConfigID)
         // save all generated PivotConfigs - one by one
         axios
             .post("api/Data/AddOrUpdatePivotConfig/", pivotsWithStudyConfigID)

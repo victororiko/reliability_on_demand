@@ -155,12 +155,18 @@ export const mergeScopesIntoConfigs = (
     scopedPivots: PopulationPivotConfigUI[]
 ): PopulationPivotConfigUI[] => {
     const ans: PopulationPivotConfigUI[] = []
+    const uniquePivotKeys: Set<String> | undefined = new Set<string>()
     for (const unscoped of unscopedPivots) {
-        const scoped = scopedPivots.find((item) => {
-            return item.PivotKey === unscoped.PivotKey
-        })
-        if (scoped) ans.push(scoped)
-        else ans.push(unscoped)
+        if (!uniquePivotKeys.has(unscoped.PivotKey)) {
+            const scoped = scopedPivots.filter((item) => {
+                return item.PivotKey === unscoped.PivotKey
+            })
+            if (scoped && scoped.length > 0) {
+                for (const row of scoped) ans.push(row)
+            } else ans.push(unscoped)
+
+            uniquePivotKeys.add(unscoped.PivotKey)
+        }
     }
     return ans
 }
@@ -275,4 +281,46 @@ export const debugList = (input: PopulationPivotConfigUI[]) => {
         }
         return rObj
     })
+}
+
+// in case the user is configuring the study population pivots for the first time, the code returns the default study config with id -1
+// but ultimately changes should go to the new study instead of the default study that is set in this method.
+export const setCorrectStudyConfigID = (
+    input: PopulationPivotConfigUI[],
+    studyConfigID: number
+): PopulationPivotConfigUI[] => {
+    if (input[0].StudyConfigID === CreateNewID) {
+        const ans: PopulationPivotConfigUI[] = []
+        for (const item of input) {
+            item.StudyConfigID = studyConfigID
+        }
+        return ans
+    }
+    return input
+}
+
+export const getUniquePivotKeys = (
+    studyPivotConfigs: PopulationPivotConfigUI[]
+): PopulationPivotConfigUI[] => {
+    const uniquePivotConfigs: PopulationPivotConfigUI[] = []
+    const uniquePivotKeys: Set<String> | undefined = new Set<string>()
+    for (const row of studyPivotConfigs) {
+        if (!uniquePivotKeys.has(row.PivotKey)) {
+            uniquePivotConfigs.push(row)
+            uniquePivotKeys.add(row.PivotKey)
+        }
+    }
+    return uniquePivotConfigs
+}
+
+export const getUniqueOptions = (options: IComboBoxOption[]): IComboBoxOption[] => {
+    const uniquePivotKeys: Set<String> | undefined = new Set<string>()
+    const res: IComboBoxOption[] = []
+    for (const row of options) {
+        if (!uniquePivotKeys.has(row.key.toString())) {
+            res.push(row)
+            uniquePivotKeys.add(row.key.toString())
+        }
+    }
+    return res
 }

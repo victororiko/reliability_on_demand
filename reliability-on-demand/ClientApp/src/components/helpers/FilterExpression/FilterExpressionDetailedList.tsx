@@ -44,7 +44,6 @@ interface Props {
 // only type used for input/output is RELStudyPivotConfig
 export const FilterExpressionDetailedList = (props: Props) => {
     // state
-    const [pivotValuePlaceholder, setPivotValuePlaceholder] = React.useState<string>("")
     const [cols, setCols] = React.useState<IColumn[]>([])
     const [selectedPivotsKeys, setSelectedPivotKeys] = React.useState<IDropdownOption[]>([])
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,12 +138,6 @@ export const FilterExpressionDetailedList = (props: Props) => {
 
             updated = mapFilterExpTableColumnValue(updated, row, "PivotKey", item.key)
 
-            for (const ele of changedFilterExp) {
-                if (ele.PivotKey === item.key && ele.UIDataType !== "") {
-                    setPivotValuePlaceholder(ele.UIDataType ?? "")
-                    break
-                }
-            }
             setChangedFilterExp(updated)
             setCols([])
             setCols(FilterExpressionbuildColumnArray(changedFilterExp))
@@ -208,8 +201,13 @@ export const FilterExpressionDetailedList = (props: Props) => {
                 .post(azureFuncURL, changedFilterExp)
                 .then((response) => {
                     if (response) {
-                        setValidateStatement(`validated from Backend String = ${response.data}`)
-                        props.validateExpCallBack(changedFilterExp, true)
+                        if (response.data === "Invalid Filter Expression") {
+                            setValidateStatement(`${response.data}`)
+                            props.validateExpCallBack(changedFilterExp, false)
+                        } else {
+                            setValidateStatement(`validated from Backend String = ${response.data}`)
+                            props.validateExpCallBack(changedFilterExp, true)
+                        }
                     } else {
                         setValidateStatement("no response from Backend Azure Function")
                         props.validateExpCallBack(changedFilterExp, false)
@@ -221,7 +219,7 @@ export const FilterExpressionDetailedList = (props: Props) => {
                 })
         } else {
             setValidateStatement(
-                "Azure Function URL missing - make sure you have a .env file added to ClientApp folder as mentioned in the README"
+                "Missing Azure Function URL - please contact cosreldata@microsoft.com"
             )
             props.validateExpCallBack(changedFilterExp, false)
         }
@@ -331,7 +329,6 @@ export const FilterExpressionDetailedList = (props: Props) => {
                     value={fieldContent}
                     id={`${index}_${column?.name}`}
                     onChange={onTextBoxChange}
-                    placeholder={pivotValuePlaceholder}
                 />
             </span>
         )
@@ -339,7 +336,7 @@ export const FilterExpressionDetailedList = (props: Props) => {
 
     return (
         <div>
-            <TooltipHost content="Select/Deselect what kind of Pivot it is in the Watson call">
+            <TooltipHost content="Select/Deselect the kind of Pivot">
                 <DetailsList
                     items={changedFilterExp}
                     setKey="set"

@@ -4,7 +4,12 @@ import React, { useEffect, useState } from "react"
 import { PopulationPivotConfig, PopulationPivotConfigUI } from "../../models/filterexpression.model"
 import { MyMultiSelectComboBox } from "../helpers/MyMultiSelectComboBox"
 import { PivotAndScopeDetails } from "./PivotAndScopeDetails"
-import { convertPivotInfoToOptions, generateCorrespondingStudyConfig, mergeLists } from "./service"
+import {
+    convertPivotInfoToOptions,
+    generateCorrespondingStudyConfig,
+    mergeLists,
+    getUniqueOptions,
+} from "./service"
 
 interface IPivotComboboxProps {
     pivotSource: string
@@ -55,7 +60,7 @@ export const PivotCombobox = (props: IPivotComboboxProps) => {
                             }
                             return rObj
                         })
-                        setSelectedItems(ans) // set any user selections previously made, otherwise set defaults created by admin
+                        setSelectedItems(getUniqueOptions(ans)) // set any user selections previously made, otherwise set defaults created by admin
                     }
                 } else setSelectedItems([])
             })
@@ -66,7 +71,7 @@ export const PivotCombobox = (props: IPivotComboboxProps) => {
 
     // callbacks
     const handleCallBack = (selections: IComboBoxOption[]) => {
-        setSelectedItems(selections)
+        setSelectedItems(getUniqueOptions(selections))
         const mergedList = mergeLists(selectedItemConfigs, populationPivots)
         setSelectedItemConfigs(
             generateCorrespondingStudyConfig(selections, mergedList, props.StudyConfigID)
@@ -85,6 +90,7 @@ export const PivotCombobox = (props: IPivotComboboxProps) => {
                 {...props}
                 selectedItemConfigs={selectedItemConfigs as PopulationPivotConfigUI[]}
                 finalList={handleFinalList}
+                studyConfigID={props.StudyConfigID}
             />
         )
 

@@ -9,12 +9,14 @@ interface IPivotAndScopeDetailsProps {
     showSaveButton: boolean
     selectedItemConfigs: PopulationPivotConfigUI[]
     finalList: any
+    studyConfigID: number
 }
 
 export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
     // state
     const [userConfigs, setUserConfigs] = useState<PopulationPivotConfigUI[]>([])
     const [scopingCandidates, setScopingCandidates] = useState<PopulationPivotConfigUI[]>([])
+    const [isValidated, setIsValidated] = useState<Boolean>(false)
 
     // effects
     useEffect(() => {
@@ -38,9 +40,10 @@ export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
         loadState(list)
     }
 
-    const handleUpdateScopes = (list: PopulationPivotConfigUI[]) => {
+    const handleUpdateScopes = (list: PopulationPivotConfigUI[], isValidatedParam: boolean) => {
         const newList = mergeScopesIntoConfigs(userConfigs, list)
         setUserConfigs(newList)
+        setIsValidated(isValidatedParam)
     }
 
     // always call
@@ -48,12 +51,19 @@ export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
 
     // render()
     const renderScopes = scopingCandidates && scopingCandidates.length > 0 && (
-        <PivotScopes userConfigs={scopingCandidates} updateScopes={handleUpdateScopes} />
+        <PivotScopes
+            userConfigs={scopingCandidates}
+            updateScopes={handleUpdateScopes}
+            allConfigs={userConfigs}
+        />
     )
 
     const renderSaveButton =
-        props.showSaveButton && userConfigs.length > 0 ? (
-            <SavePivotConfigButton selectedPivots={userConfigs} />
+        props.showSaveButton && isValidated && userConfigs.length > 0 ? (
+            <SavePivotConfigButton
+                selectedPivots={userConfigs}
+                studyConfigID={props.studyConfigID}
+            />
         ) : (
             ""
         )

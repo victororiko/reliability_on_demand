@@ -5,40 +5,53 @@ import { getAggregateByCheckedValue, getAggregateByValue, getScopeCheckedValue }
 
 interface IPivotScopesProps {
     userConfigs: PopulationPivotConfigUI[]
+    allConfigs: PopulationPivotConfigUI[]
     updateScopes: any
 }
 
 export const PivotScopes = (props: IPivotScopesProps) => {
     // state
     const [scopingCandidates, setScopingCandidates] = useState<PopulationPivotConfigUI[]>([])
-    const [scopingAnswers, setScopingAnswers] = useState<PopulationPivotConfigUI[]>([])
+    const [callFilterExpBackend, setCallFilterExpBackend] = React.useState<boolean>(true)
 
     useEffect(() => {
         setScopingCandidates(props.userConfigs)
+        setCallFilterExpBackend(true)
     }, [JSON.stringify(props.userConfigs)])
 
     // handlers
-    const setNewlyCreatedScopes = (PivotsWithScope: StudyPivotConfig[]) => {
+    const setNewlyCreatedScopes = (PivotsWithScope: StudyPivotConfig[], callBackend: boolean) => {
         const newList = PivotsWithScope.map((pws) => {
             const newPivotConfig = {
                 ...pws,
-                AggregateBy: getAggregateByValue(scopingCandidates, pws),
-                AggregateByChecked: getAggregateByCheckedValue(scopingCandidates, pws),
-                ScopeByChecked: getScopeCheckedValue(scopingCandidates, pws),
+                AggregateBy: getAggregateByValue(props.allConfigs, pws),
+                AggregateByChecked: getAggregateByCheckedValue(props.allConfigs, pws),
+                ScopeByChecked: getScopeCheckedValue(props.allConfigs, pws),
                 PivotSourceSubType: "AllMode",
             } as PopulationPivotConfigUI
             return newPivotConfig
         })
-        setScopingAnswers(newList)
+        setScopingCandidates(newList)
+        setCallFilterExpBackend(callBackend)
     }
 
-    const pushScopedListUp = () => {
-        props.updateScopes(scopingAnswers)
+    const pushScopedListUp = (input: PopulationPivotConfigUI[], isValidated: boolean) => {
+        props.updateScopes(input, isValidated)
     }
 
     const validateFilterExpression = (input: StudyPivotConfig[], isValidated: boolean) => {
         if (isValidated) {
-            pushScopedListUp()
+            const newList = input.map((pws) => {
+                const newPivotConfig = {
+                    ...pws,
+                    AggregateBy: getAggregateByValue(scopingCandidates, pws),
+                    AggregateByChecked: getAggregateByCheckedValue(scopingCandidates, pws),
+                    ScopeByChecked: getScopeCheckedValue(scopingCandidates, pws),
+                    PivotSourceSubType: "AllMode",
+                } as PopulationPivotConfigUI
+                return newPivotConfig
+            })
+            pushScopedListUp(newList, isValidated)
         }
     }
 
@@ -51,7 +64,7 @@ export const PivotScopes = (props: IPivotScopesProps) => {
                 <FilterExpressionDetailedList
                     studyPivotConfigs={scopingCandidates}
                     callBack={setNewlyCreatedScopes}
-                    callBackend={true}
+                    callBackend={callFilterExpBackend}
                     validateExpCallBack={validateFilterExpression}
                 />
             </div>
