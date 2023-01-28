@@ -1,0 +1,2250 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "For_each_study_config_Id": {
+                "actions": {
+                    "For_each_item_in_study_config_id_": {
+                        "actions": {
+                            "Condition_5_-_check_Agg_by_length": {
+                                "actions": {
+                                    "Run_control_command_and_render_a_chart_-_temp_study_without_Agg_by": {
+                                        "inputs": {
+                                            "body": {
+                                                "chartType": "Html Table",
+                                                "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                                "csl": ".set-or-append Temp_Study with(folder = 'Population') <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')} | summarize  countOfRows = count() by ''@{variables('AggByColsWithoutDeviceId')}\n| extend StudyKey = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}')\n| extend StudyConfigID =toint( @{variables('TempStudyConfigIDInt')})\n| extend StudyKeyGuid = toguid(hash_sha256(StudyKey))\n| extend StudyAggregateByCols = ''\n| extend IngestionTime = now()\n| project StudyConfigID,StudyKey,StudyKeyGuid,tostring(StudyAggregateByCols),IngestionTime",
+                                                "db": "RIOD"
+                                            },
+                                            "host": {
+                                                "connection": {
+                                                    "referenceName": "kusto_1"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "path": "/RunKustoAndVisualizeResults/true"
+                                        },
+                                        "runAfter": {},
+                                        "type": "ApiConnection"
+                                    }
+                                },
+                                "else": {
+                                    "actions": {
+                                        "Run_control_command_and_render_a_chart_-_TempStudy_with_Agg_by": {
+                                            "inputs": {
+                                                "body": {
+                                                    "chartType": "Html Table",
+                                                    "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                                    "csl": ".set-or-append Temp_Study with(folder = 'Population') <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')} | summarize  countOfRows = count() by ''@{variables('AggByColsWithoutDeviceId')}\n| extend StudyKey = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}')\n| extend StudyConfigID =toint( @{variables('TempStudyConfigIDInt')})\n| extend StudyKeyGuid = toguid(hash_sha256(StudyKey))\n| extend StudyAggregateByCols = bag_pack(@{variables('TempAggByWithoutDeviceIDXML')})\n| extend IngestionTime = now()\n| project StudyConfigID,StudyKey,StudyKeyGuid,tostring(StudyAggregateByCols),IngestionTime",
+                                                    "db": "RIOD"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "referenceName": "kusto_1"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/RunKustoAndVisualizeResults/true"
+                                            },
+                                            "runAfter": {},
+                                            "type": "ApiConnection"
+                                        }
+                                    }
+                                },
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "equals": [
+                                                "@length(variables('TempAggByWithoutDeviceIDXML'))",
+                                                "@0"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "runAfter": {
+                                    "Run_control_command_and_render_a_chart_-_StudyConfig": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "If"
+                            },
+                            "Execute_stored_procedure_-_GetConfiguredMetricsForAStudy": {
+                                "inputs": {
+                                    "parameters": {
+                                        "storedProcedureName": "GetConfiguredMetricsForAStudy",
+                                        "storedProcedureParameters": {
+                                            "StudyConfigID": "@variables('TempStudyConfigIDInt')"
+                                        }
+                                    },
+                                    "serviceProviderConfiguration": {
+                                        "connectionName": "sql",
+                                        "operationId": "executeStoredProcedure",
+                                        "serviceProviderId": "/serviceProviders/sql"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Set_variable_7_-_ConfiguredVerticals": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "ServiceProvider"
+                            },
+                            "Execute_stored_procedure_-_GetConfiguredVerticalForFailureCount": {
+                                "inputs": {
+                                    "parameters": {
+                                        "storedProcedureName": "GetConfiguredVerticalForAStudy",
+                                        "storedProcedureParameters": {
+                                            "StudyConfigID": "@variables('TempStudyConfigIDInt')"
+                                        }
+                                    },
+                                    "serviceProviderConfiguration": {
+                                        "connectionName": "sql",
+                                        "operationId": "executeStoredProcedure",
+                                        "serviceProviderId": "/serviceProviders/sql"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Set_variable_7_-_ConfiguredMetrics": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "ServiceProvider"
+                            },
+                            "Execute_stored_procedure_GetPopulationPivotScopesForAGivenStudyConfigID": {
+                                "inputs": {
+                                    "parameters": {
+                                        "storedProcedureName": "GetPopulationPivotScopesForAGivenStudyConfigID",
+                                        "storedProcedureParameters": {
+                                            "StudyConfigID": "@variables('TempStudyConfigIDInt')"
+                                        }
+                                    },
+                                    "serviceProviderConfiguration": {
+                                        "connectionName": "sql",
+                                        "operationId": "executeStoredProcedure",
+                                        "serviceProviderId": "/serviceProviders/sql"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Set_variable_7_-_ConfiguredMetrics": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "ServiceProvider"
+                            },
+                            "Execute_stored_procedure_GetPopulationSelectByForAGivenStudyConfigID": {
+                                "inputs": {
+                                    "parameters": {
+                                        "storedProcedureName": "GetPopulationSelectByForAGivenStudyConfigID",
+                                        "storedProcedureParameters": {
+                                            "StudyConfigID": "@variables('TempStudyConfigIDInt')"
+                                        }
+                                    },
+                                    "serviceProviderConfiguration": {
+                                        "connectionName": "sql",
+                                        "operationId": "executeStoredProcedure",
+                                        "serviceProviderId": "/serviceProviders/sql"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Set_variable_7": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "ServiceProvider"
+                            },
+                            "Execute_stored_procedure_SP-_GetUsagePivotsForAGivenStudyConfigID": {
+                                "inputs": {
+                                    "parameters": {
+                                        "storedProcedureName": "GetUsagePivotsForAGivenStudyConfigID",
+                                        "storedProcedureParameters": {
+                                            "StudyConfigID": "@variables('TempStudyConfigIDInt')"
+                                        }
+                                    },
+                                    "serviceProviderConfiguration": {
+                                        "connectionName": "sql",
+                                        "operationId": "executeStoredProcedure",
+                                        "serviceProviderId": "/serviceProviders/sql"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Set_variable_7_-_ConfiguredMetrics": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "ServiceProvider"
+                            },
+                            "Execute_stored_procedure_for_Population_Agg_by": {
+                                "inputs": {
+                                    "parameters": {
+                                        "storedProcedureName": "GetPopulationAggregateByForAGivenStudyConfigID",
+                                        "storedProcedureParameters": {
+                                            "StudyConfigID": "@variables('TempStudyConfigIDInt')"
+                                        }
+                                    },
+                                    "serviceProviderConfiguration": {
+                                        "connectionName": "sql",
+                                        "operationId": "executeStoredProcedure",
+                                        "serviceProviderId": "/serviceProviders/sql"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Set_variable_7_-_ConfiguredMetrics": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "ServiceProvider"
+                            },
+                            "Execute_stored_procedure_for_fetching_all_verticals_for_a_study": {
+                                "inputs": {
+                                    "parameters": {
+                                        "storedProcedureName": "GetConfiguredVerticalsForAStudy",
+                                        "storedProcedureParameters": {
+                                            "StudyConfigID": "@variables('TempStudyConfigIDInt')"
+                                        }
+                                    },
+                                    "serviceProviderConfiguration": {
+                                        "connectionName": "sql",
+                                        "operationId": "executeStoredProcedure",
+                                        "serviceProviderId": "/serviceProviders/sql"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Set_variable_5_-_StudyName": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "ServiceProvider"
+                            },
+                            "For_each_2_-_Configured_verticals_for_failure_count": {
+                                "actions": {
+                                    "For_each_2": {
+                                        "actions": {
+                                            "Condition_4_-_check_for_null_and_duplicates": {
+                                                "actions": {},
+                                                "else": {
+                                                    "actions": {
+                                                        "Append_to_string_variable_14": {
+                                                            "inputs": {
+                                                                "name": "VerticalsBagPack",
+                                                                "value": "'@{items('For_each_2')['VerticalName']}',@{items('For_each_2')['VerticalName']}"
+                                                            },
+                                                            "runAfter": {
+                                                                "Condition_4_-_check_for_comma_for_iterationcounter_0": [
+                                                                    "SUCCEEDED"
+                                                                ]
+                                                            },
+                                                            "type": "AppendToStringVariable"
+                                                        },
+                                                        "Condition_4_-_check_for_comma_for_iterationcounter_0": {
+                                                            "actions": {
+                                                                "Append_to_string_variable_12": {
+                                                                    "inputs": {
+                                                                        "name": "VerticalsBagPack",
+                                                                        "value": "@','"
+                                                                    },
+                                                                    "runAfter": {},
+                                                                    "type": "AppendToStringVariable"
+                                                                },
+                                                                "Append_to_string_variable_13": {
+                                                                    "inputs": {
+                                                                        "name": "sumVerticals",
+                                                                        "value": "@','"
+                                                                    },
+                                                                    "runAfter": {
+                                                                        "Append_to_string_variable_12": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "AppendToStringVariable"
+                                                                },
+                                                                "Append_to_string_variable_16": {
+                                                                    "inputs": {
+                                                                        "name": "sumVerticals",
+                                                                        "value": "@{items('For_each_2')['VerticalName']}=sum(tolong(@{items('For_each_2')['VerticalName']}))"
+                                                                    },
+                                                                    "runAfter": {
+                                                                        "Append_to_string_variable_13": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "AppendToStringVariable"
+                                                                }
+                                                            },
+                                                            "else": {
+                                                                "actions": {
+                                                                    "Append_to_string_variable_15": {
+                                                                        "inputs": {
+                                                                            "name": "sumVerticals",
+                                                                            "value": "hint.strategy= shuffle sum(tolong(@{items('For_each_2')['VerticalName']}))"
+                                                                        },
+                                                                        "runAfter": {},
+                                                                        "type": "AppendToStringVariable"
+                                                                    },
+                                                                    "Set_variable": {
+                                                                        "inputs": {
+                                                                            "name": "InitialVerticalName",
+                                                                            "value": "@{items('For_each_2')['VerticalName']}"
+                                                                        },
+                                                                        "runAfter": {
+                                                                            "Append_to_string_variable_15": [
+                                                                                "Succeeded"
+                                                                            ]
+                                                                        },
+                                                                        "type": "SetVariable"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "not": {
+                                                                            "equals": [
+                                                                                "@variables('IterationCounter')",
+                                                                                0
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "If"
+                                                        },
+                                                        "Increment_variable_3": {
+                                                            "inputs": {
+                                                                "name": "IterationCounter",
+                                                                "value": 1
+                                                            },
+                                                            "runAfter": {
+                                                                "Append_to_string_variable_14": [
+                                                                    "SUCCEEDED"
+                                                                ]
+                                                            },
+                                                            "type": "IncrementVariable"
+                                                        }
+                                                    }
+                                                },
+                                                "expression": {
+                                                    "or": [
+                                                        {
+                                                            "contains": [
+                                                                "@variables('VerticalsBagPack')",
+                                                                "@variables('TempStr')"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@variables('TempStr')",
+                                                                "@null"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@variables('TempStr')",
+                                                                "''"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "runAfter": {
+                                                    "Set_variable_9": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "If"
+                                            },
+                                            "Set_variable_9": {
+                                                "inputs": {
+                                                    "name": "TempStr",
+                                                    "value": "@{items('For_each_2')['VerticalName']}"
+                                                },
+                                                "runAfter": {},
+                                                "type": "SetVariable"
+                                            }
+                                        },
+                                        "foreach": "@items('For_each_2_-_Configured_verticals_for_failure_count')",
+                                        "runAfter": {},
+                                        "type": "Foreach"
+                                    }
+                                },
+                                "foreach": "@body('Execute_stored_procedure_-_GetConfiguredVerticalForFailureCount')?['resultSets']",
+                                "runAfter": {
+                                    "Set_variable_12_-_sumVerticals": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "Foreach"
+                            },
+                            "For_each_Aggregate_by_result": {
+                                "actions": {
+                                    "For_each_AggBy": {
+                                        "actions": {
+                                            "Condition": {
+                                                "actions": {
+                                                    "Append_to_string_variable": {
+                                                        "inputs": {
+                                                            "name": "AggregateByCols",
+                                                            "value": "@items('For_each_AggBy')['Column1']"
+                                                        },
+                                                        "runAfter": {},
+                                                        "type": "AppendToStringVariable"
+                                                    },
+                                                    "Append_to_string_variable_18_-_TempaggByWihtoutDeviceIDXML": {
+                                                        "inputs": {
+                                                            "name": "TempAggByWithoutDeviceIDXML",
+                                                            "value": "@concat('\"',variables('TempAggByWithoutComma'),'\"',',',variables('TempAggByWithoutComma'))"
+                                                        },
+                                                        "runAfter": {
+                                                            "Append_to_string_variable_4": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "AppendToStringVariable"
+                                                    },
+                                                    "Append_to_string_variable_19": {
+                                                        "inputs": {
+                                                            "name": "FormattedAggByForStudyKey",
+                                                            "value": "@variables('TempAggByWithoutComma')"
+                                                        },
+                                                        "runAfter": {
+                                                            "Check_counter_value": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "AppendToStringVariable"
+                                                    },
+                                                    "Append_to_string_variable_2": {
+                                                        "inputs": {
+                                                            "name": "AggByColsWithoutDeviceId",
+                                                            "value": "@items('For_each_AggBy')['Column1']"
+                                                        },
+                                                        "runAfter": {
+                                                            "Append_to_string_variable__-_TempAggByWithoutDeviceIDXML": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "AppendToStringVariable"
+                                                    },
+                                                    "Append_to_string_variable_4": {
+                                                        "inputs": {
+                                                            "name": "AggbyColsTerminatorWithoutDeviceID",
+                                                            "value": "@replace(items('For_each_AggBy')['Column1'],',','')"
+                                                        },
+                                                        "runAfter": {
+                                                            "Append_to_string_variable_19": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "AppendToStringVariable"
+                                                    },
+                                                    "Append_to_string_variable__-_TempAggByWithoutDeviceIDXML": {
+                                                        "inputs": {
+                                                            "name": "AggByWithoutDeviceIDXML",
+                                                            "value": "@variables('TempAggByWithoutDeviceIDXML')"
+                                                        },
+                                                        "runAfter": {
+                                                            "Append_to_string_variable_18_-_TempaggByWihtoutDeviceIDXML": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "AppendToStringVariable"
+                                                    },
+                                                    "Check_counter_value": {
+                                                        "actions": {
+                                                            "Append_to_string_variable_17": {
+                                                                "inputs": {
+                                                                    "name": "FormattedAggByForStudyKey",
+                                                                    "value": "@concat(',','\".\"',',')"
+                                                                },
+                                                                "runAfter": {
+                                                                    "Append_to_string_variable_5": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "AppendToStringVariable"
+                                                            },
+                                                            "Append_to_string_variable_3": {
+                                                                "inputs": {
+                                                                    "name": "TempAggByWithoutDeviceIDXML",
+                                                                    "value": "@','"
+                                                                },
+                                                                "runAfter": {},
+                                                                "type": "AppendToStringVariable"
+                                                            },
+                                                            "Append_to_string_variable_5": {
+                                                                "inputs": {
+                                                                    "name": "AggbyColsTerminatorWithoutDeviceID",
+                                                                    "value": "@';'"
+                                                                },
+                                                                "runAfter": {
+                                                                    "Append_to_string_variable_3": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "AppendToStringVariable"
+                                                            }
+                                                        },
+                                                        "expression": {
+                                                            "and": [
+                                                                {
+                                                                    "not": {
+                                                                        "equals": [
+                                                                            "@variables('AggCtr')",
+                                                                            "@0"
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        "runAfter": {
+                                                            "Set_variable_6": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "If"
+                                                    },
+                                                    "Increment_variable_Temp": {
+                                                        "inputs": {
+                                                            "name": "AggCtr",
+                                                            "value": 1
+                                                        },
+                                                        "runAfter": {
+                                                            "Append_to_string_variable_2": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "IncrementVariable"
+                                                    },
+                                                    "Set_variable_6": {
+                                                        "inputs": {
+                                                            "name": "TempAggByWithoutComma",
+                                                            "value": "@{replace(items('For_each_AggBy')['Column1'],',','')}"
+                                                        },
+                                                        "runAfter": {
+                                                            "Append_to_string_variable": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "SetVariable"
+                                                    }
+                                                },
+                                                "expression": {
+                                                    "and": [
+                                                        {
+                                                            "not": {
+                                                                "contains": [
+                                                                    "@variables('AggregateByCols')",
+                                                                    "@items('For_each_AggBy')['Column1']"
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                "runAfter": {},
+                                                "type": "If"
+                                            }
+                                        },
+                                        "foreach": "@items('For_each_Aggregate_by_result')",
+                                        "runAfter": {},
+                                        "type": "Foreach"
+                                    }
+                                },
+                                "foreach": "@body('Execute_stored_procedure_for_Population_Agg_by')?['resultSets']",
+                                "runAfter": {
+                                    "Set_variable_11_-_AggCtr": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "Foreach"
+                            },
+                            "For_each_Pivot_scope_array": {
+                                "actions": {
+                                    "Call_an_Azure_function_to_get_filter_expression": {
+                                        "inputs": {
+                                            "body": "@items('For_each_Pivot_scope_array')",
+                                            "function": {
+                                                "connectionName": "azureFunctionOperation"
+                                            },
+                                            "method": "POST"
+                                        },
+                                        "runAfter": {},
+                                        "type": "Function"
+                                    },
+                                    "Set_variable_3_-_FilterExpression": {
+                                        "inputs": {
+                                            "name": "FilterExpression",
+                                            "value": "@{body('Call_an_Azure_function_to_get_filter_expression')}"
+                                        },
+                                        "runAfter": {
+                                            "Call_an_Azure_function_to_get_filter_expression": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "SetVariable"
+                                    }
+                                },
+                                "foreach": "@body('Execute_stored_procedure_GetPopulationPivotScopesForAGivenStudyConfigID')?['resultSets']",
+                                "runAfter": {
+                                    "Execute_stored_procedure_GetPopulationPivotScopesForAGivenStudyConfigID": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "Foreach"
+                            },
+                            "For_each_Usage_primary_pivots": {
+                                "actions": {
+                                    "For_each": {
+                                        "actions": {
+                                            "Condition_4_-_check_for_null_or_duplicate_condition": {
+                                                "actions": {},
+                                                "else": {
+                                                    "actions": {
+                                                        "Append_to_string_variable_11": {
+                                                            "inputs": {
+                                                                "name": "SumUsagePivotsStr",
+                                                                "value": "@{items('For_each')['UsagePivots']} = sum(tolong(@{items('For_each')['UsagePivots']}))"
+                                                            },
+                                                            "runAfter": {
+                                                                "Append_to_string_variable_9": [
+                                                                    "SUCCEEDED"
+                                                                ]
+                                                            },
+                                                            "type": "AppendToStringVariable"
+                                                        },
+                                                        "Append_to_string_variable_9": {
+                                                            "inputs": {
+                                                                "name": "UsagePrimaryPivots",
+                                                                "value": "'@{items('For_each')['UsagePivots']}',@{items('For_each')['UsagePivots']}"
+                                                            },
+                                                            "runAfter": {
+                                                                "Condition_4_-_check_for_counter_0_condition": [
+                                                                    "SUCCEEDED"
+                                                                ]
+                                                            },
+                                                            "type": "AppendToStringVariable"
+                                                        },
+                                                        "Condition_4_-_check_for_counter_0_condition": {
+                                                            "actions": {
+                                                                "Append_to_string_variable_10": {
+                                                                    "inputs": {
+                                                                        "name": "SumUsagePivotsStr",
+                                                                        "value": "@','"
+                                                                    },
+                                                                    "runAfter": {
+                                                                        "Append_to_string_variable_8": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "AppendToStringVariable"
+                                                                },
+                                                                "Append_to_string_variable_8": {
+                                                                    "inputs": {
+                                                                        "name": "UsagePrimaryPivots",
+                                                                        "value": "@','"
+                                                                    },
+                                                                    "runAfter": {},
+                                                                    "type": "AppendToStringVariable"
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "not": {
+                                                                            "equals": [
+                                                                                "@variables('UsageCtr')",
+                                                                                0
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "If"
+                                                        },
+                                                        "Increment_variable_2": {
+                                                            "inputs": {
+                                                                "name": "UsageCtr",
+                                                                "value": 1
+                                                            },
+                                                            "runAfter": {
+                                                                "Append_to_string_variable_11": [
+                                                                    "SUCCEEDED"
+                                                                ]
+                                                            },
+                                                            "type": "IncrementVariable"
+                                                        }
+                                                    }
+                                                },
+                                                "expression": {
+                                                    "or": [
+                                                        {
+                                                            "contains": [
+                                                                "@variables('UsagePrimaryPivots')",
+                                                                "@variables('TempStr')"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@variables('TempStr')",
+                                                                "@null"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@variables('TempStr')",
+                                                                "''"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "runAfter": {
+                                                    "Set_variable_10": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "If"
+                                            },
+                                            "Set_variable_10": {
+                                                "inputs": {
+                                                    "name": "TempStr",
+                                                    "value": "@{items('For_each')['UsagePivots']}"
+                                                },
+                                                "runAfter": {},
+                                                "type": "SetVariable"
+                                            }
+                                        },
+                                        "foreach": "@items('For_each_Usage_primary_pivots')",
+                                        "runAfter": {},
+                                        "type": "Foreach"
+                                    }
+                                },
+                                "foreach": "@body('Execute_stored_procedure_SP-_GetUsagePivotsForAGivenStudyConfigID')?['resultSets']",
+                                "runAfter": {
+                                    "Set_variable_8_-_SumUsagePivotsStr": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "Foreach"
+                            },
+                            "For_each_select_by_cols_results": {
+                                "actions": {
+                                    "For_each_select_cols": {
+                                        "actions": {
+                                            "Condition_2": {
+                                                "actions": {
+                                                    "Append_to_string_variable-select_cols": {
+                                                        "inputs": {
+                                                            "name": "SelectCols",
+                                                            "value": "@items('For_each_select_cols')['Column1']"
+                                                        },
+                                                        "runAfter": {},
+                                                        "type": "AppendToStringVariable"
+                                                    },
+                                                    "Append_to_string_variable_6": {
+                                                        "inputs": {
+                                                            "name": "SelectColsTerminatorWithoutDeviceID",
+                                                            "value": "@replace(items('For_each_select_cols')['Column1'],',','')"
+                                                        },
+                                                        "runAfter": {
+                                                            "Condition_3": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "AppendToStringVariable"
+                                                    },
+                                                    "Condition_3": {
+                                                        "actions": {
+                                                            "Append_to_string_variable_7": {
+                                                                "inputs": {
+                                                                    "name": "SelectColsTerminatorWithoutDeviceID",
+                                                                    "value": "@';'"
+                                                                },
+                                                                "runAfter": {},
+                                                                "type": "AppendToStringVariable"
+                                                            }
+                                                        },
+                                                        "expression": {
+                                                            "and": [
+                                                                {
+                                                                    "not": {
+                                                                        "equals": [
+                                                                            "@variables('Counter')",
+                                                                            "@0"
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        "runAfter": {
+                                                            "Append_to_string_variable-select_cols": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "If"
+                                                    },
+                                                    "Increment_variable": {
+                                                        "inputs": {
+                                                            "name": "Counter",
+                                                            "value": 1
+                                                        },
+                                                        "runAfter": {
+                                                            "Append_to_string_variable_6": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "IncrementVariable"
+                                                    }
+                                                },
+                                                "expression": {
+                                                    "and": [
+                                                        {
+                                                            "not": {
+                                                                "contains": [
+                                                                    "@variables('SelectCols')",
+                                                                    "@items('For_each_select_cols')['Column1']"
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                "runAfter": {},
+                                                "type": "If"
+                                            }
+                                        },
+                                        "foreach": "@items('For_each_select_by_cols_results')",
+                                        "runAfter": {},
+                                        "type": "Foreach"
+                                    }
+                                },
+                                "foreach": "@body('Execute_stored_procedure_GetPopulationSelectByForAGivenStudyConfigID')?['resultSets']",
+                                "runAfter": {
+                                    "Execute_stored_procedure_GetPopulationSelectByForAGivenStudyConfigID": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "Foreach"
+                            },
+                            "Run_control_command_and_render_a_chart_-_StudyConfig": {
+                                "inputs": {
+                                    "body": {
+                                        "chartType": "Html Table",
+                                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                        "csl": ".set-or-append Temp_StudyConfig with(folder = 'Population') <|\nDevicesFlattenExpandedXML \n| take 1\n| extend StudyConfigID = toint(@{variables('TempStudyConfigID')})\n| extend StudyAggregatePivots = ' @{variables('AggbyColsTerminatorWithoutDeviceID')}'\n| extend StudySelectPivots = '@{variables('SelectColsTerminatorWithoutDeviceID')}'\n| extend StudyVerticals = '@{variables('ConfiguredVerticals')}'\n| extend StudyMetrics = '@{variables('ConfiguredMetrics')}'\n| project StudyConfigID,StudyAggregatePivots,StudySelectPivots,StudyVerticals,StudyMetrics",
+                                        "db": "RIOD"
+                                    },
+                                    "host": {
+                                        "connection": {
+                                            "referenceName": "kusto_1"
+                                        }
+                                    },
+                                    "method": "post",
+                                    "path": "/RunKustoAndVisualizeResults/true"
+                                },
+                                "runAfter": {
+                                    "Set_variable_StudyKey": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "ApiConnection"
+                            },
+                            "Run_control_command_and_render_a_chart_-_Temp_StudyInstance_with_Agg_by": {
+                                "inputs": {
+                                    "body": {
+                                        "chartType": "Html Table",
+                                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                        "csl": ".set-or-append Temp_StudyInstance with(folder = 'Population') <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')}\n| summarize TotalDevices = dcount(DeviceId), DevicesWithUsage = count_distinctif(DeviceId,tolong(EngagementDurationMS)>0 or tolong(InteractivityDurationMS) >0) by ''@{variables('AggByColsWithoutDeviceId')},Population_StartDate,Population_RunDate\n| extend StudyKey = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}')\n| extend StudyKeyGuid = toguid(hash_sha256(StudyKey))\n| extend StartTime = Population_StartDate\n| extend EndTime = Population_RunDate\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',StartTime,'}.{',EndTime,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend IngestionTime = now()\n| project StudyKey,StudyKeyGuid,StartTime,EndTime,StudyKeyInstance ,StudyKeyInstanceGuid,toint(TotalDevices),toint(DevicesWithUsage),IngestionTime",
+                                        "db": "RIOD"
+                                    },
+                                    "host": {
+                                        "connection": {
+                                            "referenceName": "kusto_1"
+                                        }
+                                    },
+                                    "method": "post",
+                                    "path": "/RunKustoAndVisualizeResults/true"
+                                },
+                                "runAfter": {
+                                    "Condition_5_-_check_Agg_by_length": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "ApiConnection"
+                            },
+                            "Run_control_command_and_render_a_chart_-_get_unique_rows_for_a_studykey": {
+                                "inputs": {
+                                    "body": {
+                                        "chartType": "Html Table",
+                                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                        "csl": ".set-or-replace Temp_Study with(folder = 'Population') <|\nTemp_Study\n| summarize arg_min(IngestionTime,*) by StudyKey\n| project StudyConfigID,StudyKey,StudyKeyGuid,StudyAggregateByCols,IngestionTime",
+                                        "db": "RIOD"
+                                    },
+                                    "host": {
+                                        "connection": {
+                                            "referenceName": "kusto_1"
+                                        }
+                                    },
+                                    "method": "post",
+                                    "path": "/RunKustoAndVisualizeResults/true"
+                                },
+                                "runAfter": {
+                                    "Run_control_command_and_render_a_chart_-_Temp_StudyInstance_with_Agg_by": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "ApiConnection"
+                            },
+                            "Run_control_command_and_render_a_chart_-_unique_temp_study_Instance": {
+                                "inputs": {
+                                    "body": {
+                                        "chartType": "Html Table",
+                                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                        "csl": ".set-or-replace Temp_StudyInstance with(folder = 'Population') <|\nTemp_StudyInstance\n| summarize arg_min(IngestionTime,*) by StudyKeyInstance\n| project StudyKey,StudyKeyGuid,StartTime,EndTime,StudyKeyInstance,StudyKeyInstanceGuid,TotalDevices,DevicesWithUsage,IngestionTime",
+                                        "db": "RIOD"
+                                    },
+                                    "host": {
+                                        "connection": {
+                                            "referenceName": "kusto_1"
+                                        }
+                                    },
+                                    "method": "post",
+                                    "path": "/RunKustoAndVisualizeResults/true"
+                                },
+                                "runAfter": {
+                                    "Run_control_command_and_render_a_chart_-_get_unique_rows_for_a_studykey": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "ApiConnection"
+                            },
+                            "Set_variable_-_TempStudyConfigID": {
+                                "inputs": {
+                                    "name": "TempStudyConfigID",
+                                    "value": "@{items('For_each_item_in_study_config_id_')['StudyConfigID']}"
+                                },
+                                "runAfter": {},
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_11_-_AggCtr": {
+                                "inputs": {
+                                    "name": "AggCtr",
+                                    "value": 0
+                                },
+                                "runAfter": {
+                                    "Execute_stored_procedure_for_Population_Agg_by": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_11_-_UsagePrimaryPivots": {
+                                "inputs": {
+                                    "name": "UsagePrimaryPivots",
+                                    "value": "@{trim('')}"
+                                },
+                                "runAfter": {
+                                    "Set_variable_8_-_UsageCtr": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_12_-_VerticalsBagPack": {
+                                "inputs": {
+                                    "name": "VerticalsBagPack",
+                                    "value": "@{trim('')}"
+                                },
+                                "runAfter": {
+                                    "Set_variable_8": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_12_-_sumVerticals": {
+                                "inputs": {
+                                    "name": "sumVerticals",
+                                    "value": "@{trim('')}"
+                                },
+                                "runAfter": {
+                                    "Set_variable_12_-_VerticalsBagPack": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_2": {
+                                "inputs": {
+                                    "name": "PartitionCtr",
+                                    "value": 0
+                                },
+                                "runAfter": {
+                                    "Run_control_command_and_render_a_chart_-_unique_temp_study_Instance": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_2_-_TempStudyConfigIDInt": {
+                                "inputs": {
+                                    "name": "TempStudyConfigIDInt",
+                                    "value": "@int(variables('TempStudyConfigID'))"
+                                },
+                                "runAfter": {
+                                    "Set_variable_-_TempStudyConfigID": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_4_-_TeamsName": {
+                                "inputs": {
+                                    "name": "TeamsName",
+                                    "value": "@{items('For_each_item_in_study_config_id_')['HashString']}"
+                                },
+                                "runAfter": {
+                                    "Set_variable_2_-_TempStudyConfigIDInt": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_5_-_StudyName": {
+                                "inputs": {
+                                    "name": "StudyName",
+                                    "value": "@{items('For_each_item_in_study_config_id_')['StudyName']}"
+                                },
+                                "runAfter": {
+                                    "Set_variable_4_-_TeamsName": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_7": {
+                                "inputs": {
+                                    "name": "Counter",
+                                    "value": 0
+                                },
+                                "runAfter": {
+                                    "Set_variable_7_-_ConfiguredMetrics": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_7_-_ConfiguredMetrics": {
+                                "inputs": {
+                                    "name": "ConfiguredMetrics",
+                                    "value": "@{body('Execute_stored_procedure_-_GetConfiguredMetricsForAStudy')?['resultSets']?[0]?[0]?['JSON_F52E2B61-18A1-11d1-B105-00805F49916B']}"
+                                },
+                                "runAfter": {
+                                    "Execute_stored_procedure_-_GetConfiguredMetricsForAStudy": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_7_-_ConfiguredVerticals": {
+                                "inputs": {
+                                    "name": "ConfiguredVerticals",
+                                    "value": "@{body('Execute_stored_procedure_for_fetching_all_verticals_for_a_study')?['resultSets']?[0]?[0]?['Vertical']}"
+                                },
+                                "runAfter": {
+                                    "Execute_stored_procedure_for_fetching_all_verticals_for_a_study": [
+                                        "SUCCEEDED"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_8": {
+                                "inputs": {
+                                    "name": "IterationCounter",
+                                    "value": 0
+                                },
+                                "runAfter": {
+                                    "Execute_stored_procedure_-_GetConfiguredVerticalForFailureCount": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_8_-_SumUsagePivotsStr": {
+                                "inputs": {
+                                    "name": "SumUsagePivotsStr",
+                                    "value": "@{trim('')}"
+                                },
+                                "runAfter": {
+                                    "Set_variable_11_-_UsagePrimaryPivots": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_8_-_UsageCtr": {
+                                "inputs": {
+                                    "name": "UsageCtr",
+                                    "value": 0
+                                },
+                                "runAfter": {
+                                    "Execute_stored_procedure_SP-_GetUsagePivotsForAGivenStudyConfigID": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Set_variable_StudyKey": {
+                                "inputs": {
+                                    "name": "StudyKey",
+                                    "value": "@{concat('{',variables('TeamsName'),'}.{',variables('StudyName'),'}')}"
+                                },
+                                "runAfter": {
+                                    "For_each_2_-_Configured_verticals_for_failure_count": [
+                                        "Succeeded"
+                                    ],
+                                    "For_each_Aggregate_by_result": [
+                                        "Succeeded"
+                                    ],
+                                    "For_each_Pivot_scope_array": [
+                                        "Succeeded"
+                                    ],
+                                    "For_each_Usage_primary_pivots": [
+                                        "Succeeded"
+                                    ],
+                                    "For_each_select_by_cols_results": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable"
+                            },
+                            "Until_2": {
+                                "actions": {
+                                    "Condition_4_-_check_usage_string_is_empty": {
+                                        "actions": {
+                                            "Condition_4_-_check_verticals": {
+                                                "actions": {
+                                                    "Run_control_command_and_render_a_chart_2_-_without_count_and_verticals": {
+                                                        "inputs": {
+                                                            "body": {
+                                                                "chartType": "Html Table",
+                                                                "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                                                "csl": ".set-or-append Temp_StudyInstanceDevices with(folder = 'Population') <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize numOfRows = count()\nby ''@{variables('AggByColsWithoutDeviceId')},Population_StartDate,Population_RunDate,DeviceId\n| extend StudykeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',Population_StartDate,'}.{',Population_RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudykeyInstance))\n| extend @{variables('InitialVerticalName')} = sum_@{variables('InitialVerticalName')}\n| extend FailureCounts= ''\n| extend UsageUnits = ''\n| project StudykeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
+                                                                "db": "RIOD"
+                                                            },
+                                                            "host": {
+                                                                "connection": {
+                                                                    "referenceName": "kusto_1"
+                                                                }
+                                                            },
+                                                            "method": "post",
+                                                            "path": "/RunKustoAndVisualizeResults/true"
+                                                        },
+                                                        "runAfter": {},
+                                                        "type": "ApiConnection"
+                                                    }
+                                                },
+                                                "else": {
+                                                    "actions": {
+                                                        "Run_control_command_and_render_a_chart_-_without_usage_and_with_verticals": {
+                                                            "inputs": {
+                                                                "body": {
+                                                                    "chartType": "Html Table",
+                                                                    "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                                                    "csl": ".set-or-append Temp_StudyInstanceDevices with(folder = 'Population') <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize @{variables('sumVerticals')}\nby ''@{variables('AggByColsWithoutDeviceId')},Population_StartDate,Population_RunDate,DeviceId\n| extend StudykeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',Population_StartDate,'}.{',Population_RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudykeyInstance))\n| extend @{variables('InitialVerticalName')} = sum_@{variables('InitialVerticalName')}\n| extend FailureCounts= bag_pack(@{variables('VerticalsBagPack')})\n| extend UsageUnits = ''\n| project StudykeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
+                                                                    "db": "RIOD"
+                                                                },
+                                                                "host": {
+                                                                    "connection": {
+                                                                        "referenceName": "kusto_1"
+                                                                    }
+                                                                },
+                                                                "method": "post",
+                                                                "path": "/RunKustoAndVisualizeResults/true"
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "ApiConnection"
+                                                        }
+                                                    }
+                                                },
+                                                "expression": {
+                                                    "and": [
+                                                        {
+                                                            "equals": [
+                                                                "@variables('sumVerticals')",
+                                                                "@trim('')"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "runAfter": {},
+                                                "type": "If"
+                                            }
+                                        },
+                                        "else": {
+                                            "actions": {
+                                                "Condition_4_-_check_vertical_string_for_empty": {
+                                                    "actions": {
+                                                        "Run_control_command_and_render_a_chart_2_-_with_usage_and_without_verticals": {
+                                                            "inputs": {
+                                                                "body": {
+                                                                    "chartType": "Html Table",
+                                                                    "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                                                    "csl": ".set-or-append Temp_StudyInstanceDevices with(folder = 'Population') <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize @{variables('SumUsagePivotsStr')}\nby ''@{variables('AggByColsWithoutDeviceId')},Population_StartDate,Population_RunDate,DeviceId\n| extend StudykeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',Population_StartDate,'}.{',Population_RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudykeyInstance))\n| extend FailureCounts= ''\n| extend UsageUnits = bag_pack(@{variables('UsagePrimaryPivots')})\n| project StudykeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
+                                                                    "db": "RIOD"
+                                                                },
+                                                                "host": {
+                                                                    "connection": {
+                                                                        "referenceName": "kusto_1"
+                                                                    }
+                                                                },
+                                                                "method": "post",
+                                                                "path": "/RunKustoAndVisualizeResults/true"
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "ApiConnection"
+                                                        }
+                                                    },
+                                                    "else": {
+                                                        "actions": {
+                                                            "Run_control_command_and_render_a_chart_2_-_with_verticals_and_counts": {
+                                                                "inputs": {
+                                                                    "body": {
+                                                                        "chartType": "Html Table",
+                                                                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                                                        "csl": ".set-or-append Temp_StudyInstanceDevices with(folder = 'Population') <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize @{variables('sumVerticals')},@{variables('SumUsagePivotsStr')}\nby ''@{variables('AggByColsWithoutDeviceId')},Population_StartDate,Population_RunDate,DeviceId\n| extend StudykeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',Population_StartDate,'}.{',Population_RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudykeyInstance))\n| extend @{variables('InitialVerticalName')} = sum_@{variables('InitialVerticalName')}\n| extend FailureCounts=bag_pack(@{variables('VerticalsBagPack')})\n| extend UsageUnits =bag_pack(@{variables('UsagePrimaryPivots')})\n| project StudykeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
+                                                                        "db": "RIOD"
+                                                                    },
+                                                                    "host": {
+                                                                        "connection": {
+                                                                            "referenceName": "kusto_1"
+                                                                        }
+                                                                    },
+                                                                    "method": "post",
+                                                                    "path": "/RunKustoAndVisualizeResults/true"
+                                                                },
+                                                                "runAfter": {},
+                                                                "type": "ApiConnection"
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "equals": [
+                                                                    "@variables('VerticalsBagPack')",
+                                                                    "@trim('')"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "If"
+                                                }
+                                            }
+                                        },
+                                        "expression": {
+                                            "and": [
+                                                {
+                                                    "equals": [
+                                                        "@variables('SumUsagePivotsStr')",
+                                                        "@trim('')"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "runAfter": {
+                                            "Run_control_command_and_render_a_chart__-_Ingest_StudyInstancePopulation": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "If"
+                                    },
+                                    "Increment_variable_5": {
+                                        "inputs": {
+                                            "name": "PartitionCtr",
+                                            "value": 1
+                                        },
+                                        "runAfter": {
+                                            "Condition_4_-_check_usage_string_is_empty": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "IncrementVariable"
+                                    },
+                                    "Run_control_command_and_render_a_chart__-_Ingest_StudyInstancePopulation": {
+                                        "inputs": {
+                                            "body": {
+                                                "chartType": "Html Table",
+                                                "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                                "csl": ".set-or-append Temp_StudyInstancePopulation with(folder = 'Population') <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')} and PartitionNumber == @{variables('PartitionCtr')}\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',Population_StartDate,'}.{',Population_RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,PopulationJoinKey\n| distinct *",
+                                                "db": "RIOD"
+                                            },
+                                            "host": {
+                                                "connection": {
+                                                    "referenceName": "kusto_1"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "path": "/RunKustoAndVisualizeResults/true"
+                                        },
+                                        "runAfter": {},
+                                        "type": "ApiConnection"
+                                    }
+                                },
+                                "expression": "@equals(variables('PartitionCtr'), variables('PartitionNumberForInput'))",
+                                "limit": {
+                                    "count": 5000,
+                                    "timeout": "PT7H"
+                                },
+                                "runAfter": {
+                                    "Set_variable_2": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "Until"
+                            }
+                        },
+                        "foreach": "@items('For_each_study_config_Id')",
+                        "runAfter": {},
+                        "type": "Foreach"
+                    }
+                },
+                "foreach": "@body('Parse_JSON')",
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Foreach"
+            },
+            "Get_Distinct_Study_Config_IDs": {
+                "inputs": {
+                    "parameters": {
+                        "storedProcedureName": "GetDistinctStudyConfigID"
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "sql",
+                        "operationId": "executeStoredProcedure",
+                        "serviceProviderId": "/serviceProviders/sql"
+                    }
+                },
+                "runAfter": {
+                    "Until": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ServiceProvider"
+            },
+            "Initialize_variable-_ConfiguredVerticals": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "ConfiguredVerticals",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable-_SelectColsTerminatorWithoutDeviceID": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "SelectColsTerminatorWithoutDeviceID",
+                            "type": "string",
+                            "value": "@{''}"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable-_sumVerticals": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "sumVerticals",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_AggbyColsTerminatorWithoutDeviceID": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "AggbyColsTerminatorWithoutDeviceID",
+                            "type": "string",
+                            "value": "@{''}"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_ConfiguredMetrics": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "ConfiguredMetrics",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_FormattedAggByForStudyKey": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "FormattedAggByForStudyKey",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_InitialVerticalName": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "InitialVerticalName",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_IterationCounter": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "IterationCounter",
+                            "type": "integer",
+                            "value": 0
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_StudyInstanceDevicePartition": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "StudyInstanceDevicePartition",
+                            "type": "integer",
+                            "value": 600
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_SumUsagePivotsStr": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "SumUsagePivotsStr",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_UsagePrimaryPivots": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "UsagePrimaryPivots",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_VerticalsBagPack": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "VerticalsBagPack",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-__AggCtr": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "AggCtr",
+                            "type": "integer",
+                            "value": 0
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-__IngestIfNotStrTag": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "IngestIfNotStrTag",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_2_-_NumOfStudyRows": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "NumOfStudyRows",
+                            "type": "integer",
+                            "value": 0
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_2_-_PartitionCtr": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "PartitionCtr",
+                            "type": "integer",
+                            "value": "@0"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable-_ConfiguredVerticals": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable-_SelectColsTerminatorWithoutDeviceID": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable-_sumVerticals": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-_AggbyColsTerminatorWithoutDeviceID": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-_ConfiguredMetrics": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-_FormattedAggByForStudyKey": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-_InitialVerticalName": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-_IterationCounter": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-_StudyInstanceDevicePartition": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-_SumUsagePivotsStr": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-_UsagePrimaryPivots": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-_VerticalsBagPack": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-__AggCtr": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_-__IngestIfNotStrTag": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_2_-_NumOfStudyRows": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_2_-_PartitionNumberForInput": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_2_-_TempStr": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_2_-_UsageCtr": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_AggByColsWithoutDeviceId": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_AggByWithoutDeviceIDXML": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_AggregateByCols": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_Counter": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_Filter_Expression": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_SelectCols": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_StudyKey": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_StudyName": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_TeamsName": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_TempAggByWithoutComma": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_TempAggByWithoutDeviceIDXML": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_TempStudyConfigID": [
+                        "Succeeded"
+                    ],
+                    "Initialize_variable_temp_StudyConfigID_int": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_2_-_PartitionNumberForInput": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "PartitionNumberForInput",
+                            "type": "integer",
+                            "value": 3000
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_2_-_TempStr": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "TempStr",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_2_-_UsageCtr": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "UsageCtr",
+                            "type": "integer",
+                            "value": 0
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_AggByColsWithoutDeviceId": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "AggByColsWithoutDeviceId",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_AggByWithoutDeviceIDXML": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "AggByWithoutDeviceIDXML",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_AggregateByCols": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "AggregateByCols",
+                            "type": "string",
+                            "value": "DeviceId"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_Counter": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Counter",
+                            "type": "integer",
+                            "value": 0
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_Filter_Expression": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "FilterExpression",
+                            "type": "string",
+                            "value": "1 == 1"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_SelectCols": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "SelectCols",
+                            "type": "string",
+                            "value": "DeviceId"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_StudyKey": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "StudyKey",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_StudyName": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "StudyName",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_TeamsName": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "TeamsName",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_TempAggByWithoutComma": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "TempAggByWithoutComma",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_TempAggByWithoutDeviceIDXML": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "TempAggByWithoutDeviceIDXML",
+                            "type": "string",
+                            "value": "@{''}"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_TempStudyConfigID": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "TempStudyConfigID",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_temp_StudyConfigID_int": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "TempStudyConfigIDInt",
+                            "type": "integer"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_-_dropping_tables": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Parse_JSON": {
+                "inputs": {
+                    "content": "@body('Get_Distinct_Study_Config_IDs')?['resultSets']",
+                    "schema": {
+                        "items": {
+                            "items": {
+                                "properties": {
+                                    "HashString": {
+                                        "type": "string"
+                                    },
+                                    "StudyConfigID": {
+                                        "type": "integer"
+                                    },
+                                    "StudyName": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "StudyConfigID",
+                                    "StudyName",
+                                    "HashString"
+                                ],
+                                "type": "object"
+                            },
+                            "type": "array"
+                        },
+                        "type": "array"
+                    }
+                },
+                "runAfter": {
+                    "Get_Distinct_Study_Config_IDs": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Run_control_command_and_render_a_chart_-_StudyConfig_Ingestion": {
+                "inputs": {
+                    "body": {
+                        "chartType": "Html Table",
+                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                        "csl": ".set-or-replace StudyConfig with(folder = 'Population') <|\nTemp_StudyConfig",
+                        "db": "RIOD"
+                    },
+                    "host": {
+                        "connection": {
+                            "referenceName": "kusto_1"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/RunKustoAndVisualizeResults/true"
+                },
+                "runAfter": {
+                    "For_each_study_config_Id": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Run_control_command_and_render_a_chart_-_StudyInstancePopulation_ingestion": {
+                "inputs": {
+                    "body": {
+                        "chartType": "Html Table",
+                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                        "csl": ".set-or-replace StudyInstancePopulation with(folder = 'Population') <|\nTemp_StudyInstancePopulation",
+                        "db": "RIOD"
+                    },
+                    "host": {
+                        "connection": {
+                            "referenceName": "kusto_1"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/RunKustoAndVisualizeResults/true"
+                },
+                "runAfter": {
+                    "For_each_study_config_Id": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Run_control_command_and_render_a_chart_-_StudyInstance_Ingestion": {
+                "inputs": {
+                    "body": {
+                        "chartType": "Html Table",
+                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                        "csl": ".set-or-replace StudyInstance with(folder = 'Population') <|\nTemp_StudyInstance\n| project-away IngestionTime",
+                        "db": "RIOD"
+                    },
+                    "host": {
+                        "connection": {
+                            "referenceName": "kusto_1"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/RunKustoAndVisualizeResults/true"
+                },
+                "runAfter": {
+                    "For_each_study_config_Id": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Run_control_command_and_render_a_chart_-_Study_Ingestion": {
+                "inputs": {
+                    "body": {
+                        "chartType": "Html Table",
+                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                        "csl": ".set-or-replace Study with(folder = 'Population') <|\nTemp_Study\n| project StudyConfigID,StudyKey,StudyKeyGuid,StudyAggregateByCols",
+                        "db": "RIOD"
+                    },
+                    "host": {
+                        "connection": {
+                            "referenceName": "kusto_1"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/RunKustoAndVisualizeResults/true"
+                },
+                "runAfter": {
+                    "For_each_study_config_Id": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Run_control_command_and_render_a_chart_-_dropping_tables": {
+                "inputs": {
+                    "body": {
+                        "chartType": "Html Table",
+                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                        "csl": ".drop tables (DevicesFlattenExpandedXML,Temp_StudyConfig,Temp_StudyInstanceDevices,Temp_StudyInstancePopulation) ifexists",
+                        "db": "RIOD"
+                    },
+                    "host": {
+                        "connection": {
+                            "referenceName": "kusto_1"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/RunKustoAndVisualizeResults/true"
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "Run_control_command_and_render_a_chart_2_-_Ingest_StudyInstanceDevicesHistory": {
+                "inputs": {
+                    "body": {
+                        "chartType": "Html Table",
+                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                        "csl": ".set-or-append StudyInstanceDevicesHistory with(folder = 'Population') <|\nStudyInstanceDevices",
+                        "db": "RIOD"
+                    },
+                    "host": {
+                        "connection": {
+                            "referenceName": "kusto_1"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/RunKustoAndVisualizeResults/true"
+                },
+                "runAfter": {
+                    "Run_control_command_and_render_a_chart_2_-_StudyInstanceDevicesIngestion": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Run_control_command_and_render_a_chart_2_-_StudyInstanceDevicesIngestion": {
+                "inputs": {
+                    "body": {
+                        "chartType": "Html Table",
+                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                        "csl": ".set-or-replace StudyInstanceDevices with(folder = 'Population') <|\nTemp_StudyInstanceDevices",
+                        "db": "RIOD"
+                    },
+                    "host": {
+                        "connection": {
+                            "referenceName": "kusto_1"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/RunKustoAndVisualizeResults/true"
+                },
+                "runAfter": {
+                    "For_each_study_config_Id": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Until": {
+                "actions": {
+                    "Append_to_string_variable_17_-_Append_to_IngestIfOnly_variable": {
+                        "inputs": {
+                            "name": "IngestIfNotStrTag",
+                            "value": "@concat('PartitionNumber=',variables('PartitionCtr'))"
+                        },
+                        "runAfter": {
+                            "Condition_4": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "AppendToStringVariable"
+                    },
+                    "Condition_4": {
+                        "actions": {
+                            "Append_to_string_variable_17_-_Adding_comma": {
+                                "inputs": {
+                                    "name": "IngestIfNotStrTag",
+                                    "value": "@','"
+                                },
+                                "runAfter": {},
+                                "type": "AppendToStringVariable"
+                            }
+                        },
+                        "expression": {
+                            "and": [
+                                {
+                                    "greater": [
+                                        "@variables('PartitionCtr')",
+                                        "@0"
+                                    ]
+                                }
+                            ]
+                        },
+                        "runAfter": {},
+                        "type": "If"
+                    },
+                    "Increment_variable_4_-_PartitionCTr": {
+                        "inputs": {
+                            "name": "PartitionCtr",
+                            "value": 1
+                        },
+                        "runAfter": {
+                            "Run_control_command_and_render_a_chart_-__Expand_XML_cols": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "IncrementVariable"
+                    },
+                    "Run_control_command_and_render_a_chart_-__Expand_XML_cols": {
+                        "inputs": {
+                            "body": {
+                                "chartType": "Html Table",
+                                "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                                "csl": ".set-or-append DevicesFlattenExpandedXML with(folder = 'Devices', ingestIfNotExists = '[\"@{variables('IngestIfNotStrTag')}\"]'\n, tags='[\"ingest-by:@{variables('IngestIfNotStrTag')}\"]') <|\nlet data  = DevicesFlattenedGeneric\n|  where PartitionNumber == @{variables('PartitionCtr')};\nlet expandedtable =  ExpandJSONToCols(data);\nexpandedtable;",
+                                "db": "RIOD"
+                            },
+                            "host": {
+                                "connection": {
+                                    "referenceName": "kusto_1"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/RunKustoAndVisualizeResults/true"
+                        },
+                        "runAfter": {
+                            "Append_to_string_variable_17_-_Append_to_IngestIfOnly_variable": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    }
+                },
+                "expression": "@equals(variables('PartitionCtr'), variables('PartitionNumberForInput'))",
+                "limit": {
+                    "count": 5000,
+                    "timeout": "PT7H"
+                },
+                "runAfter": {
+                    "Initialize_variable_2_-_PartitionCtr": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Until"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "Recurrence": {
+                "recurrence": {
+                    "frequency": "Day",
+                    "interval": 1
+                },
+                "runtimeConfiguration": {
+                    "concurrency": {
+                        "runs": 1
+                    }
+                },
+                "type": "Recurrence"
+            }
+        }
+    },
+    "kind": "Stateful"
+}

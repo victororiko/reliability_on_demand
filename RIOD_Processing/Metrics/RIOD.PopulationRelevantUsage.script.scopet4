@@ -28,7 +28,7 @@ Combines all the 3 streams together - Population, Failure and Usage based on Stu
 	string outputFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/DevicesFlattened/";
 	string outputStreamName=@"RIOD.Devices.Flattened.Generic.ss";
 	string outputStreamNameWithoutXML=@"RIOD.Devices.Flattened.Expanded.ss";
-	int numberOfPartitions = 3000;
+	int numberOfPartitions = 1200;
 
 	string inputPopulationAggExpandedStream = @"/Population/Aggregated/RIOD.Devices.Population.Aggregated.ss";
 	string inputUsageAggExpandedStream = @"/Usage/AggregatedObservationPeriod/RIOD.Devices.Usage.Aggregated.ss";

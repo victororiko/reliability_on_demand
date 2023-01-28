@@ -65,6 +65,11 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime using the h
 	string UsageUnitList = "";
 	HashSet<string> UsageUnitSet = new HashSet<string>();
 	HashSet<string> UsageKeysSet = new HashSet<string>();
+
+	// Makin sure Interactivity and Engagement are always there for the Kusto data
+	UsageKeysSet.Add("EngagementDurationMS");
+	UsageKeysSet.Add("InteractivityDurationMS");
+
 	foreach (JObject content in jsonFeederConfig.Children<JObject>())
     {
 		// keep track of distinct usage unit columns to do union of all usage unit columns
