@@ -56,7 +56,6 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime using the h
 	
     string UsageJoinKey = string.Empty;
 	string UsagePivotColumns = string.Empty;
-	string ViewSourcePath = string.Empty;
 	
 	string configContent = ReadTextFromStream(feederJSONFile);
     List<Dictionary<string,string>> configInfo = new List<Dictionary<string,string>>();
@@ -67,8 +66,8 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime using the h
 	HashSet<string> UsageKeysSet = new HashSet<string>();
 
 	// Makin sure Interactivity and Engagement are always there for the Kusto data
-	UsageKeysSet.Add("EngagementDurationMS");
-	UsageKeysSet.Add("InteractivityDurationMS");
+	UsageUnitSet.Add("EngagementDurationMS");
+	UsageUnitSet.Add("InteractivityDurationMS");
 
 	foreach (JObject content in jsonFeederConfig.Children<JObject>())
     {
@@ -79,13 +78,11 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime using the h
 
 		UsageJoinKey = content["UsageJoinKeyExpressionCols"].ToString();
 		UsagePivotColumns = content["UsagePivotColumns"].ToString();
-		ViewSourcePath = content["ViewSourcePath"].ToString();
 
 		Dictionary<string, string> usageQueryDetails = new Dictionary<string, string> ();
 
 		usageQueryDetails.Add("UsageJoinKey", UsageJoinKey);
 		usageQueryDetails.Add("UsagePivotColumns", UsagePivotColumns);
-		usageQueryDetails.Add("ViewSourcePath", ViewSourcePath);
 
 		configInfo.Add(usageQueryDetails);
 
