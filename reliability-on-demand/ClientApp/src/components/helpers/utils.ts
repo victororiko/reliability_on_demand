@@ -115,7 +115,6 @@ export const prepUsageInMS = (timeInSec: number, timeInMin: number): number => {
 // Study Section hardcoded values
 export const hardCodedFrequencies: IDropdownOption[] = [
     { key: 0, text: "none" },
-    { key: 1, text: "hourly" },
     { key: 168, text: "weekly" },
     { key: 12, text: "every 12 hours" },
     { key: 24, text: "every 24 hours" },

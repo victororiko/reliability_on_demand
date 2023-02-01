@@ -1,9 +1,16 @@
+import { Label } from "@fluentui/react"
 import React, { useEffect, useState } from "react"
 import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
 import { PivotConfigList } from "./PivotConfigList"
 import { PivotScopes } from "./PivotScopes"
 import { SavePivotConfigButton } from "./SavePivotConfigButton"
-import { extractScopeByChecked, mergeScopesIntoConfigs, pushModelToCheckBoxes } from "./service"
+import "./Pivot.css"
+import {
+    extractScopeByChecked,
+    mergeScopesIntoConfigs,
+    pushModelToCheckBoxes,
+    hasFilteringPivotsSelected,
+} from "./service"
 
 interface IPivotAndScopeDetailsProps {
     showSaveButton: boolean
@@ -17,6 +24,7 @@ export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
     const [userConfigs, setUserConfigs] = useState<PopulationPivotConfigUI[]>([])
     const [scopingCandidates, setScopingCandidates] = useState<PopulationPivotConfigUI[]>([])
     const [isValidated, setIsValidated] = useState<Boolean>(false)
+    const [displaySaveButton, setDisplaySaveBotton] = useState<Boolean>(false)
 
     // effects
     useEffect(() => {
@@ -33,6 +41,8 @@ export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
         setUserConfigs(list)
         const smallerList = extractScopeByChecked(list)
         setScopingCandidates(smallerList)
+        if (!hasFilteringPivotsSelected(list)) setDisplaySaveBotton(true)
+        else setDisplaySaveBotton(false)
     }
 
     // callbacks
@@ -58,8 +68,16 @@ export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
         />
     )
 
+    const withoutFilterSaveWarning = displaySaveButton ? (
+        <Label className="Label">
+            **Warning for Large Datasets: Please filter the data where possible. Unfiltered data can result in excessive data explosion. Please verify if unfiltered data is your desired outcome. **
+        </Label>
+    ) : (
+        ""
+    )
+
     const renderSaveButton =
-        props.showSaveButton && isValidated && userConfigs.length > 0 ? (
+        ((props.showSaveButton && isValidated) || displaySaveButton) && userConfigs.length > 0 ? (
             <SavePivotConfigButton
                 selectedPivots={userConfigs}
                 studyConfigID={props.studyConfigID}
@@ -75,6 +93,7 @@ export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
                 updateConfigs={updateStateFromPivotList}
             />
             {renderScopes}
+            {withoutFilterSaveWarning}
             {renderSaveButton}
         </div>
     )

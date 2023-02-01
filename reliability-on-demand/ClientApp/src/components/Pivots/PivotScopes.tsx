@@ -8,7 +8,6 @@ interface IPivotScopesProps {
     allConfigs: PopulationPivotConfigUI[]
     updateScopes: any
 }
-
 export const PivotScopes = (props: IPivotScopesProps) => {
     // state
     const [scopingCandidates, setScopingCandidates] = useState<PopulationPivotConfigUI[]>([])

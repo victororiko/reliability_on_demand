@@ -164,6 +164,25 @@ export const StudyDetails = (props: Props) => {
         setSelectedStudyType(input)
     }
 
+    const deleteButton =
+        props.selectedStudy !== undefined ? (
+            <DeleteStudyButton callback={deleteStudyToBackend} />
+        ) : (
+            ""
+        )
+
+    const updateButton = isNewStudy ? (
+        allRequiredFieldsTouched() ? (
+            <AddStudyButton disabled={false} callback={addStudyToBackend} />
+        ) : (
+            <AddStudyButton disabled callback={undefined} />
+        )
+    ) : userInputSensed() ? (
+        <UpdateStudyButton callback={updateStudyToBackend} />
+    ) : (
+        ""
+    )
+
     return (
         <div>
             <StudyNameTextField currentStudy={props?.selectedStudy} callBack={setUserStudyName} />
@@ -180,40 +199,33 @@ export const StudyDetails = (props: Props) => {
                 selectedItem={selectedStudyType}
                 callback={onStudyTypeSelected}
             />
-            <TextField
-                label="Failure Join Key Expression Columns"
-                disabled
-                defaultValue={props.selectedStudy?.FailureJoinKeyExpressionCols}
-            />
-            <TextField
-                label="Usage Join Key Expression Columns"
-                disabled
-                defaultValue={props.selectedStudy?.UsageJoinKeyExpressionCols}
-            />
-            <TextField
-                label="Population Join Key Expression Columns"
-                disabled
-                defaultValue={props.selectedStudy?.PopulationJoinKeyExpressionCols}
-            />
-            {/* Display Add, Update and Cancel buttons based on selection from dropdown and touching of fields */}
+            {/* Display read-only textfields */}
             {props.selectedStudy !== undefined ? (
-                <DeleteStudyButton callback={deleteStudyToBackend} />
+                <div>
+                    <TextField
+                        label="Failure Join Key Expression Columns"
+                        disabled
+                        defaultValue={props.selectedStudy?.FailureJoinKeyExpressionCols}
+                    />
+                    <TextField
+                        label="Usage Join Key Expression Columns"
+                        disabled
+                        defaultValue={props.selectedStudy?.UsageJoinKeyExpressionCols}
+                    />
+                    <TextField
+                        label="Population Join Key Expression Columns"
+                        disabled
+                        defaultValue={props.selectedStudy?.PopulationJoinKeyExpressionCols}
+                    />
+                </div>
             ) : (
                 ""
             )}
-            {isNewStudy ? (
-                allRequiredFieldsTouched() ? (
-                    <AddStudyButton disabled={false} callback={addStudyToBackend} />
-                ) : (
-                    <AddStudyButton disabled callback={undefined} />
-                )
-            ) : userInputSensed() ? (
-                <Stack horizontal tokens={horizontalStackTokens}>
-                    <UpdateStudyButton callback={updateStudyToBackend} />
-                </Stack>
-            ) : (
-                ""
-            )}
+            {/* Display Add, Update and Cancel buttons based on selection from dropdown and touching of fields */}
+            <Stack horizontal tokens={horizontalStackTokens}>
+                {deleteButton}
+                {updateButton}
+            </Stack>
         </div>
     )
 }

@@ -564,6 +564,7 @@ namespace reliability_on_demand.DataLayer
         {
             this.Database.OpenConnection();
             var scopeid = maxscopeid + 1;
+            HashSet<string> pivotkeys = new HashSet<string>();
 
             for (var i = 0; i < pivots.Length; i++)
             {
@@ -586,7 +587,8 @@ namespace reliability_on_demand.DataLayer
                 }
                 else
                 {
-                    AddWithoutFilterPivotToFailureCurve(pivot);
+                    if(pivotkeys.Add(pivot.PivotKey))
+                        AddWithoutFilterPivotToFailureCurve(pivot);
                 }
 
             }
@@ -660,6 +662,7 @@ namespace reliability_on_demand.DataLayer
             this.Database.OpenConnection();
             var scopeid = maxscopeid + 1;
             var cmd = this.Database.GetDbConnection().CreateCommand();
+            HashSet<string> pivotkeys = new HashSet<string>();
 
             for (var i = 0; i < pivots.Length; i++)
             {
@@ -683,7 +686,8 @@ namespace reliability_on_demand.DataLayer
                 }
                 else
                 {
-                    AddWithoutFilterPivotToFailureCurve(pivot);
+                    if(pivotkeys.Add(pivot.PivotKey))
+                        AddWithoutFilterPivotToFailureCurve(pivot);
                 }
 
             }

@@ -324,3 +324,12 @@ export const getUniqueOptions = (options: IComboBoxOption[]): IComboBoxOption[] 
     }
     return res
 }
+
+// checks if user has selected any scope by pivots or not
+export const hasFilteringPivotsSelected = (configs: PopulationPivotConfigUI[]): boolean => {
+    for (const config of configs) {
+        if (config.ScopeByChecked) return true
+    }
+
+    return false
+}
