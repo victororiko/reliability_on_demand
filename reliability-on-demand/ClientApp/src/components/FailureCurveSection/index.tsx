@@ -1,13 +1,12 @@
 import axios from "axios"
 import * as React from "react"
-import { IDropdownOption } from "@fluentui/react"
+import { IDropdownOption, Label } from "@fluentui/react"
 import { MultiSelectVerticalList } from "./MultiSelectVerticalList"
 import { FailureModesSelection } from "./FailureModesSelection"
 import { ConfigureVerticalButton } from "./ConfigureVerticalButton"
 import { MultiSelectPivots } from "./MultiSelectPivots"
 import { PivotsDetailedList } from "./PivotsDetailedList"
 import { FilterExpressionDetailedList } from "../helpers/FilterExpression/FilterExpressionDetailedList"
-import { ConfigureFilterExpressionButton } from "./ConfigureFilterExpressionButton"
 import { AddOrUpdateButton } from "./AddOrUpdateButton"
 import { Loading } from "../helpers/Loading"
 import { WikiLink } from "../helpers/WikiLink"
@@ -18,7 +17,6 @@ import {
     extractModesFromVerticalPair,
     getPivotIDs,
     AddNewSelectedPivots,
-    getVerticalNamesFromPair,
     getVerticalNames,
     getMappedPivotWithScopeFilter,
     getDataToSaveUsingPivot,
@@ -42,7 +40,6 @@ export const FailureCurve = (props: Props) => {
     const [selectedPivotsSet, setSelectedPivotsSet] = React.useState<Pivot[]>([])
     const [modeSelected, setModeSelected] = React.useState<Boolean>(false)
     const [selectedPivotsKeys, setSelectedPivotsKeys] = React.useState<string[]>([])
-    const [configureFilterExpClicked, setConfigureFilterExpClicked] = React.useState<Boolean>(false)
     const [studyConfigs, setStudyConfigs] = React.useState<StudyPivotConfig[]>([])
     const [selectedMode, setSelectedMode] = React.useState<string>("")
     const [isValidFilterExp, setIsValidFilterExp] = React.useState<boolean>(false)
@@ -50,6 +47,7 @@ export const FailureCurve = (props: Props) => {
     const [dataSaved, setDataSaved] = React.useState<boolean>(false)
     const [callFilterExpBackend, setCallFilterExpBackend] = React.useState<boolean>(true)
     const [dataToSave, setDataToSave] = React.useState<Pivot[]>([])
+    const [emptyScopedPivots, setEmptyScopedPivots] = React.useState<boolean>(false)
 
     const loadVerticals = () => {
         axios.get("api/Data/GetAllVerticals").then((res) => {
@@ -105,7 +103,6 @@ export const FailureCurve = (props: Props) => {
     const hideConfigurationForSelectedVerticals = () => {
         setModeSelectionVisible(false)
         setModeSelected(false)
-        setConfigureFilterExpClicked(false)
         setIsValidFilterExp(false)
     }
 
@@ -163,13 +160,15 @@ export const FailureCurve = (props: Props) => {
     }
 
     const loadFailureVerticalModes = (input: IDropdownOption[], flag: boolean) => {
-        setModes(extractModesFromVerticalPair(input))
+        // storing the result in tempModes to use it for further mode selection logic
+        let tempModes = extractModesFromVerticalPair(input) 
+        setModes(tempModes)
         setSelectedVerticals(input)
-        if (modes.length === 2) {
+        if (tempModes.length === 2) {
             let mode = ""
-            for (let i = 0; i < modes.length; i++) {
-                if (!modes[i].key.toString().match("Select Mode")) {
-                    mode = modes[i].key.toString()
+            for (let i = 0; i < tempModes.length; i++) {
+                if (!tempModes[i].key.toString().match("Select Mode")) {
+                    mode = tempModes[i].key.toString()
                 }
             }
             setSelectedMode(mode)
@@ -180,8 +179,11 @@ export const FailureCurve = (props: Props) => {
     }
 
     const loadDetailedListRows = (data: Pivot[]) => {
-        setSelectedPivotsSet(getUniqueMappedPivotWithScopeFilter(data, props.StudyConfigID))
-        setSelectedPivots(getMappedPivotWithScopeFilter(data, props.StudyConfigID))
+        const tempSelectedPivots = getMappedPivotWithScopeFilter(data, props.StudyConfigID)
+        const tempSelectedPivotsSet = getUniqueMappedPivotWithScopeFilter(data, props.StudyConfigID)
+        setSelectedPivotsSet(tempSelectedPivotsSet)
+        setSelectedPivots(tempSelectedPivots)
+        changeDetailedListInput(tempSelectedPivotsSet)
     }
 
     const updateDetailedListRows = (data: string[]) => {
@@ -196,12 +198,10 @@ export const FailureCurve = (props: Props) => {
                 }
             }
         }
-
         // Add new selected checkbox
         const updatedPivotTable = AddNewSelectedPivots(data, pivots, temp)
         setSelectedPivotsKeys(data)
         setSelectedPivotsSet(updatedPivotTable)
-        // setSelectedPivotsSet(AddNewPivotDetailedList(selectedPivotsSet, data))
     }
 
     React.useEffect(() => {
@@ -224,13 +224,38 @@ export const FailureCurve = (props: Props) => {
 
     const changeDetailedListInput = (input: Pivot[]) => {
         setSelectedPivotsSet(input)
+        const tempStudyConfigs = getFilterPivots(selectedPivots, input, props.StudyConfigID)
+        // if none of the pivots are selected as Filter pivots, display warning and the save button
+        if (tempStudyConfigs === null || tempStudyConfigs.length === 0) {
+            setDataToSave(
+                getDataToSaveUsingPivot(
+                    tempStudyConfigs,
+                    input,
+                    selectedverticals,
+                    selectedMode,
+                    props.StudyConfigID
+                )
+            )
+            setEmptyScopedPivots(true)
+            setCallFilterExpBackend(false)
+        }
+        else {
+            // show Filter expression component for the pivots selected for filtering
+            setStudyConfigs(tempStudyConfigs)
+            setCallFilterExpBackend(true)
+            setEmptyScopedPivots(false)
+        }
     }
 
-    const loadFilterExpression = () => {
-        setConfigureFilterExpClicked(true)
-        setStudyConfigs(getFilterPivots(selectedPivots, selectedPivotsSet, props.StudyConfigID))
-        setCallFilterExpBackend(true)
-    }
+    const withoutFilterSaveWarning = emptyScopedPivots ? (
+        <Label className="Label">
+            **Warning for Large Datasets: Please filter the data where possible. Unfiltered data can
+            result in excessive data explosion. Please verify if unfiltered data is your desired
+            outcome. **
+        </Label>
+    ) : (
+        ""
+    )
 
     const validateFilterExpression = (input: StudyPivotConfig[], isValidated: boolean) => {
         if (isValidated === true)
@@ -247,6 +272,11 @@ export const FailureCurve = (props: Props) => {
         setIsValidFilterExp(isValidated)
     }
 
+    const updateFilterExpTable = (input: StudyPivotConfig[], flag: boolean) => {
+        setStudyConfigs(input)
+        setCallFilterExpBackend(flag)
+    }
+
     const pivotSection = !modeSelected ? (
         ""
     ) : (
@@ -257,14 +287,22 @@ export const FailureCurve = (props: Props) => {
                 selectedOptions={selectedPivotsKeys}
             />
             <PivotsDetailedList data={selectedPivotsSet} callBack={changeDetailedListInput} />
-            <ConfigureFilterExpressionButton callBack={loadFilterExpression} />
         </div>
     )
 
-    const updateFilterExpTable = (input: StudyPivotConfig[], flag: boolean) => {
-        setStudyConfigs(input)
-        setCallFilterExpBackend(flag)
-    }
+    const filterExpSection =
+        !emptyScopedPivots && modeSelected ? (
+            <div>
+                <FilterExpressionDetailedList
+                    studyPivotConfigs={studyConfigs}
+                    callBack={updateFilterExpTable}
+                    callBackend={callFilterExpBackend}
+                    validateExpCallBack={validateFilterExpression}
+                />
+            </div>
+        ) : (
+            ""
+        )
 
     const addOrUpdateStudy = (pivotConfigs: Pivot[]) => {
         axios
@@ -277,29 +315,17 @@ export const FailureCurve = (props: Props) => {
             })
     }
 
-    const filterExpressionSection = !configureFilterExpClicked ? (
-        ""
-    ) : (
-        <div>
-            <FilterExpressionDetailedList
-                studyPivotConfigs={studyConfigs}
-                callBack={updateFilterExpTable}
-                callBackend={callFilterExpBackend}
-                validateExpCallBack={validateFilterExpression}
+    const finalButton =
+        isValidFilterExp || emptyScopedPivots ? (
+            <AddOrUpdateButton
+                ButtonName={buttonName}
+                callBack={addOrUpdateStudy}
+                dataSaved={dataSaved}
+                pivots={dataToSave}
             />
-        </div>
-    )
-
-    const finalButton = !isValidFilterExp ? (
-        ""
-    ) : (
-        <AddOrUpdateButton
-            ButtonName={buttonName}
-            callBack={addOrUpdateStudy}
-            dataSaved={dataSaved}
-            pivots={dataToSave}
-        />
-    )
+        ) : (
+            ""
+        )
 
     return (
         <div>
@@ -323,7 +349,8 @@ export const FailureCurve = (props: Props) => {
                     />
                     {modeSelection}
                     {pivotSection}
-                    {filterExpressionSection}
+                    {filterExpSection}
+                    {withoutFilterSaveWarning}
                     {finalButton}
                 </div>
             )}

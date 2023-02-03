@@ -496,7 +496,6 @@ export const getFilterPivots = (
     }
 
     // Add new filter pivots
-
     for (const ele of selected) {
         if (!addedPivots.has(ele.PivotKey) && ele.IsScopeFilter === true) {
             const row: Pivot = {
@@ -584,8 +583,35 @@ export const getDataToSaveUsingPivot = (
             ) {
                 res.push(p)
             }
-        } else {
-            res.push(p)
+        } // checking explicitly to make sure every pivot has at least one checkbox selected
+        else if (p.IsApportionColumn === true
+            || p.IsApportionJoinColumn === true
+            || p.IsKeyColumn === true
+            || p.IsSelectColumn === true) {
+
+            // Explicitly overriding any previous filter expression if user hasn't marked the pivot for IsScopeFIlter
+            const row: Pivot = {
+                ADLDataType: p.ADLDataType,
+                IsApportionColumn: p.IsApportionColumn,
+                IsApportionJoinColumn: p.IsApportionJoinColumn,
+                IsKeyColumn: p.IsKeyColumn,
+                IsSelectColumn: p.IsSelectColumn,
+                IsScopeFilter: p.IsScopeFilter,
+                AggregateBy: p.AggregateBy,
+                PivotExpression: p.PivotExpression,
+                PivotKey: p.PivotKey,
+                StudyConfigID,
+                PivotScopeID: -1,
+                RelationalOperator: '',
+                PivotName: p.PivotName,
+                PivotOperator: '',
+                PivotScopeValue: '',
+                PivotSourceSubType: p.PivotSourceSubType,
+                UIDataType: p.UIDataType,
+                Verticals: p.Verticals,
+            }
+
+            res.push(row)
         }
     }
 
