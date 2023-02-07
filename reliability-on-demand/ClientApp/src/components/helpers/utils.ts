@@ -134,8 +134,29 @@ export enum SimplifiedButtonType {
     Other,
 }
 
-export const convertToTitleCase = (text: string): string => {
-    const result = text.replace(/([A-Z])/g, " $1")
-    const finalResult = result.charAt(0).toUpperCase() + result.slice(1)
-    return finalResult
+const minsToMS = (mins: number): number => {
+    return mins * 60 * 1000
+}
+
+export const defaultOfSixtyMins = minsToMS(60)
+
+export const emptyGuidStr = "00000000-0000-0000-0000-000000000000"
+
+export const addSpaces = (str: string) => {
+    return str.replace(/([a-z])([A-Z])/g, "$1 $2")
+}
+
+export const wrapStyle = {
+    whiteSpace: "normal",
+    wordWrap: "break-word",
+}
+
+export const wrappedCellStyle = {
+    ...wrapStyle,
+    fontSize: 14,
+}
+
+export const wrappedHeaderStyle = {
+    ...wrappedCellStyle,
+    fontWeight: "bold",
 }

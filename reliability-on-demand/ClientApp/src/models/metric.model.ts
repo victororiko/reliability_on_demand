@@ -1,6 +1,24 @@
 import { IDropdownOption, SelectableOptionMenuItemType } from "@fluentui/react"
 import { onlyUnique } from "../components/helpers/utils"
 
+export interface MetricInstance {
+    StudyInstanceKey: string
+    StudyInstanceKeyGuid: string
+    StudyMetricKeyInstance: string
+    StudyMetricKeyInstanceGuid: string
+    MetricName: string
+    MetricDisplayName: string
+    MetricDescription: string
+    MetricValue: number
+    MetricDisplayValue: string
+    MetricGoal: number
+    MetricGoalDisplayValue: string
+    MetricEvaluationResult: number
+    MetricImpact: number
+    MetricDiff: number
+    Vertical: string
+}
+
 export interface Metric {
     MetricName: string
     Vertical: string

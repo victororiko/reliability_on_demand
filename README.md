@@ -15,6 +15,8 @@
     + [Backend - nuget issues](#backend)
     + [Frontend - website issues](#frontend)
       + [Use specific version of node](#use-specific-version-of-node)
+      + [npm install authentication issues](#npm-install-authentication-issues)
+      + [Authentication issues](#authentication-issues)
   * [Linting](#linting)
   * [Deploying](#deploying)
 - [Current Branch policies](#current-branch-policies)
@@ -149,6 +151,9 @@ Read instructions for [nvm](https://github.com/coreybutler/nvm-windows) to downl
 
 #### npm install authentication issues
 If you haven't set up authentication to Azure Feed for all of our npm packages, please do so by visiting [How to connect to Azure Feed: PhReliabilityCloud](https://microsoft.visualstudio.com/OS.Fun/_artifacts/feed/PhReliabilityCloud/connect/npm)
+
+### Authentication issues
+If you see any Redirct URI issues, most likely it's an app registration issue. Go to [ReliabilityOnDemandAd - Authentication blade](https://ms.portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Authentication/appId/53120218-ee24-4120-afac-5fa41a9cc942/isMSAApp~/false) and add the problematic endpoint under *Single-Page application* section. If immediate retry doesn't work - wait 3 to 5 mins.
 
 ## Linting
 This project uses airbnb-base and airbnb-typescript rules for linting. Furthermore, [these instructions](https://gist.github.com/EliEladElrom/54c5046cf21877824d1bc38d5dd33d81) were used to configure linting.

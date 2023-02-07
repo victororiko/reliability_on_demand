@@ -11,7 +11,7 @@ export const expandCols = (data: StudyInstanceData[]): MRT_ColumnDef<StudyInstan
     // iterate through each item in JSON creating a column
     for (const key of Object.keys(aggByColJSON)) {
         const colId = key
-        const colHeader = prettyTitle(key)
+        const colHeader = key
         const colValue = aggByColJSON[key]
         const column: MRT_ColumnDef<StudyInstanceData> = {
             accessorFn: () => {
@@ -24,9 +24,4 @@ export const expandCols = (data: StudyInstanceData[]): MRT_ColumnDef<StudyInstan
         ans.push(column)
     }
     return ans
-}
-
-const prettyTitle = (titleCandidate: string) => {
-    const titleCaseString = titleCandidate.replace(/([A-Z])/g, " $1")
-    return titleCaseString
 }

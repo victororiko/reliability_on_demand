@@ -584,5 +584,86 @@ namespace reliability_on_demand.Controllers
             }
         }
 
+        [HttpGet("api/Data/GetStudyFailureCurveInstances/StudyKeyInstanceGuid/{StudyKeyInstanceGuid}")]
+        public IActionResult GetStudyFailureCurveInstances(string StudyKeyInstanceGuid)
+        {
+            try
+            {
+                _logger.LogInformation($"GetStudyFailureCurveInstances was called with {StudyKeyInstanceGuid} at {DateTime.Now}");
+                string str = this._kustoservice.GetStudyFailureCurveInstances(StudyKeyInstanceGuid);
+                return Ok(str);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed to get results from Kusto.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [HttpGet("api/Data/GetStudyMetric/StudyKeyInstanceGuid/{StudyKeyInstanceGuid}")]
+        public IActionResult GetStudyMetric(string StudyKeyInstanceGuid)
+        {
+            try
+            {
+                _logger.LogInformation($"GetStudyMetric was called with {StudyKeyInstanceGuid} at {DateTime.Now}");
+                string str = this._kustoservice.GetStudyMetric(StudyKeyInstanceGuid);
+                return Ok(str);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed to get results from Kusto.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+        [HttpGet("api/Data/GetStudyStats/StudyKeyInstanceGuid/{StudyKeyInstanceGuid}")]
+        public IActionResult GetStudyStats(string StudyKeyInstanceGuid)
+        {
+            try
+            {
+                _logger.LogInformation($"GetStudyStats was called with {StudyKeyInstanceGuid} at {DateTime.Now}");
+                string str = this._kustoservice.GetStudyStats(StudyKeyInstanceGuid);
+                return Ok(str);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed to get results from Kusto.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+        [HttpGet("api/Data/GetFailureCurveSummary/StudyKeyInstanceGuid/{StudyKeyInstanceGuid}")]
+        public IActionResult GetFailureCurveSummary(string StudyKeyInstanceGuid)
+        {
+            try
+            {
+                _logger.LogInformation($"GetFailureCurveSummary was called with {StudyKeyInstanceGuid} at {DateTime.Now}");
+                string str = this._kustoservice.GetFailureCurveSummary(StudyKeyInstanceGuid);
+                return Ok(str);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed to get results from Kusto.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+        [HttpGet("api/Data/GetTimeFrames/StudyKeyInstanceGuid/{StudyKeyInstanceGuid}")]
+        public IActionResult GetTimeFrames(string StudyKeyInstanceGuid)
+        {
+            try
+            {
+                _logger.LogInformation($"GetTimeFrames was called with {StudyKeyInstanceGuid} at {DateTime.Now}");
+                string str = this._kustoservice.GetTimeFrames(StudyKeyInstanceGuid);
+                return Ok(str);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed to get results from Kusto.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
     }
 }

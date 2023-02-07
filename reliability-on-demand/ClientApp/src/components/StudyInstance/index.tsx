@@ -5,7 +5,7 @@ import React from "react"
 import { StudyInstanceData } from "../../models/study.model"
 import { Loading } from "../helpers/Loading"
 import { MessageBox } from "../helpers/MessageBox"
-import { CreateNewID } from "../helpers/utils"
+import { CreateNewID, defaultOfSixtyMins } from "../helpers/utils"
 import { RichStudyInstanceTable } from "./RichStudyInstanceTable"
 
 interface IStudyInstanceProps {}
@@ -23,6 +23,7 @@ export const StudyInstance = (props: IStudyInstanceProps) => {
                 return res.data
             })
         },
+        staleTime: defaultOfSixtyMins,
     })
 
     if (isError)

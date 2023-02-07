@@ -19,6 +19,28 @@ namespace reliability_on_demand.DataLayer
             return GetKustoResults($"RIOD_JSON_Get_StudyInstances_Latest(studyConfigID = {studyConfigID})");
         }
 
+        public string GetStudyFailureCurveInstances(string StudyKeyInstanceGuid)
+        {
+            return GetKustoResults($"RIOD_JSON_GetStudyFailureCurveInstances(\"{StudyKeyInstanceGuid}\")");
+        }
+
+        public string GetStudyMetric(string StudyKeyInstanceGuid)
+        {
+            return GetKustoResults($"RIOD_JSON_GetStudyMetric(\"{StudyKeyInstanceGuid}\")");
+        }
+        public string GetStudyStats(string StudyKeyInstanceGuid)
+        {
+            return GetKustoResults($"RIOD_JSON_GetStudyStats(\"{StudyKeyInstanceGuid}\")");
+        }
+        public string GetFailureCurveSummary(string StudyKeyInstanceGuid)
+        {
+            return GetKustoResults($"RIOD_JSON_Get_StudyFailureCurveSummary(\"{StudyKeyInstanceGuid}\")");
+        }
+        public string GetTimeFrames(string StudyKeyInstanceGuid)
+        {
+            return GetKustoResults($"RIOD_JSON_Get_StudyTimeFrames(\"{StudyKeyInstanceGuid}\")");
+        }
+
         public string GetKustoResults(string query)
         {
             using (var queryProvider = KustoClientFactory.CreateCslQueryProvider(_credentials.KustoConnection))

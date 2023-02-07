@@ -8,3 +8,42 @@ export interface Vertical {
     VerticalName: string
     PivotSourceSubType: string
 }
+
+// Failure Curve Display related interfaces
+export interface FailureCurveInstance {
+    StudyInstanceKey: string
+    StudyInstanceKeyGuid: string
+    StudyFailureCurveKeyInstance: string
+    StudyFailureCurveKeyInstanceGuid: string
+    Vertical: string
+    FailureCurveType: string
+    Rank: number
+    ModuleName: string
+    FailureHash: string
+    FailureName: string
+    BugID: string
+    BugTitle: string
+    BugState: string
+    ComponentCategory: string
+    OrgMapping: string
+    AreaPath: string
+    HitCount: number
+    FailingDevices: number
+    PctDevices: number
+    PctHits: number
+    FailureMode: string
+    ResolvedReason: string
+}
+
+export interface FailureCurveSummary {
+    StudyKeyInstance: string
+    StudyKeyInstanceGuid: string
+    Vertical: string
+    StudyVerticalKey: string
+    StudyVerticalKeyGuid: string
+    StudyVerticalKeyInstance: string
+    StudyVerticalKeyInstanceGuid: string
+    TotalHitCount: number
+    UniqueFailureCount: number
+    TotalFailingDevices: number
+}

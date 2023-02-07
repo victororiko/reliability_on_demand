@@ -14,6 +14,7 @@ import { ErrorComponent } from "./components/ErrorComponent"
 
 import { loginRequest } from "./authConfig"
 import { StudyInstance } from "./components/StudyInstance"
+import { FailureCurveDisplay } from "./components/FailureCurveDisplay"
 
 type AppProps = {
     pca: IPublicClientApplication
@@ -53,6 +54,7 @@ export const App = ({ pca }: AppProps) => {
                         </Route>
                         <Route path="/study-search" component={StudySearch} />
                         <Route path="/study-instance" component={StudyInstance} />
+                        <Route path="/failure-curve" component={FailureCurveDisplay} />
                         {/* If none of the previous routes render anything,
             this route acts as a fallback.
             

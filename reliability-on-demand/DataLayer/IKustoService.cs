@@ -5,5 +5,10 @@ namespace reliability_on_demand.DataLayer
     public interface IKustoService
     {
         string GetStudyInstances(int studyConfigID);
+        string GetStudyFailureCurveInstances(string StudyKeyInstanceGuid);
+        string GetStudyMetric(string StudyKeyInstanceGuid);
+        string GetStudyStats(string StudyKeyInstanceGuid);
+        string GetFailureCurveSummary(string StudyKeyInstanceGuid);
+        string GetTimeFrames(string StudyKeyInstanceGuid);
     }
 }

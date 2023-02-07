@@ -18,7 +18,9 @@ interface Props {
 
 export const VerticalDropdown = (props: Props) => {
     // force blank for rest of the UI in the beginning
-    const [selectedVertical, setSelectedVertical] = React.useState<IDropdownOption | undefined>(undefined)
+    const [selectedVertical, setSelectedVertical] = React.useState<IDropdownOption | undefined>(
+        undefined
+    )
 
     const { isError, error, isLoading, data } = useQuery({
         queryKey: ["verticals"],
