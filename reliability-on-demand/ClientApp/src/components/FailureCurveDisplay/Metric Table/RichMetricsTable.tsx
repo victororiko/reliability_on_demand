@@ -14,27 +14,27 @@ export const RichMetricsTable = (props: IRichMetricsTableProps) => {
     // column definitions - strongly typed if you are using TypeScript (optional, but recommended)
     const columns = React.useMemo<MRT_ColumnDef<MetricInstance>[]>(() => {
         return [
-            // StudyInstanceKey:                     string;
+            // StudyKeyInstance:                     string;
             {
-                accessorKey: "StudyInstanceKey",
-                header: addSpaces("StudyInstanceKey"),
+                accessorKey: "StudyKeyInstance",
+                header: addSpaces("StudyKeyInstance"),
                 Header: () => {
                     return (
                         <Typography sx={wrappedHeaderStyle}>
-                            {addSpaces("StudyInstanceKey")}
+                            {addSpaces("StudyKeyInstance")}
                         </Typography>
                     )
                 },
                 filterVariant: "text",
             },
-            // StudyInstanceKeyGuid:                 string;
+            // StudyKeyInstanceGuid:                 string;
             {
-                accessorKey: "StudyInstanceKeyGuid",
-                header: addSpaces("StudyInstanceKeyGuid"),
+                accessorKey: "StudyKeyInstanceGuid",
+                header: addSpaces("StudyKeyInstanceGuid"),
                 Header: () => {
                     return (
                         <Typography sx={wrappedHeaderStyle}>
-                            {addSpaces("StudyInstanceKeyGuid")}
+                            {addSpaces("StudyKeyInstanceGuid")}
                         </Typography>
                     )
                 },
@@ -207,8 +207,8 @@ export const RichMetricsTable = (props: IRichMetricsTableProps) => {
                 data={props.data}
                 initialState={{
                     columnVisibility: {
-                        StudyInstanceKey: false,
-                        StudyInstanceKeyGuid: false,
+                        StudyKeyInstance: false,
+                        StudyKeyInstanceGuid: false,
                         StudyMetricKeyInstance: false,
                         StudyMetricKeyInstanceGuid: false,
                         MetricName: false,

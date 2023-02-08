@@ -70,7 +70,9 @@ export const PivotAndScopeDetails = (props: IPivotAndScopeDetailsProps) => {
 
     const withoutFilterSaveWarning = displaySaveButton ? (
         <Label className="Label">
-            **Warning for Large Datasets: Please filter the data where possible. Unfiltered data can result in excessive data explosion. Please verify if unfiltered data is your desired outcome. **
+            **Warning for Large Datasets: Please filter the data where possible. Unfiltered data can
+            result in excessive data explosion. Please verify if unfiltered data is your desired
+            outcome. **
         </Label>
     ) : (
         ""

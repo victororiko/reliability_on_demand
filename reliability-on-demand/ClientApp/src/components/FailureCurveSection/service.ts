@@ -584,11 +584,12 @@ export const getDataToSaveUsingPivot = (
                 res.push(p)
             }
         } // checking explicitly to make sure every pivot has at least one checkbox selected
-        else if (p.IsApportionColumn === true
-            || p.IsApportionJoinColumn === true
-            || p.IsKeyColumn === true
-            || p.IsSelectColumn === true) {
-
+        else if (
+            p.IsApportionColumn === true ||
+            p.IsApportionJoinColumn === true ||
+            p.IsKeyColumn === true ||
+            p.IsSelectColumn === true
+        ) {
             // Explicitly overriding any previous filter expression if user hasn't marked the pivot for IsScopeFIlter
             const row: Pivot = {
                 ADLDataType: p.ADLDataType,
@@ -602,10 +603,10 @@ export const getDataToSaveUsingPivot = (
                 PivotKey: p.PivotKey,
                 StudyConfigID,
                 PivotScopeID: -1,
-                RelationalOperator: '',
+                RelationalOperator: "",
                 PivotName: p.PivotName,
-                PivotOperator: '',
-                PivotScopeValue: '',
+                PivotOperator: "",
+                PivotScopeValue: "",
                 PivotSourceSubType: p.PivotSourceSubType,
                 UIDataType: p.UIDataType,
                 Verticals: p.Verticals,

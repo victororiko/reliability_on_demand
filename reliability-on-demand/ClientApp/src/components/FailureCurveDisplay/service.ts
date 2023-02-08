@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
+import { FailureCurveInstance } from "../../models/failurecurve.model"
 import { defaultOfSixtyMins } from "../helpers/utils"
 
 export const useStudyTimeFrameQuery = (StudyKeyInstanceGuidStr: string) => {
@@ -81,4 +82,15 @@ export const useStudyStatsQuery = (StudyKeyInstanceGuidStr: string) => {
         },
         staleTime: defaultOfSixtyMins,
     })
+}
+
+export const extractLinks = (item: FailureCurveInstance) => {
+    const { FailureHash, BugID, FailureMode } = item
+    // if Vertical in ("oscrash", "livekerneldump", "abs_lpbh")
+    const KernelPart = FailureMode === "KernelMode" ? "Kernel" : ""
+
+    return {
+        FailureLink: `https://watsonportal.microsoft.com/${KernelPart}Failure?FailureSearchText=${FailureHash}&DateRange=Last%2030%20Days&DateTimeFormat=UTC&MaxRows=100&DisplayMetric=CabCount`,
+        BugLink: `https://microsoft.visualstudio.com/DefaultCollection/OS/_workitems/edit/${BugID}`,
+    }
 }

@@ -12,8 +12,6 @@ export interface StudyInstanceData {
     TotalDevices: number
     DevicesWithUsage: number
     UniqueFailureCount: number
-    Rank: number
-    ExpandedCols: any
 }
 
 export interface StudyConfig {

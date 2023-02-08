@@ -11,8 +11,8 @@ export interface Vertical {
 
 // Failure Curve Display related interfaces
 export interface FailureCurveInstance {
-    StudyInstanceKey: string
-    StudyInstanceKeyGuid: string
+    StudyKeyInstance: string
+    StudyKeyInstanceGuid: string
     StudyFailureCurveKeyInstance: string
     StudyFailureCurveKeyInstanceGuid: string
     Vertical: string
@@ -33,6 +33,7 @@ export interface FailureCurveInstance {
     PctHits: number
     FailureMode: string
     ResolvedReason: string
+    RichFailureInfo?: string
 }
 
 export interface FailureCurveSummary {

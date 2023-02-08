@@ -1,27 +1,27 @@
+import { IDropdownOption, Label } from "@fluentui/react"
 import axios from "axios"
 import * as React from "react"
-import { IDropdownOption, Label } from "@fluentui/react"
-import { MultiSelectVerticalList } from "./MultiSelectVerticalList"
-import { FailureModesSelection } from "./FailureModesSelection"
-import { ConfigureVerticalButton } from "./ConfigureVerticalButton"
-import { MultiSelectPivots } from "./MultiSelectPivots"
-import { PivotsDetailedList } from "./PivotsDetailedList"
+import { Vertical } from "../../models/failurecurve.model"
+import { StudyPivotConfig } from "../../models/filterexpression.model"
+import { Pivot } from "../../models/pivot.model"
 import { FilterExpressionDetailedList } from "../helpers/FilterExpression/FilterExpressionDetailedList"
-import { AddOrUpdateButton } from "./AddOrUpdateButton"
 import { Loading } from "../helpers/Loading"
 import { WikiLink } from "../helpers/WikiLink"
-import { Vertical } from "../../models/failurecurve.model"
-import { Pivot } from "../../models/pivot.model"
-import { StudyPivotConfig } from "../../models/filterexpression.model"
+import { AddOrUpdateButton } from "./AddOrUpdateButton"
+import { ConfigureVerticalButton } from "./ConfigureVerticalButton"
+import { FailureModesSelection } from "./FailureModesSelection"
+import { MultiSelectPivots } from "./MultiSelectPivots"
+import { MultiSelectVerticalList } from "./MultiSelectVerticalList"
+import { PivotsDetailedList } from "./PivotsDetailedList"
 import {
-    extractModesFromVerticalPair,
-    getPivotIDs,
     AddNewSelectedPivots,
-    getVerticalNames,
-    getMappedPivotWithScopeFilter,
+    extractModesFromVerticalPair,
     getDataToSaveUsingPivot,
     getFilterPivots,
+    getMappedPivotWithScopeFilter,
+    getPivotIDs,
     getUniqueMappedPivotWithScopeFilter,
+    getVerticalNames,
 } from "./service"
 
 export interface Props {
@@ -161,7 +161,7 @@ export const FailureCurve = (props: Props) => {
 
     const loadFailureVerticalModes = (input: IDropdownOption[], flag: boolean) => {
         // storing the result in tempModes to use it for further mode selection logic
-        let tempModes = extractModesFromVerticalPair(input) 
+        const tempModes = extractModesFromVerticalPair(input) // fix-es-lint error: changed to const becuase tempModes is not being reassigned
         setModes(tempModes)
         setSelectedVerticals(input)
         if (tempModes.length === 2) {
@@ -238,8 +238,7 @@ export const FailureCurve = (props: Props) => {
             )
             setEmptyScopedPivots(true)
             setCallFilterExpBackend(false)
-        }
-        else {
+        } else {
             // show Filter expression component for the pivots selected for filtering
             setStudyConfigs(tempStudyConfigs)
             setCallFilterExpBackend(true)

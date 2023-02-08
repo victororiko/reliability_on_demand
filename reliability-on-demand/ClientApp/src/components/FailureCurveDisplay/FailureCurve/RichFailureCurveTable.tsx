@@ -1,14 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-multi-comp */
 import { Box, Button, Typography } from "@mui/material"
-import type { MRT_ColumnDef } from "material-react-table" // If using TypeScript (optional, but recommended)
+import type { MRT_ColumnDef } from "material-react-table"; // If using TypeScript (optional, but recommended)
 import MaterialReactTable from "material-react-table"
 import React from "react"
+import * as XLSX from "xlsx"
 import { FailureCurveInstance } from "../../../models/failurecurve.model"
 import { addSpaces, onlyUnique, wrappedHeaderStyle } from "../../helpers/utils"
-import { RichFailureNameRow } from "./FailureAndBugRow"
+import { extractLinks } from "../service"
 import { LinkedBugIdRow } from "./LinkedBugIdRow"
 import { RichBugState } from "./RichBugState"
+import { RichFailureInfo } from "./RichFailureInfo"
 
 interface IRichFailureCurveTableProps {
     data: FailureCurveInstance[]
@@ -19,26 +21,26 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
     // column definitions - strongly typed if you are using TypeScript (optional, but recommended)
     const columns = React.useMemo<MRT_ColumnDef<FailureCurveInstance>[]>(() => {
         return [
-            // StudyInstanceKey:                     string;
+            // StudyKeyInstance:                     string;
             {
-                accessorKey: "StudyInstanceKey",
-                header: addSpaces("StudyInstanceKey"),
+                accessorKey: "StudyKeyInstance",
+                header: addSpaces("StudyKeyInstance"),
                 Header: () => {
                     return (
                         <Typography sx={wrappedHeaderStyle}>
-                            {addSpaces("StudyInstanceKey")}
+                            {addSpaces("StudyKeyInstance")}
                         </Typography>
                     )
                 },
             },
-            // StudyInstanceKeyGuid:                 string;
+            // StudyKeyInstanceGuid:                 string;
             {
-                accessorKey: "StudyInstanceKeyGuid",
-                header: addSpaces("StudyInstanceKeyGuid"),
+                accessorKey: "StudyKeyInstanceGuid",
+                header: addSpaces("StudyKeyInstanceGuid"),
                 Header: () => {
                     return (
                         <Typography sx={wrappedHeaderStyle}>
-                            {addSpaces("StudyInstanceKeyGuid")}
+                            {addSpaces("StudyKeyInstanceGuid")}
                         </Typography>
                     )
                 },
@@ -152,6 +154,22 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                     )
                 },
             },
+            // RichFailureInfo:                          string;
+            {
+                accessorKey: "RichFailureInfo",
+                header: addSpaces("RichFailureInfo"),
+                Header: () => {
+                    return (
+                        <Typography sx={wrappedHeaderStyle}>
+                            {addSpaces("RichFailureInfo")}
+                        </Typography>
+                    )
+                },
+                Cell: ({ cell }) => {
+                    return <RichFailureInfo item={cell.row.original} />
+                },
+                size: 900,
+            },
             // FailureName:                          string;
             {
                 accessorKey: "FailureName",
@@ -162,7 +180,7 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                     )
                 },
                 Cell: ({ cell }) => {
-                    return <RichFailureNameRow item={cell.row.original} />
+                    return <RichFailureInfo item={cell.row.original} showFialureName />
                 },
                 size: 900,
             },
@@ -172,6 +190,9 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                 header: addSpaces("BugTitle"),
                 Header: () => {
                     return <Typography sx={wrappedHeaderStyle}>{addSpaces("BugTitle")}</Typography>
+                },
+                Cell: ({ cell }) => {
+                    return <RichFailureInfo item={cell.row.original} showBugTitle />
                 },
             },
             // BugState:                             string;
@@ -282,6 +303,29 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
         ]
     }, [])
 
+    const onExportToExcel = (failures: FailureCurveInstance[]) => {
+        // Add links for failure curve and bug id
+        const failuresWithLinks = failures.map((item: FailureCurveInstance) => {
+            const { FailureLink, BugLink } = extractLinks(item)
+            return {
+                ...item,
+                FailureLink,
+                BugLink,
+            }
+        })
+        const excelData = failuresWithLinks
+        const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData)
+        const workbook: XLSX.WorkBook = {
+            Sheets: { data: worksheet },
+            SheetNames: ["data"],
+        }
+
+        // display Windows Save Dialog box with default file name.xslx
+        const timestamp = new Date().toLocaleString()
+        const fileName = `RichReliabilityFailureCurveData_export_${timestamp}.xlsx`
+        XLSX.writeFile(workbook, fileName)
+    }
+
     return (
         <div>
             <MaterialReactTable
@@ -290,8 +334,8 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                 initialState={{
                     sorting: [{ id: "Rank", desc: false }],
                     columnVisibility: {
-                        StudyInstanceKey: false,
-                        StudyInstanceKeyGuid: false,
+                        StudyKeyInstance: false,
+                        StudyKeyInstanceGuid: false,
                         StudyFailureCurveKeyInstance: false,
                         StudyFailureCurveKeyInstanceGuid: false,
                         Vertical: false,
@@ -301,6 +345,7 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                         FailureHash: false,
                         BugID: true,
                         ResolvedReason: true,
+                        RichFailureInfo: false,
                         FailureName: true,
                         BugTitle: false,
                         BugState: false,
@@ -347,6 +392,13 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                                 }}
                             >
                                 Reset Filters
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    onExportToExcel(props.data)
+                                }}
+                            >
+                                Export To Excel
                             </Button>
                         </Box>
                     )
