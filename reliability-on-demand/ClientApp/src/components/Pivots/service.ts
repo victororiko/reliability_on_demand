@@ -333,3 +333,22 @@ export const hasFilteringPivotsSelected = (configs: PopulationPivotConfigUI[]): 
 
     return false
 }
+
+// setting correct UIInputType for the newly added pivots in the Filter expression
+export const setCorrectUIInputType = (
+    filterExpData: PopulationPivotConfigUI[],
+    selectedPivotsWithCompleteInfo: PopulationPivotConfigUI[]
+): PopulationPivotConfigUI[] => {
+    for (const row of filterExpData) {
+        if (row.PivotScopeID === -1 && row.UIDataType?.length === 0) {
+            for (const pivot of selectedPivotsWithCompleteInfo) {
+                if (pivot.PivotKey === row.PivotKey && pivot.UIDataType?.length !== 0) {
+                    row.UIDataType = pivot.UIDataType
+                    break
+                }
+            }
+        }
+    }
+
+    return filterExpData
+}

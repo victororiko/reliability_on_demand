@@ -3,7 +3,7 @@ import axios from "axios"
 import * as React from "react"
 import { useEffect, useState } from "react"
 import { Loading } from "../helpers/Loading"
-import { AllSourceType } from "../helpers/utils"
+import { AllSourceType , setCorrectUIInputType } from "../helpers/utils"
 import { MySingleSelectComboBox } from "../helpers/MySingleSelectComboBox"
 import { MyMultiSelectComboBox } from "../helpers/MyMultiSelectComboBox"
 import { Pivot } from "../../models/pivot.model"
@@ -20,6 +20,7 @@ import { FilterExpressionDetailedList } from "../helpers/FilterExpression/Filter
 import { StudyPivotConfig } from "../../models/filterexpression.model"
 import { SaveManagePivots } from "./SaveManagePivots"
 import { getDataToSaveUsingPivot, getFilterPivots } from "../FailureCurveSection/service"
+
 
 export interface IManagePivotsProps {}
 
@@ -153,7 +154,7 @@ export const ManagePivots = (props: IManagePivotsProps) => {
     }
 
     const onFilterExpUpdate = (input: any, flag: boolean) => {
-        setPivotStudyConfig(input)
+        setPivotStudyConfig(setCorrectUIInputType(input, selectedPivotsSet))
         setCallFilterExpBackend(flag)
     }
 

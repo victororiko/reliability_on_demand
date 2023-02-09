@@ -102,7 +102,11 @@ export const FilterExpressionDetailedList = (props: Props) => {
             PivotName: "",
         }
 
-        const updated = [...changedFilterExp.slice(0, id), item, ...changedFilterExp.slice(id)]
+        const updated = [
+            ...changedFilterExp.slice(0, id + 1),
+            item,
+            ...changedFilterExp.slice(id + 1),
+        ]
 
         setChangedFilterExp(updated)
         setCols([])
@@ -117,6 +121,21 @@ export const FilterExpressionDetailedList = (props: Props) => {
             if (i !== id) {
                 updated.push(changedFilterExp[i])
             }
+        }
+
+        if (updated.length === 0) {
+            const item: StudyPivotConfig = {
+                PivotKey: "",
+                PivotScopeID: -1,
+                PivotOperator: "",
+                PivotScopeValue: "",
+                StudyConfigID: props.studyPivotConfigs[0].StudyConfigID,
+                RelationalOperator: "",
+                UIDataType: "",
+                PivotName: "",
+            }
+
+            updated.push(item)
         }
 
         setChangedFilterExp(updated)

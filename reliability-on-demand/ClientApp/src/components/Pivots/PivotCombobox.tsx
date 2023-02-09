@@ -56,7 +56,7 @@ export const PivotCombobox = (props: IPivotComboboxProps) => {
                             const rObj = {
                                 ...item,
                                 key: item.PivotKey,
-                                text: item["dbo.RELPivotInfo"][0].PivotName, // using [0] because the array will only have 1 object - SQL weirdness
+                                text: item.PivotName, // using [0] because the array will only have 1 object - SQL weirdness
                             }
                             return rObj
                         })

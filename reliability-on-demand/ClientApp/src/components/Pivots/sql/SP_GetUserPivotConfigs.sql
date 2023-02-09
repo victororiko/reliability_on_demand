@@ -26,15 +26,16 @@ WHERE PivotKey LIKE @PivotSource + '%' and StudyConfigID = @StudyConfigID
 )
 SET @StudyConfigIDtoUse = @StudyConfigID
 ELSE SET @StudyConfigIDtoUse = -1
+    SELECT * FROM(
     SELECT
         [dbo].[RELStudyPivotConfig].*,
         [dbo].[RELPivotInfo].PivotName,
         [dbo].[RELPivotInfo].PivotSource,
-        [dbo].[RELPivotInfo].PivotKey
+		[dbo].[RELPivotInfo].UIInputDataType AS UIDataType
     FROM [dbo].[RELStudyPivotConfig]
         INNER JOIN [dbo].[RELPivotInfo]
         ON [dbo].[RELStudyPivotConfig].PivotKey = [dbo].[RELPivotInfo].PivotKey
-    WHERE PivotSource = @PivotSource and StudyConfigID = @StudyConfigIDtoUse
+    WHERE PivotSource = @PivotSource and StudyConfigID = @StudyConfigIDtoUse) AS ans
     FOR JSON AUTO, Include_Null_Values
     GO
 GO

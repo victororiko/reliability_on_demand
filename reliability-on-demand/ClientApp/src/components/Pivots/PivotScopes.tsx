@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react"
 import { PopulationPivotConfigUI, StudyPivotConfig } from "../../models/filterexpression.model"
 import { FilterExpressionDetailedList } from "../helpers/FilterExpression/FilterExpressionDetailedList"
-import { getAggregateByCheckedValue, getAggregateByValue, getScopeCheckedValue } from "./service"
+import {
+    getAggregateByCheckedValue,
+    getAggregateByValue,
+    getScopeCheckedValue,
+    setCorrectUIInputType,
+} from "./service"
 
 interface IPivotScopesProps {
     userConfigs: PopulationPivotConfigUI[]
@@ -30,7 +35,7 @@ export const PivotScopes = (props: IPivotScopesProps) => {
             } as PopulationPivotConfigUI
             return newPivotConfig
         })
-        setScopingCandidates(newList)
+        setScopingCandidates(setCorrectUIInputType(newList, props.userConfigs))
         setCallFilterExpBackend(callBackend)
     }
 

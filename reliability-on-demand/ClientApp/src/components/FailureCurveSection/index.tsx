@@ -23,6 +23,7 @@ import {
     getUniqueMappedPivotWithScopeFilter,
     getVerticalNames,
 } from "./service"
+import { setCorrectUIInputType } from "../helpers/utils"
 
 export interface Props {
     StudyConfigID: number
@@ -292,7 +293,8 @@ export const FailureCurve = (props: Props) => {
     }
 
     const updateFilterExpTable = (input: StudyPivotConfig[], flag: boolean) => {
-        setStudyConfigs(input)
+        // set correct UIInputType for PivotScopeID - 1 that is newly added Pivot
+        setStudyConfigs(setCorrectUIInputType(input, selectedPivotsSet))
         setCallFilterExpBackend(flag)
     }
 
