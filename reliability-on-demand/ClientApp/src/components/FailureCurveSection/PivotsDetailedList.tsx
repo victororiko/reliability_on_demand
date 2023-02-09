@@ -6,6 +6,7 @@ import {
     IColumn,
     Checkbox,
     IDropdownOption,
+    TextField,
 } from "@fluentui/react"
 import { Pivot } from "../../models/pivot.model"
 import { buildColumnArray, mapPivotTableColumnValue } from "./service"
@@ -40,6 +41,15 @@ export const PivotsDetailedList = (props: Props) => {
         if (column?.key === "PivotName") {
             return <span>{fieldContent}</span>
         }
+
+        if (column?.key === "PivotExpression") {
+            return (
+                <span>
+                    <TooltipHost content={fieldContent}>{fieldContent}</TooltipHost>
+                </span>
+            )
+        }
+
         return <span />
     }
 

@@ -93,7 +93,7 @@ export const getUniqueMappedPivotWithScopeFilter = (
                 StudyConfigID: studyconfigID,
                 RelationalOperator: ele.RelationalOperator,
                 AggregateBy: false,
-                PivotExpression: "",
+                PivotExpression: ele.PivotExpression,
             }
             res.push(row)
             set.add(ele.PivotKey)
@@ -122,7 +122,7 @@ export const getMappedPivotWithScopeFilter = (input: Pivot[], studyconfigID: num
             StudyConfigID: studyconfigID,
             RelationalOperator: ele.RelationalOperator,
             AggregateBy: false,
-            PivotExpression: "",
+            PivotExpression: ele.PivotExpression,
         }
         res.push(row)
     }
@@ -153,7 +153,7 @@ export const buildColumnArray = (data: Pivot[]): IColumn[] => {
                     name: ele.fieldName ?? "",
                     fieldName: ele.fieldName ?? "",
                     minWidth: 50,
-                    maxWidth: 150,
+                    maxWidth: 170,
                     isResizable: true,
                 })
                 break
@@ -178,6 +178,16 @@ export const buildColumnArray = (data: Pivot[]): IColumn[] => {
                     fieldName: ele.fieldName ?? "",
                     minWidth: 50,
                     maxWidth: 100,
+                    isResizable: true,
+                })
+                break
+            case "PivotExpression":
+                cols.push({
+                    key: ele.fieldName ?? "",
+                    name: ele.fieldName ?? "",
+                    fieldName: ele.fieldName ?? "",
+                    minWidth: 100,
+                    maxWidth: 600,
                     isResizable: true,
                 })
                 break
@@ -509,7 +519,7 @@ export const getFilterPivots = (
                 PivotExpression: ele.PivotExpression,
                 PivotKey: ele.PivotKey,
                 StudyConfigID,
-                PivotScopeID: -1,
+                PivotScopeID: ele.PivotScopeID,
                 UIDataType: ele.UIDataType,
                 RelationalOperator: ele.RelationalOperator,
             }

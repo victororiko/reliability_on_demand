@@ -127,7 +127,8 @@ export const FailureCurve = (props: Props) => {
                 `api/Data/GetAllConfiguredFailurePivotsForAVertical/sourcesubtype/${sourcesubtype}/StudyConfigID/${props.StudyConfigID}`
             )
             .then((res) => {
-                if (res.data) {
+                const pivotRes = res.data as Pivot[]
+                if (pivotRes && pivotRes.length > 0) {
                     setSelectedPivotsKeys(getPivotIDs(res.data))
                     loadDetailedListRows(res.data)
                     setButtonName("Update Failure Curve")
@@ -148,7 +149,8 @@ export const FailureCurve = (props: Props) => {
                 },
             })
             .then((res) => {
-                if (res.data !== null) {
+                const pivotRes = res.data as Pivot[]
+                if (pivotRes && pivotRes.length > 0) {
                     setSelectedPivotsKeys(getPivotIDs(res.data))
                     loadDetailedListRows(res.data)
                     setButtonName("Add Failure Curve")
@@ -180,10 +182,18 @@ export const FailureCurve = (props: Props) => {
 
     const loadDetailedListRows = (data: Pivot[]) => {
         const tempSelectedPivots = getMappedPivotWithScopeFilter(data, props.StudyConfigID)
-        const tempSelectedPivotsSet = getUniqueMappedPivotWithScopeFilter(data, props.StudyConfigID)
-        setSelectedPivotsSet(tempSelectedPivotsSet)
         setSelectedPivots(tempSelectedPivots)
-        changeDetailedListInput(tempSelectedPivotsSet)
+        const tempSelectedPivotsSet = getUniqueMappedPivotWithScopeFilter(
+            tempSelectedPivots,
+            props.StudyConfigID
+        )
+        setSelectedPivotsSet(tempSelectedPivotsSet)
+        const tempStudyConfigs = getFilterPivots(
+            tempSelectedPivots,
+            tempSelectedPivotsSet,
+            props.StudyConfigID
+        )
+        getFilterExpressionData(tempStudyConfigs, tempSelectedPivotsSet)
     }
 
     const updateDetailedListRows = (data: string[]) => {
@@ -222,15 +232,25 @@ export const FailureCurve = (props: Props) => {
         </div>
     )
 
-    const changeDetailedListInput = (input: Pivot[]) => {
-        setSelectedPivotsSet(input)
-        const tempStudyConfigs = getFilterPivots(selectedPivots, input, props.StudyConfigID)
+    const changeDetailedListInput = (selectedPivotsSetParam: Pivot[]) => {
+        const tempStudyConfigs = getFilterPivots(
+            selectedPivots,
+            selectedPivotsSetParam,
+            props.StudyConfigID
+        )
+        getFilterExpressionData(tempStudyConfigs, selectedPivotsSetParam)
+    }
+
+    const getFilterExpressionData = (
+        tempStudyConfigs: StudyPivotConfig[],
+        selectedPivotsSetParam: Pivot[]
+    ) => {
         // if none of the pivots are selected as Filter pivots, display warning and the save button
         if (tempStudyConfigs === null || tempStudyConfigs.length === 0) {
             setDataToSave(
                 getDataToSaveUsingPivot(
                     tempStudyConfigs,
-                    input,
+                    selectedPivotsSetParam,
                     selectedverticals,
                     selectedMode,
                     props.StudyConfigID

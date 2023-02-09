@@ -337,7 +337,7 @@ export const getUniqueMappedPivotWithScopeFilter = (
                 StudyConfigID: studyconfigID,
                 RelationalOperator: ele.RelationalOperator,
                 AggregateBy: ele.AggregateBy,
-                PivotExpression: "",
+                PivotExpression: studyconfigID === -1 ? ele.PivotExpression : "",
             }
             res.push(row)
             set.add(ele.PivotKey)
