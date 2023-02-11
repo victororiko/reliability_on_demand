@@ -1,4 +1,4 @@
-import { IDropdownOption, Label } from "@fluentui/react"
+import { IComboBoxOption, IDropdownOption, Label } from "@fluentui/react"
 import axios from "axios"
 import * as React from "react"
 import { Vertical } from "../../models/failurecurve.model"
@@ -10,7 +10,6 @@ import { WikiLink } from "../helpers/WikiLink"
 import { AddOrUpdateButton } from "./AddOrUpdateButton"
 import { ConfigureVerticalButton } from "./ConfigureVerticalButton"
 import { FailureModesSelection } from "./FailureModesSelection"
-import { MultiSelectPivots } from "./MultiSelectPivots"
 import { MultiSelectVerticalList } from "./MultiSelectVerticalList"
 import { PivotsDetailedList } from "./PivotsDetailedList"
 import {
@@ -22,8 +21,10 @@ import {
     getPivotIDs,
     getUniqueMappedPivotWithScopeFilter,
     getVerticalNames,
+    getPivotNames,
 } from "./service"
 import { setCorrectUIInputType } from "../helpers/utils"
+import { MyMultiSelectComboBox } from "../helpers/MyMultiSelectComboBox"
 
 export interface Props {
     StudyConfigID: number
@@ -40,7 +41,7 @@ export const FailureCurve = (props: Props) => {
     const [selectedPivots, setSelectedPivots] = React.useState<Pivot[]>([])
     const [selectedPivotsSet, setSelectedPivotsSet] = React.useState<Pivot[]>([])
     const [modeSelected, setModeSelected] = React.useState<Boolean>(false)
-    const [selectedPivotsKeys, setSelectedPivotsKeys] = React.useState<string[]>([])
+    const [selectedPivotsKeys, setSelectedPivotsKeys] = React.useState<IComboBoxOption[]>([])
     const [studyConfigs, setStudyConfigs] = React.useState<StudyPivotConfig[]>([])
     const [selectedMode, setSelectedMode] = React.useState<string>("")
     const [isValidFilterExp, setIsValidFilterExp] = React.useState<boolean>(false)
@@ -130,7 +131,7 @@ export const FailureCurve = (props: Props) => {
             .then((res) => {
                 const pivotRes = res.data as Pivot[]
                 if (pivotRes && pivotRes.length > 0) {
-                    setSelectedPivotsKeys(getPivotIDs(res.data))
+                    setSelectedPivotsKeys(getPivotNames(res.data))
                     loadDetailedListRows(res.data)
                     setButtonName("Update Failure Curve")
                 } else {
@@ -152,7 +153,7 @@ export const FailureCurve = (props: Props) => {
             .then((res) => {
                 const pivotRes = res.data as Pivot[]
                 if (pivotRes && pivotRes.length > 0) {
-                    setSelectedPivotsKeys(getPivotIDs(res.data))
+                    setSelectedPivotsKeys(getPivotNames(res.data))
                     loadDetailedListRows(res.data)
                     setButtonName("Add Failure Curve")
                 }
@@ -197,13 +198,13 @@ export const FailureCurve = (props: Props) => {
         getFilterExpressionData(tempStudyConfigs, tempSelectedPivotsSet)
     }
 
-    const updateDetailedListRows = (data: string[]) => {
+    const updateDetailedListRows = (data: IComboBoxOption[]) => {
         const temp: Pivot[] = []
         // Adding the rows that from detailed list input that are still selected
         // Also filter the deselected pivots
         for (const ele of selectedPivotsSet) {
             for (const e of data) {
-                if (ele.PivotKey === e) {
+                if (ele.PivotKey === e.key) {
                     temp.push(ele)
                     break
                 }
@@ -302,10 +303,12 @@ export const FailureCurve = (props: Props) => {
         ""
     ) : (
         <div>
-            <MultiSelectPivots
-                pivots={pivots}
-                callBack={updateDetailedListRows}
-                selectedOptions={selectedPivotsKeys}
+            <MyMultiSelectComboBox
+                label="Select Pivots"
+                placeholder="Select Pivots"
+                callback={updateDetailedListRows}
+                options={getPivotNames(pivots)}
+                selectedItems={selectedPivotsKeys}
             />
             <PivotsDetailedList data={selectedPivotsSet} callBack={changeDetailedListInput} />
         </div>

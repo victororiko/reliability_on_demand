@@ -1,7 +1,7 @@
 import { IComboBox, IComboBoxOption, VirtualizedComboBox } from "@fluentui/react"
 import React, { FormEvent, useEffect } from "react"
 import { TeamConfig } from "../../models/team.model"
-import { CreateNewID } from "../helpers/utils"
+import { DummyID } from "../helpers/utils"
 
 interface Props {
     data: TeamConfig[]
@@ -22,7 +22,7 @@ export const TeamComboBox = (props: Props) => {
     // core interation methods
     const onChange = (event: FormEvent<IComboBox>, option?: IComboBoxOption | undefined): void => {
         setSelectedItem(option)
-        props.callBack(option ? option.key : CreateNewID)
+        props.callBack(option ? option.key : DummyID)
     }
 
     // -1 is just a way of checking in UI if user wants to add a new study or update a already existing study.
@@ -37,7 +37,7 @@ export const TeamComboBox = (props: Props) => {
             return rObj
         })
         parsedList.push({
-            key: CreateNewID,
+            key: DummyID,
             text: "create new team",
         })
         return parsedList
@@ -46,7 +46,7 @@ export const TeamComboBox = (props: Props) => {
     return (
         <div>
             <VirtualizedComboBox
-                selectedKey={selectedItem ? selectedItem.key : CreateNewID}
+                selectedKey={selectedItem ? selectedItem.key : DummyID}
                 label="Team"
                 allowFreeform
                 autoComplete="on"

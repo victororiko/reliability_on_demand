@@ -1,4 +1,4 @@
-import { IColumn, IDropdownOption, buildColumns } from "@fluentui/react"
+import { IColumn, IDropdownOption, buildColumns, IComboBoxOption, IComboBox } from "@fluentui/react"
 import { Vertical } from "../../models/failurecurve.model"
 import { StudyPivotConfig } from "../../models/filterexpression.model"
 import { Pivot } from "../../models/pivot.model"
@@ -231,14 +231,18 @@ export const mapPivotTableColumnValue = (
 }
 
 // add the new pivot selections to the Pivots
-export const AddNewSelectedPivots = (data: string[], input: Pivot[], temp: Pivot[]): Pivot[] => {
+export const AddNewSelectedPivots = (
+    data: IComboBoxOption[],
+    input: Pivot[],
+    temp: Pivot[]
+): Pivot[] => {
     let flag: boolean = false
     // Add the new selected enteries
     for (const ele of data) {
         flag = false
 
         for (const e of temp) {
-            if (ele === e.PivotKey) {
+            if (ele.key === e.PivotKey) {
                 flag = true
                 break
             }
@@ -249,7 +253,7 @@ export const AddNewSelectedPivots = (data: string[], input: Pivot[], temp: Pivot
             let name = ""
             let pivotkey = ""
             for (const element of input) {
-                if (element.PivotKey === ele) {
+                if (element.PivotKey === ele.key) {
                     name = element.PivotName ?? ""
                     tobeAddedePivotDataType = element.UIDataType ?? ""
                     pivotkey = element.PivotKey

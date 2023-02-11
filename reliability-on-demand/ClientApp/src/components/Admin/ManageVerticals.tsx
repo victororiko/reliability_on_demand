@@ -152,9 +152,9 @@ export const ManageVerticals = (props: IManageVerticalsProps) => {
             ) : (
                 <div>
                     <MySingleSelectComboBox
-                        label="Verticals"
+                        label="Study Type"
                         options={studyTypes}
-                        placeholder="Type a vertical name or select verticals from the list"
+                        placeholder="Select study type from the list"
                         selectedItem={selectedStudyType}
                         callback={onStudyTypeSelected}
                     />

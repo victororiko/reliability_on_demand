@@ -4,7 +4,7 @@ import * as React from "react"
 import { useEffect, useState } from "react"
 import { TeamConfig } from "../../models/team.model"
 import { Loading } from "../helpers/Loading"
-import { CreateNewID, SaveMessage } from "../helpers/utils"
+import { DummyID, SaveMessage } from "../helpers/utils"
 import { ComputeResourceLocation } from "./ComputeResourceLocation"
 import { DeleteTeamButton } from "./DeleteTeamButton"
 import { getTeamFromID } from "./helper"
@@ -40,12 +40,12 @@ export const ManageTeam = (props: IManageTeamProps) => {
 
     // Team Selection
     const selectCurrentTeam = (selection: number) => {
-        if (selection !== CreateNewID) {
+        if (selection !== DummyID) {
             const mySelection: TeamConfig | undefined = getTeamFromID(selection, teamConfigs)
             setSelectedTeam(mySelection)
         } else {
             const mySelection: TeamConfig = {
-                TeamID: CreateNewID,
+                TeamID: DummyID,
                 OwnerTeamFriendlyName: "",
                 OwnerContact: "",
                 OwnerTriageAlias: "",
@@ -86,33 +86,33 @@ export const ManageTeam = (props: IManageTeamProps) => {
             ComputeResourceLocation: selectedTeamObj?.ComputeResourceLocation,
         } as TeamConfig
 
-        if (teamToAddOrUpdate.TeamID !== CreateNewID) {
+        if (teamToAddOrUpdate.TeamID !== DummyID) {
             axios.post("api/Data/DeleteTeam", teamToAddOrUpdate).then(() => {
                 loadTeams()
-                selectCurrentTeam(CreateNewID)
+                selectCurrentTeam(DummyID)
             })
         }
     }
 
     const addOrSetTeamToBackend = () => {
         // Deciding if the final value should be the current selected study values or the respective edited value
-        const selectedTeamObj = getTeamFromID(selectedTeam?.TeamID ?? CreateNewID, teamConfigs)
-        const selectedTeamID = selectedTeamObj == null ? CreateNewID : selectedTeamObj.TeamID
+        const selectedTeamObj = getTeamFromID(selectedTeam?.TeamID ?? DummyID, teamConfigs)
+        const selectedTeamID = selectedTeamObj == null ? DummyID : selectedTeamObj.TeamID
         const tempTeamName =
-            newTeamFriendlyName === undefined && selectedTeamObj?.TeamID !== CreateNewID
+            newTeamFriendlyName === undefined && selectedTeamObj?.TeamID !== DummyID
                 ? selectedTeamObj?.OwnerTeamFriendlyName
                 : newTeamFriendlyName
         const tempOwnerContact =
-            newOwnerContact === undefined && selectedTeamObj?.TeamID !== CreateNewID
+            newOwnerContact === undefined && selectedTeamObj?.TeamID !== DummyID
                 ? selectedTeamObj?.OwnerContact
                 : newOwnerContact
         const tempOwnerTriageAlias =
-            newOwnerTriageAlias === undefined && selectedTeamObj?.TeamID !== CreateNewID
+            newOwnerTriageAlias === undefined && selectedTeamObj?.TeamID !== DummyID
                 ? selectedTeamObj?.OwnerTriageAlias
                 : newOwnerTriageAlias
 
         const tempComputeResourceLocation =
-            newComputeResourceLocation === undefined && selectedTeamObj?.TeamID !== CreateNewID
+            newComputeResourceLocation === undefined && selectedTeamObj?.TeamID !== DummyID
                 ? selectedTeamObj?.ComputeResourceLocation
                 : newComputeResourceLocation
 
@@ -140,16 +140,16 @@ export const ManageTeam = (props: IManageTeamProps) => {
 
     useEffect(() => {
         setLoading(true)
-        selectCurrentTeam(CreateNewID)
+        selectCurrentTeam(DummyID)
         loadTeams()
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     // Deciding the button name - Add or Update Team
-    const selectedTeamObj = getTeamFromID(selectedTeam?.TeamID ?? CreateNewID, teamConfigs)
-    const selectedTeamID = selectedTeamObj == null ? CreateNewID : selectedTeamObj?.TeamID
-    const buttonName = selectedTeamID !== CreateNewID ? "Update Team" : "Add Team"
+    const selectedTeamObj = getTeamFromID(selectedTeam?.TeamID ?? DummyID, teamConfigs)
+    const selectedTeamID = selectedTeamObj == null ? DummyID : selectedTeamObj?.TeamID
+    const buttonName = selectedTeamID !== DummyID ? "Update Team" : "Add Team"
     const deleteButton =
-        selectedTeamID !== CreateNewID ? <DeleteTeamButton callBack={deleteTeamFromBackend} /> : ""
+        selectedTeamID !== DummyID ? <DeleteTeamButton callBack={deleteTeamFromBackend} /> : ""
     // checking if any one of the required fields is empty, we will disable the save button
     const disableSaveButton =
         newOwnerTriageAlias === "" || newOwnerContact === "" || newTeamFriendlyName === ""
