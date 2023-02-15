@@ -17,6 +17,10 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web.Resource;
 using reliability_on_demand.Models;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text;
 
 namespace reliability_on_demand.Controllers
 {
@@ -29,14 +33,35 @@ namespace reliability_on_demand.Controllers
         private readonly IMicrosoftGraphAdapter graphAdapter;
         IOptions<ValueSettings> valueSettings;
         static readonly string[] scopeRequiredByApi = new string[] { "user_impersonation" };
+        private readonly HttpClient _httpClient;
 
-        public DataController(IKustoService kustoservice, ISQLService sqlservice, ILogger<DataController> logger, IOptions<ValueSettings> valueSettings, IMicrosoftGraphAdapter graphAdapter)
+        public DataController(IKustoService kustoservice, ISQLService sqlservice, ILogger<DataController> logger, IOptions<ValueSettings> valueSettings, IMicrosoftGraphAdapter graphAdapter, IHttpClientFactory httpClientFactory)
         {
             this._kustoservice = kustoservice;
             this._sqlservice = sqlservice;
             this._logger = logger;
             this.graphAdapter = graphAdapter;
             this.valueSettings = valueSettings;
+            this._httpClient = httpClientFactory.CreateClient();
+        }
+
+        [Route("api/Data/ValidateFilterExpression")]
+        [HttpPost]
+        public async Task<IActionResult> ValidateFilterExpression([FromBody] JsonElement data)
+        {
+            var url = this.valueSettings.Value.ValidateFilterExpressionURL;
+            var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(url, content);
+            _logger.LogInformation($"ValidateFilterExpression was called | url = {url} | data = {data}");
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return Ok(responseContent);
+            }
+            else
+            {
+                return StatusCode((int)response.StatusCode);
+            }
         }
 
         [Route("api/Data/GetAllTeamConfigs")]

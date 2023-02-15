@@ -1,4 +1,3 @@
-import axios from "axios"
 import {
     DefaultButton,
     DetailsList,
@@ -8,21 +7,18 @@ import {
     Label,
     SelectionMode,
     TextField,
-    TooltipHost,
+    TooltipHost
 } from "@fluentui/react"
+import axios from "axios"
 import React from "react"
 import { StudyPivotConfig } from "../../../models/filterexpression.model"
 import "./FailureCurveSection.css"
 import {
-    FilterExpressionbuildColumnArray,
-    getPivotScopeIDs,
+    FilterExpressionbuildColumnArray, getAllFilteredPivots, getPivotKey, getPivotScopeIDs,
     loadOperators,
     loadRelationalOperators,
-    mapFilterExpTableColumnValue,
-    getPivotKey,
-    getAllFilteredPivots,
+    mapFilterExpTableColumnValue
 } from "./service"
-import { azureFuncURL } from "../utils"
 
 /**
  * Responsibilities : The filter expression component takes in the array of StudyPivotConfig and queries the backend to fetch the filter expression from the RELPivotScope table to show it to the user.
@@ -215,33 +211,25 @@ export const FilterExpressionDetailedList = (props: Props) => {
 
     // call azure function to validate and return the validated filter expression
     const handleValidateFilterExpressionClick = () => {
-        if (azureFuncURL) {
-            axios
-                .post(azureFuncURL, changedFilterExp)
-                .then((response) => {
-                    if (response) {
-                        if (response.data === "Invalid Filter Expression") {
-                            setValidateStatement(`${response.data}`)
-                            props.validateExpCallBack(changedFilterExp, false)
-                        } else {
-                            setValidateStatement(`validated from Backend String = ${response.data}`)
-                            props.validateExpCallBack(changedFilterExp, true)
-                        }
-                    } else {
-                        setValidateStatement("no response from Backend Azure Function")
-                        props.validateExpCallBack(changedFilterExp, false)
-                    }
-                })
-                .catch((err) => {
-                    setValidateStatement(`failed to call backend with error = ${err}`)
+        axios.post("api/Data/ValidateFilterExpression", changedFilterExp)
+        .then((response) => {
+            if (response) {
+                if (response.data === "Invalid Filter Expression") {
+                    setValidateStatement(`${response.data}`)
                     props.validateExpCallBack(changedFilterExp, false)
-                })
-        } else {
-            setValidateStatement(
-                "Missing Azure Function URL - please contact cosreldata@microsoft.com"
-            )
+                } else {
+                    setValidateStatement(`validated from Backend String = ${response.data}`)
+                    props.validateExpCallBack(changedFilterExp, true)
+                }
+            } else {
+                setValidateStatement("no response from Backend Azure Function")
+                props.validateExpCallBack(changedFilterExp, false)
+            }
+        })
+        .catch((err) => {
+            setValidateStatement(`failed to call backend with error = ${err}`)
             props.validateExpCallBack(changedFilterExp, false)
-        }
+        })
     }
 
     const validate = props.validateExpCallBack ? (

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-multi-comp */
 import { Box, Button, Typography } from "@mui/material"
-import type { MRT_ColumnDef } from "material-react-table"; // If using TypeScript (optional, but recommended)
+import type { MRT_ColumnDef } from "material-react-table" // If using TypeScript (optional, but recommended)
 import MaterialReactTable from "material-react-table"
 import React from "react"
 import * as XLSX from "xlsx"

@@ -19,6 +19,7 @@ namespace reliability_on_demand.Extensions
         public string CosmosServicePrincipalAppID { get; set; }
         public string TenantID { get; set; }
         public string KustoClusterRelreporting { get; set; }
+        public string ValidateFilterExpressionURL { get; set; }
 
     }
 }
