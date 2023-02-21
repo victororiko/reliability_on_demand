@@ -6,6 +6,8 @@ import { StudyPivotConfig } from "../../models/filterexpression.model"
 import { Pivot } from "../../models/pivot.model"
 import { FilterExpressionDetailedList } from "../helpers/FilterExpression/FilterExpressionDetailedList"
 import { Loading } from "../helpers/Loading"
+import { MyMultiSelectComboBox } from "../helpers/MyMultiSelectComboBox"
+import { setCorrectUIInputType } from "../helpers/utils"
 import { WikiLink } from "../helpers/WikiLink"
 import { AddOrUpdateButton } from "./AddOrUpdateButton"
 import { ConfigureVerticalButton } from "./ConfigureVerticalButton"
@@ -18,13 +20,10 @@ import {
     getDataToSaveUsingPivot,
     getFilterPivots,
     getMappedPivotWithScopeFilter,
-    getPivotIDs,
-    getUniqueMappedPivotWithScopeFilter,
-    getVerticalNames,
     getPivotNames,
+    getUniqueMappedPivotWithScopeFilter,
+    getVerticalNames
 } from "./service"
-import { setCorrectUIInputType } from "../helpers/utils"
-import { MyMultiSelectComboBox } from "../helpers/MyMultiSelectComboBox"
 
 export interface Props {
     StudyConfigID: number
@@ -313,7 +312,11 @@ export const FailureCurve = (props: Props) => {
                 options={getPivotNames(pivots)}
                 selectedItems={selectedPivotsKeys}
             />
-            <PivotsDetailedList data={selectedPivotsSet} callBack={changeDetailedListInput} />
+            <PivotsDetailedList
+                data={selectedPivotsSet}
+                callBack={changeDetailedListInput}
+                key={JSON.stringify(selectedPivotsSet)}
+            />
         </div>
     )
 

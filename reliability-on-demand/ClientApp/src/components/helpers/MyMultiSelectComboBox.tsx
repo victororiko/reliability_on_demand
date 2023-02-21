@@ -1,5 +1,6 @@
-import { IComboBox, IComboBoxOption, VirtualizedComboBox } from "@fluentui/react"
-import React, { FormEvent, useEffect, useState } from "react"
+import { IComboBoxOption } from "@fluentui/react"
+import { Autocomplete, TextField } from "@mui/material"
+import React, { useEffect, useState } from "react"
 
 interface IMyMultiSelectComboBoxProps {
     options: IComboBoxOption[]
@@ -11,55 +12,83 @@ interface IMyMultiSelectComboBoxProps {
 
 export const MyMultiSelectComboBox = (props: IMyMultiSelectComboBoxProps) => {
     const [selectedItems, setSelectedItems] = useState<IComboBoxOption[]>([])
+    const optionsWithSelection = props.options.map((option) => {
+        const foundUserPivot = selectedItems.find((item) => {
+            return item.key === option.key
+        })
+        if (foundUserPivot)
+            return {
+                ...option,
+                selected: true,
+            }
+        return { ...option }
+    })
 
     useEffect(() => {
         setSelectedItems(props.selectedItems) // force combobox to show placeholder text if no selections exist
     }, [props.selectedItems])
 
     // call this whenever user selects an item
-    const handleChange = (
-        event: FormEvent<IComboBox>,
-        option?: IComboBoxOption | undefined,
-        index?: number | undefined,
-        value?: string | undefined
-    ) => {
+    const handleChange = (option?: IComboBoxOption[] | undefined) => {
+        console.log(option)
         if (option !== undefined) {
+            props.callback(
+                option.map((item) => {
+                    return { ...item, selected: true }
+                })
+            )
             // if option has already been selected - remove it from selectedItems
-            if (
-                selectedItems.find((item) => {
-                    return item.key === option.key
-                })
-            ) {
-                const newList = selectedItems.filter((item) => {
-                    return item.key !== option.key
-                })
-                setSelectedItems(newList)
-                props.callback(newList)
-            }
-            // add the new selection to list of existing selections
-            else {
-                const concatenatedList = [...selectedItems, option]
-                setSelectedItems(concatenatedList)
-                props.callback(concatenatedList)
-            }
+            // if (
+            //     selectedItems.find((item) => {
+            //         return item.key === option.key
+            //     })
+            // ) {
+            //     const newList = selectedItems.filter((item) => {
+            //         return item.key !== option.key
+            //     })
+            //     setSelectedItems(newList)
+            //     props.callback(newList)
+            // }
+            // // add thd new selection to list of existing selections
+            // else {
+            //     const concatenatedList = [...selectedItems, option]
+            //     setSelectedItems(concatenatedList)
+            //     props.callback(concatenatedList)
+            // }
         }
     }
 
     return (
         <div>
-            <VirtualizedComboBox
-                label={props.label}
-                options={props.options}
-                onChange={handleChange}
-                allowFreeform
-                autoComplete="on"
-                multiSelect
-                placeholder={props.placeholder}
-                selectedKey={props.selectedItems.map((item) => {
-                    return item.key as string
-                })}
-                text={`${props.selectedItems.length} items selected`}
-            />
+            <br />
+            {optionsWithSelection.length > 0 && (
+                <Autocomplete
+                    isOptionEqualToValue={(option, value) => {
+                        return option.key === value.key
+                    }}
+                    multiple
+                    id="tags-standard"
+                    options={props.options}
+                    getOptionLabel={(option) => {
+                        return option.text
+                    }}
+                    value={selectedItems}
+                    onChange={(event, newSelections) => {
+                        setSelectedItems(newSelections)
+                        props.callback(newSelections)
+                    }}
+                    renderInput={(params) => {
+                        return (
+                            <TextField
+                                {...params}
+                                variant="standard"
+                                label={props.label}
+                                placeholder={props.placeholder}
+                            />
+                        )
+                    }}
+                />
+            )}
         </div>
     )
 }

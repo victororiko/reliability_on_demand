@@ -1,4 +1,4 @@
-import { IColumn, IDropdownOption, buildColumns, IComboBoxOption, IComboBox } from "@fluentui/react"
+import { buildColumns, IColumn, IComboBoxOption, IDropdownOption } from "@fluentui/react"
 import { Vertical } from "../../models/failurecurve.model"
 import { StudyPivotConfig } from "../../models/filterexpression.model"
 import { Pivot } from "../../models/pivot.model"
@@ -631,4 +631,14 @@ export const getDataToSaveUsingPivot = (
     }
 
     return res
+}
+
+export const generateSelectedOptions = (input: Pivot[], keys: string[]) => {
+    const res: Pivot[] = []
+    for (const ele of input) {
+        if (keys.includes(ele.PivotKey)) {
+            res.push(ele)
+        }
+    }
+    return getPivotNames(res)
 }

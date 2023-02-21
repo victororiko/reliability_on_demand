@@ -330,7 +330,6 @@ export const hasFilteringPivotsSelected = (configs: PopulationPivotConfigUI[]): 
     for (const config of configs) {
         if (config.ScopeByChecked) return true
     }
-
     return false
 }
 
