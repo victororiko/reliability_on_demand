@@ -56,8 +56,9 @@ export const StudyDetails = (props: Props) => {
                     key: "Select study type",
                     text: "Select study type",
                 }
-                ans.push(defaultEntry)
-                setStudyTypes(ans)
+                // Making sure to add the default entry in the starting
+                const finalAnsWithDefault = [defaultEntry, ...ans]
+                setStudyTypes(finalAnsWithDefault)
             } else {
                 setStudyTypes([]) // force combobox to show placeholder text by default
             }

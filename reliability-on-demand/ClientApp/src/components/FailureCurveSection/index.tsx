@@ -214,6 +214,9 @@ export const FailureCurve = (props: Props) => {
         const updatedPivotTable = AddNewSelectedPivots(data, pivots, temp)
         setSelectedPivotsKeys(data)
         setSelectedPivotsSet(updatedPivotTable)
+
+        // Making sure to update the Filter expression component whenever Pivots multiselect is updated
+        changeDetailedListInput(updatedPivotTable)
     }
 
     React.useEffect(() => {

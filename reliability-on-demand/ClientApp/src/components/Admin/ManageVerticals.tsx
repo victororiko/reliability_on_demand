@@ -25,6 +25,10 @@ export const ManageVerticals = (props: IManageVerticalsProps) => {
         axios.get(`api/Data/GetAllStudyTypes`).then((response) => {
             if (response.data) {
                 const arr = response.data
+                const defaultEntry: IComboBoxOption = {
+                    key: "Select study type",
+                    text: "Select study type",
+                }
                 const ans = arr.map((item: any) => {
                     const rObj = {
                         key: item.StudyType,
@@ -32,12 +36,9 @@ export const ManageVerticals = (props: IManageVerticalsProps) => {
                     }
                     return rObj
                 })
-                const defaultEntry: IComboBoxOption = {
-                    key: "Select study type",
-                    text: "Select study type",
-                }
-                ans.push(defaultEntry)
-                setStudyTypes(ans)
+                // Making sure to add the default entry in the starting
+                const finalAnsWithDefault = [defaultEntry, ...ans]
+                setStudyTypes(finalAnsWithDefault)
             } else {
                 setStudyTypes([]) // force combobox to show placeholder text by default
             }

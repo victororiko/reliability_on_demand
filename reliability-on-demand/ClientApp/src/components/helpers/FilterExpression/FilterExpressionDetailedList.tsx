@@ -7,17 +7,20 @@ import {
     Label,
     SelectionMode,
     TextField,
-    TooltipHost
+    TooltipHost,
 } from "@fluentui/react"
 import axios from "axios"
 import React from "react"
 import { StudyPivotConfig } from "../../../models/filterexpression.model"
 import "./FailureCurveSection.css"
 import {
-    FilterExpressionbuildColumnArray, getAllFilteredPivots, getPivotKey, getPivotScopeIDs,
+    FilterExpressionbuildColumnArray,
+    getAllFilteredPivots,
+    getPivotKey,
+    getPivotScopeIDs,
     loadOperators,
     loadRelationalOperators,
-    mapFilterExpTableColumnValue
+    mapFilterExpTableColumnValue,
 } from "./service"
 
 /**
@@ -211,25 +214,26 @@ export const FilterExpressionDetailedList = (props: Props) => {
 
     // call azure function to validate and return the validated filter expression
     const handleValidateFilterExpressionClick = () => {
-        axios.post("api/Data/ValidateFilterExpression", changedFilterExp)
-        .then((response) => {
-            if (response) {
-                if (response.data === "Invalid Filter Expression") {
-                    setValidateStatement(`${response.data}`)
-                    props.validateExpCallBack(changedFilterExp, false)
+        axios
+            .post("api/Data/ValidateFilterExpression", changedFilterExp)
+            .then((response) => {
+                if (response) {
+                    if (response.data === "Invalid Filter Expression") {
+                        setValidateStatement(`${response.data}`)
+                        props.validateExpCallBack(changedFilterExp, false)
+                    } else {
+                        setValidateStatement(`validated from Backend String = ${response.data}`)
+                        props.validateExpCallBack(changedFilterExp, true)
+                    }
                 } else {
-                    setValidateStatement(`validated from Backend String = ${response.data}`)
-                    props.validateExpCallBack(changedFilterExp, true)
+                    setValidateStatement("no response from Backend Azure Function")
+                    props.validateExpCallBack(changedFilterExp, false)
                 }
-            } else {
-                setValidateStatement("no response from Backend Azure Function")
+            })
+            .catch((err) => {
+                setValidateStatement(`failed to call backend with error = ${err}`)
                 props.validateExpCallBack(changedFilterExp, false)
-            }
-        })
-        .catch((err) => {
-            setValidateStatement(`failed to call backend with error = ${err}`)
-            props.validateExpCallBack(changedFilterExp, false)
-        })
+            })
     }
 
     const validate = props.validateExpCallBack ? (
