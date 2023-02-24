@@ -308,7 +308,7 @@ RIODDeviceFailuresFlattened =
 					string verticalCountName = verticalMapStrings[1];
 #>
 				   ,
-                   SUM(Vertical == "<#=verticalName#>"?HitCount:0) AS <#=verticalCountName#>
+                   SUM(Vertical == "<#=verticalName#>"?HitCount:0) AS <#=verticalName#>
 <#
          }
 #>
