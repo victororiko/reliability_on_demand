@@ -355,7 +355,7 @@ RIODDeviceFailuresFlattenedXml =
 		            int verticalColLen = inputVerticalToColMap.Count();
 					string[] verticalMapStrings = inputVerticalToColMap.Split(':');
 					string verticalName = "\"" + verticalMapStrings[0] + "\"";
-					string verticalCountName = verticalMapStrings[1];
+					string verticalCountName = verticalMapStrings[0];
 
 					if(count!=0)
 					{

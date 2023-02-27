@@ -140,7 +140,7 @@ populationFailureUsageExpandedData = SELECT p.*,
 											 foreach (var inputVerticalToColMap in inputVerticalToColumn.Split(';'))
 											 {
 													string[] verticalMapStrings = inputVerticalToColMap.Split(':');
-													string verticalCountName = verticalMapStrings[1];
+													string verticalCountName = verticalMapStrings[0];
 											#>
 													,
 													<#=verticalCountName#>
@@ -154,6 +154,10 @@ populationFailureUsageExpandedData = SELECT p.*,
 											 LEFT OUTER JOIN
 											 (SSTREAM @input_Expanded_Failure_ss) AS f
 											 ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid;
+
+populationFailureUsageExpandedData = SELECT *,
+											getPartitionNumber(PopulationJoinKey,<#=numberOfPartitions#>) AS PartitionNumber
+											FROM populationFailureUsageExpandedData;
 
 OUTPUT populationFailureUsageExpandedData
 TO SSTREAM @outputExpandedStream
