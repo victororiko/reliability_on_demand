@@ -20,9 +20,9 @@
 		<Parameters>
 			<Parameter Name="__vc" Value="https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat" />
 			<Parameter Name="_scopePath" Value="$(CLUSTER_ROOT);$(CLUSTER_ROOT)/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Schema;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Policy" />
-			<Parameter Name="_priority" Value="998" />
+      <Parameter Name="_priority" Value="999"/>
+      <Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel.important"/>
 			<Parameter Name="_tokenAllocation" Value="100" />
-			<Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel" />
 		</Parameters>
 		<Activities>
 			<Activity Name="AggregatePopulation" ConfigBase="MissionControlBYODT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public" MaxRetries="1">

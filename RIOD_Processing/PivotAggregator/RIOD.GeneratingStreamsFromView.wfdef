@@ -20,7 +20,7 @@
       <Parameter Name="_scopePath" Value="$(CLUSTER_ROOT);$(CLUSTER_ROOT)/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Schema;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Policy"/>
       <Parameter Name="_priority" Value="999"/>
       <Parameter Name="_tokenAllocation" Value="80"/>
-      <Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel"/>
+      <Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel.important"/>
     </Parameters>
 
     <Activities>
