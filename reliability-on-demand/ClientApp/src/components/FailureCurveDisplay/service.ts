@@ -86,11 +86,24 @@ export const useStudyStatsQuery = (StudyKeyInstanceGuidStr: string) => {
 
 export const extractLinks = (item: FailureCurveInstance) => {
     const { FailureHash, BugID, FailureMode } = item
-    // if Vertical in ("oscrash", "livekerneldump", "abs_lpbh")
-    const KernelPart = FailureMode === "KernelMode" ? "Kernel" : ""
+    // by default assume failure mode is user mode
+    let FailureQualifier = "Failure"
+    let HeatmapQualifier = "FailureHeatMap"
+
+    // modify qualifiers if failure mode is kernel mode
+    if (FailureMode === "KernelMode") {
+        FailureQualifier = "KernelFailure"
+        HeatmapQualifier = "KernelHeatMap"
+    }
 
     return {
-        FailureLink: `https://watsonportal.microsoft.com/${KernelPart}Failure?FailureSearchText=${FailureHash}&DateRange=Last%2030%20Days&DateTimeFormat=UTC&MaxRows=100&DisplayMetric=CabCount`,
+        FailureLink: `https://watsonportal.microsoft.com/${FailureQualifier}?FailureSearchText=${FailureHash}&DateRange=Last%2030%20Days&DateTimeFormat=UTC&MaxRows=100&DisplayMetric=CabCount`,
         BugLink: `https://microsoft.visualstudio.com/DefaultCollection/OS/_workitems/edit/${BugID}`,
+        HeatmapLink: `https://watsonportal.microsoft.com/${HeatmapQualifier}?FailureSearchText=${FailureHash}&DateRange=Last+30+Days&DateTimeFormat=UTC&MaxRows=100&DisplayMetric=CabCount`,
     }
+}
+
+export interface TableFilter {
+    id: string
+    value: any
 }

@@ -13,6 +13,7 @@ export const LinkedBugIdRow = (props: ILinkedBugIdRowProps) => {
         <div>
             <Link
                 href={`https://microsoft.visualstudio.com/DefaultCollection/OS/_workitems/edit/${bugId}`}
+                target="_blank"
             >
                 {bug.BugState === "Active" ? (
                     <Typography sx={{ color: "red" }}>{bugId}</Typography>

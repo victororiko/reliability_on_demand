@@ -46,7 +46,7 @@ export const StudyConfigRow = (props: IStudyConfigRowProps) => {
                     <Link onClick={navigateToStudyInstance}>{props.config.StudyName}</Link>
                 </Text>
                 <Text styles={fixedWidth300px}>{props.config.LastRefreshDate}</Text>
-                <Text styles={fixedWidth300px}>{CacheFrequencyStr}</Text>
+                <Text styles={fixedWidth300px}>{CacheFrequencyStr ?? ""}</Text>
                 <Text styles={fixedWidth300px}>{props.config.Expiry}</Text>
                 <Text styles={fixedWidth300px}>{props.config.ObservationWindowDays}</Text>
             </Stack>

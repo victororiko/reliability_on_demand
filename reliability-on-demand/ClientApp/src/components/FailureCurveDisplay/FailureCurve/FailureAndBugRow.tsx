@@ -24,6 +24,7 @@ export const RichFailureNameRow = (props: IRichFailureNameRowProps) => {
                 <Typography>
                     <Link
                         href={`https://watsonportal.microsoft.com/${KernelPart}Failure?FailureSearchText=${FailureHash}&DateRange=Last%2030%20Days&DateTimeFormat=UTC&MaxRows=100&DisplayMetric=CabCount`}
+                        target="_blank"
                     >
                         {FailureName}
                     </Link>
@@ -35,6 +36,7 @@ export const RichFailureNameRow = (props: IRichFailureNameRowProps) => {
                 <Typography>
                     <Link
                         href={`https://microsoft.visualstudio.com/DefaultCollection/OS/_workitems/edit/${BugID}`}
+                        target="_blank"
                     >
                         {BugTitle}
                     </Link>

@@ -1,4 +1,4 @@
-import { PrimaryButton } from "@fluentui/react"
+import { Button, Stack } from "@mui/material"
 import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { Container } from "reactstrap"
@@ -32,6 +32,7 @@ export const StudySearch = (props: IStudySearchProps) => {
     }
 
     const setSearchByFromSelection = (searchByStr: string) => {
+        setStudyConfigsLoaded(false)
         setSearchBy(searchByStr)
     }
 
@@ -66,12 +67,12 @@ export const StudySearch = (props: IStudySearchProps) => {
     const renderSearchButton =
         searchBy === "" ? (
             ""
-        ) : searchBy === "Team" ? (
-            <PrimaryButton text="Search" onClick={loadStudies} />
-        ) : searchBy === "Pivots" && pivotConfigs.length > 0 ? (
-            <PrimaryButton text="Search" onClick={loadStudies} />
         ) : (
-            ""
+            <Stack direction="row" spacing={2}>
+                <Button variant="contained" onClick={loadStudies}>
+                    SEARCH
+                </Button>
+            </Stack>
         )
 
     const renderStudyConfigs = studyConfigsLoaded ? (
@@ -91,22 +92,28 @@ export const StudySearch = (props: IStudySearchProps) => {
 
     return (
         <Container>
-            <h1>Search Studies</h1>
-            <SearchByDropdown callback={setSearchByFromSelection} />
-            {searchBy === "Team" ? (
-                <Team callback={setTeamIdFromSelection} showMoreDetails={false} showTitle={false} />
-            ) : searchBy === "Pivots" ? (
-                <Pivots
-                    StudyConfigID={CreateNewID}
-                    showSaveButton={false}
-                    captureStudyPivotConfigs={handlePivotConfigs}
-                />
-            ) : (
-                ""
-            )}
-            {renderSearchButton}
-            {loading ? <Loading message="Hang tight - getting your Studies" /> : ""}
-            {renderStudyConfigs}
+            <Stack spacing={2}>
+                <h1>Search Studies</h1>
+                <SearchByDropdown callback={setSearchByFromSelection} />
+                {searchBy === "Team" ? (
+                    <Team
+                        callback={setTeamIdFromSelection}
+                        showMoreDetails={false}
+                        showTitle={false}
+                    />
+                ) : searchBy === "Pivots" ? (
+                    <Pivots
+                        StudyConfigID={CreateNewID}
+                        showSaveButton={false}
+                        captureStudyPivotConfigs={handlePivotConfigs}
+                    />
+                ) : (
+                    ""
+                )}
+                {renderSearchButton}
+                {loading ? <Loading message="Hang tight - getting your Studies" /> : ""}
+                {renderStudyConfigs}
+            </Stack>
         </Container>
     )
 }

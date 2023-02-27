@@ -22,7 +22,7 @@ import {
     getMappedPivotWithScopeFilter,
     getPivotNames,
     getUniqueMappedPivotWithScopeFilter,
-    getVerticalNames
+    getVerticalNames,
 } from "./service"
 
 export interface Props {

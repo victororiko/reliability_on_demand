@@ -9,7 +9,7 @@ import {
     convertPivotInfoToOptions,
     generateCorrespondingStudyConfig,
     getUniqueOptions,
-    mergeLists
+    mergeLists,
 } from "./service"
 
 interface IPivotComboboxProps {
@@ -20,12 +20,12 @@ interface IPivotComboboxProps {
 }
 
 /**
- * 
+ *
  * @param {string} pivotSource - the name of the pivot source (e.g. "Population", "Usage")
  * @param {number} StudyConfigID - used for identifying a study config (note: -1 is used for default study)
  * @param {boolean} showSaveButton - show/hide the save button. Hide the save button when you only want the list of study pivot configs, like when you are searching by pivots
  * @param {any} finalList - callback function that returns the final list of study pivots configured by the user
- * @returns React component that: 
+ * @returns React component that:
  * 1. gets all pivots from backend based on pivot source specified (e.g. "Population", "Usage")
  * 2. gets all user selections from backend based on pivot source and StudyConfigID
  * 3. merges the two lists and passes them to the MyMultiSelectComboBox component

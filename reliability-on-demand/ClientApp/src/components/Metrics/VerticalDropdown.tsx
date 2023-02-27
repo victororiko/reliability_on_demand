@@ -22,7 +22,7 @@ export const VerticalDropdown = (props: Props) => {
         undefined
     )
 
-    const { isError, error, isLoading, data } = useQuery({
+    const { isError, isLoading, data } = useQuery({
         queryKey: ["verticals"],
         queryFn: () => {
             return axios
@@ -33,13 +33,9 @@ export const VerticalDropdown = (props: Props) => {
         },
     })
 
-    if (isError)
-        return <MessageBox message={`Failed to get Verticals. Internal error = ${error}`} />
     if (isLoading) return <Loading message="Hang tight - getting Verticals" />
-    if (data.length === 0)
-        return (
-            <MessageBox message="No Verticals found. Please configure verticals or a study first." />
-        )
+    if (isError || data.length === 0)
+        return <MessageBox message="Please configure verticals for a study config above first" />
 
     const options = data.map((item: any) => {
         return { key: item.VerticalName, text: item.VerticalName }

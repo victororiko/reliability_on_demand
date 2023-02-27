@@ -1,16 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-multi-comp */
-import { Box, Button, Typography } from "@mui/material"
-import type { MRT_ColumnDef } from "material-react-table" // If using TypeScript (optional, but recommended)
-import MaterialReactTable from "material-react-table"
-import React from "react"
-import * as XLSX from "xlsx"
-import { FailureCurveInstance } from "../../../models/failurecurve.model"
-import { addSpaces, onlyUnique, wrappedHeaderStyle } from "../../helpers/utils"
-import { extractLinks } from "../service"
-import { LinkedBugIdRow } from "./LinkedBugIdRow"
-import { RichBugState } from "./RichBugState"
-import { RichFailureInfo } from "./RichFailureInfo"
+import { Box, Button, Typography } from "@mui/material";
+import type { MRT_ColumnDef } from "material-react-table"; // If using TypeScript (optional, but recommended)
+import MaterialReactTable from "material-react-table";
+import React from "react";
+import * as XLSX from "xlsx";
+import { FailureCurveInstance } from "../../../models/failurecurve.model";
+import { addSpaces, onlyUnique, wrappedHeaderStyle } from "../../helpers/utils";
+import { extractLinks } from "../service";
+import { LinkedBugIdRow } from "./LinkedBugIdRow";
+import { RichBugState } from "./RichBugState";
+import { RichFailureInfo } from "./RichFailureInfo";
 
 interface IRichFailureCurveTableProps {
     data: FailureCurveInstance[]
