@@ -14,8 +14,9 @@ export const expandCols = (data: StudyInstanceData[]): MRT_ColumnDef<StudyInstan
         const colHeader = key
         const colValue = aggByColJSON[key]
         const column: MRT_ColumnDef<StudyInstanceData> = {
-            accessorFn: () => {
-                return colValue
+            accessorFn: (row) => {
+                const a = JSON.parse(row.StudyAggregateByCols)
+                return a[colId]
             },
             id: colId,
             header: colHeader,
