@@ -425,7 +425,7 @@ public static class FailureHelper
 		{
            return "containercrash";
 		}
-		else if(watsonEventName == "bluescreen" && !string.IsNullOrEmpty(failureName) && (failureName.ToUpper().StartsWith("0xc8") || failureName.StartsWith("0xe2")) )
+		else if(watsonEventName == "bluescreen" && !string.IsNullOrEmpty(failureName) && (failureName.ToUpper().StartsWith("0X1C8") || failureName.ToUpper().StartsWith("0XE2")) )
 		{
            return "abs_lpbh";
 		}
