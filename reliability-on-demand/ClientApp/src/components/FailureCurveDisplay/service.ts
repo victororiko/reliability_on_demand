@@ -6,7 +6,7 @@ import { defaultOfSixtyMins } from "../helpers/utils"
 
 export const useStudyTimeFrameQuery = (StudyKeyInstanceGuidStr: string) => {
     return useQuery({
-        queryKey: ["studyTimeFrames"],
+        queryKey: ["studyTimeFrames", StudyKeyInstanceGuidStr],
         queryFn: () => {
             return axios
                 .get(`api/Data/GetTimeFrames/StudyKeyInstanceGuid/${StudyKeyInstanceGuidStr}`)
