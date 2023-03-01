@@ -39,6 +39,9 @@ USING System.Security.Cryptography;
 	char populationJoinKeySplitterChar = '.';
 	Char[] trimChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}','"'};
 	
+	// Workflow parameter for all Population pivots
+	string inputDefaultPopulationCols = "OSBranch;OSBuildNumber;OSBuildRevision;ProcessorModel;OSArchitecture;OEMName;OEMModel";
+	
 	// capture watson cutoff time
 	string inputWatsonMarkerFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt";
 	string inputWatsonLatestTimeFile = ReadTextFromStream(inputWatsonMarkerFile);
@@ -123,6 +126,10 @@ DevicesPopulationHourly_WatsonCutoff = SELECT i.*
 	// placeholders
 	string SelectColumnList = "";
 	HashSet<string> SelectColumnSet = new HashSet<string>();
+
+	// Adding defaullt Population columns
+	inputDefaultPopulationCols.Split(';').ToList().ForEach(x => SelectColumnSet.Add(x.Trim()));
+
 	string PopulationJoinKeyExpressionCols = "";
 	string PopulationJoinKey = "";
 	// extract select columns and PopulationJoinKey from each config
