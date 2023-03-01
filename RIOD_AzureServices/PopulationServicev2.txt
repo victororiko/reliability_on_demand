@@ -2,230 +2,6 @@
     "definition": {
         "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
         "actions": {
-            "Condition_5_-_if_max_dates_are_equal,_do_nothing": {
-                "actions": {
-                    "Condition_5_-_check_if_study_Instances_have_the_latest_time_Instances": {
-                        "actions": {
-                            "Set_variable_3_-_Setting_CalculatePopulation_to_true": {
-                                "inputs": {
-                                    "name": "CalculatePopulation",
-                                    "value": "@true"
-                                },
-                                "runAfter": {},
-                                "type": "SetVariable"
-                            }
-                        },
-                        "else": {
-                            "actions": {
-                                "Set_variable_3_-CalculatePopulation_to_false": {
-                                    "inputs": {
-                                        "name": "CalculatePopulation",
-                                        "value": "@false"
-                                    },
-                                    "runAfter": {},
-                                    "type": "SetVariable"
-                                }
-                            }
-                        },
-                        "expression": {
-                            "and": [
-                                {
-                                    "greater": [
-                                        "@variables('MaxRunDateForDeviesFlattenExpandedXML')",
-                                        "@body('Run_KQL_query_-_Get_max_endtime_in_StudyInstances')?['value']?[0]?['max_EndTime']"
-                                    ]
-                                }
-                            ]
-                        },
-                        "runAfter": {
-                            "Run_KQL_query_-_Get_max_endtime_in_StudyInstances": [
-                                "Succeeded"
-                            ]
-                        },
-                        "type": "If"
-                    },
-                    "Run_KQL_query_-_Get_max_endtime_in_StudyInstances": {
-                        "inputs": {
-                            "body": {
-                                "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                "csl": "StudyInstance\n| summarize max(EndTime)",
-                                "db": "RIOD"
-                            },
-                            "host": {
-                                "connection": {
-                                    "referenceName": "kusto_1"
-                                }
-                            },
-                            "method": "post",
-                            "path": "/ListKustoResults/false"
-                        },
-                        "runAfter": {},
-                        "type": "ApiConnection"
-                    }
-                },
-                "else": {
-                    "actions": {
-                        "Run_control_command_and_render_a_chart_-_Increase_DevicesFlattenExpandedXML_expi": {
-                            "inputs": {
-                                "body": {
-                                    "chartType": "Html Table",
-                                    "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                    "csl": ".alter-merge table DevicesFlattenExpandedXML policy retention softdelete = 7d",
-                                    "db": "RIOD"
-                                },
-                                "host": {
-                                    "connection": {
-                                        "referenceName": "kusto_1"
-                                    }
-                                },
-                                "method": "post",
-                                "path": "/RunKustoAndVisualizeResults/true"
-                            },
-                            "runAfter": {
-                                "Until": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection"
-                        },
-                        "Run_control_command_and_render_a_chart_-_dropping_tables": {
-                            "inputs": {
-                                "body": {
-                                    "chartType": "Html Table",
-                                    "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                    "csl": ".drop tables (DevicesFlattenExpandedXML,Temp_StudyConfig) ifexists",
-                                    "db": "RIOD"
-                                },
-                                "host": {
-                                    "connection": {
-                                        "referenceName": "kusto_1"
-                                    }
-                                },
-                                "method": "post",
-                                "path": "/RunKustoAndVisualizeResults/true"
-                            },
-                            "runAfter": {},
-                            "type": "ApiConnection"
-                        },
-                        "Set_variable_3_-_Set_CalculatePopulation_to_true": {
-                            "inputs": {
-                                "name": "CalculatePopulation",
-                                "value": "@true"
-                            },
-                            "runAfter": {
-                                "Run_control_command_and_render_a_chart_-_Increase_DevicesFlattenExpandedXML_expi": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "SetVariable"
-                        },
-                        "Until": {
-                            "actions": {
-                                "Append_to_string_variable_17_-_Append_to_IngestIfOnly_variable": {
-                                    "inputs": {
-                                        "name": "IngestIfNotStrTag",
-                                        "value": "@concat('PartitionNumber=',variables('PartitionCtr'))"
-                                    },
-                                    "runAfter": {
-                                        "Condition_4": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "AppendToStringVariable"
-                                },
-                                "Condition_4": {
-                                    "actions": {
-                                        "Append_to_string_variable_17_-_Adding_comma": {
-                                            "inputs": {
-                                                "name": "IngestIfNotStrTag",
-                                                "value": "@','"
-                                            },
-                                            "runAfter": {},
-                                            "type": "AppendToStringVariable"
-                                        }
-                                    },
-                                    "expression": {
-                                        "and": [
-                                            {
-                                                "greater": [
-                                                    "@variables('PartitionCtr')",
-                                                    "@0"
-                                                ]
-                                            }
-                                        ]
-                                    },
-                                    "runAfter": {},
-                                    "type": "If"
-                                },
-                                "Increment_variable_4_-_PartitionCTr": {
-                                    "inputs": {
-                                        "name": "PartitionCtr",
-                                        "value": 1
-                                    },
-                                    "runAfter": {
-                                        "Run_control_command_and_render_a_chart_-__Expand_XML_cols": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "IncrementVariable"
-                                },
-                                "Run_control_command_and_render_a_chart_-__Expand_XML_cols": {
-                                    "inputs": {
-                                        "body": {
-                                            "chartType": "Html Table",
-                                            "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                            "csl": ".set-or-append DevicesFlattenExpandedXML with(folder = 'Devices', distributed=1, ingestIfNotExists = '[\"@{variables('IngestIfNotStrTag')}\"]'\n, tags='[\"ingest-by:@{variables('IngestIfNotStrTag')}\"]') <|\nlet data  = DevicesFlattenedGeneric\n|  where PartitionNumber == @{variables('PartitionCtr')};\nlet expandedtable =  ExpandJSONToCols(data);\nexpandedtable;",
-                                            "db": "RIOD"
-                                        },
-                                        "host": {
-                                            "connection": {
-                                                "referenceName": "kusto_1"
-                                            }
-                                        },
-                                        "method": "post",
-                                        "path": "/RunKustoAndVisualizeResults/true"
-                                    },
-                                    "runAfter": {
-                                        "Append_to_string_variable_17_-_Append_to_IngestIfOnly_variable": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection"
-                                }
-                            },
-                            "expression": "@equals(variables('PartitionCtr'), variables('PartitionNumberForInput'))",
-                            "limit": {
-                                "count": 5000,
-                                "timeout": "PT7H"
-                            },
-                            "runAfter": {
-                                "Run_control_command_and_render_a_chart_-_dropping_tables": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Until"
-                        }
-                    }
-                },
-                "expression": {
-                    "and": [
-                        {
-                            "not": {
-                                "equals": [
-                                    "@variables('MaxRunDateForDeviesFlattenExpandedXML')",
-                                    "@variables('MaxRunDateForDeviesFlattenGeneric')"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Initialize_variable_2_-_MaxRunDateForDeviesFlattenExpandedXML": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "If"
-            },
             "Condition_5_-_needs_to_calculate_Population": {
                 "actions": {
                     "For_each_study_config_Id": {
@@ -243,7 +19,7 @@
                                                                 "body": {
                                                                     "chartType": "Html Table",
                                                                     "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                                                    "csl": ".set-or-append Temp_Study with(folder = 'Population', distributed=1) <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')} | summarize  countOfRows = count() by ''@{variables('AggByColsWithoutDeviceId')}\n| extend StudyKey = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}')\n| extend StudyConfigID =toint( @{variables('TempStudyConfigIDInt')})\n| extend StudyKeyGuid = toguid(hash_sha256(StudyKey))\n| extend StudyAggregateByCols = ''\n| extend IngestionTime = now()\n| project StudyConfigID,StudyKey,StudyKeyGuid,tostring(StudyAggregateByCols),IngestionTime",
+                                                                    "csl": ".set-or-append Temp_Study with(folder = 'Population', distributed=1) <|\nDevicesFlattenedExpanded | where @{variables('FilterExpression')} | summarize  countOfRows = count() by ''@{variables('AggByColsWithoutDeviceId')}\n| extend StudyKey = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}')\n| extend StudyConfigID =toint( @{variables('TempStudyConfigIDInt')})\n| extend StudyKeyGuid = toguid(hash_sha256(StudyKey))\n| extend StudyAggregateByCols = ''\n| extend IngestionTime = now()\n| project StudyConfigID,StudyKey,StudyKeyGuid,tostring(StudyAggregateByCols),IngestionTime",
                                                                     "db": "RIOD"
                                                                 },
                                                                 "host": {
@@ -265,7 +41,7 @@
                                                                     "body": {
                                                                         "chartType": "Html Table",
                                                                         "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                                                        "csl": ".set-or-append Temp_Study with(folder = 'Population', distributed=1) <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')} | summarize  countOfRows = count() by ''@{variables('AggByColsWithoutDeviceId')}\n| extend StudyKey = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}')\n| extend StudyConfigID =toint( @{variables('TempStudyConfigIDInt')})\n| extend StudyKeyGuid = toguid(hash_sha256(StudyKey))\n| extend StudyAggregateByCols = bag_pack(@{variables('TempAggByWithoutDeviceIDXML')})\n| extend IngestionTime = now()\n| project StudyConfigID,StudyKey,StudyKeyGuid,tostring(StudyAggregateByCols),IngestionTime",
+                                                                        "csl": ".set-or-append Temp_Study with(folder = 'Population', distributed=1) <|\nDevicesFlattenedExpanded | where @{variables('FilterExpression')} | summarize  countOfRows = count() by ''@{variables('AggByColsWithoutDeviceId')}\n| extend StudyKey = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}')\n| extend StudyConfigID =toint( @{variables('TempStudyConfigIDInt')})\n| extend StudyKeyGuid = toguid(hash_sha256(StudyKey))\n| extend StudyAggregateByCols = bag_pack(@{variables('TempAggByWithoutDeviceIDXML')})\n| extend IngestionTime = now()\n| project StudyConfigID,StudyKey,StudyKeyGuid,tostring(StudyAggregateByCols),IngestionTime",
                                                                         "db": "RIOD"
                                                                     },
                                                                     "host": {
@@ -1054,7 +830,7 @@
                                                         "body": {
                                                             "chartType": "Html Table",
                                                             "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                                            "csl": ".set-or-append Temp_StudyConfig with(folder = 'Population', distributed=1) <|\nDevicesFlattenExpandedXML \n| take 1\n| extend StudyConfigID = toint(@{variables('TempStudyConfigID')})\n| extend StudyAggregatePivots = ' @{variables('AggbyColsTerminatorWithoutDeviceID')}'\n| extend StudySelectPivots = '@{variables('SelectColsTerminatorWithoutDeviceID')}'\n| extend StudyVerticals = '@{variables('ConfiguredVerticals')}'\n| extend StudyMetrics = '@{variables('ConfiguredMetrics')}'\n| project StudyConfigID,StudyAggregatePivots,StudySelectPivots,StudyVerticals,StudyMetrics",
+                                                            "csl": ".set-or-append Temp_StudyConfig with(folder = 'Population', distributed=1) <|\nDevicesFlattenedExpanded \n| take 1\n| extend StudyConfigID = toint(@{variables('TempStudyConfigID')})\n| extend StudyAggregatePivots = ' @{variables('AggbyColsTerminatorWithoutDeviceID')}'\n| extend StudySelectPivots = '@{variables('SelectColsTerminatorWithoutDeviceID')}'\n| extend StudyVerticals = '@{variables('ConfiguredVerticals')}'\n| extend StudyMetrics = '@{variables('ConfiguredMetrics')}'\n| project StudyConfigID,StudyAggregatePivots,StudySelectPivots,StudyVerticals,StudyMetrics",
                                                             "db": "RIOD"
                                                         },
                                                         "host": {
@@ -1077,7 +853,7 @@
                                                         "body": {
                                                             "chartType": "Html Table",
                                                             "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                                            "csl": ".set-or-append Temp_StudyInstance with(folder = 'Population', distributed=1) <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')}\n| summarize TotalDevices = dcount(DeviceId), DevicesWithUsage = count_distinctif(DeviceId,tolong(EngagementDurationMS)>0 or tolong(InteractivityDurationMS) >0) by ''@{variables('AggByColsWithoutDeviceId')},Population_StartDate,Population_RunDate\n| extend StudyKey = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}')\n| extend StudyKeyGuid = toguid(hash_sha256(StudyKey))\n| extend StartTime = Population_StartDate\n| extend EndTime = Population_RunDate\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',StartTime,'}.{',EndTime,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend IngestionTime = now()\n| project StudyKey,StudyKeyGuid,StartTime,EndTime,StudyKeyInstance ,StudyKeyInstanceGuid,toint(TotalDevices),toint(DevicesWithUsage),IngestionTime",
+                                                            "csl": ".set-or-append Temp_StudyInstance with(folder = 'Population', distributed=1) <|\nDevicesFlattenedExpanded | where @{variables('FilterExpression')}\n| summarize TotalDevices = dcount(DeviceId), DevicesWithUsage = count_distinctif(DeviceId,tolong(EngagementDurationMS)>0 or tolong(InteractivityDurationMS) >0) by ''@{variables('AggByColsWithoutDeviceId')},StartDate,RunDate\n| extend StudyKey = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}')\n| extend StudyKeyGuid = toguid(hash_sha256(StudyKey))\n| extend StartTime = StartDate\n| extend EndTime = RunDate\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',StartTime,'}.{',EndTime,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend IngestionTime = now()\n| project StudyKey,StudyKeyGuid,StartTime,EndTime,StudyKeyInstance ,StudyKeyInstanceGuid,toint(TotalDevices),toint(DevicesWithUsage),IngestionTime",
                                                             "db": "RIOD"
                                                         },
                                                         "host": {
@@ -1344,7 +1120,7 @@
                                                                                 "body": {
                                                                                     "chartType": "Html Table",
                                                                                     "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                                                                    "csl": ".set-or-append StudyInstanceDevices with(folder = 'Population', distributed=1) <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize numOfRows = count()\nby ''@{variables('AggByColsWithoutDeviceId')},Population_StartDate,Population_RunDate,DeviceId\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',Population_StartDate,'}.{',Population_RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend FailureCounts= ''\n| extend UsageUnits = ''\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
+                                                                                    "csl": ".set-or-append StudyInstanceDevices with(folder = 'Population', distributed=1) <|\nDevicesFlattenedExpanded | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize numOfRows = count()\nby ''@{variables('AggByColsWithoutDeviceId')},StartDate,RunDate,DeviceId\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',StartDate,'}.{',RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend FailureCounts= ''\n| extend UsageUnits = ''\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
                                                                                     "db": "RIOD"
                                                                                 },
                                                                                 "host": {
@@ -1366,7 +1142,7 @@
                                                                                     "body": {
                                                                                         "chartType": "Html Table",
                                                                                         "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                                                                        "csl": ".set-or-append StudyInstanceDevices with(folder = 'Population', distributed=1) <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize @{variables('sumVerticals')}\nby ''@{variables('AggByColsWithoutDeviceId')},Population_StartDate,Population_RunDate,DeviceId\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',Population_StartDate,'}.{',Population_RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend @{variables('InitialVerticalName')} = sum_@{variables('InitialVerticalName')}\n| extend FailureCounts= bag_pack(@{variables('VerticalsBagPack')})\n| extend UsageUnits = ''\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
+                                                                                        "csl": ".set-or-append StudyInstanceDevices with(folder = 'Population', distributed=1) <|\nDevicesFlattenedExpanded | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize @{variables('sumVerticals')}\nby ''@{variables('AggByColsWithoutDeviceId')},StartDate,RunDate,DeviceId\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',StartDate,'}.{',RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend @{variables('InitialVerticalName')} = sum_@{variables('InitialVerticalName')}\n| extend FailureCounts= bag_pack(@{variables('VerticalsBagPack')})\n| extend UsageUnits = ''\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
                                                                                         "db": "RIOD"
                                                                                     },
                                                                                     "host": {
@@ -1405,7 +1181,7 @@
                                                                                     "body": {
                                                                                         "chartType": "Html Table",
                                                                                         "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                                                                        "csl": ".set-or-append StudyInstanceDevices with(folder = 'Population', distributed=1) <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize @{variables('SumUsagePivotsStr')}\nby ''@{variables('AggByColsWithoutDeviceId')},Population_StartDate,Population_RunDate,DeviceId\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',Population_StartDate,'}.{',Population_RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend FailureCounts= ''\n| extend UsageUnits = bag_pack(@{variables('UsagePrimaryPivots')})\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
+                                                                                        "csl": ".set-or-append StudyInstanceDevices with(folder = 'Population', distributed=1) <|\nDevicesFlattenedExpanded | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize @{variables('SumUsagePivotsStr')}\nby ''@{variables('AggByColsWithoutDeviceId')},StartDate,RunDate,DeviceId\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',StartDate,'}.{',RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend FailureCounts= ''\n| extend UsageUnits = bag_pack(@{variables('UsagePrimaryPivots')})\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
                                                                                         "db": "RIOD"
                                                                                     },
                                                                                     "host": {
@@ -1427,7 +1203,7 @@
                                                                                         "body": {
                                                                                             "chartType": "Html Table",
                                                                                             "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                                                                            "csl": ".set-or-append StudyInstanceDevices with(folder = 'Population', distributed=1) <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize @{variables('sumVerticals')},@{variables('SumUsagePivotsStr')}\nby ''@{variables('AggByColsWithoutDeviceId')},Population_StartDate,Population_RunDate,DeviceId\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',Population_StartDate,'}.{',Population_RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend @{variables('InitialVerticalName')} = sum_@{variables('InitialVerticalName')}\n| extend FailureCounts=bag_pack(@{variables('VerticalsBagPack')})\n| extend UsageUnits =bag_pack(@{variables('UsagePrimaryPivots')})\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
+                                                                                            "csl": ".set-or-append StudyInstanceDevices with(folder = 'Population', distributed=1) <|\nDevicesFlattenedExpanded | where @{variables('FilterExpression')}\nand PartitionNumber == @{variables('PartitionCtr')}\n| summarize @{variables('sumVerticals')},@{variables('SumUsagePivotsStr')}\nby ''@{variables('AggByColsWithoutDeviceId')},StartDate,RunDate,DeviceId\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',StartDate,'}.{',RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| extend @{variables('InitialVerticalName')} = sum_@{variables('InitialVerticalName')}\n| extend FailureCounts=bag_pack(@{variables('VerticalsBagPack')})\n| extend UsageUnits =bag_pack(@{variables('UsagePrimaryPivots')})\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,tostring(FailureCounts),tostring(UsageUnits)",
                                                                                             "db": "RIOD"
                                                                                         },
                                                                                         "host": {
@@ -1492,7 +1268,7 @@
                                                                 "body": {
                                                                     "chartType": "Html Table",
                                                                     "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                                                                    "csl": ".set-or-append StudyInstancePopulation with(folder = 'Population', distributed=1) <|\nDevicesFlattenExpandedXML | where @{variables('FilterExpression')} and PartitionNumber == @{variables('PartitionCtr')}\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',Population_StartDate,'}.{',Population_RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,PopulationJoinKey,PopulationJoinKeyGuid\n| distinct *",
+                                                                    "csl": ".set-or-append StudyInstancePopulation with(folder = 'Population', distributed=1) <|\nDevicesFlattenedExpanded | where @{variables('FilterExpression')} and PartitionNumber == @{variables('PartitionCtr')}\n| extend StudyKeyInstance = strcat('@{variables('StudyKey')}','.{',@{variables('FormattedAggByForStudyKey')},'}.{',StartDate,'}.{',RunDate,'}')\n| extend StudyKeyInstanceGuid = toguid(hash_sha256(StudyKeyInstance))\n| project StudyKeyInstance,StudyKeyInstanceGuid,DeviceId,PopulationJoinKey,PopulationJoinKeyGuid\n| distinct *",
                                                                     "db": "RIOD"
                                                                 },
                                                                 "host": {
@@ -1904,15 +1680,17 @@
                 "expression": {
                     "and": [
                         {
-                            "equals": [
-                                "@variables('CalculatePopulation')",
-                                "@true"
-                            ]
+                            "not": {
+                                "equals": [
+                                    "@variables('MaxRunDateForDeviesFlattenExpanded')",
+                                    "@variables('MaxStudyInstanceDateTime')"
+                                ]
+                            }
                         }
                     ]
                 },
                 "runAfter": {
-                    "Condition_5_-_if_max_dates_are_equal,_do_nothing": [
+                    "Initialize_variable_-_MaxRunDateForDeviesFlattenExpanded": [
                         "Succeeded"
                     ]
                 },
@@ -1928,7 +1706,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -1945,7 +1723,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -1961,7 +1739,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -1978,7 +1756,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -1995,7 +1773,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2011,7 +1789,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2027,7 +1805,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2043,7 +1821,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2060,19 +1838,19 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
                 "type": "InitializeVariable"
             },
-            "Initialize_variable_-_MaxRunDateForDeviesFlattenGeneric": {
+            "Initialize_variable_-_MaxRunDateForDeviesFlattenExpanded": {
                 "inputs": {
                     "variables": [
                         {
-                            "name": "MaxRunDateForDeviesFlattenGeneric",
+                            "name": "MaxRunDateForDeviesFlattenExpanded",
                             "type": "string",
-                            "value": "@{body('Run_KQL_query_-_Get_max_date_for_DevicesFlattenedGeneric')?['value']?[0]?['max_Population_RunDate']}"
+                            "value": "@{body('Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpanded')?['value']?[0]?['max_RunDate']}"
                         }
                     ]
                 },
@@ -2083,161 +1861,13 @@
                 },
                 "type": "InitializeVariable"
             },
-            "Initialize_variable_-_StudyInstanceDevicePartition": {
+            "Initialize_variable_-_MaxStudyInstanceDateTime": {
                 "inputs": {
                     "variables": [
                         {
-                            "name": "StudyInstanceDevicePartition",
-                            "type": "integer",
-                            "value": 600
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
-            "Initialize_variable_-_SumUsagePivotsStr": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "SumUsagePivotsStr",
-                            "type": "string"
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
-            "Initialize_variable_-_UsagePrimaryPivots": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "UsagePrimaryPivots",
-                            "type": "string"
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
-            "Initialize_variable_-_VerticalsBagPack": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "VerticalsBagPack",
-                            "type": "string"
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
-            "Initialize_variable_-__AggCtr": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "AggCtr",
-                            "type": "integer",
-                            "value": 0
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
-            "Initialize_variable_-__IngestIfNotStrTag": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "IngestIfNotStrTag",
-                            "type": "string"
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
-            "Initialize_variable_2_-_MaxRunDateForDeviesFlattenExpandedXML": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "MaxRunDateForDeviesFlattenExpandedXML",
+                            "name": "MaxStudyInstanceDateTime",
                             "type": "string",
-                            "value": "@{body('Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML')?['value']?[0]?['max_Population_RunDate']}"
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Initialize_variable_-_MaxRunDateForDeviesFlattenGeneric": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
-            "Initialize_variable_2_-_NumOfStudyRows": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "NumOfStudyRows",
-                            "type": "integer",
-                            "value": 0
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
-            "Initialize_variable_2_-_OperationsID": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "OperationsID",
-                            "type": "string"
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
-            "Initialize_variable_2_-_PartitionCtr": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "PartitionCtr",
-                            "type": "integer",
-                            "value": "@0"
+                            "value": "@{body('Run_KQL_query_-_Get_max_date_for_StudyInstance')?['value']?[0]?['max_EndTime']}"
                         }
                     ]
                 },
@@ -2344,6 +1974,154 @@
                 },
                 "type": "InitializeVariable"
             },
+            "Initialize_variable_-_StudyInstanceDevicePartition": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "StudyInstanceDevicePartition",
+                            "type": "integer",
+                            "value": 600
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_SumUsagePivotsStr": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "SumUsagePivotsStr",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_UsagePrimaryPivots": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "UsagePrimaryPivots",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_VerticalsBagPack": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "VerticalsBagPack",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-__AggCtr": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "AggCtr",
+                            "type": "integer",
+                            "value": 0
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-__IngestIfNotStrTag": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "IngestIfNotStrTag",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_2_-_NumOfStudyRows": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "NumOfStudyRows",
+                            "type": "integer",
+                            "value": 0
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_2_-_OperationsID": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "OperationsID",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_2_-_PartitionCtr": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "PartitionCtr",
+                            "type": "integer",
+                            "value": "@0"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable_-_MaxStudyInstanceDateTime": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
             "Initialize_variable_2_-_PartitionNumberForInput": {
                 "inputs": {
                     "variables": [
@@ -2355,7 +2133,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2371,7 +2149,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2388,7 +2166,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2404,7 +2182,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2420,7 +2198,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2437,7 +2215,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2454,7 +2232,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2471,7 +2249,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2488,7 +2266,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2504,7 +2282,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2520,7 +2298,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2536,7 +2314,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2552,7 +2330,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2569,7 +2347,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2585,7 +2363,7 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
@@ -2601,39 +2379,17 @@
                     ]
                 },
                 "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": [
+                    "Run_KQL_query_-_Get_max_date_for_StudyInstance": [
                         "Succeeded"
                     ]
                 },
                 "type": "InitializeVariable"
             },
-            "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpandedXML": {
+            "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpanded": {
                 "inputs": {
                     "body": {
                         "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                        "csl": "DevicesFlattenExpandedXML\n| summarize max(Population_RunDate)",
-                        "db": "RIOD"
-                    },
-                    "host": {
-                        "connection": {
-                            "referenceName": "kusto_1"
-                        }
-                    },
-                    "method": "post",
-                    "path": "/ListKustoResults/false"
-                },
-                "runAfter": {
-                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedGeneric": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "ApiConnection"
-            },
-            "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedGeneric": {
-                "inputs": {
-                    "body": {
-                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
-                        "csl": "DevicesFlattenedGeneric\n| summarize max(Population_RunDate)",
+                        "csl": "DevicesFlattenedExpanded\n| summarize max(RunDate)",
                         "db": "RIOD"
                     },
                     "host": {
@@ -2645,6 +2401,28 @@
                     "path": "/ListKustoResults/false"
                 },
                 "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "Run_KQL_query_-_Get_max_date_for_StudyInstance": {
+                "inputs": {
+                    "body": {
+                        "cluster": "https://relreportingcluster.westus.kusto.windows.net",
+                        "csl": "StudyInstance\n| summarize max(EndTime)",
+                        "db": "RIOD"
+                    },
+                    "host": {
+                        "connection": {
+                            "referenceName": "kusto_1"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/ListKustoResults/false"
+                },
+                "runAfter": {
+                    "Run_KQL_query_-_Get_max_date_for_DevicesFlattenedExpanded": [
+                        "Succeeded"
+                    ]
+                },
                 "type": "ApiConnection"
             }
         },
