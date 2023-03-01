@@ -8,7 +8,6 @@ import { StudyComboBox } from "./StudyComboBox"
 type Props = {
     teamid: number
     callback: any
-    queryStringParams: any
 }
 
 export const Study = (props: Props) => {
@@ -49,7 +48,6 @@ export const Study = (props: Props) => {
                         data={studyConfigs}
                         callBack={callbackLoadStudies}
                         callBacksetStudyConfigID={props.callback}
-                        queryStringParams={props.queryStringParams}
                     />
                 </>
             )}

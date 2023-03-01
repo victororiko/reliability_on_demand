@@ -1,66 +1,18 @@
-import { Stack } from "@fluentui/react"
-import * as QueryString from "query-string"
-import React, { useState } from "react"
-import { Container } from "reactstrap"
-import { PopulationPivotConfigUI } from "../../models/filterexpression.model"
-import { FailureCurve } from "../FailureCurveSection"
-import { containerStackTokens } from "../helpers/Styles"
-import { CreateNewID } from "../helpers/utils"
-import { Metrics } from "../Metrics"
-import { Pivots } from "../Pivots"
-import { Study } from "../Study"
-import { Team } from "../Team"
+import React from "react"
+import { Loading } from "../helpers/Loading"
+import { MessageBox } from "../helpers/MessageBox"
+import { UnAuthorizedMessage } from "../helpers/utils"
+import { ConfigPage } from "./ConfigPage"
+import { useCosRelDataMemberVerificationQuery } from "./service"
 
-export const Config = (props: any) => {
-    // query string parsing
-    const params = QueryString.parse(props.location.search)
+interface IConfigProps {}
 
-    // state
-    const [currentTeamId, setCurrentTeamId] = useState(CreateNewID)
-    const [currentStudyConfigID, setCurrentStudyConfigID] = useState(CreateNewID)
+export const Config = (props: IConfigProps) => {
+    const { isError, error, isLoading, data } = useCosRelDataMemberVerificationQuery()
 
-    // functionality methods
-    const selectTeam = (selection: number) => {
-        setCurrentTeamId(selection)
-        setCurrentStudyConfigID(CreateNewID) // to reset rest of the UI
-    }
+    if (isError) return <MessageBox message={`${JSON.stringify(error)}`} />
+    if (isLoading)
+        return <Loading message="Hang tight - Making sure you're allowed to view this page." />
 
-    const selectStudy = (selection: number) => {
-        setCurrentStudyConfigID(selection)
-    }
-
-    const handlecaptureStudyPivotConfigs = (studyPivotConfigs: PopulationPivotConfigUI[]) => {}
-
-    // render
-    return (
-        <Container>
-            <Stack tokens={containerStackTokens}>
-                <Team callback={selectTeam} showMoreDetails={true} showTitle={true} />
-                {currentTeamId === CreateNewID ? (
-                    ""
-                ) : (
-                    <div>
-                        <Study
-                            teamid={currentTeamId}
-                            callback={selectStudy}
-                            queryStringParams={params}
-                        />
-                        {currentStudyConfigID === CreateNewID ? (
-                            ""
-                        ) : (
-                            <div>
-                                <Pivots
-                                    StudyConfigID={currentStudyConfigID}
-                                    showSaveButton={true}
-                                    captureStudyPivotConfigs={handlecaptureStudyPivotConfigs}
-                                />
-                                <FailureCurve StudyConfigID={currentStudyConfigID} />
-                                <Metrics StudyConfigID={currentStudyConfigID} />
-                            </div>
-                        )}
-                    </div>
-                )}
-            </Stack>
-        </Container>
-    )
+    return <div>{data ? <ConfigPage /> : <MessageBox message={UnAuthorizedMessage} />}</div>
 }

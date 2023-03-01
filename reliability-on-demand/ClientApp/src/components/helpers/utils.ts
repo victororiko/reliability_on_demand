@@ -96,7 +96,8 @@ export const DummyID = -2
 
 export const EmptyFieldErrorMessage = "Empty Field"
 export const SaveMessage = "Saved successfully!"
-export const UnAuthorizedMessage = "You are unauthorized to view the page"
+export const UnAuthorizedMessage =
+    "Sorry - you are not authorized to view this page. Please reach out to cosreldata for help."
 
 export const MAXNUMPIVOTSINCOMBOBOX = 4
 

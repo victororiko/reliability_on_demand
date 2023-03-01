@@ -43,7 +43,7 @@ export const FailureCurve = (props: IFailureCurveProps) => {
         // clear out old filters if they exists in the deeplink
         const deeplinkUrl = new URL(deeplink)
 
-        if(filterStr.length > 0){
+        if (filterStr.length > 0) {
             deeplinkUrl.search = `?StudyKeyInstanceGuid=${props.StudyKeyInstanceGuidStr}&${filterStr}`
             setDeeplink(deeplinkUrl.href)
         }
