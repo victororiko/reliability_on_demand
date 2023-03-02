@@ -212,8 +212,10 @@ USING Privacy;
                                    String.Empty) AS FailureJoinKey,
                                    "<CurvePivots><PivotFields>" +
 <#
-							 foreach (var columnExpr in inputSelectColumns.Split(';'))
+                             if(!string.IsNullOrEmpty(inputSelectColumns))
 							 {
+							       foreach (var columnExpr in inputSelectColumns.Split(';'))
+						            {
 										string[] columnExprStrings = columnExpr.Split('#');
 										columnLen = columnExprStrings.Count();
 										string columnNameStr = (!columnExpr.Contains("#")?columnExprStrings[0]:("\"" + columnExprStrings[columnLen-2].ToString() + "\""));
@@ -221,6 +223,7 @@ USING Privacy;
 #>
 										"<PivotField name=\"" + <#=columnNameStr#> + "\">"+ <#=columnName#> + "</PivotField>" +
 <#
+                                    }
 							 }
 #>
 									   "</PivotFields></CurvePivots>" AS CustomFields,
