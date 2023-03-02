@@ -38,6 +38,7 @@
 				<Parameters>
 					<Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.AggregatorService.Failures.script.scopet4"/>
 					<Parameter Name="_inputFilterExpression" Value=""/>
+					<Parameter Name="_inputSelectColumns" Value=""/>
 					<Parameter Name="_inputOSBuildDefinitionFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json"/>
 					<Parameter Name="_applyUnifiedOSConfig" Value="yes"/>
 					<Parameter Name="_outputStreamName" Value="RIOD.Failures.ss"/>
