@@ -602,7 +602,8 @@ export const getDataToSaveUsingPivot = (
             p.IsApportionColumn === true ||
             p.IsApportionJoinColumn === true ||
             p.IsKeyColumn === true ||
-            p.IsSelectColumn === true
+            p.IsSelectColumn === true ||
+            p.AggregateBy === true
         ) {
             // Explicitly overriding any previous filter expression if user hasn't marked the pivot for IsScopeFIlter
             const row: Pivot = {
