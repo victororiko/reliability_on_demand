@@ -40,6 +40,11 @@ Combines all the 3 streams together - Population, Failure and Usage based on Stu
 	// Failure counts
 	string inputVerticalToColumn = "appcrash:AppCrashCount;apphang:AppHangCount;oscrash:OSCrashCount;criticalservice:CriticalServiceCrashCount;livekerneldump:LiveKernelDumpCount;dirtyshutdown:DirtyShutdownCount;corruption:CorruptionCount;verifier:VerifierCount;watchdog:WatchdogCount;oom:OOMCount;setup:SetupCount;offlinecrashdump:OfflineCrashDumpCount;abs_bugcheck:ABSBugcheckCount;abs_lpbh:ABSLPBHCount;abs_hw:ABSHWCount;abs_unknown:ABSUnknownCount";
 
+	// default branches
+	string inputBranches = "ni_release;rs_prerelease";
+	string inputOSBuildDefinitionFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json";
+	HashSet<string> branchSet = new HashSet<string>();
+
     // Check if we are running under XFlow
     if (context != null)
     {
@@ -51,6 +56,24 @@ Combines all the 3 streams together - Population, Failure and Usage based on Stu
 		outputStreamName = (string)context.GetParameter<string>("_outputStreamName", outputStreamName);
 		outputStreamNameWithoutXML = (string)context.GetParameter<string>("_outputStreamNameWithoutXML", outputStreamNameWithoutXML);
 	}
+
+	// Reading all valid branches from OS Releases file
+	List<Dictionary<string, string>> streamsDefinition = new List<Dictionary<string, string>>();
+
+	if (!string.IsNullOrEmpty(inputOSBuildDefinitionFile))
+    {
+        string streamsDefinitionContent = ReadTextFromStream(inputOSBuildDefinitionFile);
+        streamsDefinition = ParseConfiguration(streamsDefinitionContent);
+    }
+
+	for(int i=0; i<streamsDefinition.Count; i++)
+    {
+		// Adding valid branches to the set
+		streamsDefinition[i]["ValidBranches"].Split(';').ToList().ForEach(x => branchSet.Add(x.Trim()));
+	}
+
+	// Adding hardcoded user defined branches
+	inputBranches.Split(';').ToList().ForEach(x => branchSet.Add(x.Trim()));
 
 #>
 
@@ -98,7 +121,8 @@ populationFailureUsageData = SELECT p.DeviceId,
 									ON p.PopulationJoinKeyGuid == u.UsageJoinGuid
 									LEFT OUTER JOIN
 									(SSTREAM @input_Failure_ss) AS f
-									ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid;
+									ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid
+							WHERE PopulationJoinKey.Split('.')[1] IN ("<#=string.Join("\",\"",branchSet.ToArray())#>");
 
 populationFailureUsageData = SELECT *,
 									getPartitionNumber(PopulationJoinKey,<#=numberOfPartitions#>) AS PartitionNumber
@@ -153,7 +177,8 @@ populationFailureUsageExpandedData = SELECT p.*,
 											 ON p.PopulationJoinKeyGuid == u.UsageJoinGuid
 											 LEFT OUTER JOIN
 											 (SSTREAM @input_Expanded_Failure_ss) AS f
-											 ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid;
+											 ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid
+									WHERE PopulationJoinKey.Split('.')[1] IN ("<#=string.Join("\",\"",branchSet.ToArray())#>");
 
 populationFailureUsageExpandedData = SELECT *,
 											getPartitionNumber(PopulationJoinKey,<#=numberOfPartitions#>) AS PartitionNumber
