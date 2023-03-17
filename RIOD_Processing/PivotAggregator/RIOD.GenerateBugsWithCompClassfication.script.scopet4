@@ -1,0 +1,339 @@
+﻿//Ingest VSO dupe chasing bugs with component classification and taking into account 3rd party tags
+
+<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@ import namespace = "VcClient" #>
+
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+    string defaultTags = "RELTEL_KnapsackSkip_ThirdParty";
+	string outputFolder= @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Bugs/";
+    string outputStreamName = @"BugsWithFailureHashes.ss";
+	string inputCompCentralViewName = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Views/CompCentralPreferredSelection.view";
+	string inputBugDataView = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Views/VSOCacheWithDupeChasing.view";
+    string input3rdPartyWhitelist = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/3rdParty.Path.Whitelist.txt";
+    string input1stPartyWhitelist = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/1stParty.Path.Whitelist.txt";
+    string inputOrgOwnership = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/Org.Path.Ownership.txt";
+	string prevalenceStatement = "";
+
+    // Verify/Check if we are running under XFlow
+    if (context != null)
+    {
+		outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
+		input3rdPartyWhitelist = (string)context.GetParameter<string>("_input3rdPartyWhitelist", input3rdPartyWhitelist);
+        input1stPartyWhitelist = (string)context.GetParameter<string>("_input1stPartyWhitelist", input1stPartyWhitelist);
+        inputOrgOwnership = (string)context.GetParameter<string>("_inputOrgOwnership", inputOrgOwnership);
+    }
+#>
+
+// resolve conflict 
+[PIN] REFERENCE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/Newtonsoft.Json.dll";
+
+// Import Next Generation Privacy annotation module 
+// Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy;
+
+RESOURCE @"<#=input3rdPartyWhitelist#>";
+RESOURCE @"<#=input1stPartyWhitelist#>";
+RESOURCE @"<#=inputOrgOwnership#>";
+
+<#
+    string[] ThirdPartyListParts = input3rdPartyWhitelist.Split('/');
+    string[] FirstPartyListParts = input1stPartyWhitelist.Split('/');
+    string[] OrgOwnershipParts = inputOrgOwnership.Split('/');
+#>
+
+#DECLARE whitelist3rdPartyFile string = "<#=ThirdPartyListParts[ThirdPartyListParts.Length-1]#>";
+#DECLARE whitelist1stPartyFile string = "<#=FirstPartyListParts[FirstPartyListParts.Length-1]#>";
+#DECLARE orgOwnershipFile string = "<#=OrgOwnershipParts[OrgOwnershipParts.Length-1]#>";
+#DECLARE compCentralViewName string = @"<#=inputCompCentralViewName#>";
+#DECLARE outputStream string = @"<#=string.Format("{0}/{1}",outputFolder ,outputStreamName ) #>";
+
+failureBugData = VIEW @"<#=inputBugDataView #>" PARAMS(osBugsOnly = true);
+
+bugsWithFailureHashes =
+    SELECT *
+    FROM failureBugData
+    WHERE FailureHash != null;
+
+// each failure maps to many rows, select the most relevant one
+bugsWithFailureHashes =
+    SELECT *,
+           ROW_NUMBER() OVER(PARTITION BY FailureHash ORDER BY
+           (ResolvedReason ?? string.Empty).ToLowerInvariant() == "duplicate"? 1 : 0, (State ?? string.Empty).ToLowerInvariant() == "active"? 0 : 1, ChangedDate DESC) AS EntryRelevance
+    FROM bugsWithFailureHashes
+    HAVING EntryRelevance == 1;
+
+// -----------------------------------------------------------------------------------------------------------------
+// select comp central entries
+
+compCentral  = 
+    SELECT *, 
+        ROW_NUMBER() OVER (PARTITION BY BinaryName.ToLower() <#=prevalenceStatement#>) AS RankN,
+        BinaryName.ToLower() AS BinaryNameNormalized
+    FROM 
+    ( VIEW @compCentralViewName)    
+    HAVING RankN == 1;
+
+// -----------------------------------------------------------------------------------------------------------------
+// classify entries
+
+[LOWDISTINCTNESS(FailureHash)]
+classified_pre = 
+    SELECT b.FailureHash,
+           c.Path AS VSOPath,
+           b.AreaPath AS BugPath,
+           b.VisibleToPartner,
+		   b.Tags,
+		   "<#=defaultTags#>" AS DefaultTags
+    FROM
+    bugsWithFailureHashes AS b
+    LEFT OUTER JOIN compCentral AS c
+          ON b.BinaryFilename == c.BinaryNameNormalized
+    ;
+
+[ROWCOUNT=100000]
+classification = 
+    PROCESS classified_pre
+    PRODUCE FailureHash,
+            VSOPath,
+            BugPath,
+            VisibleToPartner,
+            ComponentClassification,
+            OrgOwnership,
+            IsYield,
+			Tags,
+			DefaultTags
+   USING ComponentClassifier(@whitelist3rdPartyFile,@whitelist1stPartyFile, @orgOwnershipFile);
+
+classifiedWithBugsWithFailureHashes = SELECT f.*,
+										     ComponentClassification,
+											 OrgOwnership
+										FROM bugsWithFailureHashes AS f 
+										LEFT OUTER JOIN classification AS c
+										ON c.FailureHash == f.FailureHash;
+
+[Privacy.Asset.NonPersonal]
+OUTPUT classifiedWithBugsWithFailureHashes
+TO SSTREAM @outputStream
+CLUSTERED BY Id
+SORTED BY Id
+WITH STREAMEXPIRY "30";
+
+#CS
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using ScopeRuntime;
+
+// class which defines component classification 
+public class ComponentClassifier : Processor
+{
+    List<string> orgOwnership = null;
+
+    public override Schema Produces(string[] requested_columns, string[] args, Schema input_schema)
+    {
+        var output_schema = input_schema.CloneWithSource();
+
+        // add new columns which has classifier output 
+        output_schema.Add(new ColumnInfo("ComponentClassification", ColumnDataType.String));
+        output_schema.Add(new ColumnInfo("OrgOwnership", ColumnDataType.String));
+        output_schema.Add(new ColumnInfo("IsYield", ColumnDataType.Boolean));
+
+        return output_schema;
+    }
+
+    public string GetOwnership(string path)
+    {
+        string result = "";
+
+        if (string.IsNullOrWhiteSpace(path))
+            return "Unknown";
+
+        foreach(string candidate in orgOwnership)
+        {
+            if (path.StartsWith(candidate.Split(';')[1]))
+            {
+                if (candidate.Split(';').Length == 3 && candidate.Split(';')[2] == "Yield")
+                {
+                    result = result + candidate.Split(';')[0] + ";";
+                }
+                else return result + candidate.Split(';')[0];
+            }
+        }
+
+        if (string.IsNullOrEmpty(result))
+        {
+            return "Unknown";
+        }
+
+        return result;
+    }
+
+    public override IEnumerable<Row> Process(RowSet input_rowset, Row output_row, string[] args)
+    {
+        // classifier takes agrument which indicates list of blacklist columns
+        List<string> whitelist3rdParty = new List<string>();
+        whitelist3rdParty.AddRange(File.ReadAllLines(args[0]));
+
+        List<string> whitelist1stParty = new List<string>();
+        whitelist1stParty.AddRange(File.ReadAllLines(args[1]));
+
+        // note order matters as we are picking up first match
+        // this will allow us to exclude some of general path into more specific ones if needed
+        // more specific -> less specific 
+        orgOwnership = new List<string>();
+        orgOwnership.AddRange(File.ReadAllLines(args[2]));
+        
+        foreach (Row input_row in input_rowset.Rows)
+        {
+            string classificationvalue = "Unknown";
+            string ownershipvalue = "Unknown";
+
+            input_row.CopyTo(output_row);
+
+            if (output_row["FailureHash"] != null)
+            {
+                classificationvalue = string.Empty;
+
+                // check if bug exists
+                if (string.IsNullOrEmpty(output_row["BugPath"].String))
+                {
+                    // bug does not exists, fall back to Area path
+                    if (!string.IsNullOrEmpty(output_row["VSOPath"].String))
+                    {
+                        // failure path is defined assign org ownership
+                        ownershipvalue = GetOwnership(output_row["VSOPath"].String);
+
+                        //check if path is on 3rd Party White List
+                        foreach(string list in whitelist3rdParty)
+                        {
+                            if (output_row["VSOPath"].String.StartsWith(list))
+                            {
+                                classificationvalue = "3rd party";
+                                break;
+                            }
+                        }
+                        //1st Party Classification - because of overlapping root we dont want to go ahead
+                        if (classificationvalue == string.Empty)
+                        {
+                            //check if path is on 1st Party White List
+                            foreach(string list in whitelist1stParty)
+                            {
+                                 if (output_row["VSOPath"].String.StartsWith(list))
+                                 {
+                                     classificationvalue = "1st party";
+                                     break;
+                                 }
+                            }
+                        }
+                        //if no classification is done then do further mapping
+                        if(classificationvalue == string.Empty)
+                        {
+                            // check if missing comp central
+                            if (output_row["VSOPath"].String.Contains("MissingCompCentralPath"))
+                            {
+                                classificationvalue = "Unknown";
+                            }
+                            else
+                            {
+                                classificationvalue = "MS Component";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        classificationvalue = "Unknown";
+                    }
+                }
+                else
+                {
+                    // bug exists
+                    ownershipvalue = GetOwnership(output_row["BugPath"].String);
+
+                    if (!string.IsNullOrEmpty(output_row["VisibleToPartner"].String) && output_row["VisibleToPartner"].String.ToLower() == "yes")
+                    {
+                        classificationvalue = "3rd party";
+                    }
+                    else
+                    {
+                        //check if path is on 3rd Party White list
+                        foreach(string list in whitelist3rdParty)
+                        {
+                            if (output_row["BugPath"].String.StartsWith(list))
+                            {
+                                classificationvalue = "3rd party";
+                                break;
+                            }
+                        }
+                        
+                        if (classificationvalue == string.Empty)
+                        {
+                            //check if path is on 1st Party White  list
+                            foreach(string list in whitelist1stParty)
+                            {
+                                if (output_row["BugPath"].String.StartsWith(list))
+                                {
+                                    classificationvalue = "1st party";
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (classificationvalue == string.Empty)
+                        {
+                            // check if missing comp central
+                            if (output_row["BugPath"].String.Contains("MissingCompCentralPath"))
+                            {
+                                classificationvalue = "Unknown";
+                            }
+                            else
+                            {
+                                classificationvalue = "MS Component";
+                            }
+                        }
+                    }
+                }
+            }
+
+			// check for default 3rd party tags
+			foreach(string tag in output_row["DefaultTags"].String.Split(';'))
+			{
+				if (output_row["Tags"].String.Contains(tag))
+                {
+                    classificationvalue = "3rd party";
+                    break;
+                }
+			}
+
+            output_row["ComponentClassification"].Set(classificationvalue);
+
+            if (ownershipvalue.Contains(";"))
+            {
+                for(int i=0; i<ownershipvalue.Split(';').Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(ownershipvalue.Split(';')[i]))
+                    {
+                        output_row["OrgOwnership"].Set(ownershipvalue.Split(';')[i]);
+                        output_row["IsYield"].Set(i != (ownershipvalue.Split(';').Length -1));
+
+                        yield return output_row;
+                    }
+                }
+            }
+            else
+            {
+                output_row["OrgOwnership"].Set(ownershipvalue);
+                output_row["IsYield"].Set(false);
+
+                yield return output_row;
+            }
+        }
+    } 
+ }
+
+#ENDCS
