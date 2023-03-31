@@ -10,12 +10,9 @@ interface IDeeplinkProps {
 export const Deeplink = (props: IDeeplinkProps) => {
     return (
         <div style={{ width: "100%" }}>
-            <Box
-                component="span"
-                sx={DeeplinkStyle}
-            >
+            <Box component="span" sx={DeeplinkStyle}>
                 <Stack direction="row" spacing={2}>
-                    <Typography sx={{ fontWeight:"bold" }}>Deeplink</Typography>
+                    <Typography sx={{ fontWeight: "bold" }}>Deeplink</Typography>
                     <Link href={props.content} target="_blank">
                         {props.content}
                     </Link>

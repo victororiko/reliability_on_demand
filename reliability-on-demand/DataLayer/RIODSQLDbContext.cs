@@ -1256,6 +1256,97 @@ namespace reliability_on_demand.DataLayer
             return str;
         }
 
+        public string GetVerticals()
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "dbo.GetVerticals";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            // add any params here
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+
+
+        public string SaveVertical(VerticalInstance inquiry)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+
+            if (inquiry.VerticalID == -1)
+            {
+                cmd.CommandText = "dbo.AddVertical";
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            }
+            else
+            {
+                cmd.CommandText = "dbo.UpdateVertical";
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            }
+
+
+            // add any params here
+            cmd.Parameters.Add(new SqlParameter("@VerticalName", inquiry.VerticalName));
+            cmd.Parameters.Add(new SqlParameter("@FailureEventNameList", inquiry.FailureEventNameList));
+            cmd.Parameters.Add(new SqlParameter("@FailureEventGroup", inquiry.FailureEventGroup));
+            cmd.Parameters.Add(new SqlParameter("@PivotSourceSubType", inquiry.PivotSourceSubType));
+            cmd.Parameters.Add(new SqlParameter("@IsSubVertical", inquiry.IsSubVertical));
+            cmd.Parameters.Add(new SqlParameter("@ParentVerticalName", inquiry.ParentVerticalName));
+            cmd.Parameters.Add(new SqlParameter("@FailureSourceName", inquiry.FailureSourceName));
+            cmd.Parameters.Add(new SqlParameter("@VerticalFilterExpression", inquiry.VerticalFilterExpression));
+            cmd.Parameters.Add(new SqlParameter("@FailureFeederIgnored", inquiry.FailureFeederIgnored));
+            cmd.Parameters.Add(new SqlParameter("@HashString", inquiry.HashString));
+
+            // execute stored procedure and return json
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+
+
+        public string DeleteVertical(string verticalname)
+        {
+            //ensure that connection is open
+            this.Database.OpenConnection();
+
+            // prepare store procedure with necessary parameters
+            var cmd = this.Database.GetDbConnection().CreateCommand();
+
+            cmd.CommandText = "dbo.DeleteVertical";
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            cmd.Parameters.Add(new SqlParameter("@VerticalName", verticalname));
+            StringBuilder sb = new StringBuilder();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    sb.Append(reader.GetString(0));
+                }
+            }
+            return sb.ToString();
+        }
+
     }
 }
 

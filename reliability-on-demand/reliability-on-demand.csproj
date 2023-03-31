@@ -68,6 +68,7 @@
   <ItemGroup>
     <TypeScriptCompile Remove="ClientApp\src\authConfig.ts" />
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\ConfigureFilterExpressionButton.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\Admin\ManageFailureVerticals\ManageFailureVerticals.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\PivotsDetailedList.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\SaveManagePivots.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\Admin\SaveManageVerticalsButton.tsx" />
@@ -80,6 +81,8 @@
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\FailureModesSelection.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\MultiSelectPivots.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\FailureCurveSection\PivotsDetailedList.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\helpers\MyTextField.tsx" />
+    <TypeScriptCompile Remove="ClientApp\src\components\helpers\MyToggle.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\SignInButton.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\SignInSignOutButton.tsx" />
     <TypeScriptCompile Remove="ClientApp\src\components\SignOutButton.tsx" />

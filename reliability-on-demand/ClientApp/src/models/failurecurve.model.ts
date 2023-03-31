@@ -5,8 +5,17 @@
 //   "Set quicktype target language"
 
 export interface Vertical {
+    VerticalID?: number
     VerticalName: string
+    FailureEventNameList?: string
+    FailureEventGroup?: string
     PivotSourceSubType: string
+    IsSubVertical?: boolean
+    ParentVerticalName?: string
+    FailureSourceName?: string
+    VerticalFilterExpression?: string
+    FailureFeederIgnored?: boolean
+    HashString?: string
 }
 
 // Failure Curve Display related interfaces

@@ -182,3 +182,13 @@ export const setCorrectUIInputType = (
 
     return filterExpData
 }
+
+// validates the user input
+export const getErrorMessage = (controlValue: string, callback: any): string | undefined => {
+    // To make the field editable for update as well.
+    if (controlValue === "") {
+        callback(controlValue)
+        return EmptyFieldErrorMessage
+    }
+    return ""
+}

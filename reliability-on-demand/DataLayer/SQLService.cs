@@ -196,5 +196,20 @@ namespace reliability_on_demand.DataLayer
         {
             return _context.GetStudyConfigIDsForPivotsAndScopes(pivots);
         }
+
+        public string GetVerticals()
+        {
+            return _context.GetVerticals();
+        }
+
+        public string SaveVertical(VerticalInstance verticalInstance)
+        {
+            return _context.SaveVertical(verticalInstance);
+        }
+
+        public string DeleteVertical(string verticalname)
+        {
+            return _context.DeleteVertical(verticalname);
+        }
     }
 }

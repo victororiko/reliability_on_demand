@@ -690,5 +690,61 @@ namespace reliability_on_demand.Controllers
                 return BadRequest(message);
             }
         }
+
+        [Route("api/Data/GetVerticals")]
+        [HttpGet]
+        public IActionResult GetVerticals()
+        {
+            try
+            {
+                _logger.LogInformation("GetVerticals was called");
+                var result = this._sqlservice.GetVerticals();
+                if (result == null)
+                {
+                    return BadRequest("Something wrong with the SQL Service. Could not get Teams. Please try again in a few mins.");
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed GetVerticals.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [Route("api/Data/SaveVertical")]
+        [HttpPost("[action]")]
+        public IActionResult SaveVertical([FromBody] VerticalInstance verticalInstance)
+        {
+            try
+            {
+                _logger.LogInformation($"Vertical was called | VerticalInstance = {verticalInstance}");
+                return Ok(this._sqlservice.SaveVertical(verticalInstance));
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed Save Vertical.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
+
+        [Route("api/Data/DeleteVertical/{verticalname}")]
+        [HttpGet("[action]")]
+        public IActionResult DeleteVertical(string verticalname)
+        {
+            try
+            {
+                _logger.LogInformation($"Vertical was called | VerticalName = {verticalname}");
+                return Ok(this._sqlservice.DeleteVertical(verticalname));
+            }
+            catch (Exception ex)
+            {
+                string message = $"Failed delete Vertical.\nException = {ex}";
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
+        }
     }
 }
