@@ -21,14 +21,14 @@
 	string feederJSONFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIOD.FailureColumns.Final.json"; 
 	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
 	string outputFailureAggregateFolder = @"Failures/Aggregated/";
-	string inputVerticalToColumn = "appcrash:AppCrashCount;apphang:AppHangCount;oscrash:OSCrashCount;criticalservice:CriticalServiceCrashCount;livekerneldump:LiveKernelDumpCount;dirtyshutdown:DirtyShutdownCount;corruption:CorruptionCount;verifier:VerifierCount;watchdog:WatchdogCount;oom:OOMCount;setup:SetupCount;offlinecrashdump:OfflineCrashDumpCount;abs_bugcheck:ABSBugcheckCount;abs_lpbh:ABSLPBHCount;abs_hw:ABSHWCount;abs_unknown:ABSUnknownCount";
-    string inputVerticalToFailureCountColumn = "appcrash:AppCrashFailureCount;apphang:AppHangFailureCount;oscrash:OSCrashFailureCount;criticalservice:CriticalServiceFailureCount;livekerneldump:LiveKernelDumpFailureCount;corruption:CorruptionFailureCount;verifier:VerifierFailureCount;watchdog:WatchdogFailureCount;oom:OOMFailureCount;setup:SetupFailureCount;offlinecrashdump:OfflineCrashDumpFailureCount;abs_bugcheck:ABSBugcheckFailureCount;abs_lpbh:ABSLPBHFailureCount;abs_hw:ABSHWFailureCount;abs_unknown:ABSUnknownFailureCount";
+	string inputVerticalToColumn = "appcrash:AppCrashCount;appcrash_ms:AppCrashCount_MS;appcrash_ms_uiv:AppCrashCount_MS_UIV;apphang:AppHangCount;apphang_ms:AppHangCount_MS;apphang_ms_uiv:AppHangCount_MS_UIV;oscrash:OSCrashCount;oscrash_ms:OSCrashCount_MS;criticalservice:CriticalServiceCrashCount;criticalservice_ms:CriticalServiceCrashCount_MS;livekerneldump:LiveKernelDumpCount;dirtyshutdown:DirtyShutdownCount;corruption:CorruptionCount;verifier:VerifierCount;watchdog:WatchdogCount;oom:OOMCount;setup:SetupCount;offlinecrashdump:OfflineCrashDumpCount;abs_bugcheck:ABSBugcheckCount;abs_lpbh:ABSLPBHCount;abs_hw:ABSHWCount;abs_unknown:ABSUnknownCount";
+    string inputVerticalToFailureCountColumn = "appcrash:AppCrashFailureCount;appcrash_ms:AppCrashFailureCount_MS;appcrash_ms_uiv:AppCrashFailureCount_MS_UIV;apphang:AppHangFailureCount;apphang_ms:AppHangFailureCount_MS;apphang_ms_uiv:AppHangFailureCount_MS_UIV;oscrash:OSCrashFailureCount;oscrash_ms:OSCrashFailureCount_MS;criticalservice:CriticalServiceFailureCount;criticalservice_ms:CriticalServiceFailureCount_MS;livekerneldump:LiveKernelDumpFailureCount;corruption:CorruptionFailureCount;verifier:VerifierFailureCount;watchdog:WatchdogFailureCount;oom:OOMFailureCount;setup:SetupFailureCount;offlinecrashdump:OfflineCrashDumpFailureCount;abs_bugcheck:ABSBugcheckFailureCount;abs_lpbh:ABSLPBHFailureCount;abs_hw:ABSHWFailureCount;abs_unknown:ABSUnknownFailureCount";
     string inputSelectColumns = "ProcessorModel;osArchitecture";
     int inputDayLookBack=14;  
     string outputGenericDeviceFailureFlattenedStreamName= "RIOD.Devices.Failures.Flattened.Generic";
     string outputDeviceFailureFlattenedStreamName = "RIOD.Devices.Failures.Flattened";
 	string outputGenericDeviceFailureStreamName= "RIOD.Devices.Failures.Generic";
-    string inputWatsonMarkerFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt";
+	string inputWatsonMarkerFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt";
 	Char[] trimExtraChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}'};
 	
 	string inputWatsonLatestTimeFile = ReadTextFromStream(inputWatsonMarkerFile);
@@ -61,6 +61,7 @@
 	string AttributedHits = string.Empty;
 	string FilterExpression = string.Empty;
 	string FailureJoinKeyExpressionCols = string.Empty;
+	string IsUIVQuery = string.Empty;
 	
 	
 	string configContent = ReadTextFromStream(feederJSONFile);
@@ -115,6 +116,8 @@ USING Privacy;
 
 #DECLARE runDate DateTime = DateTime.Parse("<#=watsonLatestTime#>");
 
+BugsWithFailureHashesView = SSTREAM @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Bugs/BugsWithFailureHashes.ss";
+
 <# 
     int i=0;
     string QueryIdStr = string.Empty;
@@ -140,6 +143,7 @@ USING Privacy;
 		Measures = WatsonQueryDetailsOut["Measures"].Trim(trimExtraChars);
 		FilterExpression = WatsonQueryDetailsOut["FilterExpression"].Trim(trimExtraChars);
 		FailureJoinKeyExpressionCols = WatsonQueryDetailsOut["FailureJoinKeyExpressionCols"].Trim(trimExtraChars);
+		IsUIVQuery = ((FilterExpression.Contains("watsonUserImpactVector"))?"1":"0");
 
 		if(!String.IsNullOrEmpty(KeyColumns))
 		{
@@ -231,6 +235,7 @@ USING Privacy;
 									   FailureInfo_FailureBucketId,
 									   FailureInfo_FailureHash,
 									   FailureInfo_ModuleName,
+									   (int)(<#=IsUIVQuery=="1"?1:0#>) AS IsUIVQuery,
 <#
 							 if(Measures.Contains("ApportionedHits"))
 							 {
@@ -255,7 +260,8 @@ USING Privacy;
 									   Vertical,
 									   FailureInfo_ModuleName,
 									   FailureInfo_FailureBucketId,
-									   FailureInfo_FailureHash;
+									   FailureInfo_FailureHash,
+									   IsUIVQuery;
 <#
              if(i==0)
              {
@@ -281,9 +287,11 @@ USING Privacy;
 
 
 RIODDeviceFailuresGeneric = 
-            SELECT *,
-			       (Guid)new Guid(MD5.Create() .ComputeHash(Encoding.Default.GetBytes(FailureJoinKey))) AS FailureJoinKeyGuid
-             FROM RIODDeviceFailuresGeneric;
+            SELECT df.*,
+			       (Guid)new Guid(MD5.Create() .ComputeHash(Encoding.Default.GetBytes(FailureJoinKey))) AS FailureJoinKeyGuid,
+				   bf.ComponentClassification
+            FROM RIODDeviceFailuresGeneric AS df
+			LEFT OUTER JOIN BugsWithFailureHashesView AS bf ON df.FailureInfo_FailureHash == bf.FailureHash;
 
 #DECLARE outputDeviceFailuresGeneric = string.Format("{0}/{1}/{2}"+".ss", 
                                                          @"<#=inputReliabilityRoot#>",
@@ -302,17 +310,31 @@ RIODDeviceFailuresFlattened =
                   FailureJoinKey,
                   FailureJoinKeyGuid,
                   CustomFields
-<#
+<#	
          foreach (var inputVerticalToColMap in inputVerticalToColumn.Split(';'))
          {
-		            int verticalColLen = inputVerticalToColMap.Count();
-					string[] verticalMapStrings = inputVerticalToColMap.Split(':');
-					string verticalName = verticalMapStrings[0];
-					string verticalCountName = verticalMapStrings[1];
+		        int verticalColLen = inputVerticalToColMap.Count();
+				string[] verticalMapStrings = inputVerticalToColMap.Split(':');
+				string verticalName = verticalMapStrings[0];
+				string verticalCountName = verticalMapStrings[1];
+				if(verticalName.Contains("_ms") && verticalName.Contains("_uiv"))
+				{
 #>
-				   ,
-                   SUM(Vertical == "<#=verticalName#>"?HitCount:0) AS <#=verticalName#>
+				   ,SUM((Vertical == "<#=verticalName.Split('_')[0]#>" && !string.IsNullOrEmpty(ComponentClassification) && ComponentClassification == "MS Component" && IsUIVQuery == 1)?HitCount:0) AS <#=verticalName#>
 <#
+                }
+			    else if(verticalName.Contains("_ms") && !verticalName.Contains("_uiv"))
+			    {
+#>
+				   ,SUM((Vertical == "<#=verticalName.Split('_')[0]#>" && !string.IsNullOrEmpty(ComponentClassification) && ComponentClassification == "MS Component")?HitCount:0) AS <#=verticalName#>
+<#
+			    }
+			    else 
+				{
+#>
+				   ,SUM(Vertical == "<#=verticalName#>"?HitCount:0) AS <#=verticalName#>
+<#
+			   }
          }
 #>
          FROM RIODDeviceFailuresGeneric
