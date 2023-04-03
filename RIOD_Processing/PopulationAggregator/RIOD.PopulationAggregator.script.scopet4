@@ -40,7 +40,7 @@ USING System.Security.Cryptography;
 	Char[] trimChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}','"'};
 	
 	// Workflow parameter for all Population pivots
-	string inputDefaultPopulationCols = "OSBranch;OSBuildNumber;OSBuildRevision;ProcessorModel;OSArchitecture;OEMName;OEMModel";
+	string inputDefaultPopulationCols = "OSBranch;OSBuildNumber;OSBuildRevision;ProcessorModel;OSArchitecture;OEMName;OEMModel;IsSVEligible;DeviceAge;PredictedPriceBand";
 	
 	// capture watson cutoff time
 	string inputWatsonMarkerFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt";
@@ -56,6 +56,11 @@ USING System.Security.Cryptography;
 	DateTime xStartDate = watsonLatestTime.Date.AddDays(-inputDayLookBack);
 	long startDateId = getHourBasedDateId(xStartDate);
 	long endDateId = getHourBasedDateId(watsonLatestTime);
+
+	// Low budget devies attributes
+	string deviceAgeView = "/shares/asimov.prod.data/PublicPartner/Processed/RQV/Streams/Dimensions/Views/DeviceAge/DeviceAge2.view";
+	string isSVEligibleView = "/shares/asimov.prod.data/PublicPartner/Processed/WXaaS/MAD_DAD/Views/SunValleyEligableHwForMC.view";
+	string priceBandView = "/shares/asimov.prod.data/PublicPartner/Processed/WXaaS/MAD_DAD/Views/PredicatedPriceBandForMC.view";
 
 
     // Check if we are running under XFlow
@@ -116,9 +121,33 @@ DevicesPopulationHourly_Normalized = SELECT *,
 <# GenerateDebugOutput(debugOutput, "DevicesPopulationHourly_Normalized", "DeviceId"); #>
 
 // Apply the cutoff filter to fetch the required population data for last 14 days from the Watson Cut off time
-DevicesPopulationHourly_WatsonCutoff = SELECT i.*
-		FROM DevicesPopulationHourly_Normalized AS i
-		WHERE PopulationDateId >= <#=startDateId#> AND PopulationDateId <= <#=endDateId#>;
+DevicesPopulationHourly_WatsonCutoffWithoutOtherViewsCols = SELECT i.*
+															FROM DevicesPopulationHourly_Normalized AS i
+															WHERE PopulationDateId >= <#=startDateId#> AND PopulationDateId <= <#=endDateId#>;
+
+// Adding low budget devices attributes from the views
+
+DevicesPopulationHourlyWithDeviceAge = SELECT d.*,
+											  da.DeviceAge
+											  FROM DevicesPopulationHourly_WatsonCutoffWithoutOtherViewsCols AS d
+											  LEFT OUTER JOIN
+											  (VIEW @"<#=deviceAgeView#>") AS da
+											  ON d.DeviceId == da.DeviceId;
+
+DevicesPopulationHourlyWithISVEligible = SELECT d.*,
+											  da.IsSVEligible
+											  FROM DevicesPopulationHourlyWithDeviceAge AS d
+											  LEFT OUTER JOIN
+											  (VIEW @"<#=isSVEligibleView#>") AS da
+											  ON d.DeviceId == da.DeviceId;
+
+
+DevicesPopulationHourly_WatsonCutoff = SELECT d.*,
+											  da.PredictedPriceBand
+											  FROM DevicesPopulationHourlyWithISVEligible AS d
+											  LEFT OUTER JOIN
+											  (VIEW @"<#=priceBandView#>") AS da
+											  ON d.DeviceId == da.DeviceId;
 
 <# GenerateDebugOutput(debugOutput, "DevicesPopulationHourly_WatsonCutoff", "DeviceId"); #>
 
