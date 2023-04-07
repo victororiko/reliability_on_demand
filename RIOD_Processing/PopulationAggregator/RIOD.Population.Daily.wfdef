@@ -20,6 +20,7 @@
 			<Parameter Name="_priority" Value="999"/>
 			<Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel.important"/>
 			<Parameter Name="_tokenAllocation" Value="100"/>
+      <Parameter Name="_applyUnifiedOSConfig" Value="yes"/>
 		</Parameters>
 		<Activities>
 			<Activity Name="CensusDevices" ConfigBase="MissionControlBYODT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
