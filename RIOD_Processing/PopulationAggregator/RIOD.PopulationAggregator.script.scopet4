@@ -62,6 +62,8 @@ USING System.Security.Cryptography;
 	string isSVEligibleView = "/shares/asimov.prod.data/PublicPartner/Processed/WXaaS/MAD_DAD/Views/SunValleyEligableHwForMC.view";
 	string priceBandView = "/shares/asimov.prod.data/PublicPartner/Processed/WXaaS/MAD_DAD/Views/PredicatedPriceBandForMC.view";
 
+	// Filter Expression
+	string filterExpression = "(_DeviceFamily ?? string.Empty).ToLowerInvariant()== \"windows.desktop\" AND !(bool)(IsTestLab ?? false)";
 
     // Check if we are running under XFlow
     if (context != null)
@@ -77,6 +79,7 @@ USING System.Security.Cryptography;
 		outputExpandedStreamName = (string)context.GetParameter<string>("_outputExpandedStreamName", outputExpandedStreamName);
        	populationJoinKeySplitterChar = (char)context.GetParameter<char>("_populationJoinKeySplitterChar", populationJoinKeySplitterChar);
        	inputWatsonMarkerFile = (string)context.GetParameter<string>("_inputWatsonMarkerFile", inputWatsonMarkerFile);
+		filterExpression = (string)context.GetParameter<string>("_filterExpression", filterExpression);
     }
 
 	// Parse JSON from Feeder
@@ -109,7 +112,8 @@ DevicesPopulationHourly = SELECT *
                                 SPARSE STREAMSET "<#=inputReliabilityRoot + inputHourlyFolder#>"
 								PATTERN @input_PopulationPattern_ss
 								RANGE __date = [@"<#=startDateStr#>", @"<#=endDateStr#>"], __hour =["00", "23"]
-		);
+		)
+		<#= string.IsNullOrEmpty(filterExpression) ? "" : "WHERE " + filterExpression #>;
 
 <# GenerateDebugOutput(debugOutput, "DevicesPopulationHourly", "DeviceId"); #>
 
