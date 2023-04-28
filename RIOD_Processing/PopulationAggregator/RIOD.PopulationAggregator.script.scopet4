@@ -38,7 +38,8 @@ USING System.Security.Cryptography;
 	string outputExpandedStreamName = @"RIOD.Devices.Population.Aggregated";
 	char populationJoinKeySplitterChar = '.';
 	Char[] trimChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}','"'};
-	
+	string expirationStreamCount = "30";
+
 	// Workflow parameter for all Population pivots
 	string inputDefaultPopulationCols = "OSBranch;OSBuildNumber;OSBuildRevision;ProcessorModel;OSArchitecture;OEMName;OEMModel;IsSVEligible;DeviceAge;PredictedPriceBand";
 	
@@ -56,6 +57,7 @@ USING System.Security.Cryptography;
 	DateTime xStartDate = watsonLatestTime.Date.AddDays(-inputDayLookBack);
 	long startDateId = getHourBasedDateId(xStartDate);
 	long endDateId = getHourBasedDateId(watsonLatestTime);
+	string inputPopulationStatsWatsonCutOffStreamName = @"PopulationStats";
 
 	// Low budget devies attributes
 	string deviceAgeView = "/shares/asimov.prod.data/PublicPartner/Processed/RQV/Streams/Dimensions/Views/DeviceAge/DeviceAge2.view";
@@ -101,7 +103,9 @@ Summary: Generates the aggregate Population for last <#=inputDayLookBack#> days 
     }
 #>
 
+
 #DECLARE input_PopulationPattern_ss string = "RIOD.Devices.Population_%Y_%m_%d_%h.ss";
+
 
 // fetch hourly streams from last X days
 // refer to https://mscosmos.visualstudio.com/CosmosWiki/_wiki/wikis/Cosmos.wiki/599/Defining-a-streamset
@@ -153,6 +157,7 @@ DevicesPopulationHourly_WatsonCutoff = SELECT d.*,
 											  (VIEW @"<#=priceBandView#>") AS da
 											  ON d.DeviceId == da.DeviceId;
 
+
 <# GenerateDebugOutput(debugOutput, "DevicesPopulationHourly_WatsonCutoff", "DeviceId"); #>
 
 <#
@@ -184,6 +189,13 @@ DevicesPopulationHourly_WatsonCutoff = SELECT d.*,
 #DECLARE xStartDate DateTime = @runDate.AddDays(-<#=inputDayLookBack#>);
 #DECLARE endDate string = @runDate.ToString("yyyy-MM-dd");
 #DECLARE startDate string = @runDate.Date.AddDays(-<#=inputDayLookBack+1#>).ToString("yyyy-MM-dd");
+
+#DECLARE output_PopulationStats_ss = string.Format("{0}/{1}/{2}_For{3}Days_{4}"+".ss", 
+                                            @"<#=inputReliabilityRoot#>",
+                                            @"<#=outputPopulationAggregateFolder#>",
+                                            @"<#=inputPopulationStatsWatsonCutOffStreamName#>",
+											@"<#=inputDayLookBack#>",
+											@"<#=watsonLatestTime.ToString("yyyy_MM_dd_hh_mm_ss")#>");
 
 // select columns parsed from the JSON + our set of desired columns 
 DevicesAggregated = SELECT
@@ -346,6 +358,21 @@ DevicesAggregatedExpanded_Final =
 											PopulationJoinKey,
 											PopulationJoinKeyGuid
 											;
+
+// Adding stats historical streams for analysis as sometimes it is tough to use Synapse
+stats = SELECT COUNT(*) AS totalCount,
+			   COUNT(DISTINCT DeviceId) AS totalDistinctDevices,
+			   COUNT(DISTINCT PopulationJoinKey) AS totalDistinctJoinKey,
+			   OSBuildNumber,
+			   OSBuildRevision
+		FROM DevicesAggregatedExpanded_Final
+		GROUP BY OSBuildNumber,OSBuildRevision;
+
+[Privacy.DataType.ProductAndServiceUsage]
+[Privacy.DataType.ProductAndServicePerformance]
+OUTPUT stats
+TO SSTREAM @output_PopulationStats_ss
+WITH STREAMEXPIRY @"<#= expirationStreamCount #>";
 
 // Output
 // Historical

@@ -29,10 +29,14 @@ Combines all the 3 streams together - Population, Failure and Usage based on Stu
 	string outputStreamName=@"RIOD.Devices.Flattened.Generic.ss";
 	string outputStreamNameWithoutXML=@"RIOD.Devices.Flattened.Expanded.ss";
 	int numberOfPartitions = 1200;
+	DateTime today = DateTime.UtcNow;
 
 	string inputPopulationAggExpandedStream = @"/Population/Aggregated/RIOD.Devices.Population.Aggregated.ss";
 	string inputUsageAggExpandedStream = @"/Usage/AggregatedObservationPeriod/RIOD.Devices.Usage.Aggregated.ss";
 	string inputFailureAggExpandedStream = @"/Failures/Aggregated/RIOD.Devices.Failures.Flattened.ss";
+	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
+	string inputDeviceFlattenFolder = @"/DevicesFlattened/";
+	string outputStatsStreamName = @"RIOD.DeviceFlatten.Stats";
 
 	// Workflow parameter for all predicted usage unit that can be used
 	string inputUsageUnitCols = "InteractivityDurationMS;EngagementDurationMS;FocusDurationMS;OutOfFocusDurationMS;ProcessDurationMS;RunDurationMS;SuspendDurationMS;AudioInMS;AudioOutMS;UserActiveDurationMS";
@@ -95,6 +99,15 @@ USING Privacy;
 #DECLARE input_Expanded_Population_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputPopulationAggExpandedStream ) #>";
 #DECLARE input_Expanded_Usage_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputUsageAggExpandedStream ) #>";
 #DECLARE input_Expanded_Failure_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputFailureAggExpandedStream ) #>";
+#DECLARE endDate DateTime = DateTime.Parse("<#=today#>");
+#DECLARE dtEndDate DateTime = @endDate;
+
+
+#DECLARE output_Stats_ss = string.Format("{0}/{2}/{3}"+"_{1:yyyy}-{1:MM}-{1:dd}.ss", 
+                                            @"<#=inputReliabilityRoot#>",  
+                                            @dtEndDate, 
+                                            @"<#=inputDeviceFlattenFolder#>",
+                                            @"<#=outputStatsStreamName#>");
 
 
 populationFailureUsageData = SELECT p.DeviceId,
@@ -183,6 +196,20 @@ populationFailureUsageExpandedData = SELECT p.*,
 populationFailureUsageExpandedData = SELECT *,
 											getPartitionNumber(PopulationJoinKey,<#=numberOfPartitions#>) AS PartitionNumber
 											FROM populationFailureUsageExpandedData;
+
+// Historical stats
+stats = SELECT COUNT(*) AS totalRows,
+			   COUNT(DISTINCT DeviceId) AS totalDevices,
+			   COUNTIF(InteractivityDurationMS >= 1800000) AS devicesWithMinUsage,
+			   COUNTIF(InteractivityDurationMS>0) AS devicesWithUsage,
+			   OSBuildNumber,
+			   OSBuildRevision
+		FROM populationFailureUsageExpandedData
+		GROUP BY OSBuildNumber,OSBuildRevision;
+
+OUTPUT stats
+TO SSTREAM @output_Stats_ss
+WITH STREAMEXPIRY @expirationStreamCount;
 
 OUTPUT populationFailureUsageExpandedData
 TO SSTREAM @outputExpandedStream
