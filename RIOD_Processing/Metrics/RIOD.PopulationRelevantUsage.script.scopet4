@@ -207,6 +207,7 @@ stats = SELECT COUNT(*) AS totalRows,
 		FROM populationFailureUsageExpandedData
 		GROUP BY OSBuildNumber,OSBuildRevision;
 
+[Privacy.Asset.NonPersonal]
 OUTPUT stats
 TO SSTREAM @output_Stats_ss
 WITH STREAMEXPIRY @expirationStreamCount;

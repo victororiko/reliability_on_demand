@@ -368,8 +368,7 @@ stats = SELECT COUNT(*) AS totalCount,
 		FROM DevicesAggregatedExpanded_Final
 		GROUP BY OSBuildNumber,OSBuildRevision;
 
-[Privacy.DataType.ProductAndServiceUsage]
-[Privacy.DataType.ProductAndServicePerformance]
+[Privacy.Asset.NonPersonal]
 OUTPUT stats
 TO SSTREAM @output_PopulationStats_ss
 WITH STREAMEXPIRY @"<#= expirationStreamCount #>";

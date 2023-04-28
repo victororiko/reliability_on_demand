@@ -367,6 +367,7 @@ stats = SELECT COUNT(*) AS totalCount,
 		FROM UsageDataIndividualCols
 		GROUP BY OSBuild,OSRevision;
 
+[Privacy.Asset.NonPersonal]
 OUTPUT stats
 TO SSTREAM @output_UsageStats_ss
 WITH STREAMEXPIRY @"<#= expirationStreamCount #>";
