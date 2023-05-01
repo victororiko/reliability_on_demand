@@ -89,7 +89,7 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime using the h
 		configInfo.Add(usageQueryDetails);
 
 		// Collecting all unqiue expression keys in the set
-		UsageKeysSet.Add(UsageJoinKey);
+		UsageKeysSet.Add(UsageJoinKey.Trim());
 	}
 #>
 
