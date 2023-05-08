@@ -21,7 +21,7 @@ This script queries the view API and outputs the daily usage and hourly usage fo
 <#
     var context = Host.GetHostOption("T4Context") as IT4TransformContext;
 	DateTime today = DateTime.UtcNow;
-	int inputDayLookBack = 1;
+	int inputDayLookBack = 2;
 	int MaxHours = 24;
 	int inputDayWatsonLookBack=14;
 	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
