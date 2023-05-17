@@ -7,7 +7,7 @@
 			  Author ="cosreldata"
 			  FolderName ="PlatformHealth.Reliability"
 			  RecurrenceUnit="2"
-			  RecurrenceAmount="12"
+			  RecurrenceAmount="72"
 			  Start="2021-03-01T12:00:00"
         Email="cosreldata@microsoft.com"
         TriggeredByWorkflow="Rel.RIOD.AggregatorSvc.Failures.T4"
