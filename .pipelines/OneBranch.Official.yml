@@ -43,7 +43,7 @@ variables:
 - name: buildConfiguration
   value: 'Release'
 - name: WindowsContainerImage
-  value: 'cdpxwin1809.azurecr.io/global/vse2019:latest' # Docker image which is used to build the project https://aka.ms/obpipelines/containers
+  value: 'onebranch.azurecr.io/windows/ltsc2019/vse2022:latest' # Docker image which is used to build the project https://aka.ms/obpipelines/containers
 - name: clientAppDir
   value: 'reliability-on-demand\ClientApp'
 
