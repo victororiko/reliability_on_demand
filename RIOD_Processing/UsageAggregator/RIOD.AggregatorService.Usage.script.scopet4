@@ -61,7 +61,7 @@ This script queries the view API and outputs the daily usage and hourly usage fo
 		inputUsageDailyWithXMLStreamName = (string)context.GetParameter<string>("_inputUsageDailyWithXMLStreamName", inputUsageDailyWithXMLStreamName);
 		expirationStreamCount = (string)context.GetParameter<string>("_expirationStreamCount", expirationStreamCount);
 		inputUsageWatsonCutOffStreamName = (string)context.GetParameter<string>("_inputUsageWatsonCutOffStreamName", inputUsageWatsonCutOffStreamName);
-		inputDayLookBack = (int)context.GetParameter<string>("_inputDayLookBack", inputDayLookBack);
+		inputDayLookBack = (int)context.GetParameter<int>("_inputDayLookBack", inputDayLookBack);
     }
 #>
 
