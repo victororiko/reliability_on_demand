@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-multi-comp */
 import { Box, Button, Typography } from "@mui/material"
+import queryString from "query-string"
 import type { MRT_ColumnDef } from "material-react-table" // If using TypeScript (optional, but recommended)
 import MaterialReactTable from "material-react-table"
-import React from "react"
+import React, { useState } from "react"
 import * as XLSX from "xlsx"
 import { FailureCurveInstance } from "../../../models/failurecurve.model"
 import { addSpaces, onlyUnique, wrappedHeaderStyle } from "../../helpers/utils"
@@ -18,6 +19,19 @@ interface IRichFailureCurveTableProps {
 }
 
 export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
+    const [filterState] = useState<Array<{ id: string; value: unknown }>>(() => {
+        const filters = queryString.parse(location.search, {
+            arrayFormat: "none",
+        })
+        if (filters) {
+            const filterArr = Object.keys(filters).map((key) => {
+                return { id: key, value: filters[key] }
+            })
+            return filterArr
+        }
+        return []
+    })
+
     // column definitions - strongly typed if you are using TypeScript (optional, but recommended)
     const columns = React.useMemo<MRT_ColumnDef<FailureCurveInstance>[]>(() => {
         return [
@@ -102,6 +116,8 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                 Header: () => {
                     return <Typography sx={wrappedHeaderStyle}>{addSpaces("Rank")}</Typography>
                 },
+                filterVariant: "range",
+                filterFn: "betweenInclusive",
                 size: 130,
             },
             // ModuleName:                           string;
@@ -153,6 +169,8 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                         </Typography>
                     )
                 },
+                filterVariant: "text",
+                filterFn: "fuzzy",
             },
             // RichFailureInfo:                          string;
             {
@@ -183,6 +201,8 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                     return <RichFailureInfo item={cell.row.original} showFialureName />
                 },
                 size: 900,
+                filterVariant: "text",
+                filterFn: "contains",
             },
             // BugTitle:                             string;
             {
@@ -261,6 +281,8 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                 Header: () => {
                     return <Typography sx={wrappedHeaderStyle}>{addSpaces("HitCount")}</Typography>
                 },
+                filterVariant: "range",
+                filterFn: "betweenInclusive",
             },
             // FailingDevices:                       number;
             {
@@ -273,6 +295,8 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                         </Typography>
                     )
                 },
+                filterVariant: "range",
+                filterFn: "betweenInclusive",
             },
             // PctDevices:                           number;
             {
@@ -281,6 +305,8 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                 Header: () => {
                     return <Typography sx={wrappedHeaderStyle}>% of Devices</Typography>
                 },
+                filterVariant: "range",
+                filterFn: "betweenInclusive",
             },
             // PctHits:                              number;
             {
@@ -289,6 +315,8 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                 Header: () => {
                     return <Typography sx={wrappedHeaderStyle}>% of Hits</Typography>
                 },
+                filterVariant: "range",
+                filterFn: "betweenInclusive",
             },
             // FailureMode: string
             {
@@ -332,6 +360,7 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                 columns={columns}
                 data={props.data}
                 initialState={{
+                    columnFilters: filterState,
                     sorting: [{ id: "Rank", desc: false }],
                     columnVisibility: {
                         StudyKeyInstance: false,
@@ -361,7 +390,7 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                     showColumnFilters: false,
                     density: "compact",
                 }}
-                enableColumnFilterModes
+                // enableColumnFilterModes
                 enableColumnOrdering
                 enableGrouping
                 enableStickyHeader
@@ -378,17 +407,17 @@ export const RichFailureCurveTable = (props: IRichFailureCurveTableProps) => {
                         <Box>
                             <Button
                                 onClick={() => {
-                                    return table.setColumnFilters((prev) => {
-                                        props.updateDeepLinkFn(prev)
-                                        return [...prev]
-                                    })
+                                    // get existing filters
+                                    const currFilters = table.getState().columnFilters
+                                    props.updateDeepLinkFn(currFilters)
                                 }}
                             >
                                 DEEPLINK
                             </Button>
                             <Button
                                 onClick={() => {
-                                    return table.resetColumnFilters()
+                                    props.updateDeepLinkFn([])
+                                    table.resetColumnFilters(true)
                                 }}
                             >
                                 Reset Filters

@@ -19,10 +19,10 @@ export const FailureCurve = (props: IFailureCurveProps) => {
         props.Vertical === "All"
             ? undefined
             : (originalData: any) => {
-                  return originalData.filter((item: any) => {
-                      return item.Vertical === props.Vertical
-                  })
-              }
+                return originalData.filter((item: any) => {
+                    return item.Vertical === props.Vertical
+                })
+            }
     )
 
     if (isError)
@@ -33,20 +33,52 @@ export const FailureCurve = (props: IFailureCurveProps) => {
         )
     if (isLoading) return <Loading message="Hang tight - getting Failure Curve Instances" />
 
-    const handleDeeplink = (filterArr: any) => {
+    const handleDeeplink = (tableFilterArr: any) => {
+        const exitCondition = !tableFilterArr
+        if(exitCondition) return
+
+        // sanitize prev by: setting any undefined values to null
+        const sanitized = tableFilterArr.map((item:any) => {
+            const sanitizedItem = item
+            const currValue = item.value
+            if (Array.isArray(currValue)) {
+                sanitizedItem.value = currValue.map((val) => {
+                    if (val === undefined) return ""
+                    return val
+                })
+            }
+            return sanitizedItem
+        })
+
+        const filterArr = sanitized.filter((item:any) => {
+            const currValue = item.value
+            if (Array.isArray(currValue)) {
+                for(let i = 0; i < currValue.length; i++) {
+                    if(currValue[i] !== "") return true
+                }
+                return false // at this point all values are empty strings
+            }
+            return currValue !== ""
+        })
+
         const output = filterArr.reduce((acc: any, { id, value }: any) => {
             acc[id] = Array.isArray(value) ? value : [value]
             return acc
         }, {})
-        const filterStr = queryString.stringify(output, { arrayFormat: "comma" })
+
+        const filterStr = queryString.stringify(output, {
+            arrayFormat: "none",
+            skipNull: false,
+            skipEmptyString: false,
+            sort: false,
+            strict: true,
+        })
 
         // clear out old filters if they exists in the deeplink
         const deeplinkUrl = new URL(deeplink)
 
-        if (filterStr.length > 0) {
-            deeplinkUrl.search = `?StudyKeyInstanceGuid=${props.StudyKeyInstanceGuidStr}&${filterStr}`
-            setDeeplink(deeplinkUrl.href)
-        }
+        deeplinkUrl.search = `${filterStr}`
+        setDeeplink(deeplinkUrl.href)
     }
 
     return (

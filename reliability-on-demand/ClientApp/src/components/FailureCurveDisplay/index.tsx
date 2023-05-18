@@ -2,6 +2,7 @@
 import { Stack } from "@mui/material"
 import queryString from "query-string"
 import React, { useState } from "react"
+import { useParams, useHistory } from "react-router-dom"
 import { emptyGuidStr } from "../helpers/utils"
 import { CurveFilters } from "./CurveFilters"
 import { FailureCurve } from "./FailureCurve"
@@ -21,14 +22,9 @@ interface IFailureCurveDisplayProps {}
  */
 export const FailureCurveDisplay = (props: IFailureCurveDisplayProps) => {
     // deeplink example: http://localhost:3000/failure-curve?StudyKeyInstanceGuid=d61c757a-b893-6a0e-7f11-e66e60e9ff35&Vertical=appcrash
-    const [guid, setGuid] = useState<string>(() => {
-        // parse StudyKeyInstanceGuid from query string if it exists
-        const { StudyKeyInstanceGuid: StudyKeyInstanceGuidFromDeeplink } = queryString.parse(
-            location.search
-        )
-        if (StudyKeyInstanceGuidFromDeeplink) return StudyKeyInstanceGuidFromDeeplink as string
-        return emptyGuidStr
-    })
+    const { id } = useParams<{ id: string }>() // get the id parameter from the URL
+    const [guid, setGuid] = useState<string>(id || emptyGuidStr)
+    const history = useHistory()
 
     const [vertical, setVertical] = useState<string>(() => {
         // parse Vertical from query string if it exists
@@ -40,6 +36,8 @@ export const FailureCurveDisplay = (props: IFailureCurveDisplayProps) => {
     // handle dropdown selections
     const handleTimeFrameChange = (newGuidStr: string) => {
         setGuid(newGuidStr)
+        // change deeplink
+        history.push(`/failure-curve/${newGuidStr}`)
     }
 
     const handleVerticalChange = (newVertical: string) => {
@@ -61,7 +59,7 @@ export const FailureCurveDisplay = (props: IFailureCurveDisplayProps) => {
                 />
                 <MetricTable StudyKeyInstanceGuidStr={guid} Vertical={vertical} />
                 <FailureCurveSummary StudyKeyInstanceGuidStr={guid} Vertical={vertical} />
-                <FailureCurve StudyKeyInstanceGuidStr={guid} Vertical={vertical} />
+                <FailureCurve StudyKeyInstanceGuidStr={guid} Vertical={vertical} key={guid} />
             </Stack>
         </div>
     )

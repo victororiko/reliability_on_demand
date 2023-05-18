@@ -18,8 +18,7 @@ interface IRichStudyInstanceTableProps {
 export const RichStudyInstanceTable = (props: IRichStudyInstanceTableProps) => {
     const history = useHistory()
     const navigateToFailureCurve = (StudyKeyInstanceGuidStr: string) => {
-        const params = queryString.stringify({ StudyKeyInstanceGuid: StudyKeyInstanceGuidStr })
-        history.push(`/failure-curve?${params}`)
+        history.push(`/failure-curve/${StudyKeyInstanceGuidStr}`)
     }
 
     // expand AggregateBy to individual columns
