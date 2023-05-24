@@ -18,18 +18,22 @@
 <#
     var context = Host.GetHostOption("T4Context") as IT4TransformContext;
 
-	string feederJSONFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIOD.FailureColumns.Final.json"; 
+	string feederJSONFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIOD.FailureColumns.Static.json"; 
 	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
 	string outputFailureAggregateFolder = @"Failures/Aggregated/";
 	string inputVerticalToColumn = "appcrash:AppCrashCount;appcrash_ms:AppCrashCount_MS;appcrash_ms_uiv:AppCrashCount_MS_UIV;apphang:AppHangCount;apphang_ms:AppHangCount_MS;apphang_ms_uiv:AppHangCount_MS_UIV;oscrash:OSCrashCount;oscrash_ms:OSCrashCount_MS;criticalservice:CriticalServiceCrashCount;criticalservice_ms:CriticalServiceCrashCount_MS;livekerneldump:LiveKernelDumpCount;dirtyshutdown:DirtyShutdownCount;corruption:CorruptionCount;verifier:VerifierCount;watchdog:WatchdogCount;oom:OOMCount;setup:SetupCount;offlinecrashdump:OfflineCrashDumpCount;abs_bugcheck:ABSBugcheckCount;abs_lpbh:ABSLPBHCount;abs_hw:ABSHWCount;abs_unknown:ABSUnknownCount";
     string inputVerticalToFailureCountColumn = "appcrash:AppCrashFailureCount;appcrash_ms:AppCrashFailureCount_MS;appcrash_ms_uiv:AppCrashFailureCount_MS_UIV;apphang:AppHangFailureCount;apphang_ms:AppHangFailureCount_MS;apphang_ms_uiv:AppHangFailureCount_MS_UIV;oscrash:OSCrashFailureCount;oscrash_ms:OSCrashFailureCount_MS;criticalservice:CriticalServiceFailureCount;criticalservice_ms:CriticalServiceFailureCount_MS;livekerneldump:LiveKernelDumpFailureCount;corruption:CorruptionFailureCount;verifier:VerifierFailureCount;watchdog:WatchdogFailureCount;oom:OOMFailureCount;setup:SetupFailureCount;offlinecrashdump:OfflineCrashDumpFailureCount;abs_bugcheck:ABSBugcheckFailureCount;abs_lpbh:ABSLPBHFailureCount;abs_hw:ABSHWFailureCount;abs_unknown:ABSUnknownFailureCount";
     string inputSelectColumns = "ProcessorModel;osArchitecture";
     int inputDayLookBack=14;  
-    string outputGenericDeviceFailureFlattenedStreamName= "RIOD.Devices.Failures.Flattened.Generic";
     string outputDeviceFailureFlattenedStreamName = "RIOD.Devices.Failures.Flattened";
 	string outputGenericDeviceFailureStreamName= "RIOD.Devices.Failures.Generic";
+	string outputGenericFailureStreamName= "RIOD.Failures.Generic";
 	string inputWatsonMarkerFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt";
 	Char[] trimExtraChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}'};
+	int inputMinBuild = 22621;
+	string inputAbsFailuresInputStream = "/shares/asimov.prod.data/PublicPartner/Staging/Reliability/FailureCurve/Prerequisite/OSAbnormalShutdown.Raw.DeviceFailures.ss";
+	string inputAbsBugCheckSelectClause = "(IsBugCheck == true OR !String.IsNullOrEmpty(OSC_BugCheckCodeStr))";
+	string inputAbsLPBHSelectClause = "(!String.IsNullOrEmpty(OSC_BugCheckCodeStr) AND (OSC_BugCheckCodeStr.Contains(\"0X1C8\") OR OSC_BugCheckCodeStr.Contains(\"0XE2\")))";
 	
 	string inputWatsonLatestTimeFile = ReadTextFromStream(inputWatsonMarkerFile);
     string watsonLatestTimeString = inputWatsonLatestTimeFile.Trim(trimExtraChars).Split('\n')[0];
@@ -44,6 +48,9 @@
 	   inputSelectColumns = (string)context.GetParameter<string>("_inputSelectColumns", inputSelectColumns);
 	   inputDayLookBack = (int)context.GetParameter<int>("_inputDayLookBack", inputDayLookBack);
 	   inputVerticalToFailureCountColumn = (string)context.GetParameter<string>("_inputVerticalToFailureCountColumn", inputVerticalToFailureCountColumn);
+	   inputAbsFailuresInputStream = (string)context.GetParameter<string>("_inputAbsFailuresInputStream", inputAbsFailuresInputStream);
+	   inputAbsBugCheckSelectClause = (string)context.GetParameter<string>("_inputAbsBugCheckSelectClause", inputAbsBugCheckSelectClause);
+	   inputAbsLPBHSelectClause = (string)context.GetParameter<string>("_inputAbsLPBHSelectClause", inputAbsLPBHSelectClause);
     }
 	
     string QueryId = string.Empty;
@@ -62,8 +69,6 @@
 	string FilterExpression = string.Empty;
 	string FailureJoinKeyExpressionCols = string.Empty;
 	string IsUIVQuery = string.Empty;
-	
-	
 	string configContent = ReadTextFromStream(feederJSONFile);
     Dictionary<string, Dictionary<string,string>> configInfo = new Dictionary<string,Dictionary<string,string>>();
 
@@ -232,9 +237,9 @@ BugsWithFailureHashesView = SSTREAM @"/shares/asimov.prod.data/PublicPartner/Pro
 #>
 									   "</PivotFields></CurvePivots>" AS CustomFields,
 									   FailureHelper.GetVerticalFromEvent(watsonEventName2,FailureInfo_FailureBucketId) AS Vertical,
-									   FailureInfo_FailureBucketId,
-									   FailureInfo_FailureHash,
-									   FailureInfo_ModuleName,
+									   FailureInfo_FailureBucketId AS FailureName,
+									   FailureInfo_FailureHash AS FailureHash,
+									   FailureInfo_ModuleName AS ModuleName,
 									   (int)(<#=IsUIVQuery=="1"?1:0#>) AS IsUIVQuery,
 <#
 							 if(Measures.Contains("ApportionedHits"))
@@ -258,9 +263,9 @@ BugsWithFailureHashesView = SSTREAM @"/shares/asimov.prod.data/PublicPartner/Pro
 									   FailureJoinKey,
 									   CustomFields,
 									   Vertical,
-									   FailureInfo_ModuleName,
-									   FailureInfo_FailureBucketId,
-									   FailureInfo_FailureHash,
+									   ModuleName,
+									   FailureName,
+									   FailureHash,
 									   IsUIVQuery;
 <#
              if(i==0)
@@ -285,13 +290,132 @@ BugsWithFailureHashesView = SSTREAM @"/shares/asimov.prod.data/PublicPartner/Pro
      }
 #>;
 
+ABSStreamView =  SELECT *,
+                        int.Parse(OSVersion.Split('.')[2]) AS Build,
+						FailureHelper.GetBranchFromBuild(int.Parse(OSVersion.Split('.')[2])) AS Branch
+                 FROM (SSTREAM @"<#=inputAbsFailuresInputStream#>")
+				 WHERE FailureHelper.IsValidInt(OSVersion.Split('.')[2]) AND !String.IsNullOrEmpty(DeviceId)
+				 HAVING !String.IsNullOrEmpty(Branch) AND Build >= <#=inputMinBuild#>;
+
+ABSDeviceFailures = 
+			SELECT (int)0 AS QueryId,
+				   (string)DeviceId AS DeviceId,
+				   (DeviceId + "." + Branch + "." + OSVersion) AS FailureJoinKey,
+				   String.Empty AS CustomFields,
+				   "dirtyshutdown" AS Vertical,
+				   (String.IsNullOrEmpty(FailureName)?Reason:FailureName) AS FailureName,
+				   (Guid?)FailureHash AS FailureHash,
+				   ModuleName,
+                   (int)0 AS IsUIVQuery,
+                   (double)Count AS HitCount,
+                   (double)1 AS MachineCount,     //No Apportioning for ABS
+				   OSC_BugCheckCodeStr,
+                   <#=inputAbsBugCheckSelectClause#> AS IsABS_BugCheck,
+                   <#=inputAbsLPBHSelectClause#> AS IsABS_LPBH
+			FROM ABSStreamView AS abs;
+
+ABSDeviceFailures = 
+			SELECT QueryId,
+				   DeviceId,
+				   FailureJoinKey,
+				   CustomFields,
+				   Vertical,
+				   FailureName,
+				   FailureHash,
+				   ModuleName,
+				   IsUIVQuery,
+				   HitCount,
+		           MachineCount
+			FROM ABSDeviceFailures
+			UNION ALL
+			SELECT QueryId,
+				   DeviceId,
+				   FailureJoinKey,
+				   CustomFields,
+				   "abs_bugcheck" AS Vertical,
+				   FailureName,
+				   FailureHash,
+				   ModuleName,
+				   IsUIVQuery,
+				   HitCount,
+		           MachineCount
+			FROM ABSDeviceFailures
+			WHERE IsABS_BugCheck == true
+			UNION ALL
+			SELECT QueryId,
+				   DeviceId,
+				   FailureJoinKey,
+				   CustomFields,
+				   "abs_lpbh" AS Vertical,
+				   FailureName,
+				   FailureHash,
+				   ModuleName,
+				   IsUIVQuery,
+				   HitCount,
+		           MachineCount
+			FROM ABSDeviceFailures
+			WHERE IsABS_LPBH == true
+			UNION ALL
+			SELECT QueryId,
+				   DeviceId,
+				   FailureJoinKey,
+				   CustomFields,
+				   "abs_unknown" AS Vertical,
+				   FailureName,
+				   FailureHash,
+				   ModuleName,
+				   IsUIVQuery,
+				   HitCount,
+		           MachineCount
+			FROM ABSDeviceFailures
+			WHERE (IsABS_BugCheck == false AND IsABS_LPBH == false);
 
 RIODDeviceFailuresGeneric = 
-            SELECT df.*,
-			       (Guid)new Guid(MD5.Create() .ComputeHash(Encoding.Default.GetBytes(FailureJoinKey))) AS FailureJoinKeyGuid,
-				   bf.ComponentClassification
+           SELECT *,
+		          (Guid)new Guid(MD5.Create().ComputeHash(Encoding.Default.GetBytes(FailureJoinKey))) AS FailureJoinKeyGuid
+		   FROM RIODDeviceFailuresGeneric
+		   UNION ALL
+		   SELECT *,
+			      (Guid)new Guid(MD5.Create().ComputeHash(Encoding.Default.GetBytes(FailureJoinKey))) AS FailureJoinKeyGuid
+		   FROM ABSDeviceFailures;
+
+RIODGenericFailures = 
+           SELECT DISTINCT Vertical,
+		                   FailureHash,
+		                   FailureName,
+				           ModuleName
+           FROM RIODDeviceFailuresGeneric;
+		  
+#DECLARE outputFailuresGeneric = string.Format("{0}/{1}/{2}"+".ss", 
+                                                         @"<#=inputReliabilityRoot#>",
+                                                         @"<#=outputFailureAggregateFolder#>",
+                                                         @"<#=outputGenericFailureStreamName#>");
+												 
+OUTPUT RIODGenericFailures
+TO SSTREAM @outputFailuresGeneric
+ROUND ROBIN CLUSTERED INTO 250
+WITH STREAMEXPIRY "30";
+	  
+[SKEWJOIN=(
+   SKEW=FROMLEFT,
+   REPARTITION=FULLJOIN,
+   LEVEL=100,
+   MINPARTITIONCOUNT=250,
+   PARTITIONCOUNT=5000
+)]
+RIODDeviceFailuresGeneric = 
+            SELECT df.DeviceId,
+		           df.Vertical,
+				   df.FailureJoinKey,
+				   df.FailureJoinKeyGuid,
+				   df.FailureHash,
+				   df.HitCount,
+				   df.MachineCount,
+				   df.IsUIVQuery,
+				   bf.ComponentClassification,
+				   bf.BugId
             FROM RIODDeviceFailuresGeneric AS df
-			LEFT OUTER JOIN BugsWithFailureHashesView AS bf ON df.FailureInfo_FailureHash == bf.FailureHash;
+			LEFT OUTER JOIN BugsWithFailureHashesView AS bf ON df.FailureHash == bf.FailureHash;
 
 #DECLARE outputDeviceFailuresGeneric = string.Format("{0}/{1}/{2}"+".ss", 
                                                          @"<#=inputReliabilityRoot#>",
@@ -299,9 +423,10 @@ RIODDeviceFailuresGeneric =
                                                          @"<#=outputGenericDeviceFailureStreamName#>");
 														 
 // Current stream Device Failures Flattened stream
+[Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
 OUTPUT RIODDeviceFailuresGeneric
 TO SSTREAM @outputDeviceFailuresGeneric
-CLUSTERED BY DeviceId, FailureJoinKey
+CLUSTERED BY FailureJoinKey, DeviceId
 SORTED BY MachineCount, HitCount
 WITH STREAMEXPIRY "30";
 
@@ -309,7 +434,7 @@ RIODDeviceFailuresFlattened =
            SELECT DeviceId,
                   FailureJoinKey,
                   FailureJoinKeyGuid,
-                  CustomFields
+                  String.Empty AS CustomFields
 <#	
          foreach (var inputVerticalToColMap in inputVerticalToColumn.Split(';'))
          {
@@ -366,64 +491,6 @@ CLUSTERED BY DeviceId, FailureJoinKey, FailureJoinKeyGuid
 SORTED BY CustomFields
 WITH STREAMEXPIRY "30";
 
-
-RIODDeviceFailuresFlattenedXml =
-           SELECT DeviceId,
-                  FailureJoinKey,
-                  FailureJoinKeyGuid,
-                  CustomFields,
-                  ("{" +
-<#
-		 int count = 0;
-         foreach (var inputVerticalToColMap in inputVerticalToColumn.Split(';'))
-         {
-		            int verticalColLen = inputVerticalToColMap.Count();
-					string[] verticalMapStrings = inputVerticalToColMap.Split(':');
-					string verticalName = "\"" + verticalMapStrings[0] + "\"";
-					string verticalCountName = verticalMapStrings[0];
-
-					if(count!=0)
-					{
-
-#>
-					",\"" + <#=verticalName#> + "\":\""+ <#=verticalCountName#> + "\"" +
-<#
-					}
-					else
-					{
-#>
-                    "\"" + <#=verticalName#> + "\":\""+ <#=verticalCountName#> + "\"" +
-<#
-					}
-					count++;
-         }
-#>
-                   "}") AS FailureCountsXml
-         FROM RIODDeviceFailuresFlattened;
-
-// Current stream Device Failures Flattened stream
-#DECLARE outputFlattenedDeviceFailuresXml = string.Format("{0}/{1}/{2}"+".ss", 
-                                                                   @"<#=inputReliabilityRoot#>",
-                                                                   @"<#=outputFailureAggregateFolder#>",
-                                                                   @"<#=outputGenericDeviceFailureFlattenedStreamName#>");
-
-// Current stream Device Failures Flattened stream into datted stream format
-#DECLARE outputFlattenedDeviceFailuresXmlHistory = string.Format("{0}_{1}"+".ss", 
-                                                                   @outputFlattenedDeviceFailuresXml,
-                                                                   @runDate.ToString("yyyy-MM-dd_hh_mm_ss"));
-
-OUTPUT RIODDeviceFailuresFlattenedXml
-TO SSTREAM @outputFlattenedDeviceFailuresXml
-CLUSTERED BY DeviceId, FailureJoinKey, FailureJoinKeyGuid
-SORTED BY CustomFields
-WITH STREAMEXPIRY "30";
-
-OUTPUT RIODDeviceFailuresFlattenedXml
-TO SSTREAM @outputFlattenedDeviceFailuresXmlHistory
-CLUSTERED BY DeviceId, FailureJoinKey, FailureJoinKeyGuid
-SORTED BY CustomFields
-WITH STREAMEXPIRY "30";
-
 #CS
 
 using System;
@@ -471,6 +538,38 @@ public static class FailureHelper
            return "appcrash";
 		}
     }
+
+	public static bool IsValidInt(string intString)
+    {
+         int Build = 0;
+
+         return Int32.TryParse(intString,out Build);
+    }
+
+	public static string GetBranchFromBuild(int Build)
+    {
+        if(Build == 22000)
+        {
+             return "co_release";
+        }
+        else if(Build >= 22621 && Build <= 22631)
+        {
+             return "ni_release";
+        }
+        else if(Build >= 23000 && Build < 25000)
+        {
+             return "ni_prerelease";
+        }
+        else if(Build >= 25000 && Build <= 28000)
+        {
+             return "rs_prerelease";
+       }
+       else
+       {
+            return String.Empty;
+       }
+    }
+
 }
 
 #ENDCS
