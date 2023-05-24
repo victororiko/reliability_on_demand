@@ -33,6 +33,15 @@
 					<Parameter Name="_tokenAllocation" Value="60"/>
 				</Parameters>
 			</Activity>
+      <Activity Name="SampledData" ConfigBase="RIODConfigT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
+        <Parameters>
+          <Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.PopulationRelevantUsageSampling.script.scopet4"/>
+          <Parameter Name="_tokenAllocation" Value="60"/>
+        </Parameters>
+        <Dependencies>
+          <Dependency Name="Rel.RIOD.PopulationRelevantUageAggregator.T4.PopulationRelevantUsage" />
+        </Dependencies>
+      </Activity>
 		</Activities>
 	</Workflow>
 </Workflows>

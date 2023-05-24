@@ -1,0 +1,151 @@
+﻿<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "VcClient" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@include file="ReadTextFromStream.scopet4" #>
+<#@ import namespace = "System" #>
+<#@ assembly name= "NEWTONSOFT.JSON.DLL" #>
+<#@ import namespace = "Newtonsoft.Json" #>
+<#@ import namespace = "Newtonsoft.Json.Linq" #>
+<#@include file="ConfigurationHelper.scopet4" #>
+<#@include file="DebugOutput.scopet4" #>
+<#@include file="SchemaExplorer.scopet4" #>
+<#@include file="GetLatestStreamDate.scopet4" #>
+<#@include file="SaveTextToStream.scopet4" #>
+
+/*
+ --------------------------------------------------------------------------------------------------------------------
+Sampled - 
+		1. Device Flatten
+		2. Failures Aggregation
+
+COmbined device flatten stats
+ --------------------------------------------------------------------------------------------------------------------
+*/
+
+<#
+    var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+	string inputFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
+	string inputDeviceFlattenStream = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/DevicesFlattened/RIOD.Devices.Flattened.Expanded.ss";
+	string outputFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/DevicesFlattened/";
+	string outputStreamNameWithSampling=@"RIOD.Devices.Flattened.Expanded.Sampled.ss";
+	int sampling = 50000000;
+	string inputFailureAggLiteGenericStream = @"/Failures/Aggregated/RIOD.Devices.Failures.Generic.Lite.ss";
+	string inputFailureAggGenericStream = @"/Failures/Aggregated/RIOD.Devices.Failures.Generic.ss";
+	string inputReliabilityRoot = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
+	string outputStatsStreamName = @"RIOD.DeviceFlatten.Stats.ss";
+	string ouputFailureSampledStream = @"RIOD.Devices.Failures.Generic.Sampled.ss";
+	string ouputFailureLiteSampledStream = @"RIOD.Devices.Failures.Generic.Lite.Sampled.ss";
+	int inputDayLookBack=30;
+
+    // Check if we are running under XFlow
+    if (context != null)
+    {
+        inputFolder = (string)context.GetParameter<string>("_inputFolder", inputFolder);
+		outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
+	}
+
+#>
+
+
+#DECLARE expirationStreamCount string = "60";
+
+// Import Next Generation Privacy annotation module 
+// Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy; 
+
+#DECLARE outputDeviceFlattenSampledStream string = @"<#=string.Format("{0}/{1}",outputFolder ,outputStreamNameWithSampling ) #>";
+#DECLARE outputDeviceFailureSampledStream string = @"<#=string.Format("{0}/{1}",outputFolder ,ouputFailureSampledStream ) #>";
+#DECLARE outputDeviceFailureLiteSampledStream string = @"<#=string.Format("{0}/{1}",outputFolder ,ouputFailureLiteSampledStream ) #>";
+#DECLARE outputDeviceFlattenStatsStream string = @"<#=string.Format("{0}/{1}",outputFolder ,outputStatsStreamName ) #>";
+
+//Expanded input streams
+#DECLARE endDatedt DateTime = DateTime.UtcNow;
+#DECLARE input_Generic_Failure_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputFailureAggGenericStream ) #>";
+#DECLARE input_Generic_Lite_Failure_ss string = @"<#=string.Format("{0}/{1}",inputFolder ,inputFailureAggLiteGenericStream ) #>";
+#DECLARE input_Device_Stats_ss string =@"/DevicesFlattened/RIOD.DeviceFlatten.Stats_%Y-%m-%d-%h.ss";
+#DECLARE endDate string = @endDatedt.ToString("yyyy-MM-dd");
+#DECLARE startDate string = @endDatedt.Date.AddDays(-<#=inputDayLookBack#>).ToString("yyyy-MM-dd");
+
+// Preventing skewing using sorting and order by
+populationRelevantUsageData = SELECT *
+							 FROM (SSTREAM @"<#=inputDeviceFlattenStream#>");
+
+// Select specified sampled data
+sampledPopulationRelevantUsageData = SELECT *,
+											ROW_NUMBER() OVER (PARTITION BY OSBuildNumber, OSBranch, OSBuildRevision ORDER BY DeviceId DESC) AS RowNumber
+									 FROM populationRelevantUsageData;
+
+sampledPopulationRelevantUsageData = SELECT *
+									 FROM sampledPopulationRelevantUsageData
+									 WHERE RowNumber>= 1 AND RowNumber <= <#=sampling#>;
+
+// select specific small populations
+armPopulationRelevantUsageData = SELECT *,
+								 (long)0 AS RowNumber
+								 FROM populationRelevantUsageData
+								 WHERE OSArchitecture == "arm64";
+
+microsoftOEMPopulationRelevantUsageData = SELECT *,
+										  (long)0 AS RowNumber
+										  FROM populationRelevantUsageData
+										  WHERE OEMName == "Microsoft";
+
+
+// Union all data
+allSampledPopulationRelevantUsage = SELECT *
+									FROM sampledPopulationRelevantUsageData
+									UNION ALL
+									SELECT *
+									FROM armPopulationRelevantUsageData
+									UNION ALL
+									SELECT *
+									FROM microsoftOEMPopulationRelevantUsageData;
+
+
+uniqueSampledPopulationRelevantUsage = SELECT *,
+											  ROW_NUMBER() OVER (PARTITION BY PopulationJoinKeyGuid ORDER BY RowNumber) AS RowPrecedence
+										FROM allSampledPopulationRelevantUsage;
+
+uniqueSampledPopulationRelevantUsage = SELECT *
+									   FROM uniqueSampledPopulationRelevantUsage
+									   WHERE RowPrecedence == 1;
+
+OUTPUT uniqueSampledPopulationRelevantUsage
+TO SSTREAM @outputDeviceFlattenSampledStream
+WITH STREAMEXPIRY @expirationStreamCount;
+
+sampledFailureLiteData = SELECT f.*
+					 FROM (SSTREAM @input_Generic_Lite_Failure_ss) AS f
+					 INNER JOIN
+					 uniqueSampledPopulationRelevantUsage AS u
+					 ON f.FailureJoinKeyGuid == u.FailureJoinKeyGuid;
+
+OUTPUT sampledFailureLiteData
+TO SSTREAM @outputDeviceFailureLiteSampledStream
+WITH STREAMEXPIRY @expirationStreamCount;
+
+sampledFailureData = SELECT f.*
+					 FROM (SSTREAM @input_Generic_Failure_ss) AS f
+					 INNER JOIN
+					 uniqueSampledPopulationRelevantUsage AS u
+					 ON f.FailureJoinKeyGuid == u.FailureJoinKeyGuid;
+
+OUTPUT sampledFailureData
+TO SSTREAM @outputDeviceFailureSampledStream
+WITH STREAMEXPIRY @expirationStreamCount;
+
+combinedDeviceFlattenStats = SELECT *
+							FROM
+							(
+							SSTREAM
+							SPARSE STREAMSET "<#=inputReliabilityRoot#>"
+							PATTERN @input_Device_Stats_ss
+							RANGE __date = [@startDate, @endDate],
+							__hour = ["00", "23"]
+							);
+
+OUTPUT combinedDeviceFlattenStats
+TO SSTREAM @outputDeviceFlattenStatsStream
+WITH STREAMEXPIRY @expirationStreamCount;

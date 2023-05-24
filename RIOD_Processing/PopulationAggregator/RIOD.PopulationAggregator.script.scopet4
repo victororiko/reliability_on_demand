@@ -67,6 +67,9 @@ USING System.Security.Cryptography;
 	// Filter Expression
 	string filterExpression = "(_DeviceFamily ?? string.Empty).ToLowerInvariant()== \"windows.desktop\" AND !(bool)(IsTestLab ?? false)";
 
+	// arm processor model
+	string armProcessorModelCriteria = "(ProcessorModel != NULL AND (ProcessorModel.Contains(\"Microsoft SQ\") OR ProcessorModel.Contains(\"Snapdragon\")))";
+
     // Check if we are running under XFlow
     if (context != null)
     {
@@ -82,6 +85,7 @@ USING System.Security.Cryptography;
        	populationJoinKeySplitterChar = (char)context.GetParameter<char>("_populationJoinKeySplitterChar", populationJoinKeySplitterChar);
        	inputWatsonMarkerFile = (string)context.GetParameter<string>("_inputWatsonMarkerFile", inputWatsonMarkerFile);
 		filterExpression = (string)context.GetParameter<string>("_filterExpression", filterExpression);
+		armProcessorModelCriteria = (string)context.GetParameter<string>("_armProcessorModelCriteria", armProcessorModelCriteria);
     }
 
 	// Parse JSON from Feeder
@@ -196,6 +200,29 @@ DevicesPopulationHourly_WatsonCutoff = SELECT d.*,
                                             @"<#=inputPopulationStatsWatsonCutOffStreamName#>",
 											@"<#=inputDayLookBack#>",
 											@"<#=watsonLatestTime.ToString("yyyy_MM_dd_hh_mm_ss")#>");
+
+// apply processor model filter for arm architecture
+DevicesPopulationHourly_WatsonCutoff_arm = SELECT * 
+										   FROM DevicesPopulationHourly_WatsonCutoff
+										   WHERE OSArchitecture == "arm64";
+
+
+DevicesPopulationHourly_WatsonCutoffWithoutARM  = SELECT *
+													FROM DevicesPopulationHourly_WatsonCutoff
+													WHERE OSArchitecture != "arm64";
+
+
+DevicesPopulationHourly_WatsonCutoff_arm = SELECT *
+											FROM DevicesPopulationHourly_WatsonCutoff_arm
+											WHERE <#=armProcessorModelCriteria#>;
+
+
+DevicesPopulationHourly_WatsonCutoff = SELECT *
+										FROM DevicesPopulationHourly_WatsonCutoffWithoutARM
+										UNION 
+										SELECT *
+										FROM DevicesPopulationHourly_WatsonCutoff_arm;
+
 
 // select columns parsed from the JSON + our set of desired columns 
 DevicesAggregated = SELECT
