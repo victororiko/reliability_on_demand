@@ -37,6 +37,8 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime using the h
 	string inputWatsonWithXMLStreamName = @"UsageXMLFor";
 	string inputCurrentGenericStreamName = @"RIOD.Devices.Usage.Aggregated.Generic";
 	string outputStatsStreamName = @"RIOD.EachDayUsageStats";
+	string outputSelectedStreamDateStatsName = @"RIOD.SelectedStreamDateStats"; 
+	string outputDateRangeStatsName = @"RIOD.DateRangeStats"; 
 
 	// Workflow parameter for all predicted usage unit that can be used
 	string inputUsageUnitCols = "InteractivityDurationMS;EngagementDurationMS;FocusDurationMS;OutOfFocusDurationMS;ProcessDurationMS;RunDurationMS;SuspendDurationMS;AudioInMS;AudioOutMS;UserActiveDurationMS";
@@ -107,8 +109,8 @@ USING Privacy;
 #DECLARE endDate string = @runDate.ToString("yyyy-MM-dd");
 #DECLARE startDate string = @runDate.Date.AddDays(-<#=inputDayLookBack+1#>).ToString("yyyy-MM-dd");
 #DECLARE output_UsageWatsonLastXDays_ss = "";
-#DECLARE EndDateId int = @runDate.Year * 10000 + @runDate.Month * 100 + @runDate.Day + @runDate.Hour;
-#DECLARE StartDateId int = @xStartDate.Year * 10000 + @xStartDate.Month * 100 + @xStartDate.Day + @xStartDate.Hour;
+#DECLARE EndDateId int = @runDate.Year * 1000000 + @runDate.Month * 10000 + @runDate.Day * 100 + @runDate.Hour;
+#DECLARE StartDateId int = @xStartDate.Year * 1000000 + @xStartDate.Month * 10000 + @xStartDate.Day * 100 + @xStartDate.Hour;
 #DECLARE output_currentAggUsage_ss string= string.Format("{0}/{1}/{2}"+".ss", 
                                             @"<#=inputReliabilityRoot#>",
                                             @"<#=inputUsageDailyFolder#>",
@@ -130,6 +132,18 @@ USING Privacy;
                                             @runDate, 
                                             @"<#=inputUsageDailyFolder#>",
                                             @"<#=outputStatsStreamName#>");
+
+#DECLARE output_SelectedStreamDateStats_ss = string.Format("{0}/{2}/{3}"+"_{1:yyyy}-{1:MM}-{1:dd}-{1:HH}.ss", 
+                                            @"<#=inputReliabilityRoot#>",  
+                                            @runDate, 
+                                            @"<#=inputUsageDailyFolder#>",
+                                            @"<#=outputSelectedStreamDateStatsName#>");
+
+#DECLARE output_DateRangeStats_ss = string.Format("{0}/{2}/{3}"+"_{1:yyyy}-{1:MM}-{1:dd}-{1:HH}.ss", 
+                                            @"<#=inputReliabilityRoot#>",  
+                                            @runDate, 
+                                            @"<#=inputUsageDailyFolder#>",
+                                            @"<#=outputDateRangeStatsName#>");
 
 // Fetching last 15 days hourly stream
 input = SELECT *
@@ -158,7 +172,7 @@ input = SELECT *
 
 // Calculate the ID for the timestamp hourly stream has been produced
 input = SELECT *,
-		DailyFirstSeenDateTime.Year * 10000 + DailyFirstSeenDateTime.Month * 100 + DailyFirstSeenDateTime.Day + UsageHour AS UsageDateId
+		DailyFirstSeenDateTime.Year * 1000000 + DailyFirstSeenDateTime.Month * 10000 + DailyFirstSeenDateTime.Day * 100 + UsageHour AS UsageDateId
 		FROM input;
 
 // Apply the cutoff filter to fetch the required usage data for last 14 days from the Watson Cut off time
@@ -183,6 +197,32 @@ UsagePerDayStats = SELECT COUNT(*) AS totalCount,
 
 OUTPUT UsagePerDayStats
 TO SSTREAM @output_Stats_ss
+WITH STREAMEXPIRY @"<#= expirationStreamCount #>";
+
+datestream = SELECT TOP 1 @runDate AS runDate,
+					@xStartDate AS xStartDate,
+					@startDate AS startDate,
+					@endDate AS endDate,
+					@EndDateId AS EndDateId,
+					@StartDateId AS StartDateId
+			FROM input;
+
+OUTPUT datestream
+TO SSTREAM @output_DateRangeStats_ss
+WITH STREAMEXPIRY @"<#= expirationStreamCount #>";
+
+inputWithUsageDay = SELECT *,
+							DailyFirstSeenDateTime.Date.ToString("yyyy-MM-dd") AS day
+					FROM input;
+
+
+selectedStreamSetStats = SELECT day,
+								UsageHour
+						FROM inputWithUsageDay
+						GROUP BY day,UsageHour;
+
+OUTPUT selectedStreamSetStats
+TO SSTREAM @output_SelectedStreamDateStats_ss
 WITH STREAMEXPIRY @"<#= expirationStreamCount #>";
 
 <#
