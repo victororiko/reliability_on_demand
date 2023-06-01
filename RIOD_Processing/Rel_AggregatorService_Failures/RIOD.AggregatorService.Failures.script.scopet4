@@ -304,7 +304,7 @@ ABSDeviceFailures =
 				   String.Empty AS CustomFields,
 				   "dirtyshutdown" AS Vertical,
 				   (String.IsNullOrEmpty(FailureName)?Reason:FailureName) AS FailureName,
-				   (Guid?)FailureHash AS FailureHash,
+				   (Guid?)((FailureHash == NULL)?UnifiedFailureHash:FailureHash) AS FailureHash,
 				   ModuleName,
                    (int)0 AS IsUIVQuery,
                    (double)Count AS HitCount,
@@ -560,14 +560,18 @@ public static class FailureHelper
         {
              return "ni_prerelease";
         }
-        else if(Build >= 25000 && Build <= 28000)
+        else if(Build >= 25000 && Build <= 25600)
+        {
+             return "zn_release";
+        }
+        else if(Build >= 25846 && Build <= 29999)
         {
              return "rs_prerelease";
-       }
-       else
-       {
+        }
+        else
+        {
             return String.Empty;
-       }
+        }
     }
 
 }
