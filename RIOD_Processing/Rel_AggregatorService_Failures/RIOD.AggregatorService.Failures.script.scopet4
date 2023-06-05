@@ -290,9 +290,7 @@ BugsWithFailureHashesView = SSTREAM @"/shares/asimov.prod.data/PublicPartner/Pro
      }
 #>;
 
-ABSStreamView =  SELECT *,
-                        int.Parse(OSVersion.Split('.')[2]) AS Build,
-						FailureHelper.GetBranchFromBuild(int.Parse(OSVersion.Split('.')[2])) AS Branch
+ABSStreamView =  SELECT *
                  FROM (SSTREAM @"<#=inputAbsFailuresInputStream#>")
 				 WHERE FailureHelper.IsValidInt(OSVersion.Split('.')[2]) AND !String.IsNullOrEmpty(DeviceId)
 				 HAVING !String.IsNullOrEmpty(Branch) AND Build >= <#=inputMinBuild#>;
@@ -544,34 +542,6 @@ public static class FailureHelper
          int Build = 0;
 
          return Int32.TryParse(intString,out Build);
-    }
-
-	public static string GetBranchFromBuild(int Build)
-    {
-        if(Build == 22000)
-        {
-             return "co_release";
-        }
-        else if(Build >= 22621 && Build <= 22631)
-        {
-             return "ni_release";
-        }
-        else if(Build >= 23000 && Build < 25000)
-        {
-             return "ni_prerelease";
-        }
-        else if(Build >= 25000 && Build <= 25600)
-        {
-             return "zn_release";
-        }
-        else if(Build >= 25846 && Build <= 29999)
-        {
-             return "rs_prerelease";
-        }
-        else
-        {
-            return String.Empty;
-        }
     }
 
 }

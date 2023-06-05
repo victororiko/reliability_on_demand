@@ -50,7 +50,7 @@ USING System.Security.Cryptography;
 	DateTime watsonLatestTime = DateTime.Parse(watsonLatestTimeString);
 
 	// set date ranges for initial lookup in hourly streams
-	string startDateStr = watsonLatestTime.Date.AddDays(-inputDayLookBack+1).ToString("yyyy-MM-dd");
+	string startDateStr = watsonLatestTime.Date.AddDays(-(inputDayLookBack+1)).ToString("yyyy-MM-dd");
 	string endDateStr = watsonLatestTime.ToString("yyyy-MM-dd");
 
 	// convert dates to long based ids to apply watson cutoff filter on input data
