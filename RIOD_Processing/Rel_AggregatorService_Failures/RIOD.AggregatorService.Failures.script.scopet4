@@ -32,9 +32,9 @@
 	Char[] trimExtraChars = new Char[] { ' ', '*', '.', '[', ']', '{', '}'};
 	int inputMinBuild = 22621;
 	string inputAbsFailuresInputStream = "/shares/asimov.prod.data/PublicPartner/Staging/Reliability/FailureCurve/Prerequisite/OSAbnormalShutdown.Raw.DeviceFailures.ss";
-	string inputAbsBugCheckSelectClause = "(IsBugCheck == true OR !String.IsNullOrEmpty(OSC_BugCheckCodeStr))";
-	string inputAbsLPBHSelectClause = "(!String.IsNullOrEmpty(OSC_BugCheckCodeStr) AND (OSC_BugCheckCodeStr.Contains(\"0X1C8\") OR OSC_BugCheckCodeStr.Contains(\"0XE2\")))";
-	
+	string inputAbsBugCheckSelectClause = "(!String.IsNullOrEmpty(FailureName) AND !FailureName.Contains(\"_USER_INITIATED\")) AND (IsBugCheck == true OR !String.IsNullOrEmpty(OSC_BugCheckCodeStr))";
+	string inputAbsLPBHSelectClause = "(!String.IsNullOrEmpty(FailureName) AND FailureName.Contains(\"_USER_INITIATED\")) OR (!String.IsNullOrEmpty(OSC_BugCheckCodeStr) AND (OSC_BugCheckCodeStr.Contains(\"0X1C8\") OR OSC_BugCheckCodeStr.Contains(\"0XE2\")) )";
+		
 	string inputWatsonLatestTimeFile = ReadTextFromStream(inputWatsonMarkerFile);
     string watsonLatestTimeString = inputWatsonLatestTimeFile.Trim(trimExtraChars).Split('\n')[0];
 	DateTime watsonLatestTime = DateTime.Parse(watsonLatestTimeString);
@@ -301,16 +301,21 @@ ABSDeviceFailures =
 				   (DeviceId + "." + Branch + "." + OSVersion) AS FailureJoinKey,
 				   String.Empty AS CustomFields,
 				   "dirtyshutdown" AS Vertical,
-				   (String.IsNullOrEmpty(FailureName)?Reason:FailureName) AS FailureName,
+				   (String.IsNullOrEmpty(FailureName)?UnifiedFailureName:FailureName) AS FailureName,
 				   (Guid?)((FailureHash == NULL)?UnifiedFailureHash:FailureHash) AS FailureHash,
 				   ModuleName,
                    (int)0 AS IsUIVQuery,
                    (double)Count AS HitCount,
                    (double)1 AS MachineCount,     //No Apportioning for ABS
 				   OSC_BugCheckCodeStr,
-                   <#=inputAbsBugCheckSelectClause#> AS IsABS_BugCheck,
-                   <#=inputAbsLPBHSelectClause#> AS IsABS_LPBH
-			FROM ABSStreamView AS abs;
+				   IsBugCheck
+             FROM ABSStreamView AS abs;
+
+ABSDeviceFailures =
+            SELECT *,
+			        <#=inputAbsBugCheckSelectClause#> AS IsABS_BugCheck,
+                    <#=inputAbsLPBHSelectClause#> AS IsABS_LPBH
+            FROM ABSDeviceFailures;
 
 ABSDeviceFailures = 
 			SELECT QueryId,
