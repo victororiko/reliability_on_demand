@@ -19,10 +19,10 @@ export const FailureCurve = (props: IFailureCurveProps) => {
         props.Vertical === "All"
             ? undefined
             : (originalData: any) => {
-                return originalData.filter((item: any) => {
-                    return item.Vertical === props.Vertical
-                })
-            }
+                  return originalData.filter((item: any) => {
+                      return item.Vertical === props.Vertical
+                  })
+              }
     )
 
     if (isError)
@@ -35,10 +35,10 @@ export const FailureCurve = (props: IFailureCurveProps) => {
 
     const handleDeeplink = (tableFilterArr: any) => {
         const exitCondition = !tableFilterArr
-        if(exitCondition) return
+        if (exitCondition) return
 
         // sanitize prev by: setting any undefined values to null
-        const sanitized = tableFilterArr.map((item:any) => {
+        const sanitized = tableFilterArr.map((item: any) => {
             const sanitizedItem = item
             const currValue = item.value
             if (Array.isArray(currValue)) {
@@ -50,11 +50,11 @@ export const FailureCurve = (props: IFailureCurveProps) => {
             return sanitizedItem
         })
 
-        const filterArr = sanitized.filter((item:any) => {
+        const filterArr = sanitized.filter((item: any) => {
             const currValue = item.value
             if (Array.isArray(currValue)) {
-                for(let i = 0; i < currValue.length; i++) {
-                    if(currValue[i] !== "") return true
+                for (let i = 0; i < currValue.length; i++) {
+                    if (currValue[i] !== "") return true
                 }
                 return false // at this point all values are empty strings
             }

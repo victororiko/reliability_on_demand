@@ -13,21 +13,6 @@ namespace reliability_on_demand.DataLayer
             _context = context;
         }
 
-        public string GetAllUnifiedConfigs()
-        {
-            return _context.GetAllUnifiedConfigs();
-        }
-
-        public int LogRelOnDemandQuery<T>(string username, string url, string access, T payload)
-        {
-            return _context.LogRelOnDemandQuery(username, url, access, payload);
-        }
-
-        public void UpdateRelOnDemandQuery(int id, bool status, string exception)
-        {
-            _context.UpdateRelOnDemandQuery(id, status, exception);
-        }
-
         string ISQLService.GetAllStudyConfigsForTeam(int TeamID)
         {
             return _context.GetAllStudyConfigsForTeam(TeamID);

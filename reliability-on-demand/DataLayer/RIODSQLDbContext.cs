@@ -35,58 +35,6 @@ namespace reliability_on_demand.DataLayer
             optionsBuilder.UseSqlServer(connectionString);
         }
 
-        public int LogRelOnDemandQuery<T>(string username, string url, string access = "post", T payload = default(T))
-        {
-            //ensure that connection is open
-            this.Database.OpenConnection();
-
-            var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.LogRelOnDemandQuery";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-
-            cmd.Parameters.Add(new SqlParameter("@username", username));
-            cmd.Parameters.Add(new SqlParameter("@url", url));
-            cmd.Parameters.Add(new SqlParameter("@access", access));
-
-            if (payload != null)
-            {
-                XmlSerializer serializer = new System.Xml.Serialization.XmlSerializer(payload.GetType());
-                // remove xmlns default namespace
-                var ns = new XmlSerializerNamespaces();
-                ns.Add("", "");
-
-                using (StringWriter textWriter = new StringWriter())
-                {
-                    serializer.Serialize(textWriter, payload, ns);
-                    cmd.Parameters.Add(new SqlParameter("@payload", textWriter.ToString()));
-                }
-            }
-
-            var id = cmd.ExecuteScalar();
-            return id != null ? int.Parse(id.ToString()) : -1;
-        }
-
-        public void UpdateRelOnDemandQuery(int queryID, bool status = true, string exception = null)
-        {
-            //ensure that connection is open
-            this.Database.OpenConnection();
-
-            var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.UpdateRelOnDemandQuery";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-
-            cmd.Parameters.Add(new SqlParameter("@queryID", queryID));
-            cmd.Parameters.Add(new SqlParameter("@status", status));
-            cmd.Parameters.Add(new SqlParameter("@exception", exception));
-
-            cmd.ExecuteNonQuery();
-        }
-
-        public string GetAllUnifiedConfigs()
-        {
-            return GetSQLResultsJSON("SELECT * FROM [dbo].[RELUnifiedConfig]");
-        }
-
         public string GetAllTeamConfigs()
         {
             //ensure that connection is open
@@ -94,7 +42,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetTeamConfigs";
+            cmd.CommandText = "dbo.RIOD_GetTeamConfigs";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
 
@@ -120,7 +68,7 @@ namespace reliability_on_demand.DataLayer
 
             if (inquiry.TeamID == -1)
             {
-                cmd.CommandText = "dbo.AddTeam";
+                cmd.CommandText = "dbo.RIOD_AddTeam";
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
                 // add any params here
                 cmd.Parameters.Add(new SqlParameter("@OwnerContact", inquiry.OwnerContact));
@@ -130,7 +78,7 @@ namespace reliability_on_demand.DataLayer
             }
             else
             {
-                cmd.CommandText = "dbo.UpdateTeam";
+                cmd.CommandText = "dbo.RIOD_UpdateTeam";
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
                 cmd.Parameters.Add(new SqlParameter("@OwnerContact", inquiry.OwnerContact));
                 cmd.Parameters.Add(new SqlParameter("@OwnerTeamFriendlyName", inquiry.OwnerTeamFriendlyName));
@@ -159,7 +107,7 @@ namespace reliability_on_demand.DataLayer
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
 
-            cmd.CommandText = "dbo.DeleteTeam";
+            cmd.CommandText = "dbo.RIOD_DeleteTeam";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.Add(new SqlParameter("@TeamID", inquiry.TeamID));
             StringBuilder sb = new StringBuilder();
@@ -180,7 +128,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetAllStudyConfigsForTeam";
+            cmd.CommandText = "dbo.RIOD_GetAllStudyConfigsForTeam";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@TeamID", TeamID));
@@ -205,7 +153,7 @@ namespace reliability_on_demand.DataLayer
             var cmd = this.Database.GetDbConnection().CreateCommand();
 
             // prepare store procedure with necessary parameters
-            cmd.CommandText = "dbo.AddStudy";
+            cmd.CommandText = "dbo.RIOD_AddStudy";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyName", userCreatedStudy.StudyName));
@@ -236,7 +184,7 @@ namespace reliability_on_demand.DataLayer
             var cmd = this.Database.GetDbConnection().CreateCommand();
 
             // prepare store procedure with necessary parameters
-            cmd.CommandText = "dbo.UpdateStudy";
+            cmd.CommandText = "dbo.RIOD_UpdateStudy";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyName", userUpdatedStudy.StudyName));
@@ -266,7 +214,7 @@ namespace reliability_on_demand.DataLayer
 
             var cmd = this.Database.GetDbConnection().CreateCommand();
 
-            cmd.CommandText = "dbo.DeleteStudy";
+            cmd.CommandText = "dbo.RIOD_DeleteStudy";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@TeamID", userUpdatedStudy.TeamID));
@@ -353,7 +301,7 @@ namespace reliability_on_demand.DataLayer
             this.Database.OpenConnection();
             StringBuilder sb = new StringBuilder();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetJSONAllScopeForPivotKeys";
+            cmd.CommandText = "dbo.RIOD_GetJSONAllScopeForPivotKeys";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@PivotKeys", pivotkeys));
@@ -378,7 +326,7 @@ namespace reliability_on_demand.DataLayer
                 //ensure that connection is open
                 this.Database.OpenConnection();
                 var cmd = this.Database.GetDbConnection().CreateCommand();
-                cmd.CommandText = "dbo.GetFilterExpressionForPivotScopeIds";
+                cmd.CommandText = "dbo.RIOD_GetFilterExpressionForPivotScopeIds";
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
                 // add any params here
                 cmd.Parameters.Add(new SqlParameter("@PivotScopeId", inquiry.PivotScopeIDs[pivotscopeidPtr]));
@@ -413,7 +361,7 @@ namespace reliability_on_demand.DataLayer
 
             var cmd = this.Database.GetDbConnection().CreateCommand();
 
-            cmd.CommandText = "dbo.GetAllVerticals";
+            cmd.CommandText = "dbo.RIOD_GetAllVerticals";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
@@ -434,7 +382,7 @@ namespace reliability_on_demand.DataLayer
             this.Database.OpenConnection();
             StringBuilder sb = new StringBuilder();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetJSONConfiguredVerticalForAStudy";
+            cmd.CommandText = "dbo.RIOD_GetJSONConfiguredVerticalForAStudy";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
@@ -454,7 +402,7 @@ namespace reliability_on_demand.DataLayer
             this.Database.OpenConnection();
             StringBuilder sb = new StringBuilder();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetDefaultVerticalForAStudy";
+            cmd.CommandText = "dbo.RIOD_GetDefaultVerticalForAStudy";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
@@ -475,7 +423,7 @@ namespace reliability_on_demand.DataLayer
             this.Database.OpenConnection();
             StringBuilder sb = new StringBuilder();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetFailurePivots";
+            cmd.CommandText = "dbo.RIOD_GetFailurePivots";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@sourcesubtype", sourcesubtype));
@@ -496,7 +444,7 @@ namespace reliability_on_demand.DataLayer
             this.Database.OpenConnection();
             StringBuilder sb = new StringBuilder();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetAllDefaultFailurePivotsForAVertical";
+            cmd.CommandText = "dbo.RIOD_GetAllDefaultFailurePivotsForAVertical";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@sourcesubtype", sourcesubtype));
@@ -517,7 +465,7 @@ namespace reliability_on_demand.DataLayer
             this.Database.OpenConnection();
             StringBuilder sb = new StringBuilder();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetAllConfiguredFailurePivotsForAVertical";
+            cmd.CommandText = "dbo.RIOD_GetAllConfiguredFailurePivotsForAVertical";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@sourcesubtype", sourcesubtype));
@@ -544,7 +492,7 @@ namespace reliability_on_demand.DataLayer
 
             // Getting the maximum pivot scope id in RELPivotSCope table
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetMaximumPivotScopeID";
+            cmd.CommandText = "dbo.RIOD_GetMaximumPivotScopeID";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             var maxScopeObj = cmd.ExecuteScalar();
             Int32 maxscopeid = (Convert.IsDBNull(maxScopeObj) ? 0 : (Int32)maxScopeObj);
@@ -601,7 +549,7 @@ namespace reliability_on_demand.DataLayer
             this.Database.OpenConnection();
             Int32 count = GetMaximumStudyPivotConfigCount(pivots[0].StudyConfigID, pivots[0].PivotSourceSubType);
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetMaximumPivotScopeID";
+            cmd.CommandText = "dbo.RIOD_GetMaximumPivotScopeID";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             var maxScopeObj = cmd.ExecuteScalar();
             Int32 maxscopeid = (Convert.IsDBNull(maxScopeObj) ? 0 : (Int32)maxScopeObj);
@@ -621,7 +569,7 @@ namespace reliability_on_demand.DataLayer
             PivotSource = '%' + PivotSource + '%';
             this.Database.OpenConnection();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetMaximumStudyPivotConfigCount";
+            cmd.CommandText = "dbo.RIOD_GetMaximumStudyPivotConfigCount";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
@@ -636,7 +584,7 @@ namespace reliability_on_demand.DataLayer
             PivotSource = '%' + PivotSource + '%';
             this.Database.OpenConnection();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.DeleteStudyConfigIDFromPivotMapping";
+            cmd.CommandText = "dbo.RIOD_DeleteStudyConfigIDFromPivotMapping";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
@@ -649,7 +597,7 @@ namespace reliability_on_demand.DataLayer
         {
             this.Database.OpenConnection();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.DeleteStudyVerticals";
+            cmd.CommandText = "dbo.RIOD_DeleteStudyVerticals";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
@@ -711,7 +659,7 @@ namespace reliability_on_demand.DataLayer
             else
             {
                 var cmd = this.Database.GetDbConnection().CreateCommand();
-                cmd.CommandText = "dbo.AddFilterPivotToFailureCurve";
+                cmd.CommandText = "dbo.RIOD_AddFilterPivotToFailureCurve";
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
                 // add any params here
                 cmd.Parameters.Add(new SqlParameter("@PivotScopeID", scopeid));
@@ -728,7 +676,7 @@ namespace reliability_on_demand.DataLayer
         {
             this.Database.OpenConnection();
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetPivotScopeIDForFilterExp";
+            cmd.CommandText = "dbo.RIOD_GetPivotScopeIDForFilterExp";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@PivotValue", pivotvalue));
@@ -742,7 +690,7 @@ namespace reliability_on_demand.DataLayer
         void AddWithoutFilterPivotToFailureCurve(Pivot pivot)
         {
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.AddWithoutFilterPivotToFailureCurve";
+            cmd.CommandText = "dbo.RIOD_AddWithoutFilterPivotToFailureCurve";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", pivot.StudyConfigID));
@@ -762,7 +710,7 @@ namespace reliability_on_demand.DataLayer
         void AddFilterPivotsAndValuesToFailureCurve(Pivot pivot)
         {
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.AddFilterPivotsAndValuesToFailureCurve";
+            cmd.CommandText = "dbo.RIOD_AddFilterPivotsAndValuesToFailureCurve";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", pivot.StudyConfigID));
@@ -784,7 +732,7 @@ namespace reliability_on_demand.DataLayer
         void AddVerticalsForStudy(int StudyConfigID, String vertical)
         {
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.AddVerticalsForStudy";
+            cmd.CommandText = "dbo.RIOD_AddVerticalsForStudy";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
@@ -802,7 +750,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetDefaultMetricConfigs";
+            cmd.CommandText = "dbo.RIOD_GetDefaultMetricConfigs";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
@@ -825,7 +773,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.AddMetricConfig";
+            cmd.CommandText = "dbo.RIOD_AddMetricConfig";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@MetricName", userCreatedMetric.MetricName));
@@ -857,7 +805,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetMetricConfigs";
+            cmd.CommandText = "dbo.RIOD_GetMetricConfigs";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
@@ -881,7 +829,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.UpdateMetricConfig";
+            cmd.CommandText = "dbo.RIOD_UpdateMetricConfig";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@UniqueKey", userConfig.UniqueKey));
@@ -915,7 +863,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.DeleteMetricConfig";
+            cmd.CommandText = "dbo.RIOD_DeleteMetricConfig";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@UniqueKey", userConfig.UniqueKey));
@@ -949,7 +897,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetAllSourcesForGivenSourceType";
+            cmd.CommandText = "dbo.RIOD_GetAllSourcesForGivenSourceType";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@SourceType", sourcetype));
@@ -973,7 +921,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetPopulationPivots";
+            cmd.CommandText = "dbo.RIOD_GetPopulationPivots";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@PivotSource", PivotSource));
@@ -997,7 +945,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetUserPivotConfigs";
+            cmd.CommandText = "dbo.RIOD_GetUserPivotConfigs";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@PivotSource", PivotSource));
@@ -1022,7 +970,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.ClearPivotConfig";
+            cmd.CommandText = "dbo.RIOD_ClearPivotConfig";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", userConfig.StudyConfigID));
@@ -1047,7 +995,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetPivotsFoGivenSource";
+            cmd.CommandText = "dbo.RIOD_GetPivotsFoGivenSource";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@source", source));
@@ -1071,7 +1019,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetAdminConfiguredPivotsData";
+            cmd.CommandText = "dbo.RIOD_GetAdminConfiguredPivotsData";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@source", source));
@@ -1095,7 +1043,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetUsageColumns";
+            cmd.CommandText = "dbo.RIOD_GetUsageColumns";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
             // execute stored procedure and return json
@@ -1118,7 +1066,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetPivotsAndScopesForStudyConfigID";
+            cmd.CommandText = "dbo.RIOD_GetPivotsAndScopesForStudyConfigID";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyConfigID", StudyConfigID));
@@ -1142,7 +1090,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetAllStudyTypes";
+            cmd.CommandText = "dbo.RIOD_GetAllStudyTypes";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // execute stored procedure and return json
             StringBuilder sb = new StringBuilder();
@@ -1162,7 +1110,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetAllDefaultVerticalsForSelectedStudyType";
+            cmd.CommandText = "dbo.RIOD_GetAllDefaultVerticalsForSelectedStudyType";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyType", StudyType));
@@ -1193,7 +1141,7 @@ namespace reliability_on_demand.DataLayer
             {
                 // prepare store procedure with necessary parameters
                 var cmd = this.Database.GetDbConnection().CreateCommand();
-                cmd.CommandText = "dbo.SaveVerticalsForStudyType";
+                cmd.CommandText = "dbo.RIOD_SaveVerticalsForStudyType";
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
                 // add any params here
                 cmd.Parameters.Add(new SqlParameter("@Vertical", studyTypeObj.Verticals[verticalCtr]));
@@ -1209,7 +1157,7 @@ namespace reliability_on_demand.DataLayer
         {
             // Delete Study type enteries from the table first
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.DeleteStudyType";
+            cmd.CommandText = "dbo.RIOD_DeleteStudyType";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
             cmd.Parameters.Add(new SqlParameter("@StudyType", StudyType));
@@ -1228,7 +1176,7 @@ namespace reliability_on_demand.DataLayer
                 Pivot p = pivots[i];
                 // prepare store procedure with necessary parameters
                 var cmd = this.Database.GetDbConnection().CreateCommand();
-                cmd.CommandText = "dbo.GetStudyConfigIDsForPivotsAndScopes";
+                cmd.CommandText = "dbo.RIOD_GetStudyConfigIDsForPivotsAndScopes";
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
                 // add any params here
                 cmd.Parameters.Add(new SqlParameter("@PivotKey", p.PivotKey));
@@ -1263,7 +1211,7 @@ namespace reliability_on_demand.DataLayer
 
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.GetVerticals";
+            cmd.CommandText = "dbo.RIOD_GetVerticals";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             // add any params here
 
@@ -1290,12 +1238,12 @@ namespace reliability_on_demand.DataLayer
 
             if (inquiry.VerticalID == -1)
             {
-                cmd.CommandText = "dbo.AddVertical";
+                cmd.CommandText = "dbo.RIOD_AddVertical";
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
             }
             else
             {
-                cmd.CommandText = "dbo.UpdateVertical";
+                cmd.CommandText = "dbo.RIOD_UpdateVertical";
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
             }
 
@@ -1333,7 +1281,7 @@ namespace reliability_on_demand.DataLayer
             // prepare store procedure with necessary parameters
             var cmd = this.Database.GetDbConnection().CreateCommand();
 
-            cmd.CommandText = "dbo.DeleteVertical";
+            cmd.CommandText = "dbo.RIOD_DeleteVertical";
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.Add(new SqlParameter("@VerticalName", verticalname));
             StringBuilder sb = new StringBuilder();
