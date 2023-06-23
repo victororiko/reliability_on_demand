@@ -42,7 +42,7 @@ Combines all the 3 streams together - Population, Failure and Usage based on Stu
 	string inputUsageUnitCols = "InteractivityDurationMS;EngagementDurationMS;FocusDurationMS;OutOfFocusDurationMS;ProcessDurationMS;RunDurationMS;SuspendDurationMS;AudioInMS;AudioOutMS;UserActiveDurationMS";
 
 	// Failure counts
-	string inputVerticalToColumn = "appcrash:AppCrashCount;appcrash_ms:AppCrashCount_MS;appcrash_ms_uiv:AppCrashCount_MS_UIV;apphang:AppHangCount;apphang_ms:AppHangCount_MS;apphang_ms_uiv:AppHangCount_MS_UIV;oscrash:OSCrashCount;oscrash_ms:OSCrashCount_MS;criticalservice:CriticalServiceCrashCount;criticalservice_ms:CriticalServiceCrashCount_MS;livekerneldump:LiveKernelDumpCount;dirtyshutdown:DirtyShutdownCount;corruption:CorruptionCount;verifier:VerifierCount;watchdog:WatchdogCount;oom:OOMCount;setup:SetupCount;offlinecrashdump:OfflineCrashDumpCount;abs_bugcheck:ABSBugcheckCount;abs_lpbh:ABSLPBHCount;abs_hw:ABSHWCount;abs_unknown:ABSUnknownCount";
+	string inputVerticalToColumn = "appcrash;appcrash_ms;appcrash_ms_uiv;apphang;apphang_ms;apphang_ms_uiv;oscrash;oscrash_ms;criticalservice;criticalservice_ms;livekerneldump;dirtyshutdown;corruption;verifier;watchdog;oom;setup;offlinecrashdump;abs_bugcheck;abs_lpbh;abs_hw;abs_unknown;appcrash_sce1;appcrash_ms_sce1;appcrash_ms_uiv_sce1;apphang_sce1;apphang_ms_sce1;apphang_ms_uiv_sce1;oscrash_sce1;oscrash_ms_sce1";
     
 	// default branches
 	string inputBranches = "ni_release;rs_prerelease";
