@@ -24,7 +24,7 @@ namespace reliability_on_demand.DataLayer
 
         public RIODSQLDbContext(IOptions<ValueSettings> valueSettings, DbContextOptions<RIODSQLDbContext> options) : base(options)
         {
-            connectionString = valueSettings.Value.relreportingdbsqlconn;
+            connectionString = valueSettings.Value.PMErelreportingdbsqlconn;
             validateAzureFunctionKey = valueSettings.Value.FailureValidateAzureFunction;
         }
 
