@@ -13,7 +13,9 @@ export interface Vertical {
     IsSubVertical?: boolean
     ParentVerticalName?: string
     FailureSourceName?: string
-    VerticalFilterExpression?: string
+    AuxiliaryClause?: string
+    ImportantProcessClause?: string
+    Scenario1Clause?: string
     FailureFeederIgnored?: boolean
     HashString?: string
 }

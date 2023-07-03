@@ -22,13 +22,17 @@ export const ManageFailureVerticals = (props: IManageFailureVerticalsProps) => {
     const [selectedFailureEventGroup, setSelectedFailureEventGroup] = useState<string>("")
     const [selectedParentVerticalName, setSelectedParentVerticalName] = useState<string>("")
     const [selectedFailureSourceName, setSelectedFailureSourceName] = useState<string>("")
-    const [selectedFilterExpression, setSelectedFilterExpression] = useState<string>("")
+    const [selectedAuxiliaryClause, setSelectedAuxiliaryClause] = useState<string>("")
+    const [selectedImportantProcessClause, setSelectedImportantProcessClause] = useState<string>("")
+    const [selectedScenario1Clause, setSelectedScenario1Clause] = useState<string>("")
     const [selectedPivotSourceSubtype, setSelectedPivotSourceSubtype] = useState<string>("")
     const [selectedIsSubVertical, setSelectedIsSubVertical] = useState<boolean>(false)
     const [selectedFailureFeederIgnored, setSelectedFailureFeederIgnored] = useState<boolean>(false)
     const [buttonLabel, setButtonLabel] = useState<string>("Add vertical")
     const [dataSaved, setDataSaved] = useState<boolean>(false)
     const [hashstring, setHashString] = useState<string>("")
+    const [formattedScenarioClase, setFormattedScenarioClause] = useState<string>("")
+    const [allowedToSave, setAllowedToSave] = useState<Boolean>(false)
 
     const loadVerticals = () => {
         axios.get("api/Data/GetVerticals").then((res) => {
@@ -78,7 +82,9 @@ export const ManageFailureVerticals = (props: IManageFailureVerticalsProps) => {
             setSelectedFailureEventGroup("")
             setSelectedParentVerticalName("")
             setSelectedFailureSourceName("")
-            setSelectedFilterExpression("")
+            setSelectedAuxiliaryClause("")
+            setSelectedImportantProcessClause("")
+            setSelectedScenario1Clause("")
             setSelectedPivotSourceSubtype("")
             setSelectedIsSubVertical(false)
             setSelectedFailureFeederIgnored(false)
@@ -96,7 +102,9 @@ export const ManageFailureVerticals = (props: IManageFailureVerticalsProps) => {
             setSelectedFailureEventGroup(selection?.FailureEventGroup ?? "")
             setSelectedParentVerticalName(selection?.ParentVerticalName ?? "")
             setSelectedFailureSourceName(selection?.FailureSourceName ?? "")
-            setSelectedFilterExpression(selection?.VerticalFilterExpression ?? "")
+            setSelectedAuxiliaryClause(selection?.AuxiliaryClause ?? "")
+            setSelectedImportantProcessClause(selection?.ImportantProcessClause ?? "")
+            setSelectedScenario1Clause(selection?.Scenario1Clause ?? "")
             setSelectedPivotSourceSubtype(selection?.PivotSourceSubType ?? "")
             setSelectedIsSubVertical(selection?.IsSubVertical ?? false)
             setSelectedFailureFeederIgnored(selection?.FailureFeederIgnored ?? false)
@@ -125,8 +133,17 @@ export const ManageFailureVerticals = (props: IManageFailureVerticalsProps) => {
         setSelectedFailureSourceName(selection)
     }
 
-    const onFilterExpressionSelected = (selection: string) => {
-        setSelectedFilterExpression(selection)
+    const onAuxiliaryClauseSelected = (selection: string) => {
+        setSelectedAuxiliaryClause(selection)
+    }
+
+    const onImportantProcessSelected = (selection: string) => {
+        setSelectedImportantProcessClause(selection)
+    }
+
+    const onScenario1ClauseSelected = (selection: string) => {
+        setSelectedScenario1Clause(selection)
+        setAllowedToSave(false)
     }
 
     const onPivotSourceSubtypeSelected = (selection: string) => {
@@ -151,7 +168,9 @@ export const ManageFailureVerticals = (props: IManageFailureVerticalsProps) => {
             IsSubVertical: selectedIsSubVertical,
             ParentVerticalName: selectedParentVerticalName,
             FailureSourceName: selectedFailureSourceName,
-            VerticalFilterExpression: selectedFilterExpression,
+            AuxiliaryClause: selectedAuxiliaryClause,
+            ImportantProcessClause: selectedImportantProcessClause,
+            Scenario1Clause: selectedScenario1Clause,
             FailureFeederIgnored: selectedFailureFeederIgnored,
             HashString:
                 hashstring === ""
@@ -168,6 +187,26 @@ export const ManageFailureVerticals = (props: IManageFailureVerticalsProps) => {
             .catch((exception) => {
                 return console.error(exception)
             })
+    }
+
+    const onFormattedScenarioClause = () => {
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            clause: selectedScenario1Clause,
+        }
+
+        axios
+            .post(`api/Data/FormattedScenarioClause`, requestOptions)
+            .then((response) => {
+                setFormattedScenarioClause(response.data)
+            })
+            .catch((err) => {})
+    }
+
+    const onUseFormattedScenarioClause = () => {
+        setSelectedScenario1Clause(formattedScenarioClase)
+        setAllowedToSave(true)
     }
 
     const onDeleteVertical = () => {
@@ -198,6 +237,34 @@ export const ManageFailureVerticals = (props: IManageFailureVerticalsProps) => {
             buttonType={SimplifiedButtonType.Primary}
             text="Delete Vertical"
             callback={onDeleteVertical}
+        />
+    )
+
+    const formatClause = !allowedToSave ? (
+        <div>
+            <MyButton
+                buttonType={SimplifiedButtonType.Primary}
+                text="Format Scenario Clause"
+                callback={onFormattedScenarioClause}
+            />
+            <Label>{formattedScenarioClase}</Label>
+            <MyButton
+                buttonType={SimplifiedButtonType.Primary}
+                text="Use Formatted Scenario Clause"
+                callback={onUseFormattedScenarioClause}
+            />
+        </div>
+    ) : (
+        ""
+    )
+
+    const saveOrUpdateButton = !allowedToSave ? (
+        ""
+    ) : (
+        <MyButton
+            buttonType={SimplifiedButtonType.Primary}
+            text={buttonLabel}
+            callback={onSaveVertical}
         />
     )
 
@@ -264,11 +331,27 @@ export const ManageFailureVerticals = (props: IManageFailureVerticalsProps) => {
                 isRequired={false}
             />
             <MyTextField
-                label="Filter Expression"
-                placeholder="Filter Expression"
+                label="Auxiliary Clause"
+                placeholder="Auxiliary Clause"
                 validateOnLoad={false}
-                textFieldValue={selectedFilterExpression}
-                callback={onFilterExpressionSelected}
+                textFieldValue={selectedAuxiliaryClause}
+                callback={onAuxiliaryClauseSelected}
+                isRequired={false}
+            />
+            <MyTextField
+                label="Important Process Clause"
+                placeholder="Important Process Clause"
+                validateOnLoad={false}
+                textFieldValue={selectedImportantProcessClause}
+                callback={onImportantProcessSelected}
+                isRequired={false}
+            />
+            <MyTextField
+                label="Scenario1 Clause"
+                placeholder="Scenario1 Clause"
+                validateOnLoad={false}
+                textFieldValue={selectedScenario1Clause}
+                callback={onScenario1ClauseSelected}
                 isRequired={false}
             />
             <MyToggle
@@ -276,12 +359,9 @@ export const ManageFailureVerticals = (props: IManageFailureVerticalsProps) => {
                 label="Failure Feeder Ignored"
                 callBack={onFailureFeederIgnoredSelected}
             />
+            {formatClause}
             <Stack horizontal tokens={horizontalStackTokens}>
-                <MyButton
-                    buttonType={SimplifiedButtonType.Primary}
-                    text={buttonLabel}
-                    callback={onSaveVertical}
-                />
+                {saveOrUpdateButton}
                 {deleteButton}
             </Stack>
             {saveLabel}

@@ -1256,7 +1256,9 @@ namespace reliability_on_demand.DataLayer
             cmd.Parameters.Add(new SqlParameter("@IsSubVertical", inquiry.IsSubVertical));
             cmd.Parameters.Add(new SqlParameter("@ParentVerticalName", inquiry.ParentVerticalName));
             cmd.Parameters.Add(new SqlParameter("@FailureSourceName", inquiry.FailureSourceName));
-            cmd.Parameters.Add(new SqlParameter("@VerticalFilterExpression", inquiry.VerticalFilterExpression));
+            cmd.Parameters.Add(new SqlParameter("@AuxiliaryClause", inquiry.AuxiliaryClause));
+            cmd.Parameters.Add(new SqlParameter("@ImportantProcessClause", inquiry.ImportantProcessClause));
+            cmd.Parameters.Add(new SqlParameter("@Scenario1Clause", inquiry.Scenario1Clause));
             cmd.Parameters.Add(new SqlParameter("@FailureFeederIgnored", inquiry.FailureFeederIgnored));
             cmd.Parameters.Add(new SqlParameter("@HashString", inquiry.HashString));
 

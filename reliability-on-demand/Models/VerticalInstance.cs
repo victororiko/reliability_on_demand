@@ -12,7 +12,9 @@ namespace reliability_on_demand.DataLayer
         public bool IsSubVertical { get; set; }
         public string ParentVerticalName { get; set; }
         public string FailureSourceName { get; set; }
-        public string VerticalFilterExpression { get; set; }
+        public string AuxiliaryClause { get; set; }
+        public string ImportantProcessClause { get; set; }
+        public string Scenario1Clause { get; set; }
         public bool FailureFeederIgnored { get; set; }
         public string HashString { get; set; }
     }

@@ -64,6 +64,25 @@ namespace reliability_on_demand.Controllers
             }
         }
 
+        [Route("api/Data/FormattedScenarioClause")]
+        [HttpPost]
+        public async Task<IActionResult> FormattedScenarioClause([FromBody]JsonElement data)
+        {
+            var url = this.valueSettings.Value.FormattedAdminScenarioClauseURL;
+            var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(url, content);
+            _logger.LogInformation($"FormattedFilterExpression was called | url = {url} | data = {data}");
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return Ok(responseContent);
+            }
+            else
+            {
+                return StatusCode((int)response.StatusCode);
+            }
+        }
+
         [Route("api/Data/GetAllTeamConfigs")]
         [HttpGet]
         public IActionResult GetAllTeamConfigs()
