@@ -10,8 +10,8 @@
 			  RecurrenceAmount="24"
 			  Start="2021-06-01T12:00:00"
 			  Email="cosreldata@microsoft.com"
-              TriggeredByWorkflow="WatsonSnapshotUserModeStatus"
-              TriggeredByActivity="WatsonSnapshotUserModeStatus.Finished"
+        TriggeredByWorkflow="WatsonSnapshotUserModeStatus"
+        TriggeredByActivity="WatsonSnapshotUserModeStatus.Finished"
             >
 		<ConfigBases>
 			<ConfigBase Name="RIODConfigT4" File="RIODConfigT4.xml"/>
@@ -43,7 +43,7 @@
 					<Parameter Name="_applyUnifiedOSConfig" Value="yes"/>
 					<Parameter Name="_outputStreamName" Value="RIOD.Failures.ss"/>
 					<Parameter Name="_tokenAllocation" Value="200"/>
-                    <Parameter Name="_feederJSONFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIODFailureColumns.Scenarios.json"/>
+                    <Parameter Name="_feederJSONFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIODFailureColumns.json"/>
 				</Parameters>
 			</Activity>
 		</Activities>
