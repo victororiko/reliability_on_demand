@@ -34,6 +34,7 @@
 	string inputAbsFailuresInputStream = "/shares/asimov.prod.data/PublicPartner/Staging/Reliability/FailureCurve/Prerequisite/OSAbnormalShutdown.Raw.DeviceFailures.ss";
 	string inputAbsBugCheckSelectClause = "(!String.IsNullOrEmpty(FailureName) AND !FailureName.Contains(\"_USER_INITIATED\")) AND (IsBugCheck == true OR !String.IsNullOrEmpty(OSC_BugCheckCodeStr))";
 	string inputAbsLPBHSelectClause = "(!String.IsNullOrEmpty(FailureName) AND FailureName.Contains(\"_USER_INITIATED\")) OR (!String.IsNullOrEmpty(OSC_BugCheckCodeStr) AND (OSC_BugCheckCodeStr.Contains(\"0X1C8\") OR OSC_BugCheckCodeStr.Contains(\"0XE2\")) )";
+	string inputAbsHWSelectClause = "(!String.IsNullOrEmpty(FailureName) AND FailureName.StartsWith(\"ABS_HW\"))";
 		
 	string inputWatsonLatestTimeFile = ReadTextFromStream(inputWatsonMarkerFile);
     string watsonLatestTimeString = inputWatsonLatestTimeFile.Trim(trimExtraChars).Split('\n')[0];
@@ -50,6 +51,7 @@
 	   inputAbsFailuresInputStream = (string)context.GetParameter<string>("_inputAbsFailuresInputStream", inputAbsFailuresInputStream);
 	   inputAbsBugCheckSelectClause = (string)context.GetParameter<string>("_inputAbsBugCheckSelectClause", inputAbsBugCheckSelectClause);
 	   inputAbsLPBHSelectClause = (string)context.GetParameter<string>("_inputAbsLPBHSelectClause", inputAbsLPBHSelectClause);
+	   inputAbsHWSelectClause = (string)context.GetParameter<string>("_inputAbsHWSelectClause", inputAbsHWSelectClause);
     }
 	
     string QueryId = string.Empty;
@@ -387,7 +389,8 @@ ABSDeviceFailures =
 ABSDeviceFailures =
             SELECT *,
 			        <#=inputAbsBugCheckSelectClause#> AS IsABS_BugCheck,
-                    <#=inputAbsLPBHSelectClause#> AS IsABS_LPBH
+                    <#=inputAbsLPBHSelectClause#> AS IsABS_LPBH,
+                    <#=inputAbsHWSelectClause#> AS IsABS_HW
             FROM ABSDeviceFailures;
 
 ABSDeviceFailures = 
@@ -463,6 +466,29 @@ ABSDeviceFailures =
 				   DeviceId,
 				   FailureJoinKey,
 				   CustomFields,
+				   "abs_hw" AS Vertical,
+				   FailureName,
+				   FailureHash,
+				   ModuleName,
+				   IsUIVQuery,
+				   IsImportantProcess,
+<#
+			 for(int idxScenario=1;idxScenario <= MaxScenarios;idxScenario++)
+			 {
+#>
+				   IsScenario_<#=idxScenario#>,
+<#
+             }
+#>
+				   HitCount,
+		           MachineCount
+			FROM ABSDeviceFailures
+			WHERE IsABS_HW == true
+			UNION ALL
+			SELECT QueryId,
+				   DeviceId,
+				   FailureJoinKey,
+				   CustomFields,
 				   "abs_unknown" AS Vertical,
 				   FailureName,
 				   FailureHash,
@@ -480,7 +506,7 @@ ABSDeviceFailures =
 				   HitCount,
 		           MachineCount
 			FROM ABSDeviceFailures
-			WHERE (IsABS_BugCheck == false AND IsABS_LPBH == false);
+			WHERE (IsABS_BugCheck == false AND IsABS_LPBH == false AND IsABS_HW == false);
 
 RIODDeviceFailuresGeneric = 
            SELECT *,
