@@ -29,7 +29,7 @@
         <Parameters>
           <Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.GenerateStreamFromView.script.scopet4"/>
           <Parameter Name="_outputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/PivotInputStreams/"/>
-          <Parameter Name="_ViewsToStream" Value="/shares/asimov.prod.data/Public/Processed/Flighting/MachineDeviceDriverDailyFactTable/MachineDeviceDriverDaily.view;/shares/asimov.prod.data/Public/Processed/Flighting/MachineCensusFactTable/MachineConsolidatedFactTable.view;/shares/asimov.prod.data/Public/Processed/Device/Census/Consolidated/DeviceCensusConsolidated.View"/>
+          <Parameter Name="_ViewsToStream" Value="/shares/asimov.prod.data/Public/Processed/Flighting/MachineDeviceDriverDailyFactTable/MachineDeviceDriverDaily.view;/shares/asimov.prod.data/Public/Processed/Device/Census/Consolidated/DeviceCensusConsolidated.View"/>
           <Parameter Name="_UsageView" Value="/shares/asimov.prod.data/Public/Processed/Usage/AppUsage/AggregatedAppUsageMetrics/AggregatedAppUsageMetricsHourly.view"></Parameter>
         </Parameters>
       </Activity>
