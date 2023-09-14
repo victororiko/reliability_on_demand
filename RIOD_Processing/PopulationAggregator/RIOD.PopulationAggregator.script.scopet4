@@ -41,7 +41,7 @@ USING System.Security.Cryptography;
 	string expirationStreamCount = "30";
 
 	// Workflow parameter for all Population pivots
-	string inputDefaultPopulationCols = "OSBranch;OSBuildNumber;OSBuildRevision;ProcessorModel;OSArchitecture;OEMName;OEMModel;IsSVEligible;DeviceAge;PredictedPriceBand;IsGamingDevice;GamerSegment;GamerPCClassification";
+	string inputDefaultPopulationCols = "OSBranch;OSBuildNumber;OSBuildRevision;ProcessorModel;OSArchitecture;OEMName;OEMModel;IsSVEligible;DeviceAge;PredictedPriceBand;IsGamingDevice;GamerSegment;GamerPCClassification;OEMSerialNumber";
 	
 	// capture watson cutoff time
 	string inputWatsonMarkerFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/WatsonLatestTime.txt";
