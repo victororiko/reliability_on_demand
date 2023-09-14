@@ -40,7 +40,7 @@ Combines all the 3 streams together - Population, Failure and Usage based on Stu
 	string inputUsageUnitCols = "InteractivityDurationMS;EngagementDurationMS;FocusDurationMS;OutOfFocusDurationMS;ProcessDurationMS;RunDurationMS;SuspendDurationMS;AudioInMS;AudioOutMS;UserActiveDurationMS";
 
 	// Failure counts
-	string inputVerticalToColumn = "appcrash;appcrash_ms;appcrash_ms_uiv;apphang;apphang_ms;apphang_ms_uiv;oscrash;oscrash_ms;criticalservice;criticalservice_ms;livekerneldump;dirtyshutdown;corruption;verifier;watchdog;oom;setup;offlinecrashdump;abs_bugcheck;abs_lpbh;abs_hw;abs_unknown;appcrash_sce1;appcrash_ms_sce1;appcrash_ms_uiv_sce1;apphang_sce1;apphang_ms_sce1;apphang_ms_uiv_sce1;oscrash_sce1;oscrash_ms_sce1;appcrash_sce2;appcrash_ms_sce2;appcrash_ms_uiv_sce2;apphang_sce2;apphang_ms_sce2;apphang_ms_uiv_sce2;oscrash_sce2;oscrash_ms_sce2;appcrash_sce3;appcrash_ms_sce3;appcrash_ms_uiv_sce3;apphang_sce3;apphang_ms_sce3;apphang_ms_uiv_sce3;oscrash_sce3;oscrash_ms_sce3";
+	string inputVerticalToColumn = "appcrash;appcrash_uiv;appcrash_ms;appcrash_ms_uiv;apphang;apphang_ms;apphang_ms_uiv;oscrash;oscrash_ms;criticalservice;criticalservice_ms;livekerneldump;dirtyshutdown;corruption;verifier;watchdog;oom;setup;offlinecrashdump;abs_bugcheck;abs_lpbh;abs_hw;abs_unknown;appcrash_sce1;appcrash_ms_sce1;appcrash_ms_uiv_sce1;apphang_sce1;apphang_ms_sce1;apphang_ms_uiv_sce1;oscrash_sce1;oscrash_ms_sce1;appcrash_sce2;appcrash_ms_sce2;appcrash_ms_uiv_sce2;apphang_sce2;apphang_ms_sce2;apphang_ms_uiv_sce2;oscrash_sce2;oscrash_ms_sce2;appcrash_sce3;appcrash_ms_sce3;appcrash_ms_uiv_sce3;apphang_sce3;apphang_ms_sce3;apphang_ms_uiv_sce3;oscrash_sce3;oscrash_ms_sce3";
     
 	// default branches
 	string inputBranches = "ni_release;rs_prerelease";
