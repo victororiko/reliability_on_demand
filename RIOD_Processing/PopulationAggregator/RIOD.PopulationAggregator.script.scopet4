@@ -68,7 +68,7 @@ USING System.Security.Cryptography;
 	string filterExpression = "(_DeviceFamily ?? string.Empty).ToLowerInvariant()== \"windows.desktop\" AND !(bool)(IsTestLab ?? false)";
 
 	// arm processor model
-	string armProcessorModelCriteria = "(ProcessorModel != NULL AND (ProcessorModel.Contains(\"Microsoft SQ\") OR ProcessorModel.Contains(\"Snapdragon\")))";
+	string armProcessorModelCriteria = "1 == 1";
 
     // Check if we are running under XFlow
     if (context != null)
