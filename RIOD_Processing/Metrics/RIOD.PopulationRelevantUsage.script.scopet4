@@ -145,8 +145,7 @@ populationFailureUsageExpandedData = SELECT p.*,
 											 ON p.PopulationJoinKeyGuid == u.UsageJoinGuid
 											 LEFT OUTER JOIN
 											 (SSTREAM @input_Expanded_Failure_ss) AS f
-											 ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid
-									WHERE PopulationJoinKey.Split('.')[1] IN ("<#=string.Join("\",\"",branchSet.ToArray())#>");
+											 ON p.PopulationJoinKeyGuid == f.FailureJoinKeyGuid;    // removing branch restriction to enable next Gen ARM and AI scenarios
 
 populationFailureUsageExpandedData = SELECT *,
 											getPartitionNumber(PopulationJoinKey,<#=numberOfPartitions#>) AS PartitionNumber
