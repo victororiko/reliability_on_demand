@@ -1,0 +1,267 @@
+{
+    "jobName": "c296fed0-ef7a-46d3-bc6a-7ce02c9f541d",
+    "jobDisplayName": "Rel.RIOD.AggregatorSvc.Failures.T4",
+    "tags": "Folder:PlatformHealth.Reliability,Workflow:Rel.RIOD.AggregatorSvc.Failures.T4,ImportedFromXflow,swat.phd.rel.important,Repo:RIOD",
+    "jobPriority": 999,
+    "jobScheduleSettings": {
+        "startTime": "2021-06-01T12:00:00",
+        "scheduleType": "Frequency",
+        "frequencySettings": {
+            "cronSchedule": "0 0 0 */24 * *",
+            "lagTime": "12:00:00",
+            "backFill": false,
+            "monthly": false
+        },
+        "DeltaSettings": {
+            "Lookback": 1,
+            "BackFillMode": "InstancePerGap",
+            "MaxDelta": -1
+        }
+    },
+    "failureAlertEmails": "cosreldata@microsoft.com",
+    "metricAccount": "MDMaccount",
+    "alertSeverity": 4,
+    "Activities": [
+        {
+            "id": "aad280f6-c13c-4c7d-aceb-33b90b07222e",
+            "retryPolicy": {
+                "type": "linear",
+                "count": 5,
+                "delay": "00:03:00"
+            },
+            "activityDisplayName": "Rel.RIOD.AggregatorSvc.Failures.T4.FailureAggregator_T4",
+            "ActivityType": "T4Transform",
+            "parameters": [
+                {
+                    "name": "_applyUnifiedOSConfig",
+                    "value": "yes",
+                    "type": "string"
+                },
+                {
+                    "name": "_feederJSONFile",
+                    "value": "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIODFailureColumns.json",
+                    "type": "string"
+                },
+                {
+                    "name": "_inputFilterExpression",
+                    "value": "",
+                    "type": "string"
+                },
+                {
+                    "name": "_inputOSBuildDefinitionFile",
+                    "value": "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json",
+                    "type": "string"
+                },
+                {
+                    "name": "_inputSelectColumns",
+                    "value": "",
+                    "type": "string"
+                },
+                {
+                    "name": "_outputStreamName",
+                    "value": "RIOD.Failures.ss",
+                    "type": "string"
+                },
+                {
+                    "name": "_script",
+                    "value": "shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.AggregatorService.Failures.script.scopet4",
+                    "type": "string"
+                },
+                {
+                    "name": "_inputDayLookBack",
+                    "value": "14",
+                    "type": "string"
+                },
+                {
+                    "name": "_inputFolder",
+                    "value": "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/",
+                    "type": "string"
+                },
+                {
+                    "name": "_OSCadence",
+                    "value": "Development;Development-Skip",
+                    "type": "string"
+                },
+                {
+                    "name": "_outputFolder",
+                    "value": "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/AggregatorSvcStreams/",
+                    "type": "string"
+                }
+            ],
+            "DependsOn": [],
+            "Input": {
+                "type": "CosmosVc",
+                "aadTenant": null,
+                "aadClientId": null,
+                "aadClientSecretUri": null,
+                "connectionName": "6adebd7a-4c4c-436b-9685-7f8b4dd4d942",
+                "folder": null,
+                "pattern": null,
+                "projectName": null,
+                "JobName": null,
+                "activityId": null
+            },
+            "T4Script": {
+                "SourcePath": "shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.AggregatorService.Failures.script.scopet4",
+                "Value": null
+            },
+            "T4Refs": [],
+            "T4Paths": [
+                "shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common",
+                "shares/asimov.prod.data/Public/Resources/Latest/Asimov"
+            ],
+            "T4Extension": null
+        },
+        {
+            "id": "6231a995-03ad-4e73-b66a-ca7427f95495",
+            "retryPolicy": {
+                "type": "linear",
+                "count": 5,
+                "delay": "00:03:00"
+            },
+            "activityDisplayName": "Rel.RIOD.AggregatorSvc.Failures.T4.FailureAggregator",
+            "ActivityType": "DataCommand",
+            "parameters": [],
+            "DependsOn": [
+                {
+                    "ActivityId": "aad280f6-c13c-4c7d-aceb-33b90b07222e"
+                }
+            ],
+            "Output": {
+                "type": "CosmosVc",
+                "aadTenant": null,
+                "aadClientId": null,
+                "aadClientSecretUri": null,
+                "connectionName": "6adebd7a-4c4c-436b-9685-7f8b4dd4d942",
+                "folder": null,
+                "pattern": null,
+                "projectName": null,
+                "JobName": null,
+                "activityId": null
+            },
+            "Script": "Place holder script",
+            "Language": "Scope",
+            "Priority": null,
+            "TokenAllocation": 200,
+            "VcPercentAllocation": null,
+            "AllocationType": null,
+            "RuntimeVersion": null,
+            "NebulaParameters": null,
+            "IsBackfill": null,
+            "AppendUtcIndicator": null,
+            "Tags": {
+                "JobOwner": "swat.phd.rel.important"
+            }
+        },
+        {
+            "id": "881c2222-f7bc-4453-beac-76efae581085",
+            "retryPolicy": {
+                "type": "linear",
+                "count": 5,
+                "delay": "00:03:00"
+            },
+            "activityDisplayName": "Rel.RIOD.AggregatorSvc.Failures.T4.WatsonCutOffTime_T4",
+            "ActivityType": "T4Transform",
+            "parameters": [
+                {
+                    "name": "_script",
+                    "value": "shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.GetWatsonCutOffTime.script.scopet4",
+                    "type": "string"
+                },
+                {
+                    "name": "_inputDayLookBack",
+                    "value": "14",
+                    "type": "string"
+                },
+                {
+                    "name": "_inputFolder",
+                    "value": "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/",
+                    "type": "string"
+                },
+                {
+                    "name": "_OSCadence",
+                    "value": "Development;Development-Skip",
+                    "type": "string"
+                },
+                {
+                    "name": "_outputFolder",
+                    "value": "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/AggregatorSvcStreams/",
+                    "type": "string"
+                }
+            ],
+            "DependsOn": [],
+            "Input": {
+                "type": "CosmosVc",
+                "aadTenant": null,
+                "aadClientId": null,
+                "aadClientSecretUri": null,
+                "connectionName": "6adebd7a-4c4c-436b-9685-7f8b4dd4d942",
+                "folder": null,
+                "pattern": null,
+                "projectName": null,
+                "JobName": null,
+                "activityId": null
+            },
+            "T4Script": {
+                "SourcePath": "shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.GetWatsonCutOffTime.script.scopet4",
+                "Value": null
+            },
+            "T4Refs": [],
+            "T4Paths": [
+                "shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common",
+                "shares/asimov.prod.data/Public/Resources/Latest/Asimov"
+            ],
+            "T4Extension": null
+        },
+        {
+            "id": "e647ea3b-da2f-4f4c-9bd0-073c1b711e11",
+            "retryPolicy": {
+                "type": "linear",
+                "count": 5,
+                "delay": "00:03:00"
+            },
+            "activityDisplayName": "Rel.RIOD.AggregatorSvc.Failures.T4.WatsonCutOffTime",
+            "ActivityType": "DataCommand",
+            "parameters": [],
+            "DependsOn": [
+                {
+                    "ActivityId": "881c2222-f7bc-4453-beac-76efae581085"
+                }
+            ],
+            "Output": {
+                "type": "CosmosVc",
+                "aadTenant": null,
+                "aadClientId": null,
+                "aadClientSecretUri": null,
+                "connectionName": "6adebd7a-4c4c-436b-9685-7f8b4dd4d942",
+                "folder": null,
+                "pattern": null,
+                "projectName": null,
+                "JobName": null,
+                "activityId": null
+            },
+            "Script": "Place holder script",
+            "Language": "Scope",
+            "Priority": null,
+            "TokenAllocation": 25,
+            "VcPercentAllocation": null,
+            "AllocationType": null,
+            "RuntimeVersion": null,
+            "NebulaParameters": null,
+            "IsBackfill": null,
+            "AppendUtcIndicator": null,
+            "Tags": {
+                "JobOwner": "swat.phd.rel.important"
+            }
+        }
+    ],
+    "project": "lens-d7feec4c-1e9d-4075-bdcb-bb7467304365",
+    "autoMitigation": "On",
+    "isEnabled": false,
+    "config": {
+        "isEnabled": false,
+        "owner": "cosreldata@microsoft.com",
+        "tags": ",swat.phd.rel.important,Repo:RIOD"
+    },
+    "createdBy": "cosreldata@microsoft.com"
+}
