@@ -27,7 +27,7 @@ namespace reliability_on_demand.Helpers
 
             // Multi-tenant apps can use "common",
             // single-tenant apps must use the tenant ID from the Azure portal
-            var tenantId = configuration.GetValue<string>("TenantID");
+            var tenantId = "common";
 
             // Values from app registration
             var clientId = configuration.GetValue<string>("AppClientId");

@@ -164,20 +164,20 @@ extends:
 
           - task: AzureWebApp@1
             inputs:
-              azureSubscription: 'conn_WDG_RIOD_RG'
+              azureSubscription: 'RIOD_PME'
               appType: 'webAppLinux'
-              appName: 'reliabilityondemand'
+              appName: 'reliabilityondemandpme'
               deployToSlotOrASE: true
-              resourceGroupName: 'RIOD_RG'
+              resourceGroupName: 'ReliabilityCloudRG'
               slotName: 'staging'
               package: '$(System.DefaultWorkingDirectory)\\WebAppContent'
 
           - task: AzureAppServiceManage@0
             inputs:
-              azureSubscription: 'conn_WDG_RIOD_RG'
+              azureSubscription: 'RIOD_PME'
               Action: 'Swap Slots'
-              WebAppName: 'reliabilityondemand'
-              ResourceGroupName: 'RIOD_RG'
+              WebAppName: 'reliabilityondemandpme'
+              ResourceGroupName: 'ReliabilityCloudRG'
               SourceSlot: 'staging'
 
           ##################### End Our Tasks #####################
