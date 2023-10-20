@@ -46,6 +46,10 @@ variables:
   value: 'onebranch.azurecr.io/windows/ltsc2019/vse2022:latest' # Docker image which is used to build the project https://aka.ms/obpipelines/containers
 - name: clientAppDir
   value: 'reliability-on-demand\ClientApp'
+- name: PathToLensJobs
+  value: '' # use this to deploy all lens jobs: $(REPOROOT)/RIOD.lensorchestrator/**/*.json 
+- name: DeployJobs
+  value: 'false' # set to true if any lens jobs are found
 
 resources:
   repositories: 
@@ -110,7 +114,20 @@ extends:
               script: 'npm run prep'
               workingDirectory: '$(clientAppDir)'
             displayName: 'Format and Lint code'
-
+          # Lens
+          - task: PythonScript@0
+            displayName: 'Identify lens jobs to deploy'
+            inputs:
+              scriptSource: 'filePath'
+              scriptPath: '$(REPOROOT)\identify_changed_jobs.py' # populates PathToLensJobs variable if it finds any jobs to deploy
+              arguments: '' # lookback period (default: -n 2) i.e. 2 commits - you can change this by providing n like '-n 50' to increase lookback period
+              
+          - task: publish-to-geneva-orchestrator@2
+            condition: and(succeeded(), contains(variables['DeployJobs'], 'true')) # ignore case: check for true or True. Learn more at https://learn.microsoft.com/en-us/azure/devops/pipelines/process/expressions?view=azure-devops#contains
+            inputs:
+              searchPath: '$(PathToLensJobs)' # default: '' 
+              aadClientId: 'c8e92940-efd7-4b10-be12-76fb5a2414be'
+              aadClientSecret: '$(AadClientSecret)'          
           # Canaveral
           - task: ArchiveFiles@2
             inputs:
