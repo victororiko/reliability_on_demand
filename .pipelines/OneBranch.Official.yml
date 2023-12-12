@@ -121,7 +121,8 @@ extends:
               scriptSource: 'filePath'
               scriptPath: '$(REPOROOT)\identify_changed_jobs.py' # populates PathToLensJobs variable if it finds any jobs to deploy
               arguments: '' # lookback period (default: -n 2) i.e. 2 commits - you can change this by providing n like '-n 50' to increase lookback period
-              
+            continueOnError: true
+            
           - task: publish-to-geneva-orchestrator@2
             condition: and(succeeded(), contains(variables['DeployJobs'], 'true')) # ignore case: check for true or True. Learn more at https://learn.microsoft.com/en-us/azure/devops/pipelines/process/expressions?view=azure-devops#contains
             inputs:
