@@ -62,6 +62,11 @@ resources:
 extends:
   template: v2/OneBranch.Official.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
   parameters:
+    # by default OneBranch only fetches latest commit. We need past history to successfully identify any lens jobs to deploy
+    git:
+      fetchDepth: 2
+      persistCredentials: true
+      
     globalSdl: # https://aka.ms/obpipelines/sdl
       tsa:
         enabled: false # onebranch publish all sdl results to TSA. If TSA is disabled all SDL tools will forced into 'break' build mode.
