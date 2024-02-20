@@ -36,6 +36,8 @@
 #DECLARE dtStartDate DateTime = @endDate.Date.AddDays(-<#=inputDayLookBack#>);
 #DECLARE dtEndDate DateTime = @endDate;
 
+[PIN] REFERENCE "https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat/shares/asimov.prod.data/Public/Resources/Latest/SchemaAdjuster/Microsoft.Telemetry.Common.SchemaAdjuster.dll";
+
 REFERENCE @deviceCensusDll;
 REFERENCE @commonUtilitiesDll;
 REFERENCE @commonParsersDll;
