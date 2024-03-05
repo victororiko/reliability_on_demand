@@ -39,20 +39,22 @@
 	string inputWatsonLatestTimeFile = ReadTextFromStream(inputWatsonMarkerFile);
     string watsonLatestTimeString = inputWatsonLatestTimeFile.Trim(trimExtraChars).Split('\n')[0];
 	DateTime watsonLatestTime = DateTime.Parse(watsonLatestTimeString);
+    string serviceTreeId = "";
 
     // Check if we are running under XFlow
     if (context != null)
     {
-       feederJSONFile = (string)context.GetParameter<string>("_feederJSONFile", feederJSONFile);
-	   inputReliabilityRoot = (string)context.GetParameter<string>("_inputReliabilityRoot", inputReliabilityRoot);
-	   inputVerticalToColumn = (string)context.GetParameter<string>("_inputVerticalToColumn", inputVerticalToColumn);
-	   inputSelectColumns = (string)context.GetParameter<string>("_inputSelectColumns", inputSelectColumns);
-	   inputDayLookBack = (int)context.GetParameter<int>("_inputDayLookBack", inputDayLookBack);
-	   inputAbsFailuresInputStream = (string)context.GetParameter<string>("_inputAbsFailuresInputStream", inputAbsFailuresInputStream);
-	   inputAbsBugCheckSelectClause = (string)context.GetParameter<string>("_inputAbsBugCheckSelectClause", inputAbsBugCheckSelectClause);
-	   inputAbsLPBHSelectClause = (string)context.GetParameter<string>("_inputAbsLPBHSelectClause", inputAbsLPBHSelectClause);
-	   inputAbsHWSelectClause = (string)context.GetParameter<string>("_inputAbsHWSelectClause", inputAbsHWSelectClause);
-    }
+		feederJSONFile = (string)context.GetParameter<string>("_feederJSONFile", feederJSONFile);
+		inputReliabilityRoot = (string)context.GetParameter<string>("_inputReliabilityRoot", inputReliabilityRoot);
+		inputVerticalToColumn = (string)context.GetParameter<string>("_inputVerticalToColumn", inputVerticalToColumn);
+		inputSelectColumns = (string)context.GetParameter<string>("_inputSelectColumns", inputSelectColumns);
+		inputDayLookBack = (int)context.GetParameter<int>("_inputDayLookBack", inputDayLookBack);
+		inputAbsFailuresInputStream = (string)context.GetParameter<string>("_inputAbsFailuresInputStream", inputAbsFailuresInputStream);
+		inputAbsBugCheckSelectClause = (string)context.GetParameter<string>("_inputAbsBugCheckSelectClause", inputAbsBugCheckSelectClause);
+		inputAbsLPBHSelectClause = (string)context.GetParameter<string>("_inputAbsLPBHSelectClause", inputAbsLPBHSelectClause);
+		inputAbsHWSelectClause = (string)context.GetParameter<string>("_inputAbsHWSelectClause", inputAbsHWSelectClause);
+		serviceTreeId = (string)context.GetParameter<string>("_serviceTreeId", serviceTreeId);
+	}
 	
     string QueryId = string.Empty;
 	string StudyIdList = string.Empty;
@@ -136,6 +138,7 @@ MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/Privac
 USING Privacy; 
 
 #DECLARE runDate DateTime = DateTime.Parse("<#=watsonLatestTime#>");
+#DECLARE serviceTreeId string = "<#=serviceTreeId#>";
 
 BugsWithFailureHashesView = SSTREAM @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Bugs/BugsWithFailureHashes.ss";
 
@@ -177,7 +180,8 @@ BugsWithFailureHashesView = SSTREAM @"/shares/asimov.prod.data/PublicPartner/Pro
 #>
 		     RIODDeviceFailuresRaw_<#=i#> = m.WatsonSnapshotAggView
                 (
-                    numHours = 24 * <#=inputDayLookBack#>
+                    serviceTreeId = @serviceTreeId
+					,numHours = 24 * <#=inputDayLookBack#>
                     ,snapshotType = "<#=SnapShotType#>"
 <#
              if(!String.IsNullOrEmpty(SnapShotSource))

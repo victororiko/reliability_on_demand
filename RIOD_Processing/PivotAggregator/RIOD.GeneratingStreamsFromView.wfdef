@@ -22,6 +22,7 @@
       <Parameter Name="_priority" Value="999"/>
       <Parameter Name="_tokenAllocation" Value="80"/>
       <Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel.important"/>
+      <Parameter Name="_serviceTreeId" Value="0b54f410-703d-4e84-94ff-3d5fe5345202"/>
     </Parameters>
 
     <Activities>

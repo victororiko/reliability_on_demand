@@ -16,6 +16,7 @@
 	string UsageView = @"";
 	int inputDayLookBack = 1;
     DateTime today = DateTime.UtcNow;
+    string serviceTreeId = "";
     
     // Verify/Check if we are running under XFlow
     if (context != null)
@@ -25,6 +26,7 @@
 		watsonAggUserViewStreamName = (string)context.GetParameter<string>("_watsonAggUserViewStreamName", watsonAggUserViewStreamName);
 		watsonAggKernelViewStreamName = (string)context.GetParameter<string>("_watsonAggKernelViewStreamName", watsonAggKernelViewStreamName);
 		UsageView = (string)context.GetParameter<string>("_UsageView", UsageView);
+        serviceTreeId = (string)context.GetParameter<string>("_serviceTreeId", serviceTreeId);
     }
 #>
 
@@ -35,6 +37,7 @@
 #DECLARE endDate DateTime = DateTime.Parse("<#=today#>");
 #DECLARE dtStartDate DateTime = @endDate.Date.AddDays(-<#=inputDayLookBack#>);
 #DECLARE dtEndDate DateTime = @endDate;
+#DECLARE serviceTreeId string = "<#=serviceTreeId#>";
 
 [PIN] REFERENCE "https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat/shares/asimov.prod.data/Public/Resources/Latest/SchemaAdjuster/Microsoft.Telemetry.Common.SchemaAdjuster.dll";
 
@@ -129,7 +132,8 @@ TO SSTREAM @"<#=outputname#>"
 watsonAggUserModeViewData = 
         w.WatsonSnapshotView
 (
-    watsonEventNameList = new ARRAY<string> { "{appcrash}","{apphang}" },
+    serviceTreeId = @serviceTreeId,
+	watsonEventNameList = new ARRAY<string> { "{appcrash}","{apphang}" },
     numHours = 24
 );
 
@@ -148,7 +152,8 @@ WITH STREAMEXPIRY "20";
 watsonAggKernelModeViewData = 
         w.WatsonSnapshotView
 (
-    watsonEventNameList = new ARRAY<string> { "{kernelmode}" },
+    serviceTreeId = @serviceTreeId,
+	watsonEventNameList = new ARRAY<string> { "{kernelmode}" },
     numHours = 24,
 	snapshotSource = "KernelMode"
 );

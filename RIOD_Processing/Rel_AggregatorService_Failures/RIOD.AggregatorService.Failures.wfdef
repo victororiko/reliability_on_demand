@@ -4,15 +4,15 @@
   <!-- https://lens.msftcloudes.com/#/job/c296fed0-ef7a-46d3-bc6a-7ce02c9f541d?_g=(ws:d7feec4c-1e9d-4075-bdcb-bb7467304365) -->
 	<!-- https://xflow.microsoft.com/Workflows/Details/Rel.RIOD.AggregatorSvc.Failures.T4 -->
 	<Workflow Name="Rel.RIOD.AggregatorSvc.Failures.T4"
-			  Enabled="true"
-			  Author ="cosreldata"
-			  FolderName ="PlatformHealth.Reliability"
-			  RecurrenceUnit="2"
-			  RecurrenceAmount="24"
-			  Start="2021-06-01T12:00:00"
-			  Email="cosreldata@microsoft.com"
-        TriggeredByWorkflow="WatsonSnapshotUserModeStatus"
-        TriggeredByActivity="WatsonSnapshotUserModeStatus.Finished"
+			Enabled="true"
+			Author ="cosreldata"
+			FolderName ="PlatformHealth.Reliability"
+			RecurrenceUnit="2"
+			RecurrenceAmount="24"
+			Start="2021-06-01T12:00:00"
+			Email="cosreldata@microsoft.com"
+			TriggeredByWorkflow="WatsonSnapshotUserModeStatus"
+			TriggeredByActivity="WatsonSnapshotUserModeStatus.Finished"
             >
 		<ConfigBases>
 			<ConfigBase Name="RIODConfigT4" File="RIODConfigT4.xml"/>
@@ -27,6 +27,7 @@
 			<Parameter Name="_OSCadence" Value="Development;Development-Skip"/>
 			<Parameter Name="_outputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/AggregatorSvcStreams/"/>
 			<Parameter Name="_inputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/"/>
+			<Parameter Name="_serviceTreeId" Value="0b54f410-703d-4e84-94ff-3d5fe5345202"/>
 		</Parameters>
 		<Activities>
 			<Activity Name="WatsonCutOffTime" ConfigBase="RIODConfigT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
