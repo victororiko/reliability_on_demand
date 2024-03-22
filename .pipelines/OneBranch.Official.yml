@@ -132,7 +132,7 @@ extends:
             condition: and(succeeded(), contains(variables['DeployJobs'], 'true')) # ignore case: check for true or True. Learn more at https://learn.microsoft.com/en-us/azure/devops/pipelines/process/expressions?view=azure-devops#contains
             inputs:
               searchPath: '$(PathToLensJobs)' # default: '' 
-              aadClientId: 'c8e92940-efd7-4b10-be12-76fb5a2414be'
+              aadClientId: '$(AadClientAppId)'
               aadClientSecret: '$(AadClientSecret)'          
           # Canaveral
           - task: ArchiveFiles@2
