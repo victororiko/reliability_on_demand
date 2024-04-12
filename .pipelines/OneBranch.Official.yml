@@ -147,8 +147,8 @@ extends:
               configuration: 'Release'
               fakeDeployment: false
               targets: 'Build,Deploy'
-              clientId: $(DeploymentClientId)
-              clientSecret: $(DeploymentClientSecret)
+              clientId: $(Cosrelcanaveral-AAD)
+              clientSecret: $(Canaveral Secret)
             
           - task: NuGetToolInstaller@1
             inputs:
