@@ -145,7 +145,7 @@ USING Privacy;
 #DECLARE runDate DateTime = DateTime.Parse("<#=watsonLatestTime#>");
 #DECLARE serviceTreeId string = "<#=serviceTreeId#>";
 
-BugsWithFailureHashesView = SSTREAM inputBugsWithFailureHashesStream;
+BugsWithFailureHashesView = SSTREAM @"<#=inputBugsWithFailureHashesStream#>";
 
 <# 
     int i=0;
