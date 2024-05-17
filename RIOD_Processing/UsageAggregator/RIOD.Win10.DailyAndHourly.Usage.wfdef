@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Workflows>
+	<!-- https://xflow.microsoft.com/Workflows/Details/Rel.RIOD.Win10.DailyAndHourly.Usage.T4 -->
+	<Workflow Name="Rel.RIOD.Win10.DailyAndHourly.Usage.T4"
+						Enabled="true"
+						Author ="cosreldata"
+						FolderName ="PlatformHealth.Reliability"
+						RecurrenceUnit="2"
+						RecurrenceAmount="12"
+						Start="2021-03-01T12:00:00"
+						Email="cosreldata@microsoft.com"
+    >
+		<ConfigBases>
+			<ConfigBase Name="MissionControlBYODT4" File="MissionControlBYODT4.xml"/>
+		</ConfigBases>
+		<Parameters>
+			<Parameter Name="__vc" Value="https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat" />
+			<Parameter Name="_scopePath" Value="$(CLUSTER_ROOT);$(CLUSTER_ROOT)/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Schema;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Policy"/>
+			<Parameter Name="_priority" Value="999"/>
+			<Parameter Name="_tokenAllocation" Value="100"/>
+			<Parameter Name="_inputDayLookBack" Value="2"/>
+			<Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel.important"/>
+			<Parameter Name="_outputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Win10/"/>
+			<Parameter Name="_inputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Win10/"/>
+		</Parameters>
+		<Activities>
+			<Activity Name="UsageAggregator" ConfigBase="MissionControlBYODT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
+				<Parameters>
+					<Parameter Name="_script" Value="shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.AggregatorService.Usage.script.scopet4"/>
+					<Parameter Name="_tokenAllocation" Value="100"/>
+					<Parameter Name="_inputReliabilityRoot" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Win10/"/>
+					<Parameter Name="_nullCheckFilterExpression" Value="!string.IsNullOrEmpty(DeviceId) &amp;&amp; !string.IsNullOrEmpty(OSVersion) &amp;&amp; OSVersion != &quot;Unknown&quot; &amp;&amp; numberOSBuild &gt;= 19044 &amp;&amp; numberOSBuild &lt; 22000 &amp;&amp; DeviceClass == &quot;Windows.Desktop&quot;"/>
+				</Parameters>
+			</Activity>
+		</Activities>
+	</Workflow>
+</Workflows>

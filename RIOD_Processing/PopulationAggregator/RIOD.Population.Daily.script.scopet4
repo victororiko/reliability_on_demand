@@ -36,6 +36,7 @@
 	string outputDeviceCountStreamName = @"RIOD.DevicesCount.Population.ss";
     int inputDayLookBack = 14;
     int inputMinBuildCutoff = 22000;
+    int inputMaxBuildCutoff = 29999;
 	string inputOSBuildDefinitionFile = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json";
 	int minBuild = int.MaxValue;
 	int maxBuild = int.MinValue;
@@ -51,6 +52,7 @@
     {
         inputDayLookBack = (int)context.GetParameter<int>("_inputDayLookBack", inputDayLookBack);
         inputMinBuildCutoff = (int)context.GetParameter<int>("_inputMinBuildCutoff", inputMinBuildCutoff);
+        inputMaxBuildCutoff = (int)context.GetParameter<int>("_inputMaxBuildCutoff", inputMaxBuildCutoff);
         inputFilterExpression = (string)context.GetParameter<string>("_inputFilterExpression", inputFilterExpression);
         outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
         currentFolder = (string)context.GetParameter<string>("_currentFolder", currentFolder);
@@ -101,6 +103,7 @@ USING Privacy;
 MODULE "/shares/asimov.prod.data/Public/Resources/Latest/Dimensions/CommonDimensionsLite.module" AS CommonDimensions;
 
 #DECLARE inputMinBuildCutoff int = <#=inputMinBuildCutoff#>;
+#DECLARE inputMaxBuildCutoff int = <#=inputMaxBuildCutoff#>;
 #DECLARE today DateTime = DateTime.UtcNow;
 #DECLARE minLastSeenDateTime DateTime = @today.AddDays(-<#=inputDayLookBack#>);
 #DECLARE expirationStreamCount string = "60";
@@ -137,7 +140,7 @@ devicesMostRecent =
         printColumns(devicesMostRecentSelectStatement,','); 
     #>
     FROM (VIEW @deviceCensusView)
- WHERE OSBuildNumber >= @inputMinBuildCutoff AND LastUpdatedDate  >= @minLastSeenDateTime;
+ WHERE OSBuildNumber >= @inputMinBuildCutoff AND OSBuildNumber <= @inputMaxBuildCutoff AND LastUpdatedDate  >= @minLastSeenDateTime;
 
 devices = 
     SELECT

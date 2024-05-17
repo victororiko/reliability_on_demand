@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Workflows>
+	<!-- https://xflow.microsoft.com/Workflows/Details/Rel.RIOD.Win10.Population.Daily.T4 -->
+	<Workflow Name="Rel.RIOD.Win10.Population.Daily.T4"
+			  Enabled="true"
+			  Author ="cosreldata"
+			  FolderName ="PlatformHealth.Reliability"
+			  RecurrenceUnit="2"
+			  RecurrenceAmount="1"
+			  Start="2021-03-01T12:00:00"
+			  Email="cosreldata@microsoft.com"
+			  TimeOutInMinutes="360"
+            >
+		<ConfigBases>
+			<ConfigBase Name="MissionControlBYODT4" File="MissionControlBYODT4.xml"/>
+		</ConfigBases>
+		<Parameters>
+			<Parameter Name="__vc" Value="https://cosmos15.osdinfra.net/cosmos/asimov.partner.swat" />
+			<Parameter Name="_scopePath" Value="$(CLUSTER_ROOT);$(CLUSTER_ROOT)/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Schema;$(CLUSTER_ROOT)/shares/asimov.prod.data/Public/Resources/Latest/Asimov/Policy"/>
+			<Parameter Name="_priority" Value="999"/>
+			<Parameter Name="_customProperties" Value="JobOwner=swat.phd.rel.important"/>
+			<Parameter Name="_tokenAllocation" Value="100"/>
+      		<Parameter Name="_applyUnifiedOSConfig" Value="yes"/>
+		</Parameters>
+		<Activities>
+			<Activity Name="CensusDevices" ConfigBase="MissionControlBYODT4" Class="Microsoft.Xflow.Activities.Scope.T4RecurrentScopeActivityV3" CredentialName="ScopeJob.Asimov.Partner.Public">
+				<Parameters>
+					<Parameter Name="_script" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.Population.Daily.script.scopet4"/>
+					<Parameter Name="_inputDayLookBack" Value="14"/>
+					<Parameter Name="_inputMinBuildCutoff" Value="19044"/>
+					<Parameter Name="_inputMaxBuildCutoff" Value="19200"/>
+					<Parameter Name="_inputFilterExpression" Value=""/>
+					<Parameter Name="_outputFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Win10/Population/"/>
+					<Parameter Name="_currentFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Win10/Population/Current/"/>
+					<Parameter Name="_dailyFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Win10/Population/Daily/"/>
+					<Parameter Name="_hourlyFolder" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Win10/Population/Hourly/"/>
+					<Parameter Name="_outputStreamName" Value="RIOD.Devices.Population.ss"/>
+					<Parameter Name="_inputOSBuildDefinitionFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json"/>
+					<Parameter Name="_OSCadence" Value="Retail-CB"/>
+					<Parameter Name="_applyUnifiedOSConfig" Value="yes"/>
+					<Parameter Name="_debugOutput" Value="true"/>
+					<Parameter Name="_devicesMostRecentSelectStatement" Value="OSVersionFull,OSVersion,(LocalDeviceId ?? string.Empty) AS SqmId,DeviceFamily AS _DeviceFamily,IsTestLab,IsMSFTOwned,OEMName_Uncleaned AS OldOEMName,OEMModel AS MappingOEMModel,ExpId AS ExpIds,OSEdition AS SkuEdition,OSSkuId,LastUpdatedDate AS LastSeenEventDate,OSOOBEDateTime,OSInstallTypeId,OSInstallTypeName,DeviceId,ProcessorModel,TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,OEMModelBaseBoard,CommercialId,(FlightRing ?? string.Empty).ToLowerInvariant() AS FlightRing,FirmwareVersion,OSArchitecture,InternalSalesSegmentKey,ModelHierarchyId,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,DeviceModelKey,OSBranch,OSBuildNumber,OSBuildRevision,IsGamingDevice,GamerSegment,GamerPCClassification
+           ,OEMSerialNumber"/>
+					<Parameter Name="_devicesSelectStatement" Value="DeviceId,OSVersionFull,OSVersion,SqmId,_DeviceFamily,IsTestLab,IsMSFTOwned,OldOEMName,MappingOEMModel,ExpIds,SkuEdition,OSSkuId, LastSeenEventDate,OSOOBEDateTime,OSInstallTypeId,OSInstallTypeName,OSBranch,OSBuildNumber,OSBuildRevision,ProcessorModel,TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,OEMModelBaseBoard,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,(DeviceManufacturer ?? string.Empty) == string.Empty ? &quot;Unknown&quot;: DeviceManufacturer AS OEMName,(DeviceModelName ?? string.Empty) == string.Empty ? &quot;Unknown&quot; : (DeviceModelName ?? string.Empty).ToLowerInvariant().StartsWith(&quot;hp &quot;) ? DeviceModelName.Substring(3).Trim() : DeviceModelName AS OEMModel,OEMFamily,IsMDA,ROW_NUMBER() OVER(PARTITION BY DeviceId, OSBuildNumber, OSBuildRevision ORDER BY LastSeenEventDate DESC) AS DevicePrevalence,IsGamingDevice,GamerSegment,GamerPCClassification,OEMSerialNumber,ModelHierarchyId"/>
+				</Parameters>
+			</Activity>
+		</Activities>
+	</Workflow>
+</Workflows>

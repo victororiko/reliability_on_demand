@@ -26,7 +26,7 @@ COmbined device flatten stats
 <#
     var context = Host.GetHostOption("T4Context") as IT4TransformContext;
 	string inputFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/";
-	string inputDeviceFlattenStream = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/DevicesFlattened/RIOD.Devices.Flattened.Expanded.ss";
+	string inputDeviceFlattenStream = @"/DevicesFlattened/RIOD.Devices.Flattened.Expanded.ss";
 	string outputFolder = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/DevicesFlattened/";
 	string outputStreamNameWithSampling=@"RIOD.Devices.Flattened.Expanded.Sampled.ss";
 	int sampling = 50000000;
@@ -41,6 +41,7 @@ COmbined device flatten stats
     {
         inputFolder = (string)context.GetParameter<string>("_inputFolder", inputFolder);
 		outputFolder = (string)context.GetParameter<string>("_outputFolder", outputFolder);
+		inputDeviceFlattenStream = (string)context.GetParameter<string>("_inputDeviceFlattenStream", inputDeviceFlattenStream);
 	}
 
 #>
@@ -66,7 +67,7 @@ USING Privacy;
 
 // Preventing skewing using sorting and order by
 populationRelevantUsageData = SELECT *
-							 FROM (SSTREAM @"<#=inputDeviceFlattenStream#>");
+							 FROM (SSTREAM @"<#=inputFolder#>/<#=inputDeviceFlattenStream#>");
 
 // Select specified sampled data
 sampledPopulationRelevantUsageData = SELECT *,

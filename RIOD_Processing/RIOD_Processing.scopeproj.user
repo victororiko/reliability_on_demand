@@ -1,4 +1,3 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <StartFile>RIOD.AggregatorService.Usage.script.scopet4</StartFile>
@@ -11,4 +10,5 @@
       <ClusterComputeAccount>DataLakeCA:asimov-prod-data-c15 (dishah@microsoft.com)</ClusterComputeAccount>
     </ScriptUserData>
   </ItemGroup>
+  <Import Project="$(USERPROFILE)\.vscode\extensions\$(ScopeVsCodePakcageName)\msbuild\scopeVsCode.targets" Condition="'$(BuildingInsideScopeVsCode)' == 'true'"/>
 </Project>
