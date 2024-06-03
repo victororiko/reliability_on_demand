@@ -109,6 +109,11 @@ uniqueSampledPopulationRelevantUsage = SELECT *
 									   FROM uniqueSampledPopulationRelevantUsage
 									   WHERE RowPrecedence == 1;
 
+[Privacy.DataType.ProductAndServicePerformance]
+[Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration]
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OEMModel")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OEMName")]
 OUTPUT uniqueSampledPopulationRelevantUsage
 TO SSTREAM @outputDeviceFlattenSampledStream
 WITH STREAMEXPIRY @expirationStreamCount;
@@ -119,6 +124,8 @@ sampledFailureData = SELECT f.*
 					 uniqueSampledPopulationRelevantUsage AS u
 					 ON f.FailureJoinKeyGuid == u.FailureJoinKeyGuid;
 
+[Privacy.DataType.ProductAndServicePerformance]
+[Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
 OUTPUT sampledFailureData
 TO SSTREAM @outputDeviceFailureSampledStream
 WITH STREAMEXPIRY @expirationStreamCount;
@@ -133,6 +140,7 @@ combinedDeviceFlattenStats = SELECT *
 							__hour = ["00", "23"]
 							);
 
+[Privacy.Asset.NonPersonal]
 OUTPUT combinedDeviceFlattenStats
 TO SSTREAM @outputDeviceFlattenStatsStream
 WITH STREAMEXPIRY @expirationStreamCount;

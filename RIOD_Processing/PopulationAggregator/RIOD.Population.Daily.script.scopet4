@@ -164,6 +164,7 @@ devicesCount = SELECT OSBuildNumber,
 			   FROM devices
 			   GROUP BY OSBuildNumber, OSBranch, OSBuildRevision;
 
+[Privacy.Asset.NonPersonal]
 OUTPUT devicesCount
 TO SSTREAM @deviceCountHourlyStream
 WITH STREAMEXPIRY @expirationStreamCount;
@@ -176,29 +177,41 @@ WITH STREAMEXPIRY @expirationStreamCount;
 [Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OSVersion")]
 [Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OEMModel")]
 [Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OEMName")]
- // current
- OUTPUT devices
-  TO SSTREAM @currentStream
- CLUSTERED BY DeviceId, OSVersion
-   SORTED BY DeviceId, OSVersion
-    WITH STREAMEXPIRY @expirationStreamCount
-    WHERE DevicePrevalence == 1 <#= getFiltersIfSpecified(applyUnifiedOSConfig, OSCadenceArray, minBuild, maxBuild, retailBuilds) #>;
+// current
+OUTPUT devices
+TO SSTREAM @currentStream
+CLUSTERED BY DeviceId, OSVersion
+SORTED BY DeviceId, OSVersion
+WITH STREAMEXPIRY @expirationStreamCount
+WHERE DevicePrevalence == 1 <#= getFiltersIfSpecified(applyUnifiedOSConfig, OSCadenceArray, minBuild, maxBuild, retailBuilds) #>;
 
+[Privacy.DataType.ProductAndServicePerformance]
+[Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration] 
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OSVersion")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OEMModel")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OEMName")]
 // daily
-    OUTPUT devices
-  TO SSTREAM @dailyStream
- CLUSTERED BY DeviceId, OSVersion
-   SORTED BY DeviceId, OSVersion
-    WITH STREAMEXPIRY @expirationStreamCount
-    WHERE DevicePrevalence == 1 <#= getFiltersIfSpecified(applyUnifiedOSConfig, OSCadenceArray, minBuild, maxBuild, retailBuilds) #>;
+OUTPUT devices
+TO SSTREAM @dailyStream
+CLUSTERED BY DeviceId, OSVersion
+SORTED BY DeviceId, OSVersion
+WITH STREAMEXPIRY @expirationStreamCount
+WHERE DevicePrevalence == 1 <#= getFiltersIfSpecified(applyUnifiedOSConfig, OSCadenceArray, minBuild, maxBuild, retailBuilds) #>;
 
+[Privacy.DataType.ProductAndServicePerformance]
+[Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration] 
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OSVersion")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OEMModel")]
+[Privacy.DataType.DeviceConnectivityAndConfiguration.Related(Column="OEMName")]
 // hourly
-    OUTPUT devices
-  TO SSTREAM @hourlyStream
- CLUSTERED BY DeviceId, OSVersion
-   SORTED BY DeviceId, OSVersion
-    WITH STREAMEXPIRY @expirationStreamCount
-    WHERE DevicePrevalence == 1 <#= getFiltersIfSpecified(applyUnifiedOSConfig, OSCadenceArray, minBuild, maxBuild, retailBuilds) #>;
+OUTPUT devices
+TO SSTREAM @hourlyStream
+CLUSTERED BY DeviceId, OSVersion
+SORTED BY DeviceId, OSVersion
+WITH STREAMEXPIRY @expirationStreamCount
+WHERE DevicePrevalence == 1 <#= getFiltersIfSpecified(applyUnifiedOSConfig, OSCadenceArray, minBuild, maxBuild, retailBuilds) #>;
 
 <#+
     string getFiltersIfSpecified(string applyUnifiedOSConfig, string OSCadenceArray, int minBuild, int maxBuild, List<int> retailBuilds)

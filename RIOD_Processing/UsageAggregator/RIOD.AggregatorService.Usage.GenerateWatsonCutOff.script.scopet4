@@ -195,6 +195,7 @@ UsagePerDayStats = SELECT COUNT(*) AS totalCount,
 		FROM inputWithUsageDay
 		GROUP BY OSBuild,OSRevision,day;
 
+[Privacy.Asset.NonPersonal]
 OUTPUT UsagePerDayStats
 TO SSTREAM @output_Stats_ss
 WITH STREAMEXPIRY @"<#= expirationStreamCount #>";
@@ -207,6 +208,7 @@ datestream = SELECT TOP 1 @runDate AS runDate,
 					@StartDateId AS StartDateId
 			FROM input;
 
+[Privacy.Asset.NonPersonal]
 OUTPUT datestream
 TO SSTREAM @output_DateRangeStats_ss
 WITH STREAMEXPIRY @"<#= expirationStreamCount #>";

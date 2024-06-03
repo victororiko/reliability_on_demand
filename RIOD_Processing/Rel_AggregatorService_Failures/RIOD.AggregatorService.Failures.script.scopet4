@@ -534,17 +534,18 @@ RIODGenericFailures =
 		                   FailureName,
 				           ModuleName
            FROM RIODDeviceFailuresGeneric;
-		  
+
 #DECLARE outputFailuresGeneric = string.Format("{0}/{1}/{2}"+".ss", 
                                                          @"<#=inputReliabilityRoot#>",
                                                          @"<#=outputFailureAggregateFolder#>",
                                                          @"<#=outputGenericFailureStreamName#>");
-												 
+
+[Privacy.Asset.NonPersonal]
 OUTPUT RIODGenericFailures
 TO SSTREAM @outputFailuresGeneric
 ROUND ROBIN CLUSTERED INTO 250
 WITH STREAMEXPIRY "30";
-	  
+
 [SKEWJOIN=(
    SKEW=FROMLEFT,
    REPARTITION=FULLJOIN,
@@ -581,6 +582,7 @@ RIODDeviceFailuresGenericExpanded =
                                                          @"<#=outputExpandedDeviceFailureStreamName#>");
 
 // Current stream Device Failures Flattened stream
+[Privacy.DataType.ProductAndServicePerformance]
 [Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
 OUTPUT RIODDeviceFailuresGenericExpanded
 TO SSTREAM @outputDeviceFailuresGenericExpanded
@@ -623,6 +625,7 @@ RIODDeviceFailuresGeneric =
                                                          @"<#=outputGenericDeviceFailureStreamName#>");
 														 
 // Current stream Device Failures Flattened stream
+[Privacy.DataType.ProductAndServicePerformance]
 [Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
 OUTPUT RIODDeviceFailuresGeneric
 TO SSTREAM @outputDeviceFailuresGeneric
@@ -705,12 +708,16 @@ RIODDeviceFailuresFlattened =
                                                                @outputFlattenedDeviceFailures,
                                                                @runDate.ToString("yyyy-MM-dd_hh_mm_ss"));
 
+[Privacy.DataType.ProductAndServicePerformance]
+[Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
 OUTPUT RIODDeviceFailuresFlattened
 TO SSTREAM @outputFlattenedDeviceFailures
 CLUSTERED BY DeviceId, FailureJoinKey, FailureJoinKeyGuid
 SORTED BY CustomFields
 WITH STREAMEXPIRY "30";
 
+[Privacy.DataType.ProductAndServicePerformance]
+[Privacy.Subject.Device.CommonSchema(Column="DeviceId")]
 OUTPUT RIODDeviceFailuresFlattened
 TO SSTREAM @outputFlattenedDeviceFailuresHistory
 CLUSTERED BY DeviceId, FailureJoinKey, FailureJoinKeyGuid
