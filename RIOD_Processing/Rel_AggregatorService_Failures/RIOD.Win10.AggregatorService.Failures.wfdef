@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <Workflows>
 	<!-- https://xflow.microsoft.com/Workflows/Details/Rel.RIOD.Win10.AggregatorSvc.Failures.T4 -->
@@ -8,6 +8,7 @@
 			FolderName ="PlatformHealth.Reliability"
 			RecurrenceUnit="2"
 			RecurrenceAmount="24"
+			CancelIfRunning="true"
 			Start="2021-06-01T12:00:00"
 			Email="cosreldata@microsoft.com"
 			TriggeredByWorkflow="WatsonSnapshotUserModeStatus"
@@ -41,7 +42,7 @@
 					<Parameter Name="_inputOSBuildDefinitionFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/UnifiedSchema.OS.Releases.json"/>
 					<Parameter Name="_applyUnifiedOSConfig" Value="yes"/>
 					<Parameter Name="_outputStreamName" Value="RIOD.Failures.ss"/>
-					<Parameter Name="_tokenAllocation" Value="200"/>
+					<Parameter Name="_tokenAllocation" Value="350"/>
                     <Parameter Name="_feederJSONFile" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIODFeeder/FeederOutputs/RIOD.Win10.FailureColumns.Static.json"/>
 					<Parameter Name="_inputMinBuild" Value="19045"/>
 					<Parameter Name="_inputReliabilityRoot" Value="/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Win10/"/>
