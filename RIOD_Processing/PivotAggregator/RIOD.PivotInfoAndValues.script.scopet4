@@ -41,7 +41,7 @@ Get the population from Device Census
 	int maxBuild = int.MinValue;
 	string OSCadenceArray =  "";
 	string applyUnifiedOSConfig = @"";
-	List<int> retailBuilds = new List<int>();
+	HashSet<int> retailBuilds = new HashSet<int>();
     string inputPivotAttributes = "ProcessorModel,TotalPhysicalRAM,PrimaryDiskType,PrimaryDiskTypeName,ProcessorCores,ProcessorPhysicalCores,CommercialId,FlightRing,FirmwareVersion,OSArchitecture,StudyId,InternalSalesSegmentKey,VBSState,GenuineStateName,IsRetail,ISOCountryShortName,InstallationType,SMode,SModeState,WPId";
     string inputPopulationStream = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Census.Devices.ss";
     
@@ -78,6 +78,7 @@ Get the population from Device Census
 		else if((OSCadenceArray.Equals(streamsDefinition[i]["OSCadence"])) && OSCadenceArray.Contains("Retail"))
 		{
 			retailBuilds.Add(int.Parse(streamsDefinition[i]["MinBuild"]));
+			retailBuilds.Add(int.Parse(streamsDefinition[i]["MaxBuild"]));
 		}
 	}
 
