@@ -187,7 +187,7 @@ extends:
 
           - task: AzureWebApp@1
             inputs:
-              azureSubscription: 'Conn_AutomaticDeploymentRIODPME'
+              azureSubscription: 'Conn_AutoDeployRelCloudUAMI'
               appType: 'webAppLinux'
               appName: 'reliabilityondemandpme'
               deployToSlotOrASE: true
@@ -197,7 +197,7 @@ extends:
 
           - task: AzureAppServiceManage@0
             inputs:
-              azureSubscription: 'Conn_AutomaticDeploymentRIODPME'
+              azureSubscription: 'Conn_AutoDeployRelCloudUAMI'
               Action: 'Swap Slots'
               WebAppName: 'reliabilityondemandpme'
               ResourceGroupName: 'ReliabilityCloudRG'
