@@ -1,9 +1,14 @@
 ﻿//Ingest VSO dupe chasing bugs with component classification and taking into account 3rd party tags
 
 <#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ assembly name= "NEWTONSOFT.JSON.DLL" #>
 <#@ import namespace = "System.Collections.Generic" #>
 <#@ import namespace = "System.IO" #>
 <#@ import namespace = "VcClient" #>
+<#@ import namespace = "Newtonsoft.Json" #>
+<#@ import namespace = "Newtonsoft.Json.Linq" #>
+<#@include file="ReadTextFromStream.scopet4" #>
+<#@include file="ConfigurationHelper.scopet4" #>
 
 <#
     var context = Host.GetHostOption("T4Context") as IT4TransformContext;
@@ -11,11 +16,20 @@
 	string outputFolder= @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Bugs/";
     string outputStreamName = @"BugsWithFailureHashes.ss";
 	string inputCompCentralViewName = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Views/CompCentralPreferredSelection.view";
-	string inputBugDataView = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Views/VSOCacheWithDupeChasing.view";
     string input3rdPartyWhitelist = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/3rdParty.Path.Whitelist.txt";
     string input1stPartyWhitelist = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/1stParty.Path.Whitelist.txt";
     string inputOrgOwnership = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/UnifiedSchema/Org.Path.Ownership.txt";
 	string prevalenceStatement = "";
+
+    // Get cache view from config file
+	string inputBugDataView = "";
+    string inputBugDataViewDefinitionPath = @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/BugFiler/Views/BugDataViewDefinition.json";
+    string bugDataViewDefinitionContent = ReadTextFromStream(inputBugDataViewDefinitionPath);
+    List<Dictionary<string, string>> bugDataViewDefinition = ParseConfiguration(bugDataViewDefinitionContent);
+    foreach(Dictionary<string, string> column in bugDataViewDefinition)
+    {
+        inputBugDataView = column["_inputADOBugCacheWithDupeChasingView"];
+    }
 
     // Verify/Check if we are running under XFlow
     if (context != null)

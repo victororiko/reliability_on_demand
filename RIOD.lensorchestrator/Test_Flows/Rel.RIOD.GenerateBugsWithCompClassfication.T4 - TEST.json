@@ -1,0 +1,241 @@
+{
+    "id": "340b66ec7f214f989b52929d0e0f3f79",
+    "name": "Rel.RIOD.GenerateBugsWithCompClassfication.T4 - TEST",
+    "workspace": "d7feec4c-1e9d-4075-bdcb-bb7467304365",
+    "description": "",
+    "tags": "Folder:PlatformHealth.Reliability,ImportedFromXflow,Repo:RIOD,swat.phd.rel.important,Workflow:Rel.RIOD.GenerateBugsWithCompClassfication.T4",
+    "config": {
+        "jobName": "340b66ec7f214f989b52929d0e0f3f79",
+        "jobDisplayName": "Rel.RIOD.GenerateBugsWithCompClassfication.T4 - TEST",
+        "jobDescription": "",
+        "tags": "Folder:PlatformHealth.Reliability,ImportedFromXflow,Repo:RIOD,swat.phd.rel.important,Workflow:Rel.RIOD.GenerateBugsWithCompClassfication.T4",
+        "maxJobInstances": 1,
+        "retryPolicy": {
+            "restartPolicy": 0,
+            "type": "None"
+        },
+        "isDebug": false,
+        "appendUtcIndicator": false,
+        "jobPriority": 999,
+        "tokensPerJob": 80,
+        "jobScheduleSettings": {
+            "startTime": "2017-11-07T08:00:00Z",
+            "scheduleType": "Frequency",
+            "frequencySettings": {
+                "cronSchedule": "0 0 0 */4 * *",
+                "lagTime": "08:00:00",
+                "backFill": false,
+                "monthly": false
+            },
+            "deltaSettings": {
+                "lookback": 1,
+                "backFillMode": "InstancePerGap",
+                "maxDelta": -1,
+                "respectBoundaries": "None"
+            }
+        },
+        "parameters": [],
+        "metricAccount": "MDMaccount",
+        "defaultICMAlerts": false,
+        "alertSeverity": 4,
+        "activities": [
+            {
+                "retryPolicy": {
+                    "type": "Linear",
+                    "count": 5,
+                    "delay": "00:03:00"
+                },
+                "activityDisplayName": "Rel.RIOD.GenerateBugsWithCompClassfication.T4.BugsWithFailureHashes_T4",
+                "activityType": "T4Transform",
+                "parameters": [
+                    {
+                        "name": "_outputFolder",
+                        "value": "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/BugFiler/Views/Output/",
+                        "type": "String"
+                    },
+                    {
+                        "name": "_script",
+                        "value": "shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/BugFiler/Test/RIOD.GenerateBugsWithCompClassfication.script.scopet4",
+                        "type": "String"
+                    }
+                ],
+                "dependsOn": [],
+                "id": "502c8579-1f4e-4f18-ace0-1b584fa6ee76",
+                "input": {
+                    "type": "CosmosVc",
+                    "aadTenant": null,
+                    "aadClientId": null,
+                    "aadClientSecretUri": null,
+                    "connectionName": "6adebd7a-4c4c-436b-9685-7f8b4dd4d942",
+                    "folder": null,
+                    "pattern": null,
+                    "projectName": null,
+                    "jobName": null,
+                    "activityId": null
+                },
+                "t4Script": {
+                    "sourcePath": "shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Resources/RIOD.GenerateBugsWithCompClassfication.script.scopet4",
+                    "value": null,
+                    "sourcepath": "shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/BugFiler/Test/RIOD.GenerateBugsWithCompClassfication.script.scopet4"
+                },
+                "t4Refs": [],
+                "t4Paths": [
+                    "shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common",
+                    "shares/asimov.prod.data/Public/Resources/Latest/Asimov"
+                ],
+                "t4Extension": null
+            },
+            {
+                "retryPolicy": {
+                    "type": "Linear",
+                    "count": 5,
+                    "delay": "00:03:00"
+                },
+                "activityDisplayName": "Rel.RIOD.GenerateBugsWithCompClassfication.T4.BugsWithFailureHashes",
+                "activityType": "DataCommand",
+                "parameters": [],
+                "dependsOn": [
+                    {
+                        "activityId": "502c8579-1f4e-4f18-ace0-1b584fa6ee76"
+                    }
+                ],
+                "id": "df7dc97d-4451-45b0-8338-362a1dab8434",
+                "output": {
+                    "type": "CosmosVc",
+                    "aadTenant": null,
+                    "aadClientId": null,
+                    "aadClientSecretUri": null,
+                    "connectionName": "6adebd7a-4c4c-436b-9685-7f8b4dd4d942",
+                    "folder": null,
+                    "pattern": null,
+                    "projectName": null,
+                    "jobName": null,
+                    "activityId": null
+                },
+                "script": "Place holder script",
+                "language": "Scope",
+                "priority": null,
+                "tokenAllocation": null,
+                "vcPercentAllocation": null,
+                "allocationType": null,
+                "nebulaParameters": null,
+                "isBackfill": null,
+                "appendUtcIndicator": null,
+                "tags": {
+                    "jobOwner": "swat.phd.rel.important"
+                }
+            },
+            {
+                "retryPolicy": {
+                    "type": "None"
+                },
+                "activityDisplayName": "Validation_T4",
+                "activityType": "T4Transform",
+                "parameters": [
+                    {
+                        "name": "_prodPath",
+                        "value": "shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/Bugs/BugsWithFailureHashes.ss",
+                        "type": "String"
+                    },
+                    {
+                        "name": "_devPath",
+                        "value": "shares/asimov.prod.data/PublicPartner/Processed/Reliability/BugFiler/Views/Output/BugsWithFailureHashes.ss",
+                        "type": "String"
+                    }
+                ],
+                "id": "26ec7c52-0e58-4f68-a215-384a29427418",
+                "input": {
+                    "connectionName": "6adebd7a-4c4c-436b-9685-7f8b4dd4d942",
+                    "type": "CosmosVc"
+                },
+                "t4Paths": [
+                    "shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Scripts/Common",
+                    "shares/asimov.prod.data/Public/Resources/Latest/Asimov"
+                ],
+                "t4Refs": [],
+                "t4Script": {
+                    "sourcepath": "shares/asimov.prod.data/PublicPartner/Processed/Reliability/BugFiler/Views/Validation/Script/Migration.Validation.script.scopet4",
+                    "value": ""
+                }
+            },
+            {
+                "retryPolicy": {
+                    "type": "Linear",
+                    "count": 5,
+                    "delay": "00:03:00"
+                },
+                "activityDisplayName": "Validation",
+                "activityType": "DataCommand",
+                "parameters": [],
+                "dependsOn": [
+                    {
+                        "activityId": "26ec7c52-0e58-4f68-a215-384a29427418"
+                    }
+                ],
+                "id": "3fcb59e7-14d1-401f-a7bb-482457cfa7f6",
+                "output": {
+                    "type": "CosmosVc",
+                    "aadTenant": null,
+                    "aadClientId": null,
+                    "aadClientSecretUri": null,
+                    "connectionName": "6adebd7a-4c4c-436b-9685-7f8b4dd4d942",
+                    "folder": null,
+                    "pattern": null,
+                    "projectName": null,
+                    "jobName": null,
+                    "activityId": null
+                },
+                "script": "Place holder script",
+                "language": "Scope",
+                "priority": null,
+                "tokenAllocation": null,
+                "vcPercentAllocation": null,
+                "allocationType": null,
+                "nebulaParameters": null,
+                "isBackfill": null,
+                "appendUtcIndicator": null,
+                "tags": {
+                    "jobOwner": "swat.phd.rel.important"
+                }
+            }
+        ],
+        "subscription": "lens-d7feec4c-1e9d-4075-bdcb-bb7467304365",
+        "project": "lens-d7feec4c-1e9d-4075-bdcb-bb7467304365",
+        "context": {
+            "failureEmailAddresses": "cosreldata@microsoft.com",
+            "uiPeriodBetweenJobs": "01.00:00:00",
+            "uiCron": {
+                "value": "0 0 0 */4 * *",
+                "isEntered": false,
+                "freq": "",
+                "rate": 1,
+                "hourMins": 0,
+                "minuteSecs": 0,
+                "time": "2024-10-17T21:00:00Z",
+                "weekDays": [
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "monthDay": 1
+            }
+        },
+        "autoMitigation": "On",
+        "isEnabled": false
+    },
+    "createdBy": "roodiero@microsoft.com",
+    "createdDate": "2024-10-18T12:55:50.3877638Z",
+    "nextExecutionDate": "2024-11-21T08:00:00Z",
+    "modifiedBy": "sodundo@microsoft.com",
+    "modifiedDate": "2024-11-13T10:16:43.4866145Z",
+    "version": "6",
+    "isEnabled": false,
+    "isQuarantined": false,
+    "quarantineReason": null,
+    "shareType": "shared",
+    "eTag": {}
+}
