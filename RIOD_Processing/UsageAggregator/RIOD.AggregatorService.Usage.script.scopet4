@@ -108,15 +108,17 @@ USING Privacy;
 // ---------------------------------------------------------------------------------------------------------------------
 RESOURCE @"shares/asimov.prod.data/Public/Resources/Latest/Usage/DynamicView/AppUsage/Aggregates/AggregatedAppUsageMetricsHourly.xml";
 
+MODULE "/shares/asimov.prod.data/usage-gbl/Resources/Usage/Usage.module" AS Usage;
+
 // Gets all last 2 days data from the API
-AggreateAppUsageMetricHourlyData = VIEW "/shares/asimov.prod.data/Public/Processed/Usage/AppUsage/AggregatedAppUsageMetrics/AggregatedAppUsageMetricsHourly.view"
-									PARAMS
-									(
-										sparseStreamSet = true,
-										startDate = @minusOneDate,
-										endDate = @dtEndDate,
-										DataSource = @"AppInteractivity"
-									);
+AggreateAppUsageMetricHourlyData = Usage.AggregatedAppUsageMetricsHourly(
+    basePath = "/shares/asimov.prod.data/usage-gbl/Data/Aggregates/AggregatedAppUsageMetrics/",
+    sparseStreamSet = true,
+    version = 10,
+    DataSource = @"AppInteractivity",
+    startDate = @minusOneDate,
+    endDate = @dtEndDate
+);
 
 // Filtering out the data for min build and device family
 AggreateAppUsageMetricHourlyData = SELECT *,
