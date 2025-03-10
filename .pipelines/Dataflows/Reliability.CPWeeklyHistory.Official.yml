@@ -20,7 +20,6 @@ schedules:
 
 variables:
   ROOT: $(Build.SourcesDirectory)
-
   LinuxContainerImage: 'mcr.microsoft.com/onebranch/cbl-mariner/build:2.0' # Use Mariner image for speed. https://aka.ms/obpipelines/containers
 
 resources:
@@ -50,11 +49,13 @@ extends:
       #   suppressionFile: $(Build.SourcesDirectory)\.gdn\global.gdnsuppress
 
     stages:
-    - stage: Weekly Update CP+ Curve History
+    - stage: WeeklyUpdate
       jobs:
       - job: main
         pool:
           type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+        variables:
+          ob_outputDirectory: '$(Build.SourcesDirectory)\out'
 
         steps:
 
