@@ -13,6 +13,9 @@ trigger: # https://aka.ms/obpipelines/triggers
   branches:
     include:
     - main
+  paths:
+    exclude:
+    - '.pipelines/Dataflows/*'
 
 parameters: # parameters are shown up in ADO UI in a build queue time
 - name: 'debug'

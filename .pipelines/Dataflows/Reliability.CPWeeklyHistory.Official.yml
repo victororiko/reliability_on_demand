@@ -1,0 +1,74 @@
+#################################################################################
+#                         OneBranch Pipelines - Official                        #
+# This pipeline was created by EasyStart from a sample located at:              #
+#   https://aka.ms/obpipelines/easystart/samples                                #
+# Documentation:  https://aka.ms/obpipelines                                    #
+# Yaml Schema:    https://aka.ms/obpipelines/yaml/schema                        #
+# Retail Tasks:   https://aka.ms/obpipelines/tasks                              #
+# Support:        https://aka.ms/onebranchsup                                   #
+#################################################################################
+
+trigger: none # Don't trigger on updates
+
+schedules:
+- cron: "0 6 * * 1"
+  displayName: 6AM Weekly on Monday
+  branches:
+    include:
+    - main
+  always: true
+
+variables:
+  ROOT: $(Build.SourcesDirectory)
+
+  LinuxContainerImage: 'mcr.microsoft.com/onebranch/cbl-mariner/build:2.0' # Use Mariner image for speed. https://aka.ms/obpipelines/containers
+
+resources:
+  repositories: 
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+extends:
+  template: v2/OneBranch.Official.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
+  parameters:
+    featureFlags:
+      EnableCDPxPAT: false
+    cloudvault: # https://aka.ms/obpipelines/cloudvault
+      enabled: false
+    globalSdl: # https://aka.ms/obpipelines/sdl
+      tsa:
+        enabled: false # onebranch publish all sdl results to TSA. If TSA is disabled all SDL tools will forced into 'break' build mode.
+      # credscan:
+      #   suppressionsFile: $(Build.SourcesDirectory)\.config\CredScanSuppressions.json
+      binskim:
+        break: false # always break the build on binskim issues in addition to TSA upload
+      policheck:
+        break: false # always break the build on policheck issues. You can disable it by setting to 'false'
+      # suppression:
+      #   suppressionFile: $(Build.SourcesDirectory)\.gdn\global.gdnsuppress
+
+    stages:
+    - stage: Weekly Update CP+ Curve History
+      jobs:
+      - job: main
+        pool:
+          type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+
+        steps:
+
+          - task: ADXAdminCommand@4
+            displayName: Update KMC Copilot+ Curve History
+            inputs:
+              targetType: 'inline'
+              script: |
+                .append REL_CP_CurveHistory <| 
+                Get_CPPlus_CurveSnapshot("oscrash")
+              waitForOperation: true
+              kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
+              ResourceURI: 'https://wdgeventstore.kusto.windows.net'
+              ShouldRetry: true
+              MaxRetry: '3'
+              authType: 'armserviceconn'
+              connectedServiceARM: 'BangTestMI-Publish'

@@ -1,0 +1,246 @@
+#################################################################################
+#                         OneBranch Pipelines - Official                        #
+# This pipeline was created by EasyStart from a sample located at:              #
+#   https://aka.ms/obpipelines/easystart/samples                                #
+# Documentation:  https://aka.ms/obpipelines                                    #
+# Yaml Schema:    https://aka.ms/obpipelines/yaml/schema                        #
+# Retail Tasks:   https://aka.ms/obpipelines/tasks                              #
+# Support:        https://aka.ms/onebranchsup                                   #
+#################################################################################
+
+trigger: none # Don't trigger on updates
+
+schedules:
+- cron: "0 2 * * *"
+  displayName: 2AM Daily
+  branches:
+    include:
+    - main
+  always: true
+
+variables:
+  ROOT: $(Build.SourcesDirectory)
+  LinuxContainerImage: 'mcr.microsoft.com/onebranch/cbl-mariner/build:2.0' # Use Mariner image for speed. https://aka.ms/obpipelines/containers
+
+resources:
+  repositories: 
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+extends:
+  template: v2/OneBranch.Official.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
+  parameters:
+    featureFlags:
+      EnableCDPxPAT: false
+    cloudvault: # https://aka.ms/obpipelines/cloudvault
+      enabled: false
+    globalSdl: # https://aka.ms/obpipelines/sdl
+      tsa:
+        enabled: false # onebranch publish all sdl results to TSA. If TSA is disabled all SDL tools will forced into 'break' build mode.
+      # credscan:
+      #   suppressionsFile: $(Build.SourcesDirectory)\.config\CredScanSuppressions.json
+      binskim:
+        break: false # always break the build on binskim issues in addition to TSA upload
+      policheck:
+        break: false # always break the build on policheck issues. You can disable it by setting to 'false'
+      # suppression:
+      #   suppressionFile: $(Build.SourcesDirectory)\.gdn\global.gdnsuppress
+
+    stages:
+    - stage: Update Device Models
+      jobs:
+      - job: main
+        pool:
+          type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+
+        steps:
+
+          - task: ADXAdminCommand@4
+            displayName: Update Cadmus Models
+            inputs:
+              targetType: 'inline'
+              script: |
+                .append REL_DeviceFamilies <| 
+                let CadmusProcessors = REL_DeviceFamilies
+                | where ProcessorFamily == "CADMUS"
+                | distinct ProcessorName;
+                WatsonSnapshot_KernelMode
+                | where ProcessorModel in (CadmusProcessors)
+                | where osVersionBuild >= 26100
+                | extend DeviceManufacturer = hwManufacturer
+                | extend DeviceName = hwModel
+                | extend ProcessorFamily = "CADMUS"
+                | extend ProcessorName = ProcessorModel
+                | where isnotempty(DeviceManufacturer) and isnotempty(DeviceName)
+                | distinct DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+                | join kind=anti (REL_DeviceFamilies) on DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+              waitForOperation: true
+              kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
+              ResourceURI: 'https://wdgeventstore.kusto.windows.net'
+              ShouldRetry: true
+              MaxRetry: '3'
+              authType: 'armserviceconn'
+              connectedServiceARM: 'BangTestMI-Publish'
+
+          - task: ADXAdminCommand@4
+            displayName: Update Purwa Models
+            inputs:
+              targetType: 'inline'
+              script: |
+                .append REL_DeviceFamilies <| 
+                let Purwa = REL_DeviceFamilies
+                | where ProcessorFamily == "PURWA"
+                | distinct ProcessorName;
+                WatsonSnapshot_KernelMode
+                | where ProcessorModel in (Purwa)
+                | where osVersionBuild >= 26100
+                | extend DeviceManufacturer = hwManufacturer
+                | extend DeviceName = hwModel
+                | extend ProcessorFamily = "PURWA"
+                | extend ProcessorName = ProcessorModel
+                | where isnotempty(DeviceManufacturer) and isnotempty(DeviceName)
+                | distinct DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+                | join kind=anti (REL_DeviceFamilies) on DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+              waitForOperation: true
+              kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
+              ResourceURI: 'https://wdgeventstore.kusto.windows.net'
+              ShouldRetry: true
+              MaxRetry: '3'
+              authType: 'armserviceconn'
+              connectedServiceARM: 'BangTestMI-Publish'
+          
+          - task: ADXAdminCommand@4
+            displayName: Update Purwa SE Models
+            inputs:
+              targetType: 'inline'
+              script: |
+                .append REL_DeviceFamilies <| 
+                let PurwaSE = REL_DeviceFamilies
+                | where ProcessorFamily == "PURWA SE"
+                | distinct ProcessorName;
+                WatsonSnapshot_KernelMode
+                | where ProcessorModel in (PurwaSE)
+                | where osVersionBuild >= 26100
+                | extend DeviceManufacturer = hwManufacturer
+                | extend DeviceName = hwModel
+                | extend ProcessorFamily = "PURWA SE"
+                | extend ProcessorName = ProcessorModel
+                | where isnotempty(DeviceManufacturer) and isnotempty(DeviceName)
+                | distinct DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+                | join kind=anti (REL_DeviceFamilies) on DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+              waitForOperation: true
+              kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
+              ResourceURI: 'https://wdgeventstore.kusto.windows.net'
+              ShouldRetry: true
+              MaxRetry: '3'
+              authType: 'armserviceconn'
+              connectedServiceARM: 'BangTestMI-Publish'
+
+          - task: ADXAdminCommand@4
+            displayName: Update STRIX Models
+            inputs:
+              targetType: 'inline'
+              script: |
+                .append REL_DeviceFamilies <| 
+                let Strix = REL_DeviceFamilies
+                | where ProcessorFamily == "STRIX"
+                | distinct ProcessorName;
+                WatsonSnapshot_KernelMode
+                | where ProcessorModel in (Strix)
+                | where osVersionBuild >= 26100
+                | extend DeviceManufacturer = hwManufacturer
+                | extend DeviceName = hwModel
+                | extend ProcessorFamily = "STRIX"
+                | extend ProcessorName = ProcessorModel
+                | distinct DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+                | join kind=anti (REL_DeviceFamilies) on DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+              waitForOperation: true
+              kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
+              ResourceURI: 'https://wdgeventstore.kusto.windows.net'
+              ShouldRetry: true
+              MaxRetry: '3'
+              authType: 'armserviceconn'
+              connectedServiceARM: 'BangTestMI-Publish'
+            
+          - task: ADXAdminCommand@4
+            displayName: Update STRIX Halo Models
+            inputs:
+              targetType: 'inline'
+              script: |
+                .append REL_DeviceFamilies <| 
+                 let StrixHalo = REL_DeviceFamilies
+                | where ProcessorFamily == "STRIX HALO"
+                | distinct ProcessorName;
+                WatsonSnapshot_KernelMode
+                | where ProcessorModel in (StrixHalo)
+                | where osVersionBuild >= 26100
+                | extend DeviceManufacturer = hwManufacturer
+                | extend DeviceName = hwModel
+                | extend ProcessorFamily = "STRIX HALO"
+                | extend ProcessorName = ProcessorModel
+                | where isnotempty(DeviceManufacturer) and isnotempty(DeviceName)
+                | distinct DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+                | join kind=anti (REL_DeviceFamilies) on DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+              waitForOperation: true
+              kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
+              ResourceURI: 'https://wdgeventstore.kusto.windows.net'
+              ShouldRetry: true
+              MaxRetry: '3'
+              authType: 'armserviceconn'
+              connectedServiceARM: 'BangTestMI-Publish'
+
+          - task: ADXAdminCommand@4
+            displayName: Update Lunar Lake Models
+            inputs:
+              targetType: 'inline'
+              script: |
+                .append REL_DeviceFamilies <| 
+                let LNL = REL_DeviceFamilies
+                | where ProcessorFamily == "LNL"
+                | distinct ProcessorName;
+                WatsonSnapshot_KernelMode
+                | where ProcessorModel in (LNL)
+                | where osVersionBuild >= 26100
+                | extend DeviceManufacturer = hwManufacturer
+                | extend DeviceName = hwModel
+                | extend ProcessorFamily = "LNL"
+                | extend ProcessorName = ProcessorModel
+                | where isnotempty(DeviceManufacturer) and isnotempty(DeviceName)
+                | distinct DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+                | join kind=anti (REL_DeviceFamilies) on DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+              waitForOperation: true
+              kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
+              ResourceURI: 'https://wdgeventstore.kusto.windows.net'
+              ShouldRetry: true
+              MaxRetry: '3'
+              authType: 'armserviceconn'
+              connectedServiceARM: 'BangTestMI-Publish'
+
+          - task: ADXAdminCommand@4
+            displayName: Update Arrow Lake Models
+            inputs:
+              targetType: 'inline'
+              script: |
+                .append REL_DeviceFamilies <|
+                let ARL = REL_DeviceFamilies
+                | where ProcessorFamily == "ARL"
+                | distinct ProcessorName;
+                WatsonSnapshot_KernelMode
+                | where ProcessorModel in (ARL)
+                | where osVersionBuild >= 26100
+                | extend DeviceManufacturer = hwManufacturer
+                | extend DeviceName = hwModel
+                | extend ProcessorFamily = "ARL"
+                | extend ProcessorName = ProcessorModel
+                | where isnotempty(DeviceManufacturer) and isnotempty(DeviceName)
+                | distinct DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+                | join kind=anti (REL_DeviceFamilies) on DeviceManufacturer, DeviceName, ProcessorFamily, ProcessorName
+              waitForOperation: true
+              kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
+              ResourceURI: 'https://wdgeventstore.kusto.windows.net'
+              ShouldRetry: true
+              MaxRetry: '3'
+              authType: 'armserviceconn'
+              connectedServiceARM: 'BangTestMI-Publish'
