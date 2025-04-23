@@ -73,3 +73,18 @@ extends:
               MaxRetry: '3'
               authType: 'armserviceconn'
               connectedServiceARM: 'BangTestMI-Publish'
+
+          - task: ADXAdminCommand@4
+            displayName: Update KMC Copilot+ Metric History
+            inputs:
+              targetType: 'inline'
+              script: |
+                .append REL_CP_MetricHistory <|
+                Get_CPPlus_Metrics_ByVertical()
+              waitForOperation: true
+              kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
+              ResourceURI: 'https://wdgeventstore.kusto.windows.net'
+              ShouldRetry: true
+              MaxRetry: '3'
+              authType: 'armserviceconn'
+              connectedServiceARM: 'BangTestMI-Publish'
