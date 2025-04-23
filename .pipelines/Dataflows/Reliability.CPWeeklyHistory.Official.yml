@@ -20,7 +20,7 @@ schedules:
 
 variables:
   ROOT: $(Build.SourcesDirectory)
-  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2019/vse2019:latest' # Use Mariner image for speed. https://aka.ms/obpipelines/containers
+  LinuxContainerImage: 'mcr.microsoft.com/onebranch/cbl-mariner/build:2.0' # Use Mariner image for speed. https://aka.ms/obpipelines/containers
 
 resources:
   repositories: 
@@ -53,7 +53,7 @@ extends:
       jobs:
       - job: main
         pool:
-          type: windows  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+          type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
         variables:
           ob_outputDirectory: '$(Build.SourcesDirectory)\out'
 
