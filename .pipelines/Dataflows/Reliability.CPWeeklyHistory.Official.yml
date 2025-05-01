@@ -20,7 +20,7 @@ schedules:
 
 variables:
   ROOT: $(Build.SourcesDirectory)
-  LinuxContainerImage: 'mcr.microsoft.com/onebranch/cbl-mariner/build:2.0' # Use Mariner image for speed. https://aka.ms/obpipelines/containers
+  LinuxContainerImage: 'mcr.microsoft.com/onebranch/azurelinux/build:3.0' # Use Mariner image for speed. https://aka.ms/obpipelines/containers
 
 resources:
   repositories: 
@@ -60,22 +60,24 @@ extends:
         steps:
 
           - task: ADXAdminCommand@4
-            displayName: Update KMC Copilot+ Curve History
+            displayName: Update Copilot+ Curve History
             inputs:
               targetType: 'inline'
               script: |
                 .append REL_CP_CurveHistory <| 
                 Get_CPPlus_CurveSnapshot("oscrash")
+                | union Get_CPPlus_CurveSnapshot("appcrash")
+                | union Get_CPPlus_AbsUnknownSnapshot()
               waitForOperation: true
               kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
               ResourceURI: 'https://wdgeventstore.kusto.windows.net'
               ShouldRetry: true
               MaxRetry: '3'
               authType: 'armserviceconn'
-              connectedServiceARM: 'BangTestMI-Publish'
+              connectedServiceARM: 'BangTestMI-Publish'     
 
           - task: ADXAdminCommand@4
-            displayName: Update KMC Copilot+ Metric History
+            displayName: Update Copilot+ Metric History
             inputs:
               targetType: 'inline'
               script: |
