@@ -16,7 +16,7 @@
     <PackageVersion Include="Microsoft.Identity.Web" Version="3.1.0" />
     <PackageVersion Include="Microsoft.IdentityModel.Logging" Version="8.0.2" />
     <PackageVersion Include="Microsoft.TypeScript.MSBuild" Version="4.6.2" />
-    <PackageVersion Include="System.Data.SqlClient" Version="4.8.3" />
+    <PackageVersion Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageVersion Include="System.Drawing.Common" Version="4.7.2" />
   </ItemGroup>
 </Project>
