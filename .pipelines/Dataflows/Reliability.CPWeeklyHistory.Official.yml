@@ -67,6 +67,9 @@ extends:
                 .append REL_CP_CurveHistory <| 
                 Get_CPPlus_CurveSnapshot("oscrash")
                 | union Get_CPPlus_CurveSnapshot("appcrash")
+                | union Get_CPPlus_CurveSnapshot("abs_lpbh")
+                | union Get_CPPlus_CurveSnapshot("abs_bugcheck")
+                | union Get_CPPlus_CurveSnapshot("dirtyshutdown")
                 | union Get_CPPlus_AbsUnknownSnapshot()
               waitForOperation: true
               kustoUrls: 'https://wdgeventstore.kusto.windows.net:443?DatabaseName=FUN'
