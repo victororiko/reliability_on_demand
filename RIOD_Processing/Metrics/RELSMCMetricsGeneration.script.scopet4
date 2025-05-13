@@ -1,0 +1,473 @@
+/* 
+<summary>
+This script takes the device flattened and joins it with the census metedat from SMC team. 
+We then proceed to calculate the following metrics : 
+* dirtyshutdown 
+* oscrash
+* appcrash_ms_uiv
+
+</summary>
+
+<outputs>
+Final output schema: 	 
+Column name 	    Datatype
+run_date	        datetime
+os_branch	        string
+os_buildnumber	    string
+os_buildrevision	Int
+flight_ring 	    Int
+silicon_program	    string
+oem	                string
+oem_model	        string
+processor_model	    string
+firmware_version	string
+vertical_name	    string
+metric_name	        string
+metric_value	    Real
+metric_device_count	long
+
+</outputs>
+*/
+
+<#@ template language="c#" debug="true" hostspecific="true" #>
+<#@ import namespace = "System.Collections.Generic" #>
+<#@ import namespace = "System.IO" #>
+<#@ import namespace = "VcClient" #>
+<#@ assembly name= "NEWTONSOFT.JSON.DLL" #>
+<#@ import namespace = "Newtonsoft.Json" #>
+<#@ import namespace = "Newtonsoft.Json.Linq" #>
+<#@include file="ReadTextFromStream.scopet4" #>
+
+REFERENCE "System.XML.dll";
+[PIN] REFERENCE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/Newtonsoft.Json.dll";
+
+// Import Next Generation Privacy annotation module 
+// Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
+MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+USING Privacy;
+
+
+
+
+#DECLARE runDate DateTime = DateTime.UtcNow;
+<# 
+ var context = Host.GetHostOption("T4Context") as IT4TransformContext;
+
+ //c# variable declaration and pre processing
+    string smcMetricsDefinitionJson = "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Testing/SMCMetricsDefinition.json";
+	string metricNames = @"";
+    bool showZeroMinUsage = false; 
+    string DeviceFlattenedExpandedStream  = "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/DevicesFlattened/RIOD.Devices.Flattened.Expanded.ss";
+    string censusMetadataPath = "/shares/asimov.prod.data/PublicPartner/Processed/SiliconMissionControl/Census/CensusMetadata.ss";
+    string outputRootFolder = "/shares/asimov.prod.data/PublicPartner/Processed/Reliability/RIOD/Streams/SilliconMissionControl/";
+    string output = outputRootFolder + "MetricsRollUp.ss";
+
+    string SMSCensusJoinKeyCols = "OSBuildNumber;OSBuildRevision;OSBranch;FirmwareVersion";
+    string SMSCensusJoinKeyOSCols = "OSBuildNumber;OSBuildRevision;OSBranch";
+
+    // debug properties
+    bool debug = false;
+    string debugPaths = outputRootFolder + "_debug/";
+    string outputValidation = debugPaths + "MetricsValidation.ss";
+    string outputPostJoin = debugPaths + "OutputPostJoin.ss";
+    string postJoinPerSilicon = debugPaths + "postJoinPerSilicon.ss";
+    string outputPostJoinFiltered = debugPaths + "OutputPostJoinFiltered.ss";
+    string postJoinPerSiliconFiltered = debugPaths + "postJoinPerSiliconFiltered.ss";
+    string RIODdeviceDataCross = debugPaths + "RIODdeviceDataCross.ss";
+    string FailureRatePerDevice = debugPaths + "FailureRatePerDevice.ss";
+    string MetricsRollUp_rel = debugPaths + "MetricsRollUp_rel.ss";
+
+     
+    string expirationNGPStreamCount = "30";
+
+    if (context != null)
+    {
+        smcMetricsDefinitionJson = (string)context.GetParameter<string>("_smcMetricsDefinitionJson", smcMetricsDefinitionJson);
+        showZeroMinUsage = (bool)context.GetParameter<bool>("_showZeroMinUsage", showZeroMinUsage);
+        debug = (bool)context.GetParameter<bool>("_debug", debug);
+        DeviceFlattenedExpandedStream = (string)context.GetParameter<string>("_DeviceFlattenedExpandedStream", DeviceFlattenedExpandedStream);        
+        censusMetadataPath = (string)context.GetParameter<string>("_censusMetadataPath", censusMetadataPath);
+        output = (string)context.GetParameter<string>("_output", output);
+        expirationNGPStreamCount = (string)context.GetParameter<string>("_expirationNGPStreamCount", expirationNGPStreamCount);
+      
+    }
+
+
+    string resources = ReadTextFromStream(smcMetricsDefinitionJson);
+    List<Dictionary<string, string>> metricInfo = new List<Dictionary<string,string>>();
+
+    JArray jsonData = JArray.Parse(resources);
+    long lowestMinUsage = long.MaxValue;
+    foreach (JObject content in jsonData.Children<JObject>())
+    {
+        var properties = new Dictionary<string, string>();
+		String metricName = "";
+        foreach (JProperty prop in content.Properties())
+		{
+            //Add the whole record to the dictionary
+            properties.Add(prop.Name, prop.Value.ToString());
+
+			// Fetching current JSON obj metricName 
+			if(String.Equals(prop.Name,"MetricName"))
+			{
+				metricName = prop.Value.ToString();
+			}
+            if(String.Equals(prop.Name,"MinUsageMs"))
+            {
+                long minUsage = long.Parse(prop.Value.ToString());
+                if(minUsage < lowestMinUsage)
+                {
+                    lowestMinUsage = minUsage;
+                }
+            }
+        }
+            
+			
+            // Removing null metric name entries and build a semicolon separated list 		
+			if(String.IsNullOrEmpty(metricNames))
+            {
+                metricNames = metricName;
+            }
+			else
+            {
+                metricNames = metricNames +";"+metricName;
+            }
+				
+        metricInfo.Add(properties);
+    }
+    // use the lowest minusage from the json  and use that to filter out data 
+    if(lowestMinUsage == long.MaxValue)
+    {
+        lowestMinUsage = 0; 
+    }
+#>
+
+DECLARE @metricNames string = "<#=metricNames#>";
+DECLARE @DeviceFlattenedExpandedStream string = "<#=DeviceFlattenedExpandedStream#>";
+DECLARE @censusMetadataPath string = "<#=censusMetadataPath#>";
+
+
+USING Privacy; 
+USING System.Security.Cryptography;
+
+
+// load the device flattened + smc data 
+[ROWCOUNT=2000000000]
+RIODdeviceData = SELECT 
+        DeviceId,
+        OSBranch,
+        OSBuildNumber,
+        OSBuildRevision,
+        ProcessorModel,
+        OEMName, 
+        OEMModel,
+        FirmwareVersion,
+        <# 
+         for (int idxMetrics=0; idxMetrics < metricInfo.Count; idxMetrics++)
+            {
+        #>
+        (<#=metricInfo[idxMetrics]["Vertical"]#> >= 0 ? <#=metricInfo[idxMetrics]["Vertical"]#> : 0) AS <#=metricInfo[idxMetrics]["MachineSampleColumn"]#>,
+        <#      
+            }
+        #>
+         (<#=metricInfo[0]["UsageField"]#> >=0 ? <#=metricInfo[0]["UsageField"]#> : 0)  AS OsUsageMS,
+        string.Concat("{",
+		<#
+		for(int k=0;k<SMSCensusJoinKeyCols.Split(';').Length;k++)
+		{
+		if(k!= SMSCensusJoinKeyCols.Split(';').Length-1)
+		{
+		#>
+		<#=SMSCensusJoinKeyCols.Split(';')[k]#>,"}.{",
+		<#
+		}
+		else
+		{
+		#>
+		<#=SMSCensusJoinKeyCols.Split(';')[k]#>,"}"
+		<#
+		}
+		#>
+		<#
+		}
+		#>) AS smc_join_key,
+        string.Concat("{",
+		<#
+		for(int k=0;k<SMSCensusJoinKeyOSCols.Split(';').Length;k++)
+		{
+		if(k!= SMSCensusJoinKeyOSCols.Split(';').Length-1)
+		{
+		#>
+		<#=SMSCensusJoinKeyOSCols.Split(';')[k]#>,"}.{",
+		<#
+		}
+		else
+		{
+		#>
+		<#=SMSCensusJoinKeyOSCols.Split(';')[k]#>,"}"
+		<#
+		}
+		#>
+		<#
+		}
+		#>) AS smc_join_key_os,
+         (<#=metricInfo[0]["UsageField"]#> >=0 ? (((double)<#=metricInfo[0]["UsageField"]#>/3600000.0000)) : 0) AS OsUsageHrs
+    FROM  ( SSTREAM @DeviceFlattenedExpandedStream)  
+   ; 
+
+ RIODdeviceData = SELECT *,
+ 				(Guid)new Guid(MD5.Create() .ComputeHash(Encoding.Default.GetBytes(smc_join_key))) AS smc_join_key_guid
+				FROM RIODdeviceData;
+
+// perform the join with census here 
+[SKEWJOIN=(SKEW=FROMLEFT,REPARTITION=FULLJOIN)]
+[LOWDISTINCTNESS(smc_join_key_guid)]
+joinedData = SELECT 
+    R.*, 
+    C.flight_ring, 
+    C.silicon_program
+    FROM RIODdeviceData AS R 
+    INNER JOIN (SSTREAM @censusMetadataPath) AS C 
+    ON R.DeviceId == C.device_id 
+    WHERE C.smc_join_key.Contains(smc_join_key_os) ;
+   
+
+<# if (debug){#>
+//Riod Data stats 
+RIODdeviceDataStatsdetailed = SELECT 
+OSBranch,
+OSBuildNumber,
+OSBuildRevision, 
+COUNT(*) AS total_count,
+COUNT(DISTINCT DeviceId )  AS uniqueDevices 
+FROM RIODdeviceData
+GROUP BY OSBranch,OSBuildNumber,OSBuildRevision;
+
+OUTPUT RIODdeviceDataStatsdetailed TO 
+SSTREAM @"<#=debugPaths#>RIODdeviceDataStatsdetailed.ss" WITH STREAMEXPIRY TimeSpan.FromDays(2);
+
+// stats on census metadata 
+
+censusMetadataStats = SELECT 
+silicon_program, 
+COUNT(*) AS total_count,
+COUNT(DISTINCT device_id )  AS uniqueDevices 
+FROM (SSTREAM @censusMetadataPath) 
+GROUP BY silicon_program;
+
+OUTPUT censusMetadataStats TO 
+SSTREAM @"<#=debugPaths#>censusMetadataStats.ss" WITH STREAMEXPIRY TimeSpan.FromDays(2);
+
+censusMetadataStatsdetailed = SELECT 
+os_branch,
+os_buildnumber,
+os_buildrevision,
+silicon_program, 
+COUNT(*) AS total_count,
+COUNT(DISTINCT device_id )  AS uniqueDevices 
+FROM (SSTREAM @censusMetadataPath) 
+GROUP BY os_branch, os_buildnumber, os_buildrevision, silicon_program;
+
+OUTPUT censusMetadataStatsdetailed TO 
+SSTREAM @"<#=debugPaths#>censusMetadataStatsdetailed.ss" WITH STREAMEXPIRY TimeSpan.FromDays(2);
+
+censusMetadataStatsOSdetails = SELECT 
+os_branch,
+os_buildnumber,
+os_buildrevision,
+COUNT(*) AS total_count,
+COUNT(DISTINCT device_id )  AS uniqueDevices 
+FROM (SSTREAM @censusMetadataPath) 
+GROUP BY os_branch, os_buildnumber, os_buildrevision;
+
+OUTPUT censusMetadataStats TO 
+SSTREAM @"<#=debugPaths#>censusMetadataStatsOSdetails.ss" WITH STREAMEXPIRY TimeSpan.FromDays(2);
+
+//do an output before  the min usage filter
+OUTPUT joinedData TO 
+SSTREAM @"<#=outputPostJoin#>" WITH STREAMEXPIRY TimeSpan.FromDays(2);
+
+postJoinPerSilicon = SELECT 
+    silicon_program,
+    COUNT(*) AS totaldeviceCount
+    FROM joinedData 
+    GROUP BY silicon_program;
+
+OUTPUT postJoinPerSilicon TO 
+SSTREAM @"<#=postJoinPerSilicon#>" WITH STREAMEXPIRY TimeSpan.FromDays(2);
+
+<# } #>
+
+
+
+RIODdeviceDataCross = SELECT R.* , MetricName
+    FROM joinedData AS R
+    CROSS APPLY @metricNames.Split(';') AS MetricName; 
+
+<# if (debug){#>
+OUTPUT RIODdeviceDataCross TO SSTREAM @"<#=RIODdeviceDataCross#>" WITH STREAMEXPIRY TimeSpan.FromDays(2);
+<# } #>
+
+// Loop through the defined metrics and select failure rate for each metric for it
+[ROWCOUNT=50000000]
+FailureRatePerDevice= 
+<# 
+ for (int idxMetrics=0; idxMetrics<metricInfo.Count; idxMetrics++)
+    {
+        if(idxMetrics > 0)
+        {
+#>
+            UNION ALL
+<#
+        }
+#>
+SELECT
+    DeviceId,
+    OSBranch,
+    OSBuildNumber,
+    OSBuildRevision,
+    ProcessorModel,
+    OEMName, 
+    OEMModel,
+    flight_ring,
+    silicon_program,
+    FirmwareVersion,
+    (<#=metricInfo[idxMetrics]["MachineSampleColumn"]#> >= 0 ? <#=metricInfo[idxMetrics]["MachineSampleColumn"]#> : 0) AS HitCount,
+    (<#=metricInfo[idxMetrics]["MachineSampleColumn"]#> >= 0 ? ((double)(<#=metricInfo[idxMetrics]["MachineSampleColumn"]#> / (OsUsageHrs))):0) AS FailureRate, // default nulls to zero 
+    MetricName,
+    OsUsageMS,
+    OsUsageHrs 
+    FROM RIODdeviceDataCross 
+    WHERE MetricName == @"<#=metricInfo[idxMetrics]["MetricName"]#>"
+ <#      
+ }
+#>;
+
+<# if (debug){#>
+OUTPUT FailureRatePerDevice TO SSTREAM @"<#=FailureRatePerDevice#>" WITH STREAMEXPIRY TimeSpan.FromDays(2);
+<#}#>
+
+
+
+                
+[ROWCOUNT=50000000]
+MetricsRollUp_rel= 
+<# 
+ for (int idxMetrics=0; idxMetrics<metricInfo.Count; idxMetrics++)
+    {
+        if(idxMetrics > 0)
+        {
+#>
+            UNION ALL
+<#
+        }
+#>
+ SELECT 
+    @runDate AS run_date,           
+    OSBranch AS os_branch,
+    OSBuildNumber AS os_buildnumber,
+    OSBuildRevision AS os_buildrevision,
+    flight_ring,
+    silicon_program,
+    OEMName AS oem, 
+    OEMModel AS oem_model,
+    ProcessorModel AS processor_model,
+    FirmwareVersion AS firmware_version,
+    COUNTIF(HitCount == 0) AS MachinesWithoutCrashes,
+    SUM(HitCount) AS TotalHitCount,
+    COUNT(DISTINCT (HitCount > 0)) AS MachinesWithCrashes,
+    "Reliability" AS vertical_name,
+    "<#=metricInfo[idxMetrics]["SMCMetricName"]#>" AS metric_name, 
+    // COUNTIF(DISTINCT DeviceId, <#=metricInfo[idxMetrics]["MetricsFilter"]#>) AS metric_numerator,
+    COUNT(
+        DISTINCT (
+            CASE WHEN <#=metricInfo[idxMetrics]["MetricsFilter"]#>
+                 THEN DeviceId
+                 ELSE NULL
+            END
+                )
+        ) AS metric_numerator,
+    
+    COUNT(
+        DISTINCT (
+            CASE WHEN <#=metricInfo[idxMetrics]["MetricsDenominator"]#>
+                 THEN DeviceId
+                 ELSE NULL
+            END
+                )
+        ) AS metric_denominator
+    FROM FailureRatePerDevice 
+    WHERE MetricName == @"<#=metricInfo[idxMetrics]["MetricName"]#>" AND FailureRate >= 0 
+    <# if(!showZeroMinUsage){ #>
+    HAVING metric_denominator > 0 
+    <# } #>
+    GROUP BY os_branch, os_buildnumber, os_buildrevision, flight_ring, silicon_program, oem, oem_model, processor_model, firmware_version, vertical_name , metric_name, run_date
+
+ <#      
+ }
+#>;
+
+MetricsRollUp_rel = SELECT *, 
+        (metric_numerator * 100.0000 / metric_denominator) AS metric_value 
+        FROM MetricsRollUp_rel;
+
+OUTPUT MetricsRollUp_rel TO 
+SSTREAM "<#=MetricsRollUp_rel#>"
+CLUSTERED BY os_branch, os_buildnumber, os_buildrevision, flight_ring, silicon_program
+SORTED BY metric_denominator DESC
+WITH STREAMEXPIRY @"<#= expirationNGPStreamCount #>" ;
+
+MetricsRollUp = SELECT 
+((DateTime) run_date) AS run_date ,
+((string) os_branch) AS os_branch,
+((int) os_buildnumber ) AS os_buildnumber, 
+((int) os_buildrevision ) AS os_buildrevision, 
+((string) flight_ring ) AS flight_ring,
+((string) silicon_program ) AS silicon_program,
+((string) oem ) AS oem,
+((string) oem_model) AS oem_model,
+((string) processor_model) AS processor_model,
+((string) "All") AS firmware_version,
+((string) vertical_name) AS vertical_name,
+((string) metric_name) AS metric_name,
+((float) metric_value) AS metric_value,
+((long) metric_denominator) AS metric_device_count
+FROM MetricsRollUp_rel;
+
+OUTPUT MetricsRollUp TO 
+SSTREAM "<#=output#>"
+CLUSTERED BY os_branch, os_buildnumber, os_buildrevision, flight_ring, silicon_program
+SORTED BY metric_device_count DESC
+WITH STREAMEXPIRY @"<#= expirationNGPStreamCount #>" ;
+
+
+
+<# if (debug){#>
+
+<# 
+ for (int idxMetrics=0; idxMetrics<metricInfo.Count; idxMetrics++)
+    {
+        
+#>
+
+<#=metricInfo[idxMetrics]["SMCMetricName"]#>_stats = 
+SELECT 
+silicon_program AS Platform,
+(COUNTIF(<#=metricInfo[idxMetrics]["MetricsFilter"]#>) * 100.0000 / COUNTIF(<#=metricInfo[idxMetrics]["MetricsDenominator"]#>)) AS pct_of_stable_devices,
+COUNTIF(<#=metricInfo[idxMetrics]["MetricsDenominator"]#>) AS no_of_min_usage_devices,
+COUNTIF(<#=metricInfo[idxMetrics]["MetricsDenominator"]#>) - COUNTIF(<#=metricInfo[idxMetrics]["MetricsFilter"]#>) AS no_of_unstable_devices,
+COUNT(*) AS total_no_of_devices 
+FROM FailureRatePerDevice 
+WHERE MetricName == @"<#=metricInfo[idxMetrics]["MetricName"]#>" 
+GROUP BY Platform;
+
+OUTPUT <#=metricInfo[idxMetrics]["SMCMetricName"]#>_stats TO 
+SSTREAM "<#=debugPaths#>"+"<#=metricInfo[idxMetrics]["SMCMetricName"]#>.ss";
+
+<#
+ 
+    }
+#>
+
+<#}#> 
+
