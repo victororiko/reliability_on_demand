@@ -51,7 +51,7 @@ USING Microsoft.Telemetry.Common.Parsers;
 
 MODULE "shares/asimov.prod.data/Public/Processed/Watson/Modules/1510/WatsonPublic.module" AS w;
 
-MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+MODULE @"/shares/asimov.prod.data/AsimovCommonResources/PrivacyAnnotation/PrivacyAnnotation.module"; 
 USING Privacy; 
 
 REFERENCE @"/shares/asimov.prod.data/PublicPartner/Processed/Reliability/Resources/Relevance.ScopeLib.dll";

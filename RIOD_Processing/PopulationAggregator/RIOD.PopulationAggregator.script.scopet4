@@ -15,7 +15,7 @@
 <#@include file="SaveTextToStream.scopet4" #>
 // Import Next Generation Privacy annotation module 
 // Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
-MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+MODULE @"/shares/asimov.prod.data/AsimovCommonResources/PrivacyAnnotation/PrivacyAnnotation.module"; 
 USING Privacy; 
 USING System.Security.Cryptography; 
 

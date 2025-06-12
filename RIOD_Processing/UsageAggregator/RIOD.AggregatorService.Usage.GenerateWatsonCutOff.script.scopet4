@@ -99,7 +99,7 @@ Generates the aggregate Usage for last 14 days from Watsonlatesttime using the h
 USING System.Security.Cryptography; 
 // Import Next Generation Privacy annotation module 
 // Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
-MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+MODULE @"/shares/asimov.prod.data/AsimovCommonResources/PrivacyAnnotation/PrivacyAnnotation.module"; 
 USING Privacy;
 
 #DECLARE input_UsagePattern_ss string = @"/Usage/Hourly/UsageHourlyData_%Y-%m-%d-%h.ss";

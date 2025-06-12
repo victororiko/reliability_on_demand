@@ -84,7 +84,7 @@ Combines all the 3 streams together - Population, Failure and Usage based on Stu
 
 // Import Next Generation Privacy annotation module 
 // Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
-MODULE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/PrivacyAnnotation.module"; 
+MODULE @"/shares/asimov.prod.data/AsimovCommonResources/PrivacyAnnotation/PrivacyAnnotation.module"; 
 USING Privacy; 
 
 #DECLARE outputExpandedStream string = @"<#=string.Format("{0}/{1}",outputFolder ,outputStreamNameExpanded ) #>";
