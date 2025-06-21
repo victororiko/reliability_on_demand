@@ -39,7 +39,8 @@ metric_device_count	long
 <#@include file="ReadTextFromStream.scopet4" #>
 
 REFERENCE "System.XML.dll";
-[PIN] REFERENCE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/Newtonsoft.Json.dll";
+[PIN] REFERENCE @"/shares/asimov.prod.data/AsimovCommonResources/Newtonsoft.Json/13.0/Newtonsoft.Json.dll";
+// [PIN] REFERENCE @"/shares/PXSCosmos15.Prod/PXS.DeleteSignal.PROD/PrivacyAnnotation/Newtonsoft.Json.dll";
 
 // Import Next Generation Privacy annotation module 
 // Ref: https://microsoft.sharepoint.com/teams/ngphome/ngpx/execution/Official%20Documents/NGPX%20Technical%20Specifications/Privacy%20Tags%20Taxonomy.docx?web=1 
@@ -158,9 +159,6 @@ RIODdeviceData = SELECT
         OSBranch,
         OSBuildNumber,
         OSBuildRevision,
-        ProcessorModel,
-        OEMName, 
-        OEMModel,
         FirmwareVersion,
         <# 
          for (int idxMetrics=0; idxMetrics < metricInfo.Count; idxMetrics++)
@@ -224,6 +222,9 @@ RIODdeviceData = SELECT
 [LOWDISTINCTNESS(smc_join_key_guid)]
 joinedData = SELECT 
     R.*, 
+    C.oem,
+    C.oem_model,
+    C.processor_model,
     C.flight_ring, 
     C.silicon_program
     FROM RIODdeviceData AS R 
@@ -326,9 +327,9 @@ SELECT
     OSBranch,
     OSBuildNumber,
     OSBuildRevision,
-    ProcessorModel,
-    OEMName, 
-    OEMModel,
+    processor_model,
+    oem, 
+    oem_model,
     flight_ring,
     silicon_program,
     FirmwareVersion,
@@ -369,9 +370,9 @@ MetricsRollUp_rel=
     OSBuildRevision AS os_buildrevision,
     flight_ring,
     silicon_program,
-    OEMName AS oem, 
-    OEMModel AS oem_model,
-    ProcessorModel AS processor_model,
+    oem, 
+    oem_model,
+    processor_model,
     FirmwareVersion AS firmware_version,
     COUNTIF(HitCount == 0) AS MachinesWithoutCrashes,
     SUM(HitCount) AS TotalHitCount,
@@ -430,7 +431,7 @@ MetricsRollUp = SELECT
 ((string) "All") AS firmware_version,
 ((string) vertical_name) AS vertical_name,
 ((string) metric_name) AS metric_name,
-((float) metric_value) AS metric_value,
+((double) metric_value) AS metric_value,
 ((long) metric_denominator) AS metric_device_count
 FROM MetricsRollUp_rel;
 
@@ -450,7 +451,7 @@ WITH STREAMEXPIRY @"<#= expirationNGPStreamCount #>" ;
         
 #>
 
-<#=metricInfo[idxMetrics]["SMCMetricName"]#>_stats = 
+<#=metricInfo[idxMetrics]["Prefix"]#>_stats = 
 SELECT 
 silicon_program AS Platform,
 (COUNTIF(<#=metricInfo[idxMetrics]["MetricsFilter"]#>) * 100.0000 / COUNTIF(<#=metricInfo[idxMetrics]["MetricsDenominator"]#>)) AS pct_of_stable_devices,
@@ -461,8 +462,8 @@ FROM FailureRatePerDevice
 WHERE MetricName == @"<#=metricInfo[idxMetrics]["MetricName"]#>" 
 GROUP BY Platform;
 
-OUTPUT <#=metricInfo[idxMetrics]["SMCMetricName"]#>_stats TO 
-SSTREAM "<#=debugPaths#>"+"<#=metricInfo[idxMetrics]["SMCMetricName"]#>.ss";
+OUTPUT <#=metricInfo[idxMetrics]["Prefix"]#>_stats TO 
+SSTREAM "<#=debugPaths#>"+"<#=metricInfo[idxMetrics]["Prefix"]#>.ss";
 
 <#
  
