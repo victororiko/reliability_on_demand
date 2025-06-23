@@ -1,0 +1,908 @@
+.create-or-alter function with (docstring = "Compare Experiment Control vs Treatment",folder = "WExp_REL") Get_REL_WExp_Experiment_Compare(MinHits:long=3,MinDevices:long=3) {
+    let param_MinHits_Promotion = 10;
+    let param_MinDevices_Promotion = 10;
+    let param_MinHits_Promotion_LowPop = 4;
+    let param_MinDevices_Promotion_LowPop = 4;
+    //normal High Population
+    let MinHits_Pct_New = 0.01;
+    let MinMachines_Pct_New = 0.02;
+    let MinHits_Pct_Spiked = 0.01;
+    let MinMachines_Pct_Spiked = 0.02;
+    let MinTotalMachineCount_HighPop = 2000;
+    //Low Population
+    let MinHits_Pct_New_LowPop = 0.1;
+    let MinMachines_Pct_New_LowPop = 0.2;
+    let MinHits_Pct_Spiked_LowPop = 0.1;
+    let MinMachines_Pct_Spiked_LowPop = 0.2;
+    //Override by Raw count the Percentage thresholds
+    let MinHits_Override_Promotion = 1000;
+    let MinMachines_Override_Promotion = 1000;
+    //Promotion thresholds
+    let pBhHits_Threshold = 0.05;
+    let pBhMachines_Threshold = 0.05;
+    let REL_WExp_Hits_Distribution_Scoped = REL_WExp_Hits_Distribution;
+    let Pct_Hits_Above_BuildAudience_Threshold = 67.00; 
+    let Pct_Of_TotalHits_Threshold = 20.0;
+    let ControlStudies_Meta = Get_REL_ExperimentStudy_Metadata()
+                              | where TreatmentDisplayName has "Control"
+                              | extend Control_UniqueID=UniqueID
+                              | extend Control_Group = TreatmentDisplayName; 
+    let ControlStudies = Get_REL_ExperimentStudy_FailureCurve() 
+                        | where IsControlGroup==true
+                        | project Control_HitCount=HitCount,
+                                Control_MachineCount=MachineCount,
+                                Control_PctOfTotalHits=PctOfTotalHits,
+                                Control_PctOfTotalMachines=PctOfTotalMachines,
+                                Control_TotalMachineCount=TotalMachineCount,
+                                Control_TotalHitCount=TotalHitCount,
+                                Control_UniqueID=UniqueID,
+                                Control_FlightId=FlightId,
+                                ExperimentId,
+                                IsControlGroup,
+                                FailureHash,
+                                BugID,
+                                Vertical,
+                                EndDate;
+    let TreatmentStudies_Meta = Get_REL_ExperimentStudy_Metadata()
+                                | where TreatmentDisplayName has "Treatment"
+                                | extend Treatment_UniqueID = UniqueID
+                                | extend Treatment_Group = TreatmentDisplayName;
+    let TreatmentStudies = Get_REL_ExperimentStudy_FailureCurve() 
+                           | join kind=leftouter hint.strategy=shuffle (BugsWithFailureHashes|project FailureHash,ComponentClassification) on $left.FailureHash == $right.FailureHash
+                           | where IsControlGroup==false
+                           | project Treatment_HitCount=HitCount,
+                                    Treatment_MachineCount=MachineCount,
+                                    Treatment_PctOfTotalHits=PctOfTotalHits,
+                                    Treatment_PctOfTotalMachines=PctOfTotalMachines,
+                                    Treatment_TotalMachineCount=TotalMachineCount,
+                                    Treatment_TotalHitCount=TotalHitCount,
+                                    Treatment_UniqueID=UniqueID,
+                                    Treatment_FlightId=FlightId,
+                                    ExperimentId,
+                                    IsControlGroup,
+                                    FailureHash,
+                                    BugID,
+                                    Vertical,
+                                    EndDate,
+                                    ComponentClassification;
+    let ControlStudies_TotalMachineCount = ControlStudies
+                                           | summarize hint.strategy=shuffle hint.num_partitions=200 Control_TotalMachineCount = max(Control_TotalMachineCount) by ExperimentId, Vertical,Control_UniqueID;
+    let CompareExpStudies =
+    TreatmentStudies_Meta
+    | join kind=inner hint.strategy=shuffle  ControlStudies_Meta on $left.ExperimentId == $right.ExperimentId and $left.Vertical == $right.Vertical
+    | join kind=inner hint.strategy=shuffle  TreatmentStudies on $left.Treatment_UniqueID==$right.Treatment_UniqueID and $left.ExperimentId == $right.ExperimentId and $left.Vertical == $right.Vertical
+    | join kind=inner hint.strategy=shuffle  ControlStudies_TotalMachineCount on ExperimentId,Vertical,Control_UniqueID
+    | join kind=leftouter hint.strategy=shuffle hint.num_partitions=500 ControlStudies on $left.ExperimentId==$right.ExperimentId and $left.FailureHash==$right.FailureHash and $left.Vertical==$right.Vertical and $left.Control_UniqueID == $right.Control_UniqueID
+    | where isnotempty(FailureHash)
+    | extend Control_UniqueID = iff(isempty(Control_UniqueID),UniqueID1,Control_UniqueID)
+    | extend Control_FlightId = iff(isempty(Control_FlightId),FlightId1,Control_FlightId)
+    | project-away BugID1, IsControlGroup1, FailureHash1, IsControlGroup1, ExperimentId1, Vertical1
+    | extend Control_MachineCount = iff(isempty(Control_MachineCount),0.0,Control_MachineCount), Control_HitCount = iff(isempty(Control_HitCount),0.0,Control_HitCount)
+    | extend PctOfSpikeInTotalHits = iff(Control_PctOfTotalHits > 0,(Treatment_PctOfTotalHits*100.00/Control_PctOfTotalHits),-1.00)
+    | extend PctOfSpikeInTotalMachines =  iff(Control_PctOfTotalMachines > 0,(Treatment_PctOfTotalMachines*100.00/Control_PctOfTotalMachines),-1.00)
+    | extend bMinSpikePctHitsCriteria = iff(PctOfSpikeInTotalHits >= 200 and Treatment_HitCount >= MinHits and Treatment_PctOfTotalHits >= 0.01,true,false)
+    | extend bMinSpikePctMachinesCriteria = iff((PctOfSpikeInTotalMachines >= 300 and Treatment_HitCount >= MinDevices and Treatment_PctOfTotalMachines >= 0.01),true,false)
+    | extend bSpikeCriteria = iff(bMinSpikePctHitsCriteria==true and bMinSpikePctMachinesCriteria==true,true,false)
+    | extend bNewCriteria = iff(PctOfSpikeInTotalHits < 0 and PctOfSpikeInTotalMachines < 0 and Treatment_HitCount >= MinHits and Treatment_HitCount >= MinDevices,true,false)
+    | extend ChangeType =  iff(bNewCriteria,"New",
+                                 iff(bSpikeCriteria==true,"Spiked",
+                                     iff(PctOfSpikeInTotalMachines < 100,"TrendDown",
+                                            iff(isnull(Treatment_PctOfTotalHits),"Disappear","NoChange"))))
+    | extend ChangeTypeRank =  iff(ChangeType == "New",1,iff(ChangeType == "Spiked",2,iff(ChangeType=="NoChange",3,iff(ChangeType=="TrendDown",4,5))))
+    | extend SpikeScore = iff(PctOfSpikeInTotalMachines >= 400, 3, iff(PctOfSpikeInTotalMachines >= 200,2,iff(PctOfSpikeInTotalMachines >= 120,1,0))) 
+                                                                                + iff(PctOfSpikeInTotalHits >= 400, 3, iff(PctOfSpikeInTotalHits >= 200,2,iff(PctOfSpikeInTotalHits >= 120,1,0)));
+    let CompareChangeRanked =   
+                    CompareExpStudies
+                    | extend ChangeRelevenceScore = toint((iff((ChangeType=="Spiked" or ChangeType=="New" or ChangeType=="Disappear"),
+                                                        (SpikeScore
+                                                                + iff(Treatment_PctOfTotalHits >= 1,3,iff(Treatment_PctOfTotalHits >= 0.5,2,iff(Treatment_PctOfTotalHits >= 0.2,1,0)))
+                                                                + iff(Treatment_PctOfTotalMachines >= 1,3,iff(Treatment_PctOfTotalMachines >= 0.5,2,iff(Treatment_PctOfTotalMachines >= 0.2,1,0)))
+                                                                + iff(Treatment_PctOfTotalHits-Control_PctOfTotalHits >= 1,3,iff(Treatment_PctOfTotalHits-Control_PctOfTotalHits >= 0.5,2,iff(Treatment_PctOfTotalHits-Control_PctOfTotalHits >= 0.2,1,0)))
+                                                                + iff(Treatment_PctOfTotalMachines-Control_PctOfTotalMachines >= 1,3,iff(Treatment_PctOfTotalMachines-Control_PctOfTotalMachines >= 0.5,2,iff(Treatment_PctOfTotalMachines-Control_PctOfTotalMachines >= 0.2,1,0)))
+                                                            ),0)))
+                    | extend str_Experiment_Compare_Group = strcat(tostring(ExperimentId),".",Control_Group,".",Treatment_Group)                                                            
+                    | sort by str_Experiment_Compare_Group asc, ChangeRelevenceScore desc, Treatment_PctOfTotalMachines desc, Treatment_PctOfTotalHits desc 
+                    | extend ChangeRank = row_number(1, prev(str_Experiment_Compare_Group) != str_Experiment_Compare_Group)                             
+                    | sort by ChangeTypeRank asc, Treatment_PctOfTotalMachines desc, Treatment_PctOfTotalHits desc;
+    let ScorecardRegression =  Get_WExp_REL_Scorecard_Regression();
+    let ExperimentType = REL_WExp_Experiments
+                         | where TreatmentDisplayName contains "Treatment"
+                         | summarize IsCDBundleFeature = max(IsCDBundleFeature) by ExperimentId;
+    let CompareChangeRanked_enhanced =
+        CompareChangeRanked
+        | extend ChangeGroup = iff(ChangeType == "New" or ChangeType == "Spiked","Regression","Not-Regression")
+        | join kind=inner ExperimentType on $left.ExperimentId == $right.ExperimentId
+        | extend MinDevices_Promotion = round(iff(Treatment_TotalMachineCount >= MinTotalMachineCount_HighPop,param_MinDevices_Promotion,param_MinDevices_Promotion_LowPop))
+        | extend MinHits_Promotion = round(iff(Treatment_TotalMachineCount >= MinTotalMachineCount_HighPop,param_MinHits_Promotion,param_MinHits_Promotion_LowPop))
+        | extend MinDevices_Pct_Promotion = iff(ChangeType=="New",
+                                                           iff(Treatment_TotalMachineCount >= MinTotalMachineCount_HighPop,MinMachines_Pct_New,MinMachines_Pct_New_LowPop),
+                                                           iff(Treatment_TotalMachineCount >= MinTotalMachineCount_HighPop,MinMachines_Pct_Spiked,MinMachines_Pct_New_LowPop)
+                                               )
+        | extend MinHits_Pct_Promotion =  iff(ChangeType=="New",
+                                                           iff(Treatment_TotalMachineCount >= MinTotalMachineCount_HighPop,MinHits_Pct_New,MinHits_Pct_Spiked_LowPop),
+                                                           iff(Treatment_TotalMachineCount >= MinTotalMachineCount_HighPop,MinHits_Pct_Spiked,MinHits_Pct_Spiked_LowPop)
+                                               )
+        | extend bMeetsMinHitsMachinesCriteria = (Treatment_MachineCount >= MinDevices_Promotion 
+                                                        and Treatment_HitCount >= MinHits_Promotion 
+                                                       and Treatment_PctOfTotalHits >= MinHits_Pct_Promotion 
+                                                       and Treatment_PctOfTotalMachines >= MinDevices_Pct_Promotion)
+        | extend bMeetsMinHitsMachines_Override_Criteria = (Treatment_MachineCount >= MinMachines_Override_Promotion and Treatment_HitCount >= MinHits_Override_Promotion and ChangeType == 'New' and Treatment_PctOfTotalMachines >= (MinMachines_Pct_New/2.0) and Treatment_PctOfTotalHits >= (MinHits_Pct_New/2.0))
+        | join kind=leftouter ScorecardRegression on $left.ExperimentId == $right.ExperimentId_int
+        | extend IsPromotionEligible = iff(ChangeGroup == 'Regression' 
+                                                 and (bMeetsMinHitsMachinesCriteria==true or bMeetsMinHitsMachines_Override_Criteria==true)
+                                                 and ComponentClassification == 'MS Component',
+                                             true,false);
+    let CompareChangeWithStats =
+        CompareChangeRanked_enhanced
+        //-------------------------------- MACHINE COUNT TEST ------------------------------
+        | extend totalKMachine          = Control_MachineCount + Treatment_MachineCount,
+                 totalT                 = Control_TotalMachineCount*1.0 + Treatment_TotalMachineCount*1.0
+        | extend p0Machine              = totalKMachine / totalT
+        | extend rateDiffMachine        = Treatment_MachineCount/Treatment_TotalMachineCount - Control_MachineCount/Control_TotalMachineCount
+        | extend seMachine              = sqrt(p0Machine * (1.0/Treatment_TotalMachineCount + 1.0/Control_TotalMachineCount))
+        | extend poissonPGreaterMachine = 0.5 * (1.0 - erf((rateDiffMachine / seMachine) / sqrt(2.0)))
+            //-------------------------------- HITS  TEST  -------------------------------------
+        | extend totalKHits             = Control_HitCount + Treatment_HitCount
+        | extend p0Hits                 = totalKHits / totalT
+        | extend rateDiffHits           = Treatment_HitCount/Treatment_TotalMachineCount - Control_HitCount/Control_TotalMachineCount
+        | extend seHits                 = sqrt(p0Hits * (1.0/Treatment_TotalMachineCount + 1.0/Control_TotalMachineCount))
+        | extend poissonPGreaterHits    = 0.5 * (1.0 - erf((rateDiffHits / seHits) / sqrt(2.0)));
+    let AddBhMachine =
+        CompareChangeWithStats
+        | sort by str_Experiment_Compare_Group asc, poissonPGreaterMachine asc
+        | serialize
+        | extend pRankMachine = row_number(1, prev(str_Experiment_Compare_Group) != str_Experiment_Compare_Group)
+        | summarize hint.strategy=shuffle hint.num_partitions=500 totalTestsMachine = max(pRankMachine) by str_Experiment_Compare_Group
+        | join kind=inner (
+              CompareChangeWithStats
+              | sort by str_Experiment_Compare_Group asc, poissonPGreaterMachine asc
+              | serialize
+              | extend pRankMachine = row_number(1, prev(str_Experiment_Compare_Group) != str_Experiment_Compare_Group)
+          ) on str_Experiment_Compare_Group
+        | extend pBhMachine = min_of(1.0, poissonPGreaterMachine * totalTestsMachine / pRankMachine)
+        | project FailureHash, str_Experiment_Compare_Group, pBhMachine,pRankMachine;            
+    let AddBhHits =
+        CompareChangeWithStats
+        | sort by str_Experiment_Compare_Group asc, poissonPGreaterHits asc
+        | serialize
+        | extend pRankHits = row_number(1, prev(str_Experiment_Compare_Group) != str_Experiment_Compare_Group)
+        | summarize totalTestsHits = max(pRankHits) by str_Experiment_Compare_Group
+        | join kind=inner (
+              CompareChangeWithStats
+              | sort by str_Experiment_Compare_Group asc, poissonPGreaterHits asc
+              | serialize
+              | extend pRankHits = row_number(1, prev(str_Experiment_Compare_Group) != str_Experiment_Compare_Group)
+          ) on str_Experiment_Compare_Group
+        | extend pBhHits = min_of(1.0, poissonPGreaterHits * totalTestsHits / pRankHits)
+        | project FailureHash, str_Experiment_Compare_Group, pBhHits,pRankHits;
+    CompareChangeWithStats
+        | join kind=inner AddBhMachine on FailureHash, str_Experiment_Compare_Group
+        | join kind=inner AddBhHits    on FailureHash, str_Experiment_Compare_Group
+        | extend P_Value_Rank = round((pRankHits + pRankMachine)/2)
+        | extend IsPromotionEligible = iff(pBhHits <= pBhHits_Threshold and pBhMachine <= pBhMachines_Threshold, IsPromotionEligible,false)
+        | join kind=leftouter REL_WExp_Hits_Distribution_Scoped on FailureHash,ExperimentId
+        | extend IsPromotionEligible = iff(Pct_Hits_Above_Experiment_Build_Rev_AllUp >= Pct_Hits_Above_BuildAudience_Threshold 
+                                              or (Pct_Hits_Above_Experiment_Build_Rev_AllUp < 0 and Pct_Hits_Treatment_AllUp >= Pct_Of_TotalHits_Threshold), 
+                                                     IsPromotionEligible,false)
+        | project ExperimentId,
+                str_Experiment_Compare_Group,
+                Control_UniqueID=toguid(Control_UniqueID),
+                Control_Group,
+                Treatment_Group,
+                Treatment_UniqueID=toguid(Treatment_UniqueID),
+                EndDate,
+                Control_FlightId,
+                Treatment_FlightId,
+                FailureHash,
+                BugID,
+                Vertical,
+                ChangeGroup,
+                ChangeType,
+                ComponentClassification,
+                NumMetricsRegressed,
+                IsRELScorecardMetricsRegressed,
+                IsPromotionEligible,
+                MinDevices_Promotion,
+                MinHits_Promotion,
+                ChangeTypeRank,
+                SpikeScore,
+                ChangeRelevenceScore,
+                ChangeRank,
+                Control_HitCount,
+                Treatment_HitCount,
+                Control_MachineCount,
+                Treatment_MachineCount,
+                Control_PctOfTotalHits,
+                Treatment_PctOfTotalHits,
+                Control_PctOfTotalMachines,
+                Treatment_PctOfTotalMachines,
+                Control_TotalMachineCount,
+                Treatment_TotalMachineCount,
+                Control_TotalHitCount,
+                Treatment_TotalHitCount,
+                PctOfSpikeInTotalHits,
+                PctOfSpikeInTotalMachines,
+                Pct_Hits_Treatment_AllUp,
+                pBhHits,
+                pBhMachine,
+                P_Value_Rank,
+                pRankMachine,
+                pRankHits,
+                Hits_Above_BuildNumberAudience,
+                Hits_Below_BuildNumberAudience,
+                Hits_Below_BuildNumberAudience_AllUp,
+                Pct_Hits_Above_Experiment_Build_Rev_AllUp,
+                Pct_Hits_Above_Experiment_Build_Rev_Scoped,
+                BuildNumberAudience;
+    }
+
+
+
+.create-or-alter function with (folder = "Population") Get_REL_WExp_Hits_Distribution() {    
+    let MinHits = 3;
+    let MinDevices =3;
+    let REL_WExp_BuildRev_Hits_Stats = RIOD_Failure_PerOSVersion_Stats
+                                    | summarize hint.strategy=shuffle hint.num_partitions=500 
+                                                HitCount = sum(HitCount),
+                                                FailingDevices = sum(FailingDevices)
+                                    by FailureHash, Build, Revision=BuildRevision;
+    let ExperimentMetaInfo = (REL_WExp_Experiments | where TreatmentDisplayName has "Treatment" | distinct ExperimentId, FlightId, BranchAudience, BuildNumberAudience,CustomMinBuild);
+    let TreatmentStudies_Meta = Get_REL_ExperimentStudy_Metadata()
+                                | where TreatmentDisplayName has "Treatment"
+                                | extend Treatment_UniqueID = UniqueID
+                                | extend Treatment_Group = TreatmentDisplayName
+                                | extend Treatment_FlightId = FlightId;
+    let TreatmentStudies = Get_REL_ExperimentStudy_FailureCurve() 
+                           | join kind=inner hint.strategy=shuffle (TreatmentStudies_Meta|project ExperimentId,Treatment_Group,Treatment_FlightId) on $left.ExperimentId == $right.ExperimentId
+                           | join kind=leftouter hint.strategy=shuffle (BugsWithFailureHashes|project FailureHash,ComponentClassification) on $left.FailureHash == $right.FailureHash
+                           | where HitCount >= MinHits and MachineCount >= MinDevices
+                           | summarize Treatment_HitCount = max(HitCount) by BugID,FailureHash,ExperimentId,Treatment_Group,Treatment_FlightId;
+    ExperimentMetaInfo
+    | join hint.strategy=shuffle hint.num_partitions=500  kind=inner TreatmentStudies on $left.ExperimentId == $right.ExperimentId and $left.FlightId == $right.Treatment_FlightId
+    | join hint.strategy=shuffle hint.num_partitions=500 kind=inner REL_WExp_BuildRev_Hits_Stats on $left.FailureHash == $right.FailureHash
+    | extend BuildNumberAudience_Build = toint(split(BuildNumberAudience,'.')[0])
+    | extend BuildNumberAudience_Revision = toint(split(BuildNumberAudience,'.')[1])
+    | extend BuildNumberAudience_Build = iff(isempty(BuildNumberAudience_Build),0,BuildNumberAudience_Build)
+    | extend BuildNumberAudience_Revision = iff(isempty(BuildNumberAudience_Revision),0,BuildNumberAudience_Revision)
+    | extend bExpBuildCheckSatisfied = iff(Build >= BuildNumberAudience_Build,true,false)
+    | extend bExpRevisionCheckSatisfied = iff(Build > BuildNumberAudience_Build or (Revision >= BuildNumberAudience_Revision and Build == BuildNumberAudience_Build),true,false)
+    | extend bUnknownBuildAudience = iff(BuildNumberAudience_Build == 0,true,false)
+    | extend b_Hits_Unknown_BuildNumberAudience = iff(bUnknownBuildAudience==true,HitCount,0.0),
+             b_Hits_Above_BuildNumberAudience = iff(bExpRevisionCheckSatisfied==true and bUnknownBuildAudience == false,HitCount,0.0),
+             b_Hits_Below_BuildNumberAudience = iff(bExpRevisionCheckSatisfied==false and bUnknownBuildAudience == false and bExpBuildCheckSatisfied==true,HitCount,0.0),
+             b_Hits_Below_BuildNumberAudience_AllUp = iff(bExpRevisionCheckSatisfied==false and bUnknownBuildAudience == false,HitCount,0.0)
+    | summarize hint.strategy=shuffle hint.num_partitions=500
+                Hits_Unknown_BuildNumberAudience = sum(b_Hits_Unknown_BuildNumberAudience),
+                Hits_Above_BuildNumberAudience = sum(b_Hits_Above_BuildNumberAudience),
+                Hits_Below_BuildNumberAudience = sum(b_Hits_Below_BuildNumberAudience),
+                Hits_Below_BuildNumberAudience_AllUp = sum(b_Hits_Below_BuildNumberAudience_AllUp),
+                Hits_Treatment = max(Treatment_HitCount),
+                BuildNumberAudience = take_any(BuildNumberAudience),
+                BuildNumberAudience_Build = take_any(BuildNumberAudience_Build),
+                BuildNumberAudience_Revision = take_any(BuildNumberAudience_Revision)
+            by ExperimentId, FailureHash,BugID, Treatment_Group,Treatment_FlightId
+    | extend Pct_Hits_Above_Experiment_Build_Rev_Scoped = iff(Hits_Unknown_BuildNumberAudience == 0,(Hits_Above_BuildNumberAudience * 100.00/(Hits_Above_BuildNumberAudience+Hits_Below_BuildNumberAudience+Hits_Unknown_BuildNumberAudience)),-1.0)
+    | extend Pct_Hits_Above_Experiment_Build_Rev_AllUp = iff(Hits_Unknown_BuildNumberAudience == 0,(Hits_Above_BuildNumberAudience * 100.00/(Hits_Above_BuildNumberAudience+Hits_Below_BuildNumberAudience_AllUp+Hits_Unknown_BuildNumberAudience)),-1.0)
+    | extend Pct_Hits_Treatment_AllUp = Hits_Treatment * 100.00/(Hits_Above_BuildNumberAudience+Hits_Below_BuildNumberAudience_AllUp+Hits_Unknown_BuildNumberAudience)
+    | extend b_Meets_Hits_Regression_Criteria = iff((Pct_Hits_Above_Experiment_Build_Rev_Scoped >= 66.67) and BuildNumberAudience_Build > 0,true,false)
+    | extend b_Meets_Hits_Regression_Criteria_AllUp = iff((Pct_Hits_Above_Experiment_Build_Rev_AllUp >= 66.67) and BuildNumberAudience_Build > 0,true,false)
+    | project ExperimentId,Treatment_Group,Treatment_FlightId,BugID,FailureHash, BuildNumberAudience,BuildNumberAudience_Build,BuildNumberAudience_Revision, 
+               Hits_Treatment,Hits_Above_BuildNumberAudience, Hits_Below_BuildNumberAudience, Hits_Below_BuildNumberAudience_AllUp,Hits_Unknown_BuildNumberAudience,Pct_Hits_Above_Experiment_Build_Rev_Scoped, 
+               Pct_Hits_Above_Experiment_Build_Rev_AllUp,Pct_Hits_Treatment_AllUp,
+               b_Meets_Hits_Regression_Criteria,b_Meets_Hits_Regression_Criteria_AllUp;
+}
+
+
+
+.create-or-alter function with (docstring = "Returns rich reliability curve",folder = "REL_WExp_Work") Get_REL_ExperimentStudy_FailureCurve() {
+    let Metadata = 
+                    UnifiedDataPlatform_Metadata
+                    | where StreamName == 'Metadata.Windows.Experiments' and Vertical in ('appcrash','oscrash','apphang')
+                    | extend str_ExperimentID = tostring(split(Name,' | ')[1])
+                    | extend str_ExperimentGroup = tostring(split(Name,' | ')[2])
+                    | extend ExperimentID = toint(split(str_ExperimentID,'CW_')[1])
+                    | join kind=leftouter REL_WExp_Experiments on $left.ExperimentID == $right.ExperimentId
+                    | extend ExperimentName = Name1, ExpStartDate = StartDate1, ExpEndDate = EndDate1
+                    | project-away Name1, SQLizerPartitionIndex, StartDate1, EndDate1, StartDate1
+                    | where (str_ExperimentGroup contains TreatmentDisplayName) or isempty(TreatmentDisplayName);
+    let FailureCurve =
+        Metadata
+        | project UniqueID, Vertical,ExperimentStudyName = Name,ExperimentName, ExperimentID, FlightId,ExpFlightType=TreatmentDisplayName,str_ExperimentGroup
+        | extend ExpFlightType = iff(isempty(ExpFlightType),str_ExperimentGroup,ExpFlightType)
+        | join kind=inner UnifiedDataPlatform_FailureCurve on $left.UniqueID == $right.UniqueID
+        | project-away UniqueID1, SQLizerPartitionIndex
+        | extend HitCount = iff(isempty(HitCount),tolong(0),tolong(round(HitCount)))
+        | extend MachineCount = iff(isempty(MachineCount),tolong(0),tolong(round(MachineCount)))
+        | where HitCount >= 2 and MachineCount >= 2
+        | extend HitCount = round(HitCount), MachineCount = round(MachineCount)
+        | project UniqueID,Rank,ExperimentName, ExperimentId=ExperimentID, FlightId,ExpFlightType,HitCount, Module, MachineCount,FailureHash, FailureName, BugID,AssignedTo, TargetBugStore, BugState, BugImpact, BugTitle, BugAreaPath;
+    let FailureCurveStats =
+        Metadata
+        | summarize TotalHitCount = max(HitCount),
+                    TotalMachineCount = max(MachineCount)
+           by UniqueID,Vertical,EndDate;
+    FailureCurve
+    | join kind=inner FailureCurveStats on $left.UniqueID == $right.UniqueID
+    | extend PctOfTotalHits = round((HitCount * 100.00/TotalHitCount),3),
+             PctOfTotalMachines = round((MachineCount * 100.00/TotalMachineCount),3)
+    | where isnotempty(FailureHash) and isnotempty(HitCount) and isnotempty(MachineCount) and isnotempty(PctOfTotalHits) and isnotempty(PctOfTotalMachines)
+    | extend IsControlGroup = iff(ExpFlightType == 'Control',true,false)
+    | project UniqueID,EndDate,Vertical,ExperimentId,FlightId,IsControlGroup,FailureHash,BugID,HitCount,MachineCount,TotalHitCount, TotalMachineCount, PctOfTotalHits,PctOfTotalMachines;
+}
+
+
+
+.create-or-alter function with (folder = "Population") Get_REL_WExp_Experiment_Regressions() {
+        let defEndBuild = 30000;
+        REL_WExp_Experiment_Compare 
+        | extend Control_PctOfTotalMachines = iff(isempty(Control_PctOfTotalMachines),0.0,Control_PctOfTotalMachines)
+        | extend IsHighImpact = (ComponentClassification == 'MS Component' 
+                                and ChangeGroup == 'Regression' 
+                                and (Treatment_PctOfTotalMachines-Control_PctOfTotalMachines >= 0.003)
+                                and (Treatment_PctOfTotalHits-Control_PctOfTotalHits >= 0.003)
+                                and (Treatment_MachineCount - Control_MachineCount) >= 5)
+        | where IsHighImpact == true or IsPromotionEligible == true
+        | join kind=inner REL_WExp_Experiments on $left.ExperimentId == $right.ExperimentId
+        | where StartDate >= ago(60d)
+        | extend BuildNumber = iff(isempty(BuildNumberAudience),toint(0),toint(split(BuildNumberAudience,'.')[0]))
+        | summarize MaxHitCount = max(Treatment_HitCount),
+                MaxMachineCount=max(Treatment_MachineCount),
+                ExperimentId_Set = tostring(make_set(ExperimentId)),
+                Treatment_FligtId_Set = tostring(make_set(Treatment_FlightId)),
+                Control_FlightId_Set = tostring(make_set(Control_FlightId)),
+                ChangeType_Set = tostring(make_set(ChangeType)),
+                ExperimentCounts = dcount(ExperimentId,3),
+                IsPromotionEligible = max(IsPromotionEligible),
+                startBuild = toint(min(BuildNumber)),
+                endBuild = toint(max(BuildNumber)),
+                BuildNumberAudience = arg_min(BuildNumber,BuildNumberAudience)
+        by FailureHash
+        | project FailureHash, startBuild, endBuild, ExperimentId_Set, Treatment_FligtId_Set, Control_FlightId_Set, 
+                  ChangeType_Set, ExperimentCounts, IsPromotionEligible, MaxHitCount, MaxMachineCount, BuildNumberAudience=BuildNumberAudience1
+        | extend startBuild = iff(startBuild == 0,26100,startBuild),
+                 endBuild = iff(endBuild == 0,defEndBuild,iff(endBuild >=26100 and endBuild <= 26200,endBuild,defEndBuild))
+        ;
+}
+
+
+
+.create-or-alter function with (folder = "Population") Get_REL_WExp_Failures_Daily_Cab_Stats() {
+      let dt_StartDate = ago(28d);
+      let dt_EndDate = now();
+      let str_Exp_Regressions = tostring(toscalar(REL_WExp_Experiment_Regressions|summarize make_set(strcat(FailureHash,tostring(startBuild)))));
+      let FailureEvents = 
+            ((Wnrt_PlatformHealth_KM_CabHits
+            | where str_Exp_Regressions contains FailureInfo_FailureHash
+            | where ClientIngestTime >= dt_StartDate and ClientIngestTime <= dt_EndDate and isnotempty(FailureInfo_FailureHash) and OSVersionBuild >= 22631
+            | extend Vertical = iff(WatsonEventName == 'bluescreen','oscrash','livekerneldump')
+            | where Vertical in ('oscrash'))
+            | union (Wnrt_PlatformHealth_UM_CabHits
+                        | where str_Exp_Regressions contains FailureInfo_FailureHash
+                        | where ClientIngestTime >= dt_StartDate  and ClientIngestTime <= dt_EndDate and isnotempty(FailureInfo_FailureHash) and OSVersionBuild >= 22631
+                        | where WatsonEventName !in ('radar_leak_64','crashpad2','crashpad','windowsblackscreendiagnosticsv1')
+                        | extend Vertical = iff(WatsonEventName contains 'hang', 'apphang', 'appcrash')))
+            | project deviceId=DeviceId,
+                     watsonCabId=WatsonCabId,
+                     FailureHash = FailureInfo_FailureHash,
+                     OsVersion=strcat(OSVersion,'.',OSVersionRevision),
+                     Build=OSVersionBuild,
+                     Revision=OSVersionRevision,
+                     Day=bin(ClientIngestTime,1d),
+                     ModuleName = FailureInfo_ModuleName;
+    let FailureCabTotals = 
+            FailureEvents
+            | summarize hint.strategy=shuffle hint.num_partitions=200 
+                    Devices_Total = dcount(deviceId,3), 
+                    Cabs_Total = dcount(watsonCabId,3)
+            by FailureHash,Day,Build,Revision;
+   FailureCabTotals
+   | project FailureHash, Day,Build, Revision, Cabs_Total, Devices_Total;         
+}
+
+
+
+
+.create-or-alter function with (folder = "Population") Get_REL_WExp_Cabs_Distribution() {
+    let ExperimentFailureCurve = Get_REL_ExperimentStudy_FailureCurve();
+    let ExperimentInfo = ExperimentFailureCurve | summarize Rows = count() by ExperimentId, FlightId; 
+    let str_ExperimentIDs = toscalar(ExperimentInfo | summarize make_set(FlightId));
+    let ExperimentFailures = ExperimentFailureCurve 
+                             | where IsControlGroup == false
+                             | summarize hint.strategy=shuffle hint.num_partitions=500 
+                                       Rows = count() by FailureHash,ExperimentId,FlightId;       
+    let REL_WExp_BuildRev_Cabs_Stats = REL_WExp_Failures_Daily_Cab_Stats
+                                    | summarize hint.strategy=shuffle hint.num_partitions=500 
+                                                Cabs_Total = sum(Cabs_Total),
+                                                Devices_Total = sum(Devices_Total)
+                                    by FailureHash, Build, Revision;
+    let ExperimentMetaInfo = (REL_WExp_Experiments | where TreatmentDisplayName has "Treatment" | distinct ExperimentId, FlightId, BranchAudience, BuildNumberAudience,CustomMinBuild);
+    ExperimentMetaInfo
+    | join hint.strategy=shuffle hint.num_partitions=500  kind=inner ExperimentFailures on $left.ExperimentId == $right.ExperimentId
+    | join hint.strategy=shuffle hint.num_partitions=500 kind=inner REL_WExp_BuildRev_Cabs_Stats on $left.FailureHash == $right.FailureHash
+    | extend BuildNumberAudience_Build = toint(split(BuildNumberAudience,'.')[0])
+    | extend BuildNumberAudience_Revision = toint(split(BuildNumberAudience,'.')[1])
+    | extend BuildNumberAudience_Build = iff(isempty(BuildNumberAudience_Build),0,BuildNumberAudience_Build)
+    | extend BuildNumberAudience_Revision = iff(isempty(BuildNumberAudience_Revision),0,BuildNumberAudience_Revision)
+    | extend bExpBuildCheckSatisfied = iff(Build >= BuildNumberAudience_Build or (BranchAudience startswith "ge_" and Build >= 26100 and Build <= 26300) or (BranchAudience startswith "ni_" and Build >= 22621 and Build <= 22635),true,false)
+    | extend bExpRevisionCheckSatisfied = iff(Build > BuildNumberAudience_Build or (Revision >= BuildNumberAudience_Revision and (bExpBuildCheckSatisfied==true)),true,false)
+    | extend bUnknownBuildAudience = iff(BuildNumberAudience_Build == 0,true,false)
+    | extend bCabsUnknown_BuildNumberAudience = iff(bUnknownBuildAudience==true,Cabs_Total,0),
+             bCabsAbove_BuildNumberAudience = iff(bExpRevisionCheckSatisfied==true and bUnknownBuildAudience == false,Cabs_Total,0),
+             bCabsBelow_BuildNumberAudience = iff(bExpRevisionCheckSatisfied==false and bUnknownBuildAudience == false,Cabs_Total,0)
+    | summarize hint.strategy=shuffle hint.num_partitions=500
+                bCabsUnknown_BuildNumberAudience = sum(bCabsUnknown_BuildNumberAudience),
+                bCabsAbove_BuildNumberAudience = sum(bCabsAbove_BuildNumberAudience),
+                bCabsBelow_BuildNumberAudience = sum(bCabsBelow_BuildNumberAudience),
+                BuildNumberAudience = take_any(BuildNumberAudience),
+                BuildNumberAudience_Build = take_any(BuildNumberAudience_Build),
+                BuildNumberAudience_Revision = take_any(BuildNumberAudience_Revision)
+            by ExperimentId, FailureHash, FlightId
+    | extend bIsRegression = bCabsAbove_BuildNumberAudience > (2 * bCabsBelow_BuildNumberAudience) and BuildNumberAudience_Build > 0
+    | project ExperimentId, FailureHash, FlightId, BuildNumberAudience,BuildNumberAudience_Build,BuildNumberAudience_Revision, bCabsAbove_BuildNumberAudience, bCabsBelow_BuildNumberAudience, bCabsUnknown_BuildNumberAudience, bIsRegression;
+}
+
+
+
+.create-or-alter function with (folder = "SpikeAsService") Get_REL_WExp_Promotion_Qualified_Regressions() {
+   let RegressedExperimentIds =
+        Get_WExp_REL_Scorecard_Regression_Summary()
+        | where bScorecard_Regression==true;
+   let ADOReleaseMap = 
+        RelBranchSummary
+        | summarize count() by TargetOS, OSProduct, OSProductPrefix, ADORelease
+        | extend TargetOSCore = replace_string(replace_string(TargetOS,"W11","Win11"),"W10","Win10");
+   let REL_WExp_Experiment_ReleaseInfo =
+        REL_WExp_Experiments
+        | where StartDate >= ago(60d)
+        | project ExperimentId,StartDate,Name,IsCDBundleFeature,TreatmentDisplayName,OSCore
+        | join kind=inner ADOReleaseMap on $left.OSCore == $right.TargetOSCore;
+   let REL_WExp_Regressions =
+        REL_WExp_Experiment_Compare
+        | join kind=inner REL_WExp_Experiment_ReleaseInfo on $left.ExperimentId == $right.ExperimentId and $left.Treatment_Group == $right.TreatmentDisplayName
+        | extend Treatment_FlightId_str = replace_regex(Treatment_FlightId,":","_")
+        | join kind=leftouter (RegressedExperimentIds| where bScorecard_Regression==true) on $left.Treatment_FlightId_str == $right.TreatmentFlightId
+        | where (IsPromotionEligible == true and (bScorecard_Regression == true or IsCDBundleFeature==true));
+   REL_WExp_Regressions;
+}
+
+
+.create-or-alter function with (folder = "WExp_REL") Get_REL_WExp_Experiment_Compare_Anomalies() {
+    let Regressed_Failures = 
+        REL_WExp_Experiment_Regressions
+        | extend startBuild=toint(startBuild),
+                 endBuild=toint(endBuild);
+    let Regressed_Anomalies =
+        detectSpikesForFailures(Regressed_Failures,trainFrom=60d,predictFrom=14d)
+        | extend AnomalyDatapoints = anomalies, AnomalyRatio=anomalyRatio
+        | extend IsFailureAnomaly= iff(anomalies >=1,true,false)
+        | project FailureHash,IsFailureAnomaly,AnomalyDatapoints,AnomalyRatio,PredictDatapoints,firstSpike,lastSpike;
+    REL_WExp_Experiment_Compare
+    | join kind=leftouter hint.strategy=shuffle hint.num_partitions=400 Regressed_Anomalies on $left.FailureHash==$right.FailureHash
+    | project-away FailureHash1;
+}
+
+
+
+.create-or-alter function with (folder = "Population") Get_REL_WExp_ExpId_Cab_Info(dt_StartDate:datetime,dt_EndDate:datetime) {
+      let ExperimentStudyMetadata = Get_REL_ExperimentStudy_Metadata();
+      let Experiment_Regressions = REL_WExp_Experiment_Regressions;
+      let RegressedExpIdView = 
+                        Experiment_Regressions
+                        | mv-expand ExperimentId = todynamic(ExperimentId_Set)
+                        | extend ExperimentId = tostring(ExperimentId)
+                        | summarize RegressedFailures = dcount(FailureHash,3) by ExperimentId;
+      let str_Regressed_ExpIDs = toscalar(RegressedExpIdView | summarize make_set(ExperimentId));
+      let ExperimentInfo = ExperimentStudyMetadata
+                           | where str_Regressed_ExpIDs contains tostring(ExperimentId)
+                           | summarize Rows = count() by ExperimentId, ExpFlightType=TreatmentDisplayName, FlightId; 
+      let str_Exp_FlightIDs = toscalar(ExperimentInfo|summarize make_set(FlightId));
+      let str_ExperimentFailures = toscalar(Experiment_Regressions|summarize make_set(FailureHash)); 
+      let FailureEvents = 
+            ((WatsonSnapshot_KernelMode
+            | where (str_ExperimentFailures contains FailureInfo_FailureHash) and clientIngestTime >= dt_StartDate and clientIngestTime <= dt_EndDate and isnotempty(FailureInfo_FailureHash) and osVersionBuild >= 26100
+            | extend Vertical = iff(watsonEventName == 'bluescreen','oscrash','livekerneldump')
+            | where Vertical in ('oscrash'))
+            | union (WatsonSnapshot_UserMode
+                        | where (str_ExperimentFailures contains FailureInfo_FailureHash) and clientIngestTime >= dt_StartDate and clientIngestTime <= dt_EndDate and isnotempty(FailureInfo_FailureHash) and osVersionBuild >= 26100
+                        | where watsonEventName !in ('radar_leak_64','crashpad2','crashpad','windowsblackscreendiagnosticsv1')
+                        | extend Vertical = iff(watsonEventName contains 'hang', 'apphang', 'appcrash')))
+            | extend FailureHash = FailureInfo_FailureHash,
+                     OsVersion=strcat(osVersion,'.',osVersionCsdBuild),
+                     Build=osVersionBuild,
+                     Revision=osVersionCsdBuild,
+                     Day=bin(clientIngestTime,1d)
+            | project DeviceId=deviceId,Vertical,FailureHash,CabInfo_KeyValues,Day,OsVersion,Build,Revision,watsonBucket, watsonCabId, clientIngestTime;
+    let ExperimentCabInfo =
+                  FailureEvents
+                  | mv-expand KeyValues = CabInfo_KeyValues
+                  | where CabInfo_KeyValues contains "WER.ExperimentID" 
+                  | mv-expand ExpFlightIDs = split(KeyValues["WER.ExperimentID"], ',')
+                  | where isnotempty(ExpFlightIDs)
+                  | extend ExpFlightID = tostring(ExpFlightIDs)
+                  | extend FailureHash = FailureHash
+                  | where str_Exp_FlightIDs contains ExpFlightID
+                  | project DeviceId,Vertical,FailureHash,ExpFlightID,Day,OsVersion,Build,Revision,watsonBucket, watsonCabId, clientIngestTime;
+    let ExperimentCabInfo_Extended =
+                   ExperimentInfo
+                  | join kind=inner hint.strategy=broadcast hint.num_partitions=300 ExperimentCabInfo on $left.FlightId == $right.ExpFlightID
+                  | project DeviceId,Vertical,FailureHash,Day,ExperimentId,ExpFlightType,ExpFlightID,OsVersion,Build,Revision,watsonBucket, watsonCabId, clientIngestTime
+                  | extend ExpFailureKey = strcat('{',ExperimentId,'}','{',FailureHash,'}');
+      ExperimentCabInfo_Extended;
+}
+
+
+
+.create-or-alter function with (docstring = "Get Cabs for Experiment Regressions",folder = "REL_WExp_Work") Get_REL_WExp_ExpId_Cab_Info_Scoped() {
+    REL_WExp_ExpId_Cab_Info
+    | project DeviceId, FailureHash, Day, Build,Revision,FlightId=ExpFlightID,watsonCabId, clientIngestTime, ExperimentId
+    | extend FlightFailure = strcat(FailureHash,FlightId)    
+    | sort by FlightFailure,clientIngestTime desc    
+    | extend Rank=row_number(1, prev(FlightFailure) != FlightFailure)
+    | project-away FlightFailure
+    | where Rank <= 10;
+}
+
+
+
+.create-or-alter function with (folder = "SpikeAsService") Get_REL_WExp_ExpId_Daily_Cab_Stats() {
+    let Daily_Cab_Stats = REL_WExp_Failures_Daily_Cab_Stats
+                          | summarize hint.num_partitions=500 hint.strategy=shuffle 
+                             Cabs_Total = sum(Cabs_Total), Devices_Total = sum(Devices_Total) by FailureHash, Day;
+    REL_WExp_ExpId_Cab_Info
+    | join hint.num_partitions=500 hint.strategy=shuffle kind=inner Daily_Cab_Stats on $left.FailureHash == $right.FailureHash and $left.Day == $right.Day
+    | summarize Devices = dcount(DeviceId,3),
+                Cabs = dcount(watsonCabId,3),
+                Devices_Total = max(Devices_Total),
+                Cabs_Total = max(Cabs_Total),
+                MinBuild = min(Build),
+                MaxBuild = max(Build),
+                OsVersion_Set = make_set(OsVersion),
+                Vertical = take_any(Vertical)
+       by ExpFlightType,ExperimentId, ExpFlightID,Day,FailureHash
+    | extend ExpFailureKey = strcat('{',ExperimentId,'}','{',FailureHash,'}')
+    | summarize hint.strategy=shuffle hint.num_partitions=500 
+                            Devices_Control = sumif(Devices,ExpFlightType == 'Control'), 
+                            Cabs_Control = sumif(Cabs,ExpFlightType == 'Control'), 
+                            Devices_Treatment = sumif(Devices,ExpFlightType == 'Treatment'),
+                            Cabs_Treatment = sumif(Cabs,ExpFlightType == 'Treatment'), 
+                            Devices_Total = max(Devices_Total),
+                            Cabs_Total = max(Cabs_Total), 
+                            MinBuild = min(MinBuild),
+                            MaxBuild = max(MaxBuild),
+                            OsVersion_Set = make_set(OsVersion_Set),
+                            Vertical = take_any(Vertical)
+                    by FailureHash,ExperimentId,ExpFlightType,ExpFlightID,Day,ExpFailureKey
+                | extend Devices_Outside = Devices_Total - Devices_Treatment - Devices_Control
+                | extend Cabs_Outside = Cabs_Total - Cabs_Treatment - Cabs_Control
+                | extend OsVersion_Set = tostring(OsVersion_Set); 
+}
+
+
+
+.create-or-alter function with (folder = "SpikeAsService") GetNrtBugPromotionColumns_WExp_REL_Regressions() {  
+  let RegressedExperimentIds =
+        Get_WExp_REL_Scorecard_Regression_Summary()
+        | where bScorecard_Regression==true;
+   let ADOReleaseMap = 
+        RelBranchSummary
+        | summarize count() by TargetOS, OSProduct, OSProductPrefix, ADORelease
+        | extend TargetOSCore = replace_string(replace_string(TargetOS,"W11","Win11"),"W10","Win10");
+   let REL_WExp_Experiment_ReleaseInfo =
+        REL_WExp_Experiments
+        | where StartDate >= ago(30d)
+        | project ExperimentId,StartDate,Name,ExperimentName=Name,IsCDBundleFeature,TreatmentDisplayName,OSCore
+        | join kind=inner ADOReleaseMap on $left.OSCore == $right.TargetOSCore;
+   let REL_WExp_Regressions =
+        REL_WExp_Experiment_Compare
+        | join kind=inner REL_WExp_Experiment_ReleaseInfo on $left.ExperimentId == $right.ExperimentId and $left.Treatment_Group == $right.TreatmentDisplayName
+        | extend Treatment_FlightId_str = replace_regex(Treatment_FlightId,":","_")
+        | join kind=leftouter (RegressedExperimentIds| where bScorecard_Regression==true) on $left.Treatment_FlightId_str == $right.TreatmentFlightId
+        | where (IsPromotionEligible == true and (bScorecard_Regression == true or IsCDBundleFeature==true))
+        | extend Treatment_PctOfTotalHits = iff(isempty(Treatment_PctOfTotalHits),0.0,Treatment_PctOfTotalHits)
+        | extend Treatment_PctOfTotalMachines = iff(isempty(Treatment_PctOfTotalMachines),0.0,Treatment_PctOfTotalMachines)
+        | extend Control_PctOfTotalHits = iff(isempty(Control_PctOfTotalHits),0.0,Control_PctOfTotalHits)
+        | extend Control_PctOfTotalMachines = iff(isempty(Control_PctOfTotalMachines),0.0,Control_PctOfTotalMachines)
+        | sort by BugID,ExperimentId,Treatment_MachineCount desc , Treatment_HitCount desc,Treatment_PctOfTotalMachines desc 
+        | extend Rank = row_number(1,BugID != prev(BugID))
+        | summarize Treatment_HitCount = sum(Treatment_HitCount),
+                    Treatment_MachineCount = sum(Treatment_MachineCount),
+                    Treatment_TotalMachineCount = max(Treatment_TotalMachineCount),
+                    Treatment_TotalHitCount = max(Treatment_TotalHitCount),
+                    Control_HitCount = sum(Control_HitCount),
+                    Control_MachineCount = sum(Control_MachineCount),
+                    Control_TotalMachineCount = max(Control_TotalMachineCount),
+                    Control_TotalHitCount = max(Control_TotalHitCount),
+                    Treatment_PctOfTotalHits = sum(Treatment_PctOfTotalHits),
+                    Treatment_PctOfTotalMachines = sum(Treatment_PctOfTotalMachines),
+                    PctOfSpikeInTotalHits = sum(PctOfSpikeInTotalHits),
+                    PctOfSpikeInTotalMachines = sum(PctOfSpikeInTotalMachines),
+                    FailureHash = max(iff(Rank==1,FailureHash,'')),
+                    FailureHash_set = tostring(make_set(FailureHash)),
+                    arg_min(Rank,ChangeType,ChangeGroup,ADORelease,Vertical,IsPromotionEligible,
+                                 IsCDBundleFeature,IsRELScorecardMetricsRegressed,OSCore,
+                                 ComponentClassification,MinDevices_Promotion,MinHits_Promotion,ExperimentId,ExperimentName,TargetOS,TargetOSCore)
+             by BugID, ExperimentId
+        | sort by BugID, Treatment_MachineCount desc , Treatment_HitCount desc,Treatment_PctOfTotalMachines desc 
+        | extend Rank = row_number(1,BugID != prev(BugID))
+        | where Rank ==1
+        | extend Treatment_PctOfTotalHits = round(Treatment_HitCount * 100.00/Treatment_TotalHitCount,5),
+                 Treatment_PctOfTotalMachines = round(Treatment_MachineCount * 100.00/Treatment_TotalMachineCount,5),
+                 Control_PctOfTotalHits = round(Control_HitCount * 100.00/Control_TotalHitCount,5),
+                 Control_PctOfTotalMachines = round(Control_MachineCount * 100.00/Control_TotalMachineCount,5)
+        | extend PctOfSpikeInTotalHits = round(Treatment_PctOfTotalHits/Treatment_PctOfTotalHits,5),
+                 PctOfSpikeInTotalMachines = round(Treatment_PctOfTotalMachines/Treatment_PctOfTotalMachines,5);
+  let REL_WExp_Regressions_FailureHashes = toscalar(REL_WExp_Regressions | summarize FailureHash_set = tostring(make_set(FailureHash)));
+  let WExp_REL_ExperimentImpact_ByBug = Get_WExp_REL_ExperimentImpact_ByBug(REL_WExp_Regressions);
+  let ValidADOReleases = toscalar(RelBranchSummary | distinct ADORelease | summarize make_list(ADORelease));
+  let VsoIterationTrimmed =
+                     VSOIteration
+                    | where TargetBugStore == "OS"
+                    | extend CurrentDate = now()
+                    | where CurrentDate < EndDate and CurrentDate > StartDate
+                    | extend IterationPathFormed = strcat(TargetBugStore,"\\",(getyear(now())%100),iff(getmonth(now())<10,strcat("0",getmonth(now())),tostring(getmonth(now()))))
+                    | order by strlen(Path) asc 
+                    | take 1;
+  let BugsWithFailureHashes_combined = 
+            ((BugsWithFailureHashesDupeChasingNRT
+            | where REL_WExp_Regressions_FailureHashes contains FailureHash
+            | extend BugRank = 1)
+            | union (
+                BugsWithFailureHashes
+                | where REL_WExp_Regressions_FailureHashes contains FailureHash))
+             | extend BugId = iff(isempty(BugId),Id,BugId)
+             | summarize Title = max(Title),
+                              ProductFamily = max(ProductFamily),
+                              Product = max(Product),
+                              Substatus = max(iff(isempty(Substatus),Substate,Substatus)),
+                              FailureHash = max(FailureHash),
+                              ChangedDate = max(ChangedDate),
+                              VisibleToPartner = max(VisibleToPartner),
+                              AreaPath = max(AreaPath),
+                              AssignedTo = max(AssignedTo),
+                              Release = max(Release),
+                              CommitAvailableBuild = max(CommitAvailableBuild),
+                              Tags = max(Tags),
+                              Blocking = max(Blocking),
+                              ResolvedReason = max(ResolvedReason),
+                              ResolvedDate = max(ResolvedDate),
+                              IssueSubtypeImpact = max(IssueSubtypeImpact),
+                              BinaryFilename = max(BinaryFilename),
+                              CustomString01 = max(CustomString01),
+                              ReproSteps = max(ReproSteps),
+                              WorkItemType = max(WorkItemType),
+                              HowFound = max(HowFound),
+                              Triage = max(Triage),
+                              ImpactedBranch = max(ImpactedBranch),
+                              Priority = max(Priority),
+                              Severity = max(Severity),
+                              IssueType = max(IssueType),
+                              FixAvailableIn = max(FixAvailableIn),
+                              IterationPath = max(IterationPath),
+                              ImpactedBranchFirstBuild = max(ImpactedBranchFirstBuild),
+                              ImpactedBranchLatestBuild = max(ImpactedBranchLatestBuild),
+                              IssueSubtype = max(IssueSubtype),
+                              IssueSubtypeDetail = max(IssueSubtypeDetail),
+                              HotBug = max(HotBug)
+               by BugId
+           | where ProductFamily == 'Windows';
+  let NrtBugsWithFailureHashes =
+                    materialize(REL_WExp_Regressions
+                                    | project FailureHash
+                                    | extend TargetBugStore = "OS"
+                                    | join kind=inner VsoIterationTrimmed on $left.TargetBugStore == $right.TargetBugStore
+                                    | extend IterationPathCurrent = Path
+                                    | join kind=leftouter BugsWithFailureHashes_combined on $left.FailureHash == $right.FailureHash);
+  let REL_WExp_Regressions_Bugsinfo =
+                    materialize(NrtBugsWithFailureHashes
+                                    | where ProductFamily == 'Windows'
+                                    | extend TargetBugStore = "OS"
+                                    | join kind=inner VsoIterationTrimmed on $left.TargetBugStore == $right.TargetBugStore
+                                    | extend IterationPathCurrent = IterationPathFormed
+                                    | sort by FailureHash, ChangedDate desc
+                                    | extend Rank=row_number(1, prev(FailureHash) != FailureHash)
+                                    | where Rank == 1);
+    let HeatMapTemplate = "https://watsonportal.microsoft.com/";
+    let ChangeCriteriaNew = strcat("(1). It must impact at least 10 (5 for individual CFRs) devices with >10 (5 for individual CFRs) hits in Treatment Group vs 0 Hits and 0 Devices in Control Group; &lt;br&gt; &amp;emsp;&amp;emsp;",
+                                   "(2). It must impact at least 0.01% devices with >0.01% hits in Treatment Group vs 0.00% Hits and 0.00% Devices in Control Group; &lt;br&gt;");
+    let ChangeCriteriaSpike = strcat("(1). It must impact at least 10 (5 for individual CFRs) devices with >10  (5 for individual CFRs) hits;&lt;br&gt; &amp;emsp;&amp;emsp;",
+                                       "(2). It must impact at least 0.01% devices with >0.01% hits in Treatment Group &lt;br&gt; &amp;emsp;&amp;emsp;",
+                                       "(3). It must have a >200% Spike in [% Of Total Devices (Treatment) vs  % Of Total Devices (Control)] ; &lt;br&gt; &amp;emsp;&amp;emsp;",
+                                       "(4). It must have a >200% Spike in [% Of Total Hits (Treatment) vs  % Of Total Hits (Control)] ");
+    let ShortPromotionReproSummaryStr = "<br/><b>Why this bug is important? </b> We have identified that this bug was promoted based on telemetry data and affects following rules <br/>";                                   
+    let BugPromotionLinksStr = strcat("<br/><b>For more details on promotion rules </b> : &lt;a  href=&quot;https://www.osgwiki.com/wiki/Windows_Experimentation_Bug_Promotion&quot; &gt;WExp REL Bug Promotion Rules&lt;a&gt");                                   
+    let REL_Failures_Bug_Summary = Get_REL_WExp_BugsWithFailureHashes();
+    REL_WExp_Regressions
+    | where Rank == 1
+    | join kind=leftouter REL_WExp_Regressions_Bugsinfo on $left.FailureHash == $right.FailureHash
+    | where (ComponentClassification == 'MS Component' or isempty(ComponentClassification)) 
+                           and VisibleToPartner != "Yes" 
+                           and AreaPath !has "External" 
+                           and AssignedTo !has "Partner Portal" 
+                           and AreaPath !has "3rd Party"
+                            and AreaPath !has 'OS\\EDGE\\'
+    | extend ProposedReleaseCandidate = iff(ADORelease =~ 'YYYY.MM',GetCurrentFeatureBranchRelease(now()), ADORelease)
+    | extend IsBugInRightRelease = iff(Release == ProposedReleaseCandidate, 1,0)
+    | distinct *
+    | sort by FailureHash, IsBugInRightRelease desc, Treatment_MachineCount desc 
+    | extend MultiReleaseBugRank=row_number(1, prev(FailureHash) != FailureHash) 
+    | extend IsNewBugToBeFiled = iff(BugID > 0,false,true)
+    | extend PromotionReason = ""
+    | extend BuildFixed = toint(split(CommitAvailableBuild,".")[0])
+    | extend BuildDateFixed = toint(split(split(CommitAvailableBuild,".")[3],"-")[0])
+    | extend Is_RELTEL_Skip_AutoReactivate = iff(Tags contains "RELTEL_Skip_AutoReactivate",true,false),
+             Is_RELTEL_Skip_AutoPromote = iff(Tags contains "RELTEL_Skip_AutoPromote",true,false),
+             Is_RELTEL_Skip_Promote = iff(Tags contains "RELTEL_Skip_Promote",true,false)
+    | extend bQualifiedToPromote = iff(Is_RELTEL_Skip_AutoReactivate==true or Is_RELTEL_Skip_AutoPromote == true or Is_RELTEL_Skip_Promote == true, false, true)
+    | extend bQualifiedToPromote = iff(TargetBugStore != "OS",false, bQualifiedToPromote)
+    | extend bQualifiedToPromote = iff((ResolvedReason == "Won't Fix" and ResolvedDate > ago(30d)),false,bQualifiedToPromote)
+    | extend bQualifiedToPromote = iff((ResolvedReason == "By Design"),false,bQualifiedToPromote)
+    | extend bQualifiedToPromote = iff((ResolvedReason == "Not Repro" and ResolvedDate > ago(30d)),false,bQualifiedToPromote)
+    | extend bQualifiedToPromote = iff(ResolvedReason == "Fixed" and ResolvedDate > ago(60d),false,bQualifiedToPromote)
+    | extend bQualifiedToPromote = iff(Tags has "TelemetryAssert_Kernel",false,bQualifiedToPromote)
+    | where (bQualifiedToPromote == true or IsNewBugToBeFiled == true)
+    | extend PromotionIssueSubtypeImpact = 'High'
+    | extend ProposedRelease = iff((PromotionIssueSubtypeImpact ==  IssueSubtypeImpact and (tostring(ValidADOReleases) has Release) or (Release matches regex '^[0-9]{4}\\.[0-9]{2}$' and toreal(Release) >= toreal(GetCurrentFeatureBranchRelease(startofmonth(now()))))) and isnotempty(Release) and  Release != '',Release,iff(not(Release matches regex '^[0-9]{4}\\.[0-9]{2}$') and ADORelease =~ 'YYYY.MM',GetCurrentFeatureBranchRelease(now()),ProposedReleaseCandidate))
+    //dont change ProposedRelease for ESB
+    | extend ProposedRelease = iff(tolower(Blocking) != 'engineering sign-off' or ResolvedReason != '',ProposedRelease,Release)
+    | extend WatsonMode = iff(Vertical == "oscrash","Kernel","")
+    | extend GroupName = iff(ChangeType == "New","New","Spiked")
+    | extend ChangeTypeShortString = iff(ChangeType == "New","NewInTreatment","SpikedInTreatment")
+    | extend ChangeTypeTagString = iff(ChangeType == "New","RELTEL_WExp_NewInTreatment","RELTEL_WExp_SpikedInTreatment")
+    | extend ChangeTypeLongString = strcat(ChangeTypeShortString," (with ",ChangeTypeTagString," tag)")
+    | extend ChangeCriteria = iff(ChangeType == "New",ChangeCriteriaNew,ChangeCriteriaSpike)
+    | extend IssueTypeSpread = iff(ChangeType == "New","New","Spiked")
+    //dont use Blocking Statement until we dont want to promote as ESB
+    //| extend BlockingStatement = iff(IsPromotionEligible,"Blocking = engineering sign-off, ","")
+    | extend SpikeHits_str = strcat(" with a Spike of &lt;b&gt;[ ",toint(PctOfSpikeInTotalHits),"% ] &lt;/b&gt; ")
+    | extend SpikeMachines_str = strcat(" with a Spike of &lt;b&gt;[ ",toint(PctOfSpikeInTotalMachines),"% ] &lt;/b&gt; ")
+    | extend CDBundle_str = iff(IsCDBundleFeature==true,strcat(", which is categorized as CD Feature Bundle"),"")
+    | extend Regressed_str = iff(IsRELScorecardMetricsRegressed==true,strcat(", which has metrics regressed"),"")
+    | join kind=inner WExp_REL_ExperimentImpact_ByBug on $left.BugID == $right.BugID
+    | extend PromotionReason = strcat("&lt;p&gt;The instances of this issue have appeared ",IssueTypeSpread," for Experiment : ", ExperimentId ,CDBundle_str,Regressed_str," (Treatment vs Control)",
+                                      ", and as such the issue has been promoted to High impact, Priority = 1, "," and is assigned to you for investigation. &lt;br&gt;&lt;br&gt;",
+                                      BugPromotionLinksStr,
+                                      "&lt;/p&gt;This issue has following impact on  &lt;b&gt; ExperimentId: ",ExperimentId, " [ ",ExperimentName," ] &lt;/b&gt; between (Treatment Group vs Control Group) :- ",
+                                      "&lt;br&gt;(1). Treatment Hits [ ",Treatment_HitCount," (",Treatment_PctOfTotalHits,"%) ] vs Control Hits: [ ",Control_HitCount," (",Control_PctOfTotalHits,"%) ] ",
+                                      "&lt;br&gt;(2). Treatment Devices [ ",Treatment_MachineCount," (",Treatment_PctOfTotalMachines,"%) ] vs Control Devices: [ ",Control_MachineCount," (",Control_PctOfTotalMachines,"%) ] ",
+                                      "&lt;/p&gt;Here is the list of Experiments where this issue has High Regression Impact:-",
+                                      HtmlImpactTable,
+                                      " &lt;br&gt; Experiment Regression data was generated on ",format_datetime(EndDate,'yyyy-MM-dd'),"&lt;/p&gt;")
+    | extend ReproPromotionReason = PromotionReason
+    | extend repositoryInstance = "https://microsoft.visualstudio.com/DefaultCollection"
+    | extend workItemId = BugID
+    | join kind=inner REL_Failures_Bug_Summary on $left.FailureHash == $right.FailureHash
+    | extend ProposedTitle = iff(IsNewBugToBeFiled,strcat("[ ",ProposedRelease," ] Reliability : ",FailureName),Title) 
+    | extend BinaryFilename = BinaryFilename
+    | extend ProposedImpactedArea = "Reliability"
+    | extend ProposedCustomString01 = CustomString01
+    | extend targetBugStore = TargetBugStore
+    | extend repositoryInstance = "https://microsoft.visualstudio.com/DefaultCollection"
+    | extend validateLastChangedDate = "true"
+    | extend lastChangedDate = ChangedDate
+    | extend requestSource=strcat(ChangeTypeShortString,".",iff(IsNewBugToBeFiled==true,"RELWExpRegressions.Filer.Candidates.","RELWExpRegressions.Promotion.Candidates"))
+    | extend failureHash = FailureHash
+    | extend actionType = iff(IsNewBugToBeFiled == true,"Create","Update")
+    | extend batchId = strcat(iff(IsNewBugToBeFiled==true,"RELNRT.Filer.Bugs.","RELNRT.Promotion.Bugs."),now())
+    | extend requestId = toguid(batchId)
+    | extend PartnerNewComments = ""
+    | extend OverallImpact = ""
+    | extend MedianImpact = ""
+    | extend TailImpact = ""
+    | extend ReproSteps = ReproSteps
+    | extend ProposedState = iff(WorkItemType == "Bug","Active",State)
+    | extend ProposedHowFound = iff(IsNewBugToBeFiled == true,"Telemetry",HowFound)
+    | extend ProposedProductFamily = "Windows"
+    | extend ProposedProduct = "OS"
+    | extend IssueSubtypeImpact = iff(IssueSubtypeImpact == "","",IssueSubtypeImpact)
+    | extend Release = iff(Release == "","",Release)
+    | extend Blocking = iff(Blocking == "","",Blocking)
+    | extend Tags = iff(Tags == "","",Tags)
+    | extend Triage = iff(Triage == "","",Triage)
+    | extend ImpactedBranch = iff(ImpactedBranch == "","",ImpactedBranch)
+    //| extend ProposedBlocking = iff(IsPromotionEligible == true,"Engineering Sign-off",iff(State=="Active",Blocking,''))
+    //If Re-activating a Bug then Blank our the Blocking statement
+    | extend ProposedBlocking = iff(ResolvedReason != '','',Blocking)
+    | extend ProposedIssueSubtypeImpact = iff(IssueSubtypeImpact != "High","High",IssueSubtypeImpact)
+    | extend ProposedTags = iff(IsNewBugToBeFiled == true,ChangeType,iff(Tags contains ChangeType,Tags,strcat(Tags,"; ",ChangeType)))
+    | extend ProposedTags = iff(ProposedTags contains "RELTEL_Promote",ProposedTags,strcat(ProposedTags,"; ","RELTEL_Promote",ProposedIssueSubtypeImpact))
+    | extend ProposedTags = iff(ProposedTags !contains "RELTEL_AutoReactivated" and isnotempty(ResolvedDate),strcat(ProposedTags,"; ","RELTEL_AutoReactivated"),ProposedTags)
+    | extend ProposedTags = iff(ProposedTags !contains "RELTEL_WExp_NewInTreatment" and ChangeType =='New',strcat(ProposedTags,"; ","RELTEL_WExp_NewInTreatment"),ProposedTags)
+    | extend ProposedTags = iff(ProposedTags !contains "RELTEL_WExp_SpikedInTreatment" and ChangeType =='Spiked',strcat(ProposedTags,"; ","RELTEL_WExp_SpikedInTreatment"),ProposedTags)
+    | extend History = iff(ProposedIssueSubtypeImpact != IssueSubtypeImpact and ProposedTags != Tags,PromotionReason,"")
+    | extend ProposedPriority = iff(Priority >=1, 1, Priority)
+    | extend ProposedSeverity = iff(Severity >=1, 1, Severity)
+    | extend ProposedIssueType = IssueType
+    | extend ProposedState = iff(WorkItemType == "Bug","Active",State)
+    | extend ProposedTriage = iff((isnotempty(ResolvedDate) and (Triage != "Investigate" and Triage !contains "Consider" and Triage !contains "Approved") or IsNewBugToBeFiled == true),"Triage Needed",Triage) 
+    | extend FixAvailableIn = iff(FixAvailableIn == "","",FixAvailableIn)
+    | extend ProposedFixAvailableIn = iff(isnotempty(ResolvedDate),"",FixAvailableIn)
+    | extend ProposedIterationPath = iff(isnotempty(IterationPathCurrent),IterationPathCurrent,IterationPath)
+    | extend ProposedAreaPath = AreaPath
+    | extend ProposedAssignedTo = iff(AreaPath contains "MissingCompcentral" or isnotempty(ResolvedDate) or AssignedTo == "Telemetry Bug Tracker (microsoft)" or AssignedTo == "Watson-bugfiler-AME" or AssignedTo == "Watson-BugFiler" or IsNewBugToBeFiled == true ,"Active",AssignedTo) 
+    | extend ProposedTags = iff(ProposedTags !contains "REL_WExp_Regression",strcat(ProposedTags,"; ","REL_WExp_Regression"),ProposedTags)
+    | extend FollowReportUri = strcat(strcat(strcat(strcat(strcat(HeatMapTemplate,WatsonMode),"HeatMap?FailureSearchText=")),FailureHash),
+                                          "&amp;DateRange=Last%2030%20Days&amp;PivotGridRow=OSBuildBranch&amp;PivotGridColumn=OSBuildDate&amp;PivotGridMetric=Cabs&amp;MaxRecords=50000&amp;GroupBy=CabInfo_Source")
+    | extend ShortPromotionReason = strcat("<br/>This ",ChangeTypeShortString, " issue &lt;a  href=&quot;",FollowReportUri,"&quot;&gt;",failureHash,"&lt;/a&gt; may be impacted by ExperimentId: <b>",ExperimentId) 
+    | extend ShortPromotionReproSummary = ShortPromotionReproSummaryStr
+    | extend BugPromotionLinks = BugPromotionLinksStr
+    | extend bNeedsUpdate = iff(IsNewBugToBeFiled == true, true,iff(ProposedIssueSubtypeImpact == IssueSubtypeImpact and ProposedTags == Tags and Release == ProposedRelease and Blocking == ProposedBlocking and AreaPath == ProposedAreaPath,false,bQualifiedToPromote))
+    | extend ProposedTargetOS = TargetOS
+    | project ExperimentId,
+              IsCDBundleFeature,
+              bNeedsUpdate,
+              ImpactedBranch,
+              ProposedImpactedBranch=ImpactedBranch,
+              ProposedImpactedBranchLevel=toint(0),
+              ImpactedBranchFirstBuild,
+              ProposedImpactedBranchFirstBuild=ImpactedBranchFirstBuild,
+              ImpactedBranchLatestBuild,
+              ProposedImpactedBranchLatestBuild=ImpactedBranchLatestBuild,
+              workItemId,
+              ProposedTitle,
+              ProposedCustomString01,
+              ProposedImpactedArea,
+              BinaryFilename,
+              targetBugStore,
+              repositoryInstance,
+              requestSource,
+              validateLastChangedDate,
+              lastChangedDate,
+              failureHash,
+              FollowReportUri,
+              actionType,
+              batchId,
+              requestId,
+              IssueSubtypeImpact,
+              ProposedIssueSubtypeImpact,
+              ProductFamily,
+              Product,
+              ProposedProduct,
+              ProposedProductFamily,
+              Release,
+              ProposedRelease,
+              ProposedTargetOS,
+              AreaPath,
+              ProposedAreaPath,
+              ProposedHowFound,
+              Tags,
+              ProposedTags,
+              State,
+              ProposedState,
+              Triage,
+              ProposedTriage,
+              FixAvailableIn,
+              ProposedFixAvailableIn,
+              Priority,
+              ProposedPriority,
+              Severity,
+              ProposedSeverity,
+              IssueType,
+              ProposedIssueType,
+              IssueSubtype,
+              IssueSubtypeDetail,
+              AssignedTo,
+              ProposedAssignedTo,
+              ResolvedReason,
+              ResolvedDate,
+              Substatus,
+              PartnerNewComments,
+              IterationPath,
+              ProposedIterationPath,
+              VisibleToPartner,
+              HotBug,
+              Blocking,
+              ProposedBlocking,
+              OverallImpact,
+              MedianImpact,
+              TailImpact,
+              History,
+              ReproSteps,
+              ShortPromotionReason,
+              ShortPromotionReproSummary,
+              BugPromotionLinks,
+              PromotionReason,
+              IsMultiRelease=false,
+              IsNewBugToBeFiled,
+              IsBugInRightRelease
+    | distinct *;
+}
